@@ -10,13 +10,15 @@ Single and batch analysis of OES spectra
 import sys
 
 import matplotlib as mpl
-import numpy as np
-from PyQt5.QtCore import QFileInfo, QStringListModel
-from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog,\
+# import numpy as np
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QApplication, QFileDialog,\
                             QMainWindow, QMessageBox
 
 from ui.ui_main_window import Ui_main
 # from ui.batch_dialog import Ui_batch
+
+import modules.file_reader as r_file
 # import modules.data_handling as dtreat
 
 mpl.use("Qt5Agg")
@@ -30,54 +32,6 @@ __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
 
-def file_reader(filename):
-    """Read out given files """
-
-    # Check Filetype
-    fileinfo = str(QFileInfo(filename).suffix())
-    print(fileinfo)
-    if fileinfo == "Spk" or fileinfo == "spk":
-        # Get Data from tab separated ascii file
-        print("eeeha")
-        import csv
-        csvreader = csv.reader(open(filename, 'r'), delimiter='\t',
-                               quoting=csv.QUOTE_NONE)
-        x_data = []
-        y_data = []
-        getdata = False
-        csvtype = ""
-        start = False
-        for row in csvreader:
-            if getdata:
-                if csvtype == "pico":
-                    x_data.append(float(row[1]))
-                    y_data.append(float(row[2]))
-                elif csvtype == "jpk":
-                    if not row:
-                        start = False
-                        getdata = False
-                    else:
-                        if start:
-                            jpkdata = row[0].split()
-                            x_data.append(float(jpkdata[0]))
-                            y_data.append(float(jpkdata[1]))
-                        else:
-                            start = True
-            if row:
-                if row[0] == "Time (s)":
-                    getdata = True
-                    csvtype = "pico"
-                elif row[0] == "# units: m V s"\
-                        or row[0] == "# units: m V V s":
-                    getdata = True
-                    csvtype = "jpk"
-
-        return np.array(x_data), np.array(y_data)
-
-    # Not supported Filetype
-    return [0], [0]
-
-
 class AnalysisWindow(QMainWindow):
     """Main Analysis Window Class """
 
@@ -86,6 +40,7 @@ class AnalysisWindow(QMainWindow):
 
         # Set lastdir
         self.lastdir = "./"
+        self.openFile = ""
 
         # Set up the user interface from Designer.
         self.window = Ui_main()
@@ -97,7 +52,7 @@ class AnalysisWindow(QMainWindow):
         self.widget = self.centralWidget()
 
         # Load multiple Dialog
-        #self.batch = BatchAnalysis(self)
+        # self.batch = BatchAnalysis(self)
 
         # Setup Events MainWindow
         self.window.BtFileOpen.clicked.connect(self.file_open)
@@ -106,8 +61,10 @@ class AnalysisWindow(QMainWindow):
         self.window.ActionRedraw.triggered.connect(self.redraw)
         self.window.ActionSaveRaw.triggered.connect(self.save_raw)
         self.window.ActionSaveProcessed.triggered.connect(self.save_processed)
-        #self.window.ActionAnalyzeMultipleFiles.triggered.\
-            #connect(self.batch.show)
+# =============================================================================
+#         self.window.ActionAnalyzeMultipleFiles.triggered.\
+#             connect(self.batch.show)
+# =============================================================================
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
@@ -125,7 +82,8 @@ class AnalysisWindow(QMainWindow):
     def dropEvent(self, _event):
         """Dropping File """
         self.window.EdFilename.setText(self.dropped_file)
-        np_x, np_y = file_reader(self.dropped_file)
+        self.openFile = r_file.FileReader(self.dropped_file)
+        np_x, np_y = self.openFile.getValues()
         self.window.menuSave.setEnabled(False)
         self.draw_spectra(np_x, np_y)
 
@@ -143,7 +101,8 @@ class AnalysisWindow(QMainWindow):
             self.window.EdFilename.setText(filename)
             self.lastdir = str(QFileInfo(filename).absolutePath())
             # Read out the chosen file
-            np_x, np_y = file_reader(filename)
+            self.openFile = r_file.FileReader(filename)
+            np_x, np_y = self.openFile.getValues()
 
             # Draw the spectra and print results
             self.draw_spectra(np_x, np_y)
@@ -154,37 +113,41 @@ class AnalysisWindow(QMainWindow):
         """
         # Check whether data was found in the files
         if not x_data.any():
-            self.window.redrawbtn.setEnabled(False)
-            self.window.action_Redraw_spectra.setEnabled(False)
+            self.window.BtRedraw.setEnabled(False)
+            self.window.ActionRedraw.setEnabled(False)
             QMessageBox.critical(self, "Error: File could not be opened",
                                  " Filetype unknown or file unreadable!")
             return 1
 
         # Enable Redraw Events
-        self.window.redrawbtn.setEnabled(True)
-        self.window.action_Redraw_spectra.setEnabled(True)
+        self.window.BtRedraw.setEnabled(True)
+        self.window.ActionRedraw.setEnabled(True)
 
         # Clear the widget from previous spectra
-        self.window.raw.axes.clear()
-        self.window.fd.axes.clear()
+        self.window.MplRaw.axes.clear()
+        self.window.MplProcessed.axes.clear()
 
         # Sent the raw data to the DataHandler and get parameters
-        spec_analyse = dtreat.DataHandler(x_data, y_data)
-        trace_x, trace_y = spec_analyse.getXY()
-        p_trace_x, p_trace_y = spec_analyse.getProcessedXY()
-        peak_height = spec_analyse.getPeakHeight(p_trace_x, p_trace_y)
-        peak_area = spec_analyse.getPeakHeight(p_trace_x, p_trace_y)
+# =============================================================================
+#         spec_analyse = dtreat.DataHandler(x_data, y_data)
+#         trace_x, trace_y = spec_analyse.getXY()
+#         p_trace_x, p_trace_y = spec_analyse.getProcessedXY()
+#         peak_height = spec_analyse.getPeakHeight(p_trace_x, p_trace_y)
+#         peak_area = spec_analyse.getPeakHeight(p_trace_x, p_trace_y)
+# =============================================================================
 
         # Set Values obtained from DataHandler
-        self.window.EdPeakHeight.setText(str(peak_height*1000000))
-        self.window.EdPeakArea.setText(str(peak_area*1000000000))
+# =============================================================================
+#         self.window.EdPeakHeight.setText(str(peak_height*1000000))
+#         self.window.EdPeakArea.setText(str(peak_area*1000000000))
+# =============================================================================
 
         # Draw the spectra in MatPlotLibWidgets
         # Raw
         # self.window.raw.axes.hold(True)
         self.window.MplRaw.axes.set_xlabel(r"Pixel")
         self.window.MplRaw.axes.set_ylabel("Intensity / a.u.")
-        self.window.MplRaw.axes.plot(trace_x, trace_y, "r")
+        self.window.MplRaw.axes.plot(x_data, y_data, "r")
         self.window.MplRaw.axes.legend(['Raw Spectrum'])
         self.window.MplRaw.axes.axhline(linewidth=0.5, color='0.2')
         self.window.MplRaw.axes.axvline(linewidth=0.5, color='0.2')
@@ -192,13 +155,15 @@ class AnalysisWindow(QMainWindow):
 
         # Force-Distance spectrum
         # self.window.fd.axes.hold(True)
-        self.window.MplProcessed.axes.set_xlabel(r"Wavelength / nm")
-        self.window.MplProcessed.axes.set_ylabel("Intensity / a.u.")
-        self.window.MplProcessed.axes.plot(p_trace_x,  p_trace_y, "r")
-        self.window.MplProcessed.axes.legend(['Processed Spectrum'])
-        self.window.MplProcessed.axes.axhline(linewidth=0.5, color='0.2')
-        self.window.MplProcessed.axes.axvline(linewidth=0.5, color='0.2')
-        self.window.MplProcessed.draw()
+# =============================================================================
+#         self.window.MplProcessed.axes.set_xlabel(r"Wavelength / nm")
+#         self.window.MplProcessed.axes.set_ylabel("Intensity / a.u.")
+#         self.window.MplProcessed.axes.plot(p_trace_x,  p_trace_y, "r")
+#         self.window.MplProcessed.axes.legend(['Processed Spectrum'])
+#         self.window.MplProcessed.axes.axhline(linewidth=0.5, color='0.2')
+#         self.window.MplProcessed.axes.axvline(linewidth=0.5, color='0.2')
+#         self.window.MplProcessed.draw()
+# =============================================================================
 
         self.window.menuSave.setEnabled(True)
 
@@ -208,7 +173,7 @@ class AnalysisWindow(QMainWindow):
         """Redraw the current spectrum selected """
         filename = str(self.window.EdFilename.text())
         if filename:
-            x_data, y_data = file_reader(filename)
+            x_data, y_data = self.openFile.getValues()
             self.draw_spectra(x_data, y_data)
         else:
             QMessageBox.warning(self.widget, "Warning", "No File selected!")
@@ -234,7 +199,8 @@ class AnalysisWindow(QMainWindow):
             # Open CSV-Writer Instance and write data in Excel dialect
             csv_wr = csv.writer(myfile, dialect=csv.excel,
                                 quoting=csv.QUOTE_NONE)
-            csv_wr.writerow(["Raw data of:", str(self.window.EdFilename.text())])
+            csv_wr.writerow(["Raw data of:",
+                             str(self.window.EdFilename.text())])
             csv_wr.writerow("")
             csv_wr.writerow(["Pixel", "Intensity"])
             csv_wr.writerow("")
@@ -285,16 +251,16 @@ class AnalysisWindow(QMainWindow):
 # =============================================================================
 # class BatchAnalysis(QDialog):
 #     """Class for batch analysis. """
-# 
+#
 #     def __init__(self, parent=None):
 #         super(BatchAnalysis, self).__init__(parent)
-# 
+#
 #         self.mui = Ui_batch()
 #         self.mui.setupUi(self)
 #         self.lastdir = parent.lastdir
 #         self.model = QStringListModel()
 #         self.mui.files2analyze.setModel(self.model)
-# 
+#
 #         # Setup Events MultipleFiles
 #         self.mui.setfilename.clicked.connect(self.set_filename)
 #         self.mui.browseBtn.clicked.connect(self.set_spectra)
@@ -307,7 +273,7 @@ class AnalysisWindow(QMainWindow):
 #         #              self.get_list_index)
 #         # self.connect(self.mui.DispSpin, SIGNAL('valueChanged(int)'),
 #         #              self.disp_curve)
-# 
+#
 #     def dragEnterEvent(self, event):
 #         """Drag file over window event """
 #         if event.mimeData().hasUrls():
@@ -316,13 +282,13 @@ class AnalysisWindow(QMainWindow):
 #                     if url.scheme() == "file":
 #                         self.files.append(url.toLocalFile())
 #                         event.accept()
-# 
+#
 #     def dropEvent(self, _event):
 #         """Dropping File """
 #         self.model.setStringList(self.files)
 #         self.mui.files2analyze.setModel(self.model)
 #         self.mui.clearBtn.setEnabled(True)
-# 
+#
 #     def set_filename(self):
 #         """Handling target filename """
 #         filename, _ = QFileDialog.getSaveFileName(self, 'Set Filename',
@@ -338,14 +304,14 @@ class AnalysisWindow(QMainWindow):
 #                 self.mui.calcBtn.setEnabled(True)
 #                 self.mui.groupBox.setEnabled(True)
 #                 self.mui.clearBtn.setEnabled(True)
-# 
+#
 #     def set_spectra(self):
 #         """Handling source filesnames """
 #         filenames, _ = QFileDialog.getOpenFileNames(
 #             self, 'Choose Files to analyze',
 #             self.lastdir, "PicoView File (*.mi);;\
 #             Ascii (tab separated)(*.txt);;Bruker or other(*.*)")
-# 
+#
 #         if int(len(filenames)) != 0:
 #             self.model.setStringList(filenames)
 #             self.mui.calcBtn.setEnabled(True)
@@ -358,7 +324,7 @@ class AnalysisWindow(QMainWindow):
 #             self.mui.DispFile.setText(QFileInfo(filenames[0]).fileName())
 #             self.parent().file_open(filenames[0])
 #             self.mui.files2analyze.setModel(self.model)
-# 
+#
 #     def clear(self):
 #         """Reset UI """
 #         self.mui.calcBtn.setEnabled(False)
@@ -369,7 +335,7 @@ class AnalysisWindow(QMainWindow):
 #         self.mui.DispFile.setEnabled(False)
 #         self.model.setStringList("")
 #         self.mui.files2analyze.setModel(self.model)
-# 
+#
 #     def multi_calc(self):
 #         """Batch process spectra and write to CSV """
 #         csvfile = str(self.mui.csvfile.text())
@@ -381,11 +347,11 @@ class AnalysisWindow(QMainWindow):
 #         self.model = self.mui.files2analyze.model()
 #         filenames = self.model.stringList()
 #         amount = int(len(filenames))
-# 
+#
 #         import csv
 #         # Set correct Filename and open it
 #         myfile = open(csvfile, 'w')
-# 
+#
 #         # Open CSV-Writer Instance and write data in Excel dialect
 #         csv_wr = csv.writer(myfile, dialect=csv.excel, quoting=csv.QUOTE_NONE)
 #         header = ["Filename:"]
@@ -399,17 +365,17 @@ class AnalysisWindow(QMainWindow):
 #             header.append("Contact Point (um):")
 #         if s_indent == 2:
 #             header.append("Indentation (nm):")
-# 
+#
 #         csv_wr.writerow(header)
 #         i = 0
 #         while i < amount:
 #             file = str(filenames[i])
 #             data_x, data_y = file_reader(file)
 #             self.mui.progressBar.setValue(int(float((i+1))/float(amount)*100))
-# 
+#
 #             fd_analyse = dtreat.DataHandler(data_x, data_y)
 #             row = [file]
-# 
+#
 #             if s_adhforce == 2:
 #                 vadforce = fd_analyse.MaxAdhesionForce()*1000000000
 #                 row.append(vadforce)
@@ -428,10 +394,10 @@ class AnalysisWindow(QMainWindow):
 #                 row.append(indent)
 #             csv_wr.writerow(row)
 #             i += 1
-# 
+#
 #         self.mui.progressBar.setValue(100)
 #         myfile.close()
-# 
+#
 #     def disp_curve(self, value):
 #         """Display curve with selected index in MainWindow """
 #         self.model = self.mui.files2analyze.model()
@@ -439,7 +405,7 @@ class AnalysisWindow(QMainWindow):
 #         filenames = self.model.stringList()
 #         self.mui.DispFile.setText(QFileInfo(filenames[value]).fileName())
 #         self.parent().file_open(filenames[value])
-# 
+#
 #     def get_list_index(self, index):
 #         """Get Current selected file by index """
 #         self.mui.files2analyze.setCurrentIndex(index)

@@ -22,7 +22,7 @@ class Ui_main(object):
         main.setMaximumSize(QtCore.QSize(16777215, 16777215))
         main.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../gfx/dispersion.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("./gfx/dispersion.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         main.setWindowIcon(icon)
         main.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
         self.centralwidget = QtWidgets.QWidget(main)
