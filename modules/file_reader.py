@@ -18,7 +18,7 @@ class FileReader:
         self.date = ""
         self.time = ""
 
-    def getFiletype(self):
+    def get_filetype(self):
         """Determine filetype"""
         fileinfo = str(QFileInfo(self.file).suffix())
         if fileinfo == "Spk" or fileinfo == "spk":
@@ -26,7 +26,7 @@ class FileReader:
             return 0
         return 1
 
-    def readFile(self):
+    def read_file(self):
         """Readout given file"""
 
         if self.filetype == "SpexHex":
@@ -52,9 +52,9 @@ class FileReader:
             self.xData = np.array(x_data)
             self.yData = np.array(y_data)
 
-    def getValues(self):
+    def get_values(self):
         """return x and y data of the file"""
         if self.filetype == "":
-            if not self.getFiletype():
-                self.readFile()
+            if not self.get_filetype():
+                self.read_file()
         return self.xData, self.yData

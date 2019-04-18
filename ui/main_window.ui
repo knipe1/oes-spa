@@ -232,6 +232,9 @@
          </item>
          <item>
           <widget class="QLineEdit" name="EdCWavelength">
+           <property name="text">
+            <string>433</string>
+           </property>
            <property name="readOnly">
             <bool>false</bool>
            </property>
@@ -248,7 +251,7 @@
           <widget class="QComboBox" name="GratingBox">
            <item>
             <property name="text">
-             <string>300</string>
+             <string>2400</string>
             </property>
            </item>
           </widget>
@@ -261,7 +264,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="GratingBox_2">
+          <widget class="QComboBox" name="FitTypeBox">
            <item>
             <property name="text">
              <string comment="B">Boron Peak Fitting</string>
@@ -289,7 +292,7 @@
         <property name="title">
          <string>Results</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
@@ -313,6 +316,23 @@
          </item>
          <item>
           <widget class="QLineEdit" name="EdPeakArea">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Baseline:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="EdBaseline">
+           <property name="text">
+            <string/>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>

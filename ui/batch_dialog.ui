@@ -102,23 +102,23 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QCheckBox" name="adhforce">
+         <widget class="QCheckBox" name="ChPeakHeight">
           <property name="text">
-           <string>Adhesion Force</string>
+           <string>Peak height</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="adhwork">
+         <widget class="QCheckBox" name="ChPeakArea">
           <property name="text">
-           <string>Adhesion Work</string>
+           <string>Peak area</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="elasticity">
+         <widget class="QCheckBox" name="ChBaseline">
           <property name="text">
-           <string>Elasticity</string>
+           <string>Baseline</string>
           </property>
          </widget>
         </item>
@@ -140,16 +140,16 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QCheckBox" name="contact">
+         <widget class="QCheckBox" name="ChPeakPos">
           <property name="text">
-           <string>Contact Point</string>
+           <string>Peak Position</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="indent">
+         <widget class="QCheckBox" name="ChPeakHeightRaw">
           <property name="text">
-           <string>Indentation</string>
+           <string>Peak height (not corrected)</string>
           </property>
          </widget>
         </item>
@@ -252,7 +252,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>elasticity</receiver>
+   <receiver>ChBaseline</receiver>
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -268,7 +268,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>adhforce</receiver>
+   <receiver>ChPeakHeight</receiver>
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -284,7 +284,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>adhwork</receiver>
+   <receiver>ChPeakArea</receiver>
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -300,7 +300,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>contact</receiver>
+   <receiver>ChPeakPos</receiver>
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -316,7 +316,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>indent</receiver>
+   <receiver>ChPeakHeightRaw</receiver>
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
