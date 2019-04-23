@@ -101,6 +101,9 @@ class AnalysisWindow(QMainWindow):
             # Read out the chosen file
             self.openFile = r_file.FileReader(filename)
             np_x, np_y = self.openFile.get_values()
+            time, date = self.openFile.get_head()
+            self.window.EdDate.setText(str(date))
+            self.window.EdTime.setText(str(time))
 
             # Draw the spectra and print results
             self.draw_spectra(np_x, np_y)
@@ -286,6 +289,8 @@ class BatchAnalysis(QDialog):
         self.mui.DispSpin.setEnabled(True)
         self.mui.DispSpin.setMaximum(int(len(self.files)-1))
         self.mui.DispFile.setEnabled(True)
+        self.mui.calcBtn.setEnabled(True)
+        self.mui.groupBox.setEnabled(True)
         self.mui.files2analyze.setCurrentIndex(self.model.index(0))
         self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
         self.parent().file_open(self.files[0])
@@ -344,6 +349,7 @@ class BatchAnalysis(QDialog):
         s_baseline = self.mui.ChBaseline.checkState()
         s_peak_position = self.mui.ChPeakPos.checkState()
         s_peak_height_raw = self.mui.ChPeakHeightRaw.checkState()
+        s_head = self.mui.ChHead.checkState()
         self.model = self.mui.files2analyze.model()
         filenames = self.model.stringList()
         amount = int(len(filenames))
@@ -363,6 +369,8 @@ class BatchAnalysis(QDialog):
             header.append("Baseline:")
         if s_peak_position == 2:
             header.append("Peak position:")
+        if s_head == 2:
+            header.append("Header info:")
         if s_peak_height_raw == 2:
             header.append("Peak height (not corrected):")
 
@@ -376,6 +384,7 @@ class BatchAnalysis(QDialog):
             file = str(filenames[i])
             self.openFile = r_file.FileReader(file)
             data_x, data_y = self.openFile.get_values()
+            time, date = self.openFile.get_head()
 
             # Get Parameters
             spec_proc = dproc.DataHandler(
@@ -397,6 +406,8 @@ class BatchAnalysis(QDialog):
                 row.append(avg)
             if s_peak_position == 2:
                 row.append(peak_position)
+            if s_head == 2:
+                row.append(date + " " + time)
             if s_peak_height_raw == 2:
                 row.append(peak_raw)
 

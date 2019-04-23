@@ -53,8 +53,18 @@ class FileReader:
             self.yData = np.array(y_data)
 
     def get_values(self):
-        """return x and y data of the file"""
+        """Return x and y data of the file"""
         if self.filetype == "":
             if not self.get_filetype():
                 self.read_file()
         return self.xData, self.yData
+
+    def get_head(self):
+        """Return header information"""
+        if self.filetype == "":
+            if not self.get_filetype():
+                self.read_file()
+        elif self.filetype == "SpexHex":
+            return self.time, self.date
+
+        return 0, 0

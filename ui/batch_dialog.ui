@@ -123,26 +123,20 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <widget class="QCheckBox" name="ChPeakPos">
+          <property name="text">
+           <string>Peak Position</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QCheckBox" name="ChPeakPos">
+         <widget class="QCheckBox" name="ChHead">
           <property name="text">
-           <string>Peak Position</string>
+           <string>Header info</string>
           </property>
          </widget>
         </item>
@@ -231,6 +225,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>setfilename</tabstop>
+  <tabstop>browseBtn</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>calcBtn</tabstop>
+  <tabstop>ChPeakHeight</tabstop>
+  <tabstop>ChPeakArea</tabstop>
+  <tabstop>ChBaseline</tabstop>
+  <tabstop>ChPeakPos</tabstop>
+  <tabstop>ChHead</tabstop>
+  <tabstop>ChPeakHeightRaw</tabstop>
+  <tabstop>DispSpin</tabstop>
+  <tabstop>csvfile</tabstop>
+  <tabstop>DispFile</tabstop>
+  <tabstop>files2analyze</tabstop>
+  <tabstop>clearBtn</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -240,12 +251,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>330</y>
+     <x>439</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>403</x>
-     <y>330</y>
+     <x>439</x>
+     <y>389</y>
     </hint>
    </hints>
   </connection>
@@ -256,12 +267,12 @@
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>260</y>
+     <x>438</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>254</y>
+     <x>140</x>
+     <y>306</y>
     </hint>
    </hints>
   </connection>
@@ -272,12 +283,12 @@
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>260</y>
+     <x>438</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>206</y>
+     <x>140</x>
+     <y>260</y>
     </hint>
    </hints>
   </connection>
@@ -288,28 +299,28 @@
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>260</y>
+     <x>438</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>230</y>
+     <x>140</x>
+     <y>283</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>ChPeakPos</receiver>
+   <receiver>ChHead</receiver>
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>260</y>
+     <x>438</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>338</x>
-     <y>206</y>
+     <x>438</x>
+     <y>260</y>
     </hint>
    </hints>
   </connection>
@@ -320,12 +331,28 @@
    <slot>toggle()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>260</y>
+     <x>438</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>338</x>
-     <y>230</y>
+     <x>438</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChPeakPos</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>122</x>
+     <y>321</y>
     </hint>
    </hints>
   </connection>
