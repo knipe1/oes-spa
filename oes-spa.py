@@ -21,6 +21,7 @@ from ui.ui_batch_dialog import Ui_batch
 import modules.file_reader as r_file
 import modules.data_processing as dproc
 
+# set interactive backend
 mpl.use("Qt5Agg")
 
 __author__ = "Peter Knittel"
@@ -39,8 +40,8 @@ class AnalysisWindow(QMainWindow):
         QMainWindow.__init__(self)
 
         # Set lastdir
-        self.lastdir = "./"
-        self.openFile = ""
+        self.lastdir = "./"		#magic
+        self.openFile = ""		#magic
 
         # Set up the user interface from Designer.
         self.window = Ui_main()
@@ -65,23 +66,36 @@ class AnalysisWindow(QMainWindow):
             connect(self.batch.show)
 
     def dragEnterEvent(self, event):
+		# if event.mimeData() has urls, it will never reach the else path, where the first url is handled. --> Dead code!?
+		# why no validation if mimeData has Urls? I think the code in the else path is sufficient to validate the Urls
+		# What is about the event.accept? And in general the last if statement?
+        """
+		Alternative variant:
+		self.dropped_file = None
+		url = event.mimeData().urls()[0]		#magic?
+		if url.isValid():
+			self.batch.show()
+		"""
         """Drag Element over Window """
         self.dropped_file = None
         if event.mimeData().hasUrls():
-            if len(event.mimeData().urls()) > 1:
-                self.batch.show()
-            else:
-                url = event.mimeData().urls()[0]
-                if url.isValid():
-                    if url.scheme() == "file":
-                        self.dropped_file = url.toLocalFile()
-                        event.accept()
+            self.batch.show()
+        else:
+            url = event.mimeData().urls()[0]		#magic?
+            if url.isValid():						#checks, if url is non-empty and valid
+                if url.scheme() == "file":	#magic
+                    self.dropped_file = url.toLocalFile()
+                    event.accept()
 
     def dropEvent(self, _event):
+		#todo: ought be a function and in the event handler just a function call, right?
         """Dropping File """
         self.window.EdFilename.setText(self.dropped_file)
         self.openFile = r_file.FileReader(self.dropped_file)
         np_x, np_y = self.openFile.get_values()
+        time, date = self.openFile.get_head()
+        self.window.EdDate.setText(str(date))
+        self.window.EdTime.setText(str(time))
         self.window.menuSave.setEnabled(False)
         self.draw_spectra(np_x, np_y)
 
@@ -90,14 +104,14 @@ class AnalysisWindow(QMainWindow):
         if filename is False:
             filename, _ = QFileDialog.getOpenFileName(
                 self.widget, 'Load File', self.lastdir,
-                "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)")
+                "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)")		#magic
         else:
-            filename = filename
+            filename = filename		#todo: useless?!
 
-        if str(filename) != "":
+        if str(filename) != "":		#todo: != "" is useless?
             self.window.menuSave.setEnabled(False)
             self.window.EdFilename.setText(filename)
-            self.lastdir = str(QFileInfo(filename).absolutePath())
+            self.lastdir = str(QFileInfo(filename).absolutePath()) #str() for typecast from utf16(Qstring) to utf8(python string)
             # Read out the chosen file
             self.openFile = r_file.FileReader(filename)
             np_x, np_y = self.openFile.get_values()
@@ -124,10 +138,6 @@ class AnalysisWindow(QMainWindow):
         self.window.BtRedraw.setEnabled(True)
         self.window.ActionRedraw.setEnabled(True)
 
-        # Clear the widget from previous spectra
-        self.window.MplRaw.axes.clear()
-        self.window.MplProcessed.axes.clear()
-
         # Sent the raw data to the DataHandler and get parameters
         spec_proc = dproc.DataHandler(
                         x_data, y_data,
@@ -140,25 +150,28 @@ class AnalysisWindow(QMainWindow):
         self.window.EdPeakHeight.setText(str(peak_height))
         self.window.EdPeakArea.setText(str(peak_area))
 
+        # Clear the widget from previous spectra
         # Draw the spectra in MatPlotLibWidgets
         # Raw
-        self.window.MplRaw.axes.set_xlabel(r"Pixel")
-        self.window.MplRaw.axes.set_ylabel("Intensity / a.u.")
-        self.window.MplRaw.axes.plot(x_data, y_data, "r")
-        self.window.MplRaw.axes.plot(x_data, baseline, "b--")
-        self.window.MplRaw.axes.legend(['Raw Spectrum', 'Baseline'])
-        self.window.MplRaw.axes.axhline(linewidth=0.5, color='0.2')
-        self.window.MplRaw.axes.axvline(linewidth=0.5, color='0.2')
+        self.window.MplRaw.axes.clear()
+        self.window.MplRaw.axes.set_xlabel(r"Pixel")		#magic
+        self.window.MplRaw.axes.set_ylabel("Intensity / a.u.")		#magic
+        self.window.MplRaw.axes.plot(x_data, y_data, "r")		#magic
+        self.window.MplRaw.axes.plot(x_data, baseline, "b--")		#magic
+        self.window.MplRaw.axes.legend(['Raw Spectrum', 'Baseline'])		#magic
+        self.window.MplRaw.axes.axhline(linewidth=0.5, color='0.2')		#magic
+        self.window.MplRaw.axes.axvline(linewidth=0.5, color='0.2')		#magic
         self.window.MplRaw.draw()
 
         # Processed
-        self.window.MplProcessed.axes.set_xlabel(r"Wavelength / nm")
-        self.window.MplProcessed.axes.set_ylabel("Intensity / a.u.")
-        self.window.MplProcessed.axes.plot(procX, procY, "r")
-        self.window.MplProcessed.axes.set_xlim(procX[0], procX[-1])
-        self.window.MplProcessed.axes.legend(['Processed Spectrum'])
-        self.window.MplProcessed.axes.axhline(linewidth=0.5, color='0.2')
-        self.window.MplProcessed.axes.axvline(linewidth=0.5, color='0.2')
+        self.window.MplProcessed.axes.clear()
+        self.window.MplProcessed.axes.set_xlabel(r"Wavelength / nm")		#magic
+        self.window.MplProcessed.axes.set_ylabel("Intensity / a.u.")		#magic
+        self.window.MplProcessed.axes.plot(procX, procY, "r")		#magic
+        self.window.MplProcessed.axes.set_xlim(procX[0], procX[-1])		#magic?
+        self.window.MplProcessed.axes.legend(['Processed Spectrum'])		#magic
+        self.window.MplProcessed.axes.axhline(linewidth=0.5, color='0.2')		#magic
+        self.window.MplProcessed.axes.axvline(linewidth=0.5, color='0.2')		#magic
         # self.window.MplProcessed.axes.autoscale(True, 'both', True)
         self.window.MplProcessed.draw()
 
@@ -173,7 +186,7 @@ class AnalysisWindow(QMainWindow):
             x_data, y_data = self.openFile.get_values()
             self.draw_spectra(x_data, y_data)
         else:
-            QMessageBox.warning(self.widget, "Warning", "No File selected!")
+            QMessageBox.warning(self.widget, "Warning", "No File selected!")		#magic
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
@@ -182,16 +195,16 @@ class AnalysisWindow(QMainWindow):
                 self.widget, 'Save raw spectrum to...',
                 self.lastdir, "Comma separated (*.csv)")
 
-        if str(filename) != "":
-            if QFileInfo(filename).suffix() != "csv":
-                filename = filename+".csv"
+        if str(filename) != "":		#magic
+            if QFileInfo(filename).suffix() != "csv":		#magic
+                filename = filename+".csv"		#magic
             self.lastdir = str(QFileInfo(filename).absolutePath())
 
             import csv
-            if sys.version_info >= (3, 0, 0):
-                myfile = open(filename, 'w', newline='')
+            if sys.version_info >= (3, 0, 0):		#magic
+                myfile = open(filename, 'w', newline='')		#magic
             else:
-                myfile = open(filename, 'wb')
+                myfile = open(filename, 'wb')		#magic
 
             # Open CSV-Writer Instance and write data in Excel dialect
             csv_wr = csv.writer(myfile, dialect=csv.excel,
@@ -443,5 +456,7 @@ def main():
     sys.exit(app.exec_())
 
 
+# compatibility to python 2? 
+# in Py3 you just need main() without the if statement
 if __name__ == '__main__':
     main()

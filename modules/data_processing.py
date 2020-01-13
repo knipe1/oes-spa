@@ -33,10 +33,12 @@ class DataHandler:
      """
 
     def __init__(self, xData, yData, cwl, grat, debug=True, csvoutput=False):
+        print("__init__")
         self.debug = debug
         self.xData = xData
         self.yData = yData
         self.cWL = cwl
+        # MAGIC NUMBER, what is 14?
         self.dispersion = 14/grat
         self.process_data()
 
@@ -47,13 +49,18 @@ class DataHandler:
             self.log = getLogger('DataHandler')
             self.log.info(strftime("Start Logging %d.%m.%y %H:%M:%S:",
                                    localtime()))
+            
+            #Todo: Always except...
             try:
+                print("Try: setData")
                 self.setData()
 
             except Exception:
+                print("Except: setData")
                 self.log.exception('Error in DataHandler():')
         else:
             self.log = None
+            print("setData")
             self.setData()
 
         if csvoutput:
@@ -84,6 +91,10 @@ class DataHandler:
         self.procY = self.procY / self.avgbase
 
         # Find Peak and obtain height and area
+        # check: If there are only self.attribute assignments and the 
+        # function does not return anything else somewhere, the assignments can
+        # be done within the function!
+        # check: MAGIC NUMBER
         self.peak_height, self.peak_area, self.peak_position =\
             self.peak_fitting(self.procX, self.procY, 433.5)
 
@@ -92,19 +103,22 @@ class DataHandler:
 
         center = len(xData)/2
         start = cWL - center*disp
+        # convert the data from pixels to wavelength and shift it.
         xData = xData*disp + start
-
+        #check: return xData*disp + (cWL - center*disp)
         return xData
 
     def peak_fitting(self, xData, yData, wl):
         """Fit peak at wavelength wl """
 
+        # check: MAGIC NUMBER
         i_p = indexes(yData, thres=0.01, min_dist=2)
         peaks = xData[i_p]
         peak_idx = np.where(xData == peaks[(np.abs(xData[i_p] - wl)).argmin()])
         peak_x = float(xData[peak_idx[0]])
         peak_y = float(yData[peak_idx[0]])
 
+        # check: MAGIC NUMBER
         peak_r_border = np.where(
                 xData == xData[(np.abs(xData - peak_x-0.1)).argmin()])
         peak_l_border = np.where(
@@ -141,21 +155,17 @@ class DataHandler:
 
     def get_processed_data(self):
         """Returns processed data """
-
         return self.procX, self.procY
 
     def get_baseline(self):
         """Returns processed data """
-
         return self.baseline, self.avgbase
 
     def get_peak(self):
         """Returns peak data """
-
         return self.peak_height, self.peak_area
 
     def get_peak_raw(self):
         """Returns raw peak height and fitting position """
-
         return self.yData[np.where(self.procX == self.peak_position)],\
             self.peak_position
