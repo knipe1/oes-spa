@@ -39340,3 +39340,9 @@ Traceback (most recent call last):
   File "H:\OES\__oes-spectra-analysis\modules\data_processing.py", line 56, in __init__
     self.setData()
 AttributeError: 'DataHandler' object has no attribute 'setData'
+INFO:DataHandler:Start Logging 13.01.20 15:19:07:
+ERROR:DataHandler:Error in DataHandler():
+Traceback (most recent call last):
+  File "H:\OES\__oes-spectra-analysis\modules\data_processing.py", line 56, in __init__
+    self.setData()
+AttributeError: 'DataHandler' object has no attribute 'setData'
