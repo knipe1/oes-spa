@@ -99,7 +99,7 @@ class DataHandler:
         # check: If there are only self.attribute assignments and the 
         # function does not return anything else somewhere, the assignments can
         # be done within the function!
-        # check: MAGIC NUMBER
+        # check: 433.5 is more or less the wavelength of the boron peak
         self.peak_height, self.peak_area, self.peak_position =\
             self.peak_fitting(self.procX, self.procY, 433.5)
 
