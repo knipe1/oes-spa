@@ -19,6 +19,7 @@ RAW_APPENDIX = "_raw"
 PROCESSED_APPENDIX = "_processed"
 EXP_SUFFIX = ".csv"
 HEADER_MARKER = "Date"
+DATA_MARKER = "Data"
 
 class FileWriter:
     """File reader for spectral data files """
@@ -46,6 +47,7 @@ class FileWriter:
             for key, value in additionalInformation.items():
                 csvWr.writerow([key, value])
             csvWr.writerow([xLabel, yLabel])
+            csvWr.writerow([DATA_MARKER])
             csvWr.writerows(xyData)
     
     def select_directory(self):

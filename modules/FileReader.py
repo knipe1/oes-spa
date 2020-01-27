@@ -35,47 +35,32 @@ class FileReader:
         DEFAULT_TYPE = np.float64
         DELIMITER = "\t"
         HEADER_MARKER = "Date"
+        DATA_MARKER = "Data"
         
         # declaration
         x_data = []
         y_data = []
         #getdata = False
 
-        if not self.get_filetype(): #self.filetype == "SpexHex":
+        if not self.get_filetype():
             # Get Data from tab separated ascii file
             with open(self.file, 'r') as csvFile:
                 csvReader = csv.reader(csvFile, delimiter=DELIMITER, 
                                        quoting=csv.QUOTE_NONE)
-            
-                row = next(csvReader)
-                self.read_head(row[0], HEADER_MARKER)
-                                
-                row = next(csvReader)
-                # TODO: doublecheck, never used?!
-                #header = row
                 
                 row = next(csvReader)
-                # TODO: doublecheck, never used?!
-                #units = row
-                                
+                self.read_head(row[0], HEADER_MARKER)
+                row = next(csvReader)   #header
+                row = next(csvReader)   #units
+                test = 3
+                if self.file.find(".csv") >= 0:
+                    test = 1
+                    
                 for row in csvReader:
                     # TODO: is there any value with a commata?
-                    x_data.append(row[0].replace(',', '.'))
-                    y_data.append(row[3].replace(',', '.'))
-                    
-                    '''if getdata:
-                        x_data.append(row[0].replace(',', '.'))
-                        y_data.append(row[3].replace(',', '.'))
-                    elif row:
-                        #if HEADER_MARKER in row[0]:
-                            # Check: Maxbe use a more general solution
-                            # e.g. regex/dateutil/datefinder
-                            #sep = row[0].split()
-                            #self.date = sep[1]
-                            #self.time = sep[2]
-                        if len(row) > 1 and len(row[0]) == 0:
-                            getdata = True
-                            '''
+                    x_data.append(row[0].replace(',', '.')) # TODO: magic
+                    y_data.append(row[test].replace(',', '.')) # TODO: magic
+
             self.xData = np.array(x_data, dtype=DEFAULT_TYPE)
             self.yData = np.array(y_data, dtype=DEFAULT_TYPE)
 
