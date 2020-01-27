@@ -15,7 +15,7 @@ import matplotlib as mpl
 from PyQt5.QtCore import QFileInfo, QStringListModel
 from PyQt5.QtWidgets import QFileDialog, QDialog
 
-from ui.ui_batch_dialog import Ui_batch
+from ui.UIBatch import UIBatch
 
 import modules.FileReader as r_file
 import modules.DataHandler as dproc
@@ -38,55 +38,51 @@ class BatchAnalysis(QDialog):
     def __init__(self, parent=None):
         super(BatchAnalysis, self).__init__(parent)
 
-        self.mui = Ui_batch()
-        self.mui.setupUi(self)
         self.setAcceptDrops(True)
         self.files = []
         self.lastdir = parent.lastdir
         self.model = QStringListModel()
-        self.mui.files2analyze.setModel(self.model)
-
-        # Setup Events MultipleFiles
-        self.mui.setfilename.clicked.connect(self.set_filename)
-        self.mui.browseBtn.clicked.connect(self.set_spectra)
-        self.mui.clearBtn.clicked.connect(self.clear)
-        self.mui.calcBtn.clicked.connect(self.multi_calc)
-# =============================================================================
-#         self.mui.files2analyze.selectionModel().selectionChanged.connect(
-#                 self.get_list_index)
-# =============================================================================
-        self.mui.files2analyze.clicked.connect(
-                self.get_list_index)
-        self.mui.DispSpin.valueChanged.connect(self.disp_curve)
+        # init of mui has to be at last, because it connects self.model i.a.
+        self.mui = UIBatch(self)
         
-        
-        self.mui.browseBtn.setEnabled(True)
 
     def dragEnterEvent(self, event):
         """Drag file over window event """
-        if event.mimeData().hasUrls():
-            for url in event.mimeData().urls():
-                if url.isValid():
-                    if url.scheme() == "file":
-                        self.files.append(url.toLocalFile())
-                        event.accept()
+        # TODO: purpose?
+        # If just one url has the scheme "file" the event is accepted
+#        if event.mimeData().hasUrls():
+#            for url in event.mimeData().urls():
+#                if url.isValid() and url.scheme() == "file":
+#                    self.files.append(url.toLocalFile())
+#                    event.accept()
+#        """alternative?!
+        urls = event.mimeData().urls();
+        for url in urls:
+            if url.scheme() == "file":
+                event.accept()
+#        """
 
-    def dropEvent(self, _event):
+    def dropEvent(self, event):
         """Dropping File """
-        self.model.setStringList(self.files)
-        self.mui.files2analyze.setModel(self.model)
-        self.mui.clearBtn.setEnabled(True)
-        self.mui.DispSpin.setEnabled(True)
-        self.mui.DispSpin.setMaximum(int(len(self.files)-1)) # TODO: typecast unneccessary
-        self.mui.DispFile.setEnabled(True)
-        self.mui.calcBtn.setEnabled(True)
-        self.mui.groupBox.setEnabled(True)
+        urls = event.mimeData().urls();
+        for url in urls:
+            if uni.is_valid_filetype(self, url):
+                self.files.append(url.toLocalFile())
+        self.accept_files();
+#        self.model.setStringList(self.files)
+#        self.mui.files2analyze.setModel(self.model)
+#        self.mui.clearBtn.setEnabled(True)
+#        self.mui.DispSpin.setEnabled(True)
+#        self.mui.DispSpin.setMaximum(int(len(self.files)-1)) # TODO: typecast unneccessary
+#        self.mui.DispSpin.setMaximum(len(self.files)-1) # TODO: typecast unneccessary
+        self.enable_UI(True)
         self.mui.files2analyze.setCurrentIndex(self.model.index(0))
         self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
         self.parent().file_open(self.files[0])
 
     def set_filename(self):
         """Handling target filename """
+        # TODO: repetition
         filename, _ = QFileDialog.getSaveFileName(self, 'Set Filename',
                                                   self.lastdir,
                                                   "Comma separated (*.csv)")
@@ -95,42 +91,35 @@ class BatchAnalysis(QDialog):
                 filename = filename+".csv"
             self.lastdir = str(QFileInfo(filename).absolutePath())
             self.mui.csvfile.setText(filename)
-            self.mui.browseBtn.setEnabled(True)
+#            self.mui.browseBtn.setEnabled(True)
             if self.model.stringList():
-                self.mui.calcBtn.setEnabled(True)
-                self.mui.groupBox.setEnabled(True)
-                self.mui.clearBtn.setEnabled(True)
+                self.enable_UI(True)
 
     def set_spectra(self):
         """Handling source filesnames """
-        filenames = uni.LoadFiles(self.lastdir);
+#        filenames = uni.LoadFiles(self.lastdir);
+        self.files =  uni.LoadFiles(self.lastdir);
 #        filenames, _ = QFileDialog.getOpenFileNames(
 #            self, 'Choose Files to analyze',
 #            self.lastdir, "SpexHex File (*.spk)")
 
-        if int(len(filenames)) != 0:
-            self.model.setStringList(filenames)
-            self.mui.calcBtn.setEnabled(True)
-            self.mui.groupBox.setEnabled(True)
-            self.mui.clearBtn.setEnabled(True)
-            self.mui.DispSpin.setEnabled(True)
-            self.mui.DispSpin.setMaximum(int(len(filenames)-1))
-            self.mui.DispFile.setEnabled(True)
+        if len(self.files) != 0:
+            self.accept_files();
+#            self.model.setStringList(self.files)
+            
+            self.enable_UI(True)
+#            self.mui.DispSpin.setMaximum(int(len(filenames)-1))
             self.mui.files2analyze.setCurrentIndex(self.model.index(0))
-            self.mui.DispFile.setText(QFileInfo(filenames[0]).fileName())
-            self.parent().file_open(filenames[0])
-            self.mui.files2analyze.setModel(self.model)
+            self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
+            self.parent().file_open(self.files[0])
+#            self.mui.files2analyze.setModel(self.model)
 
     def clear(self):
         """Reset UI """
-        self.mui.calcBtn.setEnabled(False)
-        self.mui.groupBox.setEnabled(False)
-        self.mui.clearBtn.setEnabled(False)
-        self.mui.DispSpin.setEnabled(False)
-        self.mui.DispSpin.setValue(0)
-        self.mui.DispFile.setEnabled(False)
-        self.model.setStringList([])
-        self.mui.files2analyze.setModel(self.model)
+#        self.mui.DispSpin.setValue(0)
+#        self.model.setStringList([])
+        self.clear_files();
+        self.enable_UI(False)
 
     def multi_calc(self):
         """Batch process spectra and write to CSV """
@@ -141,7 +130,7 @@ class BatchAnalysis(QDialog):
         s_peak_position = self.mui.ChPeakPos.checkState()
         s_peak_height_raw = self.mui.ChPeakHeightRaw.checkState()
         s_head = self.mui.ChHead.checkState()
-        self.model = self.mui.files2analyze.model()
+#        self.model = self.mui.files2analyze.model() # TODO: doesn't change at anny given time
         filenames = self.model.stringList()
         amount = int(len(filenames))
 
@@ -166,10 +155,11 @@ class BatchAnalysis(QDialog):
             header.append("Peak height (not corrected):")
 
         csv_wr.writerow(header)
+        # TODO: Why while-loop? Why no for-loop?
         i = 0
         while i < amount:
             # Progress
-            self.mui.progressBar.setValue(int(float((i+1))/float(amount)*100))
+            self.set_progressBar(float(i+1)/float(amount))
 
             # Read out the file
             file = str(filenames[i])
@@ -205,12 +195,11 @@ class BatchAnalysis(QDialog):
             csv_wr.writerow(row)
             i += 1
 
-        self.mui.progressBar.setValue(100)
         myfile.close()
 
     def disp_curve(self, value):
         """Display curve with selected index in MainWindow """
-        self.model = self.mui.files2analyze.model()
+#        self.model = self.mui.files2analyze.model() # TODO: doesn't change at anny given time
         self.mui.files2analyze.setCurrentIndex(self.model.index(value))
         filenames = self.model.stringList()
         self.mui.DispFile.setText(QFileInfo(filenames[value]).fileName())
@@ -220,3 +209,28 @@ class BatchAnalysis(QDialog):
         """Get Current selected file by index """
         self.mui.files2analyze.setCurrentIndex(index)
         self.mui.DispSpin.setValue(index.row())
+        
+    def set_progressBar(self, percentage):
+        """sets hte percentage to the progress bar"""
+        self.mui.progressBar.setValue(int(percentage*100))
+        return 0;
+    
+    def enable_UI(self, enable):
+        """enable/disable elements if files/no file is in the list"""
+        self.mui.groupBox.setEnabled(enable)
+        [elem.setEnabled(enable) for elem in self.mui.groupDisplay.children()]
+        [btn.setEnabled(enable) for btn in self.mui.btnFileaction.buttons()]
+        
+    def accept_files(self):
+        """setting the list of files and the maximum index"""
+        numerOfFiles = len(self.files);
+        self.model.setStringList(self.files)
+        if numerOfFiles < 0:
+            self.mui.DispSpin.setMaximum(0)
+        else:
+            self.mui.DispSpin.setMaximum(numerOfFiles-1)
+    
+    def clear_files(self):
+        """setting the list of files and the maximum index"""
+        self.files =  []
+        self.accept_files()

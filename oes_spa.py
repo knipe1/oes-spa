@@ -5,8 +5,6 @@
 Single and batch analysis of OES spectra
 """
 
-# import pdb
-# import re
 import sys
 
 import matplotlib as mpl
@@ -36,7 +34,6 @@ __status__ = "alpha"
 # parameters
 # DEF --> Default
 # DIR --> directory
-# MRK --> Markup --> color, linestyle,...
 # r+string --> raw string, no special characters like \n, \t,...
 
 
@@ -58,9 +55,6 @@ DEF_AXIS_COLOR = '0.2';
 DEF_DIR = "./";
 DEF_FILE = "";
 
-# if used case insensitive file system, e.g. windows
-# all lower case, because the suffix will be evaluated in lower case
-VALID_FILE_SUFFIX = ["csv", "spk"]
        
 
 
@@ -104,7 +98,7 @@ class AnalysisWindow(QMainWindow):
         # event.accept --> dropEvent is handled by Widget not by BatchAnalysis
         
         #Prequerities
-        validScheme = ["file"];                 #magic
+        validScheme = ["file"];                 
         urls = event.mimeData().urls();
         
         if len(urls) > 1:
@@ -124,18 +118,22 @@ class AnalysisWindow(QMainWindow):
 		# TODO: ought be a function and in the event handler just a function call, right?
         """Dropping File """
         url = event.mimeData().urls()[0];
-        if not self.is_valid_filetype(url):
+        if uni.is_valid_filetype(self,url):
+            self.droppedFile = url.toLocalFile();
+            self.apply_data(self.droppedFile)
+        else:
             event.ignore();
+        
         
         # get information
         # TODO: validate information (return value)
-        self.openFile = r_file.FileReader(self.droppedFile)
-        np_x, np_y = self.openFile.get_values()
-        time, date = self.openFile.get_head()
-        
-        #set information
-        self.set_fileinformation(self.droppedFile, date, time)
-        self.draw_spectra(np_x, np_y)
+#        self.openFile = r_file.FileReader(self.droppedFile)
+#        np_x, np_y = self.openFile.get_values()
+#        time, date = self.openFile.get_head()
+#        
+#        #set information
+#        self.set_fileinformation(self.droppedFile, date, time)
+#        self.draw_spectra(np_x, np_y)
 
     def file_open(self, filename):
         """Open FileDialog to choose Raw-Data-File """
@@ -154,14 +152,15 @@ class AnalysisWindow(QMainWindow):
             #str() for typecast from utf16(Qstring) to utf8(python string)
             self.lastdir = str(QFileInfo(filename).absolutePath()) 
             
-            # Read out the chosen file
-            self.openFile = r_file.FileReader(filename)
-            np_x, np_y = self.openFile.get_values()
-            time, date = self.openFile.get_head()
-
-            # Draw the spectra and print results
-            self.set_fileinformation(filename, date, time)
-            self.draw_spectra(np_x, np_y)
+            self.apply_data(filename)
+#            # Read out the chosen file
+#            self.openFile = r_file.FileReader(filename)
+#            np_x, np_y = self.openFile.get_values()
+#            time, date = self.openFile.get_head()
+#
+#            # Draw the spectra and print results
+#            self.set_fileinformation(filename, date, time)
+#            self.draw_spectra(np_x, np_y)
 
     def draw_spectra(self, x_data, y_data):
         """Draw the raw spectrum and analyse it with DataHandler
@@ -236,6 +235,7 @@ class AnalysisWindow(QMainWindow):
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
         if not filename:
+            # TODO: repetition
             filename, _ = QFileDialog.getSaveFileName(
                 self.widget, 'Save raw spectrum to...',
                 self.lastdir, "Comma separated (*.csv)")
@@ -270,6 +270,7 @@ class AnalysisWindow(QMainWindow):
     def save_processed(self, filename):
         """Save processed spectrum to CSV-File """
         if not filename:
+            # TODO: repetition
             filename, _ = QFileDialog.getSaveFileName(
                 self.widget,
                 'Save processed spectrum to...',
@@ -323,6 +324,7 @@ class AnalysisWindow(QMainWindow):
         
     
     def plot_redrawable(self, enable = True):
+        """set the status (enabled/disabled) of redraw button/action"""
         self.window.BtRedraw.setEnabled(enable);
         self.window.ActionRedraw.setEnabled(enable);
         return 0;
@@ -345,25 +347,38 @@ class AnalysisWindow(QMainWindow):
         return 0
     
     
-    def is_valid_filetype(self, url):
-        """checks if the given url is valid to load the data"""
-        isValid = True;
-        file = url.toLocalFile();
-        
-        if not url.isValid():
-            isValid = False;
-        
-        if QFileInfo(file).completeSuffix().lower() in VALID_FILE_SUFFIX:
-            self.droppedFile = file;
-        else:
-            isValid = False;
-            # TODO: magic strings?
-            strSuffixes = ["." + suffix for suffix in VALID_FILE_SUFFIX];
-            strSuffixes = ", ".join(strSuffixes);
-            QMessageBox.critical(self, "Error: File could not be opened",
-                         f"Valid filetypes: {strSuffixes}");
-        return isValid;
+#    def is_valid_filetype(self, url):
+#        """checks if the given url is valid to load the data"""
+#        isValid = True;
+#        file = url.toLocalFile();
+#        
+#        if not url.isValid():
+#            isValid = False;
+#        
+#        if QFileInfo(file).completeSuffix().lower() in VALID_FILE_SUFFIX:
+#            self.droppedFile = file;
+#        else:
+#            isValid = False;
+#            # TODO: magic strings?
+#            strSuffixes = ["." + suffix for suffix in VALID_FILE_SUFFIX];
+#            strSuffixes = ", ".join(strSuffixes);
+#            QMessageBox.critical(self, "Error: File could not be opened",
+#                         f"Valid filetypes: {strSuffixes}");
+#        return isValid;
+    
+    def apply_data(self, filename):
+        """read out a file and extract its information, 
+        then set header information and draw spectra"""
+        # TODO: error handling
+        # Read out the chosen file
+        self.openFile = r_file.FileReader(filename)
+        np_x, np_y = self.openFile.get_values()
+        time, date = self.openFile.get_head()
 
+        # Draw the spectra and print results
+        self.set_fileinformation(filename, date, time)
+        self.draw_spectra(np_x, np_y)
+        return 0
 
 def main():
     """Main program """

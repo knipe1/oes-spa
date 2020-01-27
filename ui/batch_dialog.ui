@@ -46,7 +46,7 @@
        <item>
         <widget class="QPushButton" name="browseBtn">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>&amp;Browse Files</string>
@@ -61,6 +61,9 @@
          <property name="text">
           <string>&amp;Calculate</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">btnFileaction</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -71,6 +74,9 @@
          <property name="text">
           <string>Clear</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">btnFileaction</string>
+         </attribute>
         </widget>
        </item>
       </layout>
@@ -106,6 +112,9 @@
           <property name="text">
            <string>Peak height</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">btnParameters</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -113,6 +122,9 @@
           <property name="text">
            <string>Peak area</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">btnParameters</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -120,6 +132,9 @@
           <property name="text">
            <string>Baseline</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">btnParameters</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -127,6 +142,9 @@
           <property name="text">
            <string>Peak Position</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">btnParameters</string>
+          </attribute>
          </widget>
         </item>
        </layout>
@@ -138,6 +156,9 @@
           <property name="text">
            <string>Header info</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">btnParameters</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -145,6 +166,9 @@
           <property name="text">
            <string>Peak height (not corrected)</string>
           </property>
+          <attribute name="buttonGroup">
+           <string notr="true">btnParameters</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -173,7 +197,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="groupDisplay">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -260,101 +284,17 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChBaseline</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>438</x>
-     <y>329</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>306</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChPeakHeight</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>438</x>
-     <y>329</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>260</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChPeakArea</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>438</x>
-     <y>329</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChHead</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>438</x>
-     <y>329</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>438</x>
-     <y>260</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChPeakHeightRaw</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>438</x>
-     <y>329</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>438</x>
-     <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChPeakPos</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>336</x>
-     <y>318</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>122</x>
-     <y>321</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="btnParameters">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="btnFileaction">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+ </buttongroups>
 </ui>
