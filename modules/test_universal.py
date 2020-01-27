@@ -2,7 +2,7 @@
 import unittest
 import sys
 
-from universal import LoadFiles
+from universal import load_files
 
 from PyQt5.QtCore import QFileInfo, QStringListModel
 from PyQt5.QtWidgets import QApplication, QFileDialog,\
@@ -27,10 +27,10 @@ class TestLoadFiles(unittest.TestCase):
         
     def test_loadfiles(self):
         
-        singleSpkFile = LoadFiles(self.spkFile_1)[0];
-        singleCsvFile = LoadFiles(self.csvFile_1)[0];
-        singleDocxFile = LoadFiles(self.textfile_2)[0];
-        multDataFiles = LoadFiles(self.multSpk);
+        singleSpkFile = load_files(self.spkFile_1)[0];
+        singleCsvFile = load_files(self.csvFile_1)[0];
+        singleDocxFile = load_files(self.textfile_2)[0];
+        multDataFiles = load_files(self.multSpk);
         
         
         self.assertAlmostEqual(singleSpkFile, self.spkFile_1);
@@ -38,6 +38,6 @@ class TestLoadFiles(unittest.TestCase):
         self.assertAlmostEqual(singleDocxFile, self.textfile_2);
         
     def test_values(self):
-        self.assertRaises(TypeError, LoadFiles, 12);
-        self.assertRaises(TypeError, LoadFiles, ["asd", 12]);
-        self.assertRaises(TypeError, LoadFiles, 3.4);
+        self.assertRaises(TypeError, load_files, 12);
+        self.assertRaises(TypeError, load_files, ["asd", 12]);
+        self.assertRaises(TypeError, load_files, 3.4);

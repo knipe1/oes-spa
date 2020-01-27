@@ -4,8 +4,9 @@
 
 Import XY data from different filetypes
 """
-import numpy as np
 import csv
+
+import numpy as np
 # QFileInfo provides system-independent file information
 from PyQt5.QtCore import QFileInfo
                                             
@@ -16,8 +17,8 @@ class FileReader:
         print(filename) # is the path+filename
         self.filetype = ""
         self.file = filename
-        self.xData = np.array([0])
-        self.yData = np.array([0])
+        self.xData = np.zeros(0)
+        self.yData = np.zeros(0)
         self.date = ""
         self.time = ""
 

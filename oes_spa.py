@@ -6,6 +6,7 @@ Single and batch analysis of OES spectra
 """
 
 import sys
+import csv
 
 import matplotlib as mpl
 from PyQt5.QtCore import QFileInfo
@@ -16,6 +17,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog,\
 from ui.UImain import UImain
 
 import modules.FileReader as r_file
+import modules.FileWriter as w_file
 import modules.DataHandler as dproc
 import modules.Universal as uni
 import modules.BatchAnalysis as batch
@@ -52,7 +54,7 @@ DEF_LINEWIDTH = 0.5;
 DEF_AXIS_COLOR = '0.2';
 
 # filesystem
-DEF_DIR = "./";
+DEF_DIR = "../ASTERIX1059";
 DEF_FILE = "";
 
        
@@ -78,10 +80,6 @@ class AnalysisWindow(QMainWindow):
         self.batch = batch.BatchAnalysis(self)
         # Load the main window (uses self.batch already)
         self.window = UImain(self)
-        
-        # TODO:: use of statusbar?
-#        self.sbar = self.statusBar()
-#        self.sbar.hide()
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
@@ -131,7 +129,7 @@ class AnalysisWindow(QMainWindow):
         # File-->Open
         # Batch-->Drag&Drop or -->Browse Files
         if filename is False:
-            filename = uni.LoadFiles(self.lastdir);
+            filename = uni.load_files(self.lastdir);
             # TODO: implement multi proc
             filename = filename[0];
 #            filename, _ = QFileDialog.getOpenFileName(
@@ -225,74 +223,88 @@ class AnalysisWindow(QMainWindow):
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
-        if not filename:
-            # TODO: repetition
-            filename, _ = QFileDialog.getSaveFileName(
-                self.widget, 'Save raw spectrum to...',
-                self.lastdir, "Comma separated (*.csv)")
-
-        if str(filename) != "":		#magic
-            if QFileInfo(filename).suffix() != "csv":		#magic
-                filename = filename+".csv"		#magic
-            self.lastdir = str(QFileInfo(filename).absolutePath())
-
-            import csv
-            if sys.version_info >= (3, 0, 0):		#magic
-                myfile = open(filename, 'w', newline='')		#magic
-            else:
-                myfile = open(filename, 'wb')		#magic
-
-            # Open CSV-Writer Instance and write data in Excel dialect
-            csv_wr = csv.writer(myfile, dialect=csv.excel,
-                                quoting=csv.QUOTE_NONE)
-            csv_wr.writerow(["Raw data of:",
-                             str(self.window.EdFilename.text())])
-            csv_wr.writerow("")
-            csv_wr.writerow(["Pixel", "Intensity"])
-            csv_wr.writerow("")
-            csv_wr.writerow(["Data:"])
-            csv_wr.writerow("")
-            for i in range(0, len(self.raw_xtrace_drawn), 1)[::-1]:
-                csv_wr.writerow([self.raw_xtrace_drawn[i]] +
-                                [self.raw_ytrace_drawn[i]])
-
-            myfile.close()
+        csvWriter = w_file.FileWriter(self, filename)
+        xyData = uni.extract_xy_data(self.window.MplRaw.axes, RAW_DATA_LABEL)
+        csvWriter.write_data(xyData)
+        return 0;
+#        if not filename:
+#            # TODO: repetition
+#            filename, _ = QFileDialog.getSaveFileName(
+#                self.widget, 'Save raw spectrum to...',
+#                self.lastdir, "Comma separated (*.csv)")
+#
+#        if str(filename) != "":		#magic
+#            if QFileInfo(filename).suffix() != "csv":		#magic
+#                filename = filename+".csv"		#magic
+#            self.lastdir = str(QFileInfo(filename).absolutePath())
+#
+##            import csv
+#            if sys.version_info >= (3, 0, 0):		#magic
+#                myfile = open(filename, 'w', newline='')		#magic
+#            else:
+#                myfile = open(filename, 'wb')		#magic
+#
+#            # Open CSV-Writer Instance and write data in Excel dialect
+#            csv_wr = csv.writer(myfile, dialect=csv.excel,
+#                                quoting=csv.QUOTE_NONE)
+#            csv_wr.writerow(["Raw data of:",
+#                             str(self.window.EdFilename.text())])
+#            csv_wr.writerow("")
+#            csv_wr.writerow(["Pixel", "Intensity"])
+#            csv_wr.writerow("")
+#            csv_wr.writerow(["Data:"])
+#            csv_wr.writerow("")
+#            
+#            ax = self.window.MplRaw.axes
+#            for i in ax.get_lines():
+#                if i.get_label() == RAW_DATA_LABEL:
+#                    print(i, i.get_xdata())
+#            
+#            for i in range(len(ax.lines[2].get_xdata())):
+#                csv_wr.writerow([ax.lines[2].get_xdata()[i]] +
+#                                [ax.lines[2].get_ydata()[i]])
+#
+#            myfile.close()
 
     def save_processed(self, filename):
         """Save processed spectrum to CSV-File """
-        if not filename:
-            # TODO: repetition
-            filename, _ = QFileDialog.getSaveFileName(
-                self.widget,
-                'Save processed spectrum to...',
-                self.lastdir, "Comma separated (*.csv)")
-
-        if str(filename) != "":
-            if QFileInfo(filename).suffix() != "csv":
-                filename = filename + ".csv"
-            self.lastdir = str(QFileInfo(filename).absolutePath())
-
-            import csv
-            if sys.version_info >= (3, 0, 0):
-                myfile = open(filename, 'w', newline='')
-            else:
-                myfile = open(filename, 'wb')
-
-            # Open CSV-Writer Instance and write data in Excel dialect
-            csv_wr = csv.writer(myfile, dialect=csv.excel,
-                                quoting=csv.QUOTE_NONE)
-            csv_wr.writerow(["Processed Spectrum of:",
-                             str(self.window.EdFilename.text())])
-            csv_wr.writerow("")
-            csv_wr.writerow(["Wavelength / nm", "Intensity / a.u."])
-            csv_wr.writerow("")
-            csv_wr.writerow(["Data:"])
-            csv_wr.writerow("")
-            for i in range(0, len(self.fd_xtrace_drawn), 1)[::-1]:
-                csv_wr.writerow([self.fd_xtrace_drawn[i]] +
-                                [self.fd_ytrace_drawn[i]])
-
-            myfile.close()
+        csvWriter = w_file.FileWriter(self, filename)
+        xyData = uni.extract_xy_data(self.window.MplProcessed.axes,
+                                     PROCESSED_DATA_LABEL)
+        csvWriter.write_data(xyData)
+        return 0;
+#        if not filename:
+#            filename, _ = QFileDialog.getSaveFileName(
+#                self.widget,
+#                'Save processed spectrum to...',
+#                self.lastdir, "Comma separated (*.csv)")
+#
+#        if str(filename) != "":
+#            if QFileInfo(filename).suffix() != "csv":
+#                filename = filename + ".csv"
+#            self.lastdir = str(QFileInfo(filename).absolutePath())
+#
+##            import csv
+#            if sys.version_info >= (3, 0, 0):
+#                myfile = open(filename, 'w', newline='')
+#            else:
+#                myfile = open(filename, 'wb')
+#
+#            # Open CSV-Writer Instance and write data in Excel dialect
+#            csv_wr = csv.writer(myfile, dialect=csv.excel,
+#                                quoting=csv.QUOTE_NONE)
+#            csv_wr.writerow(["Processed Spectrum of:",
+#                             str(self.window.EdFilename.text())])
+#            csv_wr.writerow("")
+#            csv_wr.writerow(["Wavelength / nm", "Intensity / a.u."])
+#            csv_wr.writerow("")
+#            csv_wr.writerow(["Data:"])
+#            csv_wr.writerow("")
+#            for i in range(0, len(self.fd_xtrace_drawn), 1)[::-1]:
+#                csv_wr.writerow([self.fd_xtrace_drawn[i]] +
+#                                [self.fd_ytrace_drawn[i]])
+#
+#            myfile.close()
             
     
     def init_plot(self, plotObj, xlabel, ylabel):

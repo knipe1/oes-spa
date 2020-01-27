@@ -97,8 +97,8 @@ class BatchAnalysis(QDialog):
 
     def set_spectra(self):
         """Handling source filesnames """
-#        filenames = uni.LoadFiles(self.lastdir);
-        self.files =  uni.LoadFiles(self.lastdir);
+#        filenames = uni.load_files(self.lastdir);
+        self.files =  uni.load_files(self.lastdir);
 #        filenames, _ = QFileDialog.getOpenFileNames(
 #            self, 'Choose Files to analyze',
 #            self.lastdir, "SpexHex File (*.spk)")
