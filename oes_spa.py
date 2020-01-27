@@ -12,7 +12,8 @@ from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QApplication, QFileDialog,\
                             QMainWindow, QMessageBox
 
-from ui.ui_main_window import Ui_main
+#from ui.ui_main_window import Ui_main
+from ui.UImain import UImain
 
 import modules.FileReader as r_file
 import modules.DataHandler as dproc
@@ -68,30 +69,34 @@ class AnalysisWindow(QMainWindow):
         # Set file and directory
         self.lastdir = DEF_DIR;
         self.openFile = DEF_FILE;
-
+        
         # Set up the user interface from Designer.
-        self.window = Ui_main()
-        self.window.setupUi(self)
+        # Load batch dialog
+        self.batch = batch.BatchAnalysis(self)
+        # Load the main window (uses self.batch already)
+        self.window = UImain(self)
+        
+#        self.window = Ui_main()
+#        self.window.setupUi(self)
         self.sbar = self.statusBar()
         self.sbar.hide()
         self.setAcceptDrops(True)
         self.droppedFile = None
         self.widget = self.centralWidget()
 
-        # Load batch dialog
-        self.batch = batch.BatchAnalysis(self)
+        
 
         # Setup Events MainWindow
         # Action: option in a dropdown of the menu bar
         # Bt : Button
-        self.window.BtFileOpen.clicked.connect(self.file_open)
-        self.window.ActionOpen.triggered.connect(self.file_open)
-        self.window.BtRedraw.clicked.connect(self.redraw)
-        self.window.ActionRedraw.triggered.connect(self.redraw)
-        self.window.ActionSaveRaw.triggered.connect(self.save_raw)
-        self.window.ActionSaveProcessed.triggered.connect(self.save_processed)
-        self.window.ActionAnalyzeMultipleFiles.triggered.\
-            connect(self.batch.show)
+#        self.window.BtFileOpen.clicked.connect(self.file_open)
+#        self.window.ActionOpen.triggered.connect(self.file_open)
+#        self.window.BtRedraw.clicked.connect(self.redraw)
+#        self.window.ActionRedraw.triggered.connect(self.redraw)
+#        self.window.ActionSaveRaw.triggered.connect(self.save_raw)
+#        self.window.ActionSaveProcessed.triggered.connect(self.save_processed)
+#        self.window.ActionAnalyzeMultipleFiles.triggered.\
+#            connect(self.batch.show)
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
