@@ -6,12 +6,10 @@ Single and batch analysis of OES spectra
 """
 
 import sys
-import csv
 
 import matplotlib as mpl
 from PyQt5.QtCore import QFileInfo
-from PyQt5.QtWidgets import QApplication, QFileDialog,\
-                            QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 #from ui.ui_main_window import Ui_main
 from ui.UImain import UImain
@@ -223,9 +221,12 @@ class AnalysisWindow(QMainWindow):
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
-        csvWriter = w_file.FileWriter(self, filename)
+        # collect data
+        filename, date, time = self.get_fileinformation()
         xyData = uni.extract_xy_data(self.window.MplRaw.axes, RAW_DATA_LABEL)
-        csvWriter.write_data(xyData)
+        # write data to csv
+        csvWriter = w_file.FileWriter(self, filename, date, time)
+        csvWriter.write_data(xyData, RAW_X_LABEL, RAW_Y_LABEL, isRaw=True)
         return 0;
 #        if not filename:
 #            # TODO: repetition
@@ -268,10 +269,19 @@ class AnalysisWindow(QMainWindow):
 
     def save_processed(self, filename):
         """Save processed spectrum to CSV-File """
-        csvWriter = w_file.FileWriter(self, filename)
-        xyData = uni.extract_xy_data(self.window.MplProcessed.axes,
+        # collect data
+        filename, date, time = self.get_fileinformation()
+        xyData = uni.extract_xy_data(self.window.MplProcessed.axes, 
                                      PROCESSED_DATA_LABEL)
-        csvWriter.write_data(xyData)
+        
+        results = {}
+        results["PeakHeight"] = self.window.EdPeakHeight.text()
+        results["PeakArea"] = self.window.EdPeakArea.text()
+        
+        # write data to csv
+        csvWriter = w_file.FileWriter(self, filename, date, time)
+        csvWriter.write_data(xyData, PROCESSED_X_LABEL, PROCESSED_Y_LABEL,
+                             results)
         return 0;
 #        if not filename:
 #            filename, _ = QFileDialog.getSaveFileName(
@@ -334,6 +344,11 @@ class AnalysisWindow(QMainWindow):
         self.window.menuSave.setEnabled(enable)
         return 0;
     
+    def get_fileinformation(self):
+        filename = self.window.EdFilename.text()
+        date = self.window.EdDate.text()
+        time = self.window.EdTime.text()
+        return filename, date, time
     
     def set_fileinformation(self, filename, date, time):
         """set the file information (filename, date and time)"""

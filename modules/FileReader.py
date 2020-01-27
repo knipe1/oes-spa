@@ -27,7 +27,6 @@ class FileReader:
         suffixes = ("spk", "Spk", "csv")
         fileinfo = QFileInfo(self.file).suffix()
         if fileinfo in suffixes:
-            #self.filetype = "SpexHex"
             return 0
         return 1
 
@@ -45,8 +44,7 @@ class FileReader:
         if not self.get_filetype(): #self.filetype == "SpexHex":
             # Get Data from tab separated ascii file
             with open(self.file, 'r') as csvFile:
-                csvReader = csv.reader(csvFile, 
-                                       delimiter=DELIMITER, 
+                csvReader = csv.reader(csvFile, delimiter=DELIMITER, 
                                        quoting=csv.QUOTE_NONE)
             
                 row = next(csvReader)

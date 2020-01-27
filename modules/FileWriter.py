@@ -12,44 +12,59 @@ import csv
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QFileDialog
 
+import modules.Universal as uni
+
 # parameters
 RAW_APPENDIX = "_raw"
 PROCESSED_APPENDIX = "_processed"
+EXP_SUFFIX = ".csv"
+HEADER_MARKER = "Date"
 
 class FileWriter:
     """File reader for spectral data files """
-    def __init__(self, parent, filename):
+    def __init__(self, parent, filename, date, time):
         self.parent = parent
         csv.register_dialect("spectral_data", delimiter='\t', 
                              quoting=csv.QUOTE_MINIMAL)
         
-        self.filename = self.select_file(filename)
+        self.directory = self.select_directory()
+        self.filename, self.date, self.time = filename, date, time
         
         
         
-    def write_data(self, xyData):
+    def write_data(self, xyData, xLabel, yLabel, additionalInformation = {},
+                   isRaw=False):
         """"""
-        # TODO: backwards compatibility?
-        # TODO: compare: with open() as expFile:
-        with open(self.filename, 'w', newline='') as expFile:
+        if not self.directory:
+            return 1
+                
+        expFilename = self.build_exp_filename(isRaw)
+        with open(expFilename, 'w', newline='') as expFile:
+            # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect="spectral_data")
-            csvWr.writerow(["Data of:", self.parent.window.EdFilename.text()])
-            csvWr.writerow(["Pixel", "Intensity"])
+            csvWr.writerow([" ".join([HEADER_MARKER, self.date, self.time])])
+            for key, value in additionalInformation.items():
+                csvWr.writerow([key, value])
+            csvWr.writerow([xLabel, yLabel])
             csvWr.writerows(xyData)
     
-    def select_file(self, filename=""):
+    def select_directory(self):
         # open a dialog to set the filename if not given
-        if not filename:
-            filename = QFileDialog.getExistingDirectory(self.parent.widget,
+        directory = QFileDialog.getExistingDirectory(self.parent.widget,
                                    'Save spectrum to...', self.parent.lastdir)
-            
-        # back up the used directory
-        # tODO: which type return absolute path?
-        self.parent.lastdir = str(QFileInfo(filename).absolutePath())
-        
-        # only .csv is allowed
-        if QFileInfo(filename).suffix() != "csv":		#magic
-            raise TypeError("Only .csv format is allowed!")
-        return filename
+        if directory:
+            # back up the used directory
+            self.parent.lastdir = directory
+        return directory
+    
+    def build_exp_filename(self, isRaw=False):
+        """"""
+        rawFilename = self.filename
+        for suffix in uni.VALID_FILE_SUFFIX:
+            rawFilename = rawFilename.replace("."+suffix, "")
+        appendix = PROCESSED_APPENDIX;
+        if isRaw:
+            appendix = RAW_APPENDIX
+        return rawFilename+appendix+EXP_SUFFIX;
 
                     

@@ -10,7 +10,8 @@ SUFFIXES = "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)";
 
 # if used case insensitive file system, e.g. windows
 # all lower case, because the suffix will be evaluated in lower case
-VALID_FILE_SUFFIX = ["csv", "spk"]
+# also used to strip filename to save the spectra--> adding "Spk"
+VALID_FILE_SUFFIX = ["csv", "spk", "Spk"]
 
 def load_files(directory):
     if type(directory) not in [str]:
