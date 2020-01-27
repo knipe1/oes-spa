@@ -37,7 +37,6 @@ __status__ = "alpha"
 # DIR --> directory
 # r+string --> raw string, no special characters like \n, \t,...
 
-
 # plots
 RAW_DATA_LABEL = "Raw Spectrum";
 RAW_DATA_MRK = "r"
@@ -69,6 +68,10 @@ class AnalysisWindow(QMainWindow):
         # Set file and directory
         self.lastdir = DEF_DIR;
         self.openFile = DEF_FILE;
+        # general settings
+        self.setAcceptDrops(True)
+        self.droppedFile = None
+        self.widget = self.centralWidget()
         
         # Set up the user interface from Designer.
         # Load batch dialog
@@ -76,27 +79,9 @@ class AnalysisWindow(QMainWindow):
         # Load the main window (uses self.batch already)
         self.window = UImain(self)
         
-#        self.window = Ui_main()
-#        self.window.setupUi(self)
-        self.sbar = self.statusBar()
-        self.sbar.hide()
-        self.setAcceptDrops(True)
-        self.droppedFile = None
-        self.widget = self.centralWidget()
-
-        
-
-        # Setup Events MainWindow
-        # Action: option in a dropdown of the menu bar
-        # Bt : Button
-#        self.window.BtFileOpen.clicked.connect(self.file_open)
-#        self.window.ActionOpen.triggered.connect(self.file_open)
-#        self.window.BtRedraw.clicked.connect(self.redraw)
-#        self.window.ActionRedraw.triggered.connect(self.redraw)
-#        self.window.ActionSaveRaw.triggered.connect(self.save_raw)
-#        self.window.ActionSaveProcessed.triggered.connect(self.save_processed)
-#        self.window.ActionAnalyzeMultipleFiles.triggered.\
-#            connect(self.batch.show)
+        # TODO:: use of statusbar?
+#        self.sbar = self.statusBar()
+#        self.sbar.hide()
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
@@ -174,13 +159,11 @@ class AnalysisWindow(QMainWindow):
         # Check whether data was found in the files
         if not x_data.any():
             self.plot_redrawable(False)
-            self.window.menuSave.setEnabled(False)
+#            self.window.menuSave.setEnabled(False)
             QMessageBox.critical(self, "Error: File could not be opened",
                                  " Filetype unknown or file unreadable!")
             return 1
 
-        # Enable Redraw Events
-        self.plot_redrawable(True)
 
         # Sent the raw data to the DataHandler and get parameters
         # TODO: function required for getting parameters and errorhandling!
@@ -217,10 +200,13 @@ class AnalysisWindow(QMainWindow):
         self.update_plot(processedPlot, procX, procY, 
                          PROCESSED_DATA_MRK, PROCESSED_DATA_LABEL);
 
+                
+        # Enable Redraw Events
+        self.plot_redrawable(True)
         # TODO: What does it mean? What is it good for?
         # menu --> File --> save
-        self.window.menuSave.setEnabled(True)
-                
+#        self.window.menuSave.setEnabled(True)
+        
         return 0
 
     def redraw(self):
@@ -332,6 +318,8 @@ class AnalysisWindow(QMainWindow):
         """set the status (enabled/disabled) of redraw button/action"""
         self.window.BtRedraw.setEnabled(enable);
         self.window.ActionRedraw.setEnabled(enable);
+        # menu --> File --> save
+        self.window.menuSave.setEnabled(enable)
         return 0;
     
     
