@@ -40,23 +40,8 @@ config = uni.load_config()
 
 # plots
 PLOT = config["PLOT"];
-#RAW_DATA_LABEL = PLOT["RAW_DATA_LABEL"];
-#RAW_DATA_MRK = PLOT["RAW_DATA_MRK"];
-#RAW_BASELINE_LABEL = PLOT["RAW_BASELINE_LABEL"];
-#RAW_BASELINE_MRK = PLOT["RAW_BASELINE_MRK"];
-#RAW_X_LABEL = PLOT["RAW_X_LABEL"];
-#RAW_Y_LABEL = PLOT["RAW_Y_LABEL"];
-#PROCESSED_DATA_LABEL = PLOT["PROCESSED_DATA_LABEL"];
-#PROCESSED_DATA_MRK = PLOT["PROCESSED_DATA_MRK"];
-#PROCESSED_X_LABEL = PLOT["PROCESSED_X_LABEL"];
-#PROCESSED_Y_LABEL = PLOT["PROCESSED_Y_LABEL"];
-#DEF_LINEWIDTH = PLOT["DEF_LINEWIDTH"];
-#DEF_AXIS_COLOR = PLOT["DEF_AXIS_COLOR"];
-
 # filesystem
 FILE = config["FILE"]
-#DEF_DIR = FILE["DEF_DIR"];
-#DEF_FILE = FILE["DEF_FILE"];
 
 
        
@@ -113,17 +98,6 @@ class AnalysisWindow(QMainWindow):
             self.apply_data(self.droppedFile)
         else:
             event.ignore();
-        
-        
-        # get information
-        # TODO: validate information (return value)
-#        self.openFile = r_file.FileReader(self.droppedFile)
-#        np_x, np_y = self.openFile.get_values()
-#        time, date = self.openFile.get_head()
-#        
-#        #set information
-#        self.set_fileinformation(self.droppedFile, date, time)
-#        self.draw_spectra(np_x, np_y)
 
     def file_open(self, filename):
         """Open FileDialog to choose Raw-Data-File """
@@ -134,23 +108,12 @@ class AnalysisWindow(QMainWindow):
             filename = uni.load_files(self.lastdir);
             # TODO: implement multi proc
             filename = filename[0];
-#            filename, _ = QFileDialog.getOpenFileName(
-#                self.widget, 'Load File', self.lastdir,
-#                "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)")		#magic
 
         if filename != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
             self.lastdir = str(QFileInfo(filename).absolutePath()) 
             
             self.apply_data(filename)
-#            # Read out the chosen file
-#            self.openFile = r_file.FileReader(filename)
-#            np_x, np_y = self.openFile.get_values()
-#            time, date = self.openFile.get_head()
-#
-#            # Draw the spectra and print results
-#            self.set_fileinformation(filename, date, time)
-#            self.draw_spectra(np_x, np_y)
 
     def draw_spectra(self, x_data, y_data):
         """Draw the raw spectrum and analyse it with DataHandler
@@ -159,7 +122,6 @@ class AnalysisWindow(QMainWindow):
         # Check whether data was found in the files
         if not x_data.any():
             self.plot_redrawable(False)
-#            self.window.menuSave.setEnabled(False)
             QMessageBox.critical(self, "Error: File could not be opened",
                                  "Filetype unknown or file unreadable!")
             return 1
@@ -203,9 +165,6 @@ class AnalysisWindow(QMainWindow):
                 
         # Enable Redraw Events
         self.plot_redrawable(True)
-        # TODO: What does it mean? What is it good for?
-        # menu --> File --> save
-#        self.window.menuSave.setEnabled(True)
         
         return 0
 
@@ -232,44 +191,6 @@ class AnalysisWindow(QMainWindow):
         csvWriter = w_file.FileWriter(self, filename, date, time)
         csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"], isRaw=True)
         return 0;
-#        if not filename:
-#            # TODO: repetition
-#            filename, _ = QFileDialog.getSaveFileName(
-#                self.widget, 'Save raw spectrum to...',
-#                self.lastdir, "Comma separated (*.csv)")
-#
-#        if str(filename) != "":		#magic
-#            if QFileInfo(filename).suffix() != "csv":		#magic
-#                filename = filename+".csv"		#magic
-#            self.lastdir = str(QFileInfo(filename).absolutePath())
-#
-##            import csv
-#            if sys.version_info >= (3, 0, 0):		#magic
-#                myfile = open(filename, 'w', newline='')		#magic
-#            else:
-#                myfile = open(filename, 'wb')		#magic
-#
-#            # Open CSV-Writer Instance and write data in Excel dialect
-#            csv_wr = csv.writer(myfile, dialect=csv.excel,
-#                                quoting=csv.QUOTE_NONE)
-#            csv_wr.writerow(["Raw data of:",
-#                             str(self.window.EdFilename.text())])
-#            csv_wr.writerow("")
-#            csv_wr.writerow(["Pixel", "Intensity"])
-#            csv_wr.writerow("")
-#            csv_wr.writerow(["Data:"])
-#            csv_wr.writerow("")
-#            
-#            ax = self.window.MplRaw.axes
-#            for i in ax.get_lines():
-#                if i.get_label() == RAW_DATA_LABEL:
-#                    print(i, i.get_xdata())
-#            
-#            for i in range(len(ax.lines[2].get_xdata())):
-#                csv_wr.writerow([ax.lines[2].get_xdata()[i]] +
-#                                [ax.lines[2].get_ydata()[i]])
-#
-#            myfile.close()
 
     def save_processed(self, filename):
         """Save processed spectrum to CSV-File """
@@ -289,39 +210,6 @@ class AnalysisWindow(QMainWindow):
                              PLOT["PROCESSED_Y_LABEL"],
                              results)
         return 0;
-#        if not filename:
-#            filename, _ = QFileDialog.getSaveFileName(
-#                self.widget,
-#                'Save processed spectrum to...',
-#                self.lastdir, "Comma separated (*.csv)")
-#
-#        if str(filename) != "":
-#            if QFileInfo(filename).suffix() != "csv":
-#                filename = filename + ".csv"
-#            self.lastdir = str(QFileInfo(filename).absolutePath())
-#
-##            import csv
-#            if sys.version_info >= (3, 0, 0):
-#                myfile = open(filename, 'w', newline='')
-#            else:
-#                myfile = open(filename, 'wb')
-#
-#            # Open CSV-Writer Instance and write data in Excel dialect
-#            csv_wr = csv.writer(myfile, dialect=csv.excel,
-#                                quoting=csv.QUOTE_NONE)
-#            csv_wr.writerow(["Processed Spectrum of:",
-#                             str(self.window.EdFilename.text())])
-#            csv_wr.writerow("")
-#            csv_wr.writerow(["Wavelength / nm", "Intensity / a.u."])
-#            csv_wr.writerow("")
-#            csv_wr.writerow(["Data:"])
-#            csv_wr.writerow("")
-#            for i in range(0, len(self.fd_xtrace_drawn), 1)[::-1]:
-#                csv_wr.writerow([self.fd_xtrace_drawn[i]] +
-#                                [self.fd_ytrace_drawn[i]])
-#
-#            myfile.close()
-            
     
     def init_plot(self, plotObj, xlabel, ylabel):
         """Gets a plot object and label it after clearing it"""
@@ -374,26 +262,6 @@ class AnalysisWindow(QMainWindow):
         self.window.EdTime.setText(time)
         return 0
     
-    
-#    def is_valid_filetype(self, url):
-#        """checks if the given url is valid to load the data"""
-#        isValid = True;
-#        file = url.toLocalFile();
-#        
-#        if not url.isValid():
-#            isValid = False;
-#        
-#        if QFileInfo(file).completeSuffix().lower() in VALID_FILE_SUFFIX:
-#            self.droppedFile = file;
-#        else:
-#            isValid = False;
-#            # TODO: magic strings?
-#            strSuffixes = ["." + suffix for suffix in VALID_FILE_SUFFIX];
-#            strSuffixes = ", ".join(strSuffixes);
-#            QMessageBox.critical(self, "Error: File could not be opened",
-#                         f"Valid filetypes: {strSuffixes}");
-#        return isValid;
-    
     def apply_data(self, filename):
         """read out a file and extract its information, 
         then set header information and draw spectra"""
@@ -424,8 +292,6 @@ def main():
     sys.exit(app.exec_())
     
 
-
-# compatibility to python 2? 
 # in Py3 you just need main() without the if statement
 if __name__ == '__main__':
     main()

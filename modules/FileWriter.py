@@ -8,8 +8,6 @@ Created on Mon Jan 27 11:02:13 2020
 """
 import csv
 
-# QFileInfo provides system-independent file information
-from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QFileDialog
 
 import modules.Universal as uni
@@ -20,18 +18,10 @@ config = uni.load_config()
 # parameters
 SAVE = config["SAVE"]
 LOAD = config["LOAD"]
-#RAW_APPENDIX = SAVE["RAW_APPENDIX"]
-#PROCESSED_APPENDIX = SAVE["PROCESSED_APPENDIX"]
-#EXP_SUFFIX = SAVE["EXP_SUFFIX"]
 
 MARKER = config["MARKER"]
-#HEADER_MARKER = MARKER["HEADER"]
-#DATA_MARKER = MARKER["DATA"]
 
 DIALECT = config["DIALECT"]
-#DIALECT_NAME = DIALECT["name"]
-#DIALECT_DELIMITER = DIALECT["delimiter"]
-#DIALECT_QUOTING = DIALECT["quoting"]
 
 class FileWriter:
     """File reader for spectral data files """

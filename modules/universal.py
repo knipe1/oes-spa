@@ -12,15 +12,6 @@ def load_config():
         config = yaml.load(ymlfile)
     return config
 
-# CONFIG
-# allowed file suffixes (seperate by ;;)
-#SUFFIXES = "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)";
-
-# if used case insensitive file system, e.g. windows
-# all lower case, because the suffix will be evaluated in lower case
-# also used to strip filename to save the spectra--> adding "Spk"
-#VALID_FILE_SUFFIX = ["csv", "spk", "Spk"]
-
 
 config = load_config()
 LOAD = config["LOAD"]

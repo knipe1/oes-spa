@@ -50,20 +50,6 @@ class DataHandler:
             self.log.info(strftime("Start Logging %d.%m.%y %H:%M:%S:",
                                    localtime()))
             
-            # TODO: Always except...
-#            try:
-#                print("Try: setData")
-#                self.setData()
-#
-#            except Exception:
-#                print("Except: setData")
-#                self.log.exception('Error in DataHandler():')
-        else:
-            # TODO: setData() is not defined 
-            # AND self.debug is always true unless otherwise specified in initialisation( which is never done yet)
-            self.log = None
-            print("setData")
-            self.setData()
 
         # TODO: csvoutput is always false?
         # AND has no attribute Config
