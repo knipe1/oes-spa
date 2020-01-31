@@ -1,17 +1,30 @@
 """This module is for general purposes and includes various functions
 """
+import yaml
 
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
+
+def load_config():
+    # load the config
+    with open("./config.yml", "r") as ymlfile:
+        config = yaml.load(ymlfile)
+    return config
+
 # CONFIG
 # allowed file suffixes (seperate by ;;)
-SUFFIXES = "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)";
+#SUFFIXES = "SpexHex File (*.spk);;Exported Raw spectrum (*.csv)";
 
 # if used case insensitive file system, e.g. windows
 # all lower case, because the suffix will be evaluated in lower case
 # also used to strip filename to save the spectra--> adding "Spk"
-VALID_FILE_SUFFIX = ["csv", "spk", "Spk"]
+#VALID_FILE_SUFFIX = ["csv", "spk", "Spk"]
+
+
+config = load_config()
+LOAD = config["LOAD"]
+
 
 def load_files(directory):
     if type(directory) not in [str]:
@@ -19,7 +32,7 @@ def load_files(directory):
     filenames, _ = QFileDialog.getOpenFileNames(
             caption = 'Load file(s)',
             directory = directory, 
-            filter = SUFFIXES)
+            filter = ";;".join(LOAD["SUFFIXES"]))
     return filenames;
 
 def is_valid_filetype(parent, url):
@@ -30,10 +43,10 @@ def is_valid_filetype(parent, url):
         if not url.isValid():
             isValid = False;
         
-        if not QFileInfo(file).completeSuffix().lower() in VALID_FILE_SUFFIX:
+        if not QFileInfo(file).completeSuffix().lower() in LOAD["VALID_SUFFIX"]:
             isValid = False;
             # TODO: magic strings?
-            strSuffixes = ["." + suffix for suffix in VALID_FILE_SUFFIX];
+            strSuffixes = ["." + suffix for suffix in LOAD["VALID_SUFFIX"]];
             strSuffixes = ", ".join(strSuffixes);
             QMessageBox.critical(parent, "Error: File could not be opened",
                         f"Valid filetypes: {strSuffixes}", );

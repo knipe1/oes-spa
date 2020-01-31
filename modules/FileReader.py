@@ -9,18 +9,29 @@ import csv
 import numpy as np
 # QFileInfo provides system-independent file information
 from PyQt5.QtCore import QFileInfo
+
+import modules.Universal as uni
+
+config = uni.load_config()
+
+SAVE = config["SAVE"]
+MARKER = config["MARKER"]
+DIALECT = config["DIALECT"]
                                             
 
 class FileReader:
     """File reader for spectral data files """
     def __init__(self, filename):
         print(filename) # is the path+filename
-        self.filetype = ""
+#        self.filetype = ""
         self.file = filename
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
         self.date = ""
         self.time = ""
+        csv.register_dialect(DIALECT["name"], 
+                             delimiter = DIALECT["delimiter"], 
+                             quoting = DIALECT["quoting"])
 
     def get_filetype(self):
         """Determine filetype"""
@@ -33,9 +44,9 @@ class FileReader:
     def read_file(self):
         """Readout given file"""
         DEFAULT_TYPE = np.float64
-        DELIMITER = "\t"
-        HEADER_MARKER = "Date"
-        DATA_MARKER = "Data"
+#        DELIMITER = "\t"
+#        HEADER_MARKER = "Date"
+#        DATA_MARKER = "Data"
         
         # declaration
         x_data = []
@@ -45,11 +56,10 @@ class FileReader:
         if not self.get_filetype():
             # Get Data from tab separated ascii file
             with open(self.file, 'r') as csvFile:
-                csvReader = csv.reader(csvFile, delimiter=DELIMITER, 
-                                       quoting=csv.QUOTE_NONE)
+                csvReader = csv.reader(csvFile, DIALECT["name"])
                 
                 row = next(csvReader)
-                self.read_head(row[0], HEADER_MARKER)
+                self.read_head(row[0], MARKER["HEADER"])
                 row = next(csvReader)   #header
                 row = next(csvReader)   #units
                 test = 3

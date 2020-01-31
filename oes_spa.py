@@ -27,33 +27,37 @@ __author__ = "Peter Knittel"
 __copyright__ = "Copyright 2019"
 __license__ = ""
 __version__ = "a1"
-__maintainer__ = "Peter Knittel"
+__maintainer__ = "Peter Knittel/ Hauke Wernecke"
 __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-
+config = uni.load_config()
+    
 # parameters
 # DEF --> Default
 # DIR --> directory
 # r+string --> raw string, no special characters like \n, \t,...
 
 # plots
-RAW_DATA_LABEL = "Raw Spectrum";
-RAW_DATA_MRK = "r"
-RAW_BASELINE_LABEL = "Baseline";
-RAW_BASELINE_MRK = "b--";
-RAW_X_LABEL = r"Pixel";
-RAW_Y_LABEL = r"Intensity / a.u.";
-PROCESSED_DATA_LABEL = "Processed Spectrum";
-PROCESSED_DATA_MRK = RAW_DATA_MRK;
-PROCESSED_X_LABEL = r"Wavelength / nm";
-PROCESSED_Y_LABEL = RAW_Y_LABEL;
-DEF_LINEWIDTH = 0.5;
-DEF_AXIS_COLOR = '0.2';
+PLOT = config["PLOT"];
+#RAW_DATA_LABEL = PLOT["RAW_DATA_LABEL"];
+#RAW_DATA_MRK = PLOT["RAW_DATA_MRK"];
+#RAW_BASELINE_LABEL = PLOT["RAW_BASELINE_LABEL"];
+#RAW_BASELINE_MRK = PLOT["RAW_BASELINE_MRK"];
+#RAW_X_LABEL = PLOT["RAW_X_LABEL"];
+#RAW_Y_LABEL = PLOT["RAW_Y_LABEL"];
+#PROCESSED_DATA_LABEL = PLOT["PROCESSED_DATA_LABEL"];
+#PROCESSED_DATA_MRK = PLOT["PROCESSED_DATA_MRK"];
+#PROCESSED_X_LABEL = PLOT["PROCESSED_X_LABEL"];
+#PROCESSED_Y_LABEL = PLOT["PROCESSED_Y_LABEL"];
+#DEF_LINEWIDTH = PLOT["DEF_LINEWIDTH"];
+#DEF_AXIS_COLOR = PLOT["DEF_AXIS_COLOR"];
 
 # filesystem
-DEF_DIR = "../ASTERIX1059";
-DEF_FILE = "";
+FILE = config["FILE"]
+#DEF_DIR = FILE["DEF_DIR"];
+#DEF_FILE = FILE["DEF_FILE"];
+
 
        
 
@@ -66,8 +70,8 @@ class AnalysisWindow(QMainWindow):
         QMainWindow.__init__(self)
 
         # Set file and directory
-        self.lastdir = DEF_DIR;
-        self.openFile = DEF_FILE;
+        self.lastdir = FILE["DEF_DIR"];
+        self.openFile = FILE["DEF_FILE"];
         # general settings
         self.setAcceptDrops(True)
         self.droppedFile = None
@@ -157,7 +161,7 @@ class AnalysisWindow(QMainWindow):
             self.plot_redrawable(False)
 #            self.window.menuSave.setEnabled(False)
             QMessageBox.critical(self, "Error: File could not be opened",
-                                 " Filetype unknown or file unreadable!")
+                                 "Filetype unknown or file unreadable!")
             return 1
 
 
@@ -184,17 +188,17 @@ class AnalysisWindow(QMainWindow):
         # Draw the spectra in MatPlotLibWidgets
         # Raw
         rawPlot = self.window.MplRaw;
-        self.init_plot(rawPlot, RAW_X_LABEL, RAW_Y_LABEL);
+        self.init_plot(rawPlot, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]);
         self.update_plot(rawPlot, x_data, y_data, 
-                         RAW_DATA_MRK, RAW_DATA_LABEL);
+                         PLOT["RAW_DATA_MRK"], PLOT["RAW_DATA_LABEL"]);
         self.update_plot(rawPlot, x_data, baseline, 
-                         RAW_BASELINE_MRK, RAW_BASELINE_LABEL);
+                         PLOT["RAW_BASELINE_MRK"], PLOT["RAW_BASELINE_LABEL"]);
 
         # Processed
         processedPlot = self.window.MplProcessed;
-        self.init_plot(processedPlot, PROCESSED_X_LABEL, PROCESSED_Y_LABEL);
+        self.init_plot(processedPlot, PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]);
         self.update_plot(processedPlot, procX, procY, 
-                         PROCESSED_DATA_MRK, PROCESSED_DATA_LABEL);
+                         PLOT["PROCESSED_DATA_MRK"], PLOT["PROCESSED_DATA_LABEL"]);
 
                 
         # Enable Redraw Events
@@ -223,10 +227,10 @@ class AnalysisWindow(QMainWindow):
         """Save Raw-Data in CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
-        xyData = uni.extract_xy_data(self.window.MplRaw.axes, RAW_DATA_LABEL)
+        xyData = uni.extract_xy_data(self.window.MplRaw.axes, PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = w_file.FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData, RAW_X_LABEL, RAW_Y_LABEL, isRaw=True)
+        csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"], isRaw=True)
         return 0;
 #        if not filename:
 #            # TODO: repetition
@@ -272,7 +276,7 @@ class AnalysisWindow(QMainWindow):
         # collect data
         filename, date, time = self.get_fileinformation()
         xyData = uni.extract_xy_data(self.window.MplProcessed.axes, 
-                                     PROCESSED_DATA_LABEL)
+                                     PLOT["PROCESSED_DATA_LABEL"])
         
         results = {}
         results["PeakHeight"] = self.window.EdPeakHeight.text()
@@ -280,7 +284,9 @@ class AnalysisWindow(QMainWindow):
         
         # write data to csv
         csvWriter = w_file.FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData, PROCESSED_X_LABEL, PROCESSED_Y_LABEL,
+        csvWriter.write_data(xyData, 
+                             PLOT["PROCESSED_X_LABEL"], 
+                             PLOT["PROCESSED_Y_LABEL"],
                              results)
         return 0;
 #        if not filename:
@@ -322,8 +328,10 @@ class AnalysisWindow(QMainWindow):
         plotObj.axes.clear();
         plotObj.axes.set_xlabel(xlabel);
         plotObj.axes.set_ylabel(ylabel);
-        plotObj.axes.axhline(linewidth=DEF_LINEWIDTH, color=DEF_AXIS_COLOR);
-        plotObj.axes.axvline(linewidth=DEF_LINEWIDTH, color=DEF_AXIS_COLOR);
+        plotObj.axes.axhline(linewidth=PLOT["DEF_LINEWIDTH"], 
+                             color=PLOT["DEF_AXIS_COLOR"]);
+        plotObj.axes.axvline(linewidth=PLOT["DEF_LINEWIDTH"], 
+                             color=PLOT["DEF_AXIS_COLOR"]);
         return 0;
     
     
@@ -409,7 +417,12 @@ def main():
 
     # Show Window
     window.show()
+    window.file_open("H:/OES/ASTERIX1059/Asterix1059 5.Spk")
+    window.save_raw("test")
+    window.save_processed("test")
+    window.file_open("H:/OES/ASTERIX1059/Asterix1059 5_raw.csv")
     sys.exit(app.exec_())
+    
 
 
 # compatibility to python 2? 
