@@ -11,6 +11,7 @@ import csv
 from PyQt5.QtWidgets import QFileDialog
 
 import modules.Universal as uni
+from modules.FileFramework import FileFramework
 
 
 config = uni.load_config()
@@ -18,18 +19,13 @@ config = uni.load_config()
 # parameters
 SAVE = config["SAVE"]
 LOAD = config["LOAD"]
-
 MARKER = config["MARKER"]
 
-DIALECT = config["DIALECT"]
-
-class FileWriter:
+class FileWriter(FileFramework):
     """File reader for spectral data files """
     def __init__(self, parent, filename, date, time):
+        FileFramework.__init__(self)
         self.parent = parent
-        csv.register_dialect(DIALECT["name"], 
-                             delimiter = DIALECT["delimiter"], 
-                             quoting = DIALECT["quoting"])
         
         self.directory = self.select_directory()
         self.filename, self.date, self.time = filename, date, time
@@ -45,7 +41,7 @@ class FileWriter:
         expFilename = self.build_exp_filename(isRaw)
         with open(expFilename, 'w', newline='') as expFile:
             # open writer with self defined dialect
-            csvWr = csv.writer(expFile, dialect=DIALECT["name"])
+            csvWr = csv.writer(expFile, dialect=self.dialect)
             csvWr.writerow([" ".join([MARKER["HEADER"], self.date, self.time])])
             for key, value in additionalInformation.items():
                 csvWr.writerow([key, value])

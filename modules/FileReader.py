@@ -4,24 +4,25 @@
 
 Import XY data from different filetypes
 """
+# imports
 import csv
 
 import numpy as np
-# QFileInfo provides system-independent file information
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo # provides system-independent file info
 
 import modules.Universal as uni
+from modules.FileFramework import FileFramework
 
 config = uni.load_config()
 
 SAVE = config["SAVE"]
 MARKER = config["MARKER"]
-DIALECT = config["DIALECT"]
                                             
 
-class FileReader:
+class FileReader(FileFramework):
     """File reader for spectral data files """
     def __init__(self, filename):
+        FileFramework.__init__(self)
         print(filename) # is the path+filename
 #        self.filetype = ""
         self.file = filename
@@ -29,9 +30,6 @@ class FileReader:
         self.yData = np.zeros(0)
         self.date = ""
         self.time = ""
-        csv.register_dialect(DIALECT["name"], 
-                             delimiter = DIALECT["delimiter"], 
-                             quoting = DIALECT["quoting"])
 
     def get_filetype(self):
         """Determine filetype"""
@@ -56,7 +54,7 @@ class FileReader:
         if not self.get_filetype():
             # Get Data from tab separated ascii file
             with open(self.file, 'r') as csvFile:
-                csvReader = csv.reader(csvFile, DIALECT["name"])
+                csvReader = csv.reader(csvFile, dialect=self.dialect)
                 
                 row = next(csvReader)
                 self.read_head(row[0], MARKER["HEADER"])
