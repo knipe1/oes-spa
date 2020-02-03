@@ -1,3 +1,9 @@
+# DEF --> Default
+# DIR --> Directory
+# RAW --> settings for the raw dataset
+# PROCESSED --> settings for the processed data
+# MRK --> marker, i.e. the displayed marker and the color in a plot
+# EXP --> Export
 PLOT:
     RAW_DATA_LABEL: Raw Spectrum
     RAW_DATA_MRK: r

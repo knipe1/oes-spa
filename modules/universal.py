@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 def load_config():
     # load the config
     with open("./config.yml", "r") as ymlfile:
-        config = yaml.load(ymlfile)
+        config = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return config
 
 
