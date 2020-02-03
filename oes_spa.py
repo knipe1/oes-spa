@@ -19,18 +19,12 @@ import sys
 import matplotlib as mpl
 from PyQt5.QtWidgets import QApplication
 
-import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 
 
 # set interactive backend
 mpl.use("Qt5Agg")
 
-config = uni.load_config()
-# plots
-PLOT = config["PLOT"];
-# filesystem
-FILE = config["FILE"]
 
 def main():
     """Main program """

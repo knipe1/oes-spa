@@ -176,10 +176,12 @@ class AnalysisWindow(QMainWindow):
         """Save Raw-Data in CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
-        xyData = uni.extract_xy_data(self.window.MplRaw.axes, PLOT["RAW_DATA_LABEL"])
+        xyData = uni.extract_xy_data(self.window.MplRaw.axes, 
+                                     PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"], isRaw=True)
+        csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"], 
+                             isRaw=True)
         return 0;
 
     def save_processed(self, filename):

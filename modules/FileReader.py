@@ -10,21 +10,14 @@ import csv
 import numpy as np
 from PyQt5.QtCore import QFileInfo # provides system-independent file info
 
-import modules.Universal as uni
 from modules.FileFramework import FileFramework
-
-config = uni.load_config()
-
-SAVE = config["SAVE"]
-MARKER = config["MARKER"]
-                                            
+                                           
 
 class FileReader(FileFramework):
     """File reader for spectral data files """
     def __init__(self, filename):
         FileFramework.__init__(self)
         print(filename) # is the path+filename
-#        self.filetype = ""
         self.file = filename
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
@@ -41,15 +34,12 @@ class FileReader(FileFramework):
 
     def read_file(self):
         """Readout given file"""
+        # TODO: config? parentclass?
         DEFAULT_TYPE = np.float64
-#        DELIMITER = "\t"
-#        HEADER_MARKER = "Date"
-#        DATA_MARKER = "Data"
         
         # declaration
         x_data = []
         y_data = []
-        #getdata = False
 
         if not self.get_filetype():
             # Get Data from tab separated ascii file
@@ -57,17 +47,17 @@ class FileReader(FileFramework):
                 csvReader = csv.reader(csvFile, dialect=self.dialect)
                 
                 row = next(csvReader)
-                self.read_head(row[0], MARKER["HEADER"])
+                self.read_head(row[0], self.MARKER["HEADER"])
                 row = next(csvReader)   #header
                 row = next(csvReader)   #units
-                test = 3
+                dataCol = 3
                 if self.file.find(".csv") >= 0:
-                    test = 1
+                    dataCol = 1
                     
                 for row in csvReader:
                     # TODO: is there any value with a commata?
                     x_data.append(row[0].replace(',', '.')) # TODO: magic
-                    y_data.append(row[test].replace(',', '.')) # TODO: magic
+                    y_data.append(row[dataCol].replace(',', '.')) # TODO: magic
 
             self.xData = np.array(x_data, dtype=DEFAULT_TYPE)
             self.yData = np.array(y_data, dtype=DEFAULT_TYPE)
@@ -83,14 +73,6 @@ class FileReader(FileFramework):
         if not self.get_filetype():
             self.read_file()
         return self.time, self.date
-        
-        '''if self.filetype == "":
-            if not self.get_filetype():
-                self.read_file()
-        elif self.filetype == "SpexHex":
-            return self.time, self.date
-
-        return 0, 0'''
     
     def read_head(self, data, marker):
         """read the date and time, 

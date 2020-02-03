@@ -10,16 +10,8 @@ import csv
 
 from PyQt5.QtWidgets import QFileDialog
 
-import modules.Universal as uni
 from modules.FileFramework import FileFramework
 
-
-config = uni.load_config()
-
-# parameters
-SAVE = config["SAVE"]
-LOAD = config["LOAD"]
-MARKER = config["MARKER"]
 
 class FileWriter(FileFramework):
     """File reader for spectral data files """
@@ -39,33 +31,43 @@ class FileWriter(FileFramework):
             return 1
                 
         expFilename = self.build_exp_filename(isRaw)
+        # TODO: sense of newline=''?
         with open(expFilename, 'w', newline='') as expFile:
             # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
-            csvWr.writerow([" ".join([MARKER["HEADER"], self.date, self.time])])
+            csvWr.writerow([self.build_head()])
             for key, value in additionalInformation.items():
                 csvWr.writerow([key, value])
             csvWr.writerow([xLabel, yLabel])
-            csvWr.writerow([ MARKER["DATA"]])
+            csvWr.writerow([self.MARKER["DATA"]])
             csvWr.writerows(xyData)
+        return 0
     
     def select_directory(self):
         # open a dialog to set the filename if not given
+        saveMessage = 'Save spectrum to...'
         directory = QFileDialog.getExistingDirectory(self.parent.widget,
-                                   'Save spectrum to...', self.parent.lastdir)
+                                   caption=saveMessage, 
+                                   directory=self.parent.lastdir)
+        # back up the used directory, if a directory was selected
         if directory:
-            # back up the used directory
             self.parent.lastdir = directory
         return directory
     
     def build_exp_filename(self, isRaw=False):
-        """"""
+        """Alters the current filename to a standard processed export
+        filename"""
         rawFilename = self.filename
-        for suffix in LOAD["VALID_SUFFIX"]:
+        # remove the suffix
+        for suffix in self.LOAD["VALID_SUFFIX"]:
             rawFilename = rawFilename.replace("."+suffix, "")
-        appendix = SAVE["PROCESSED_APPENDIX"];
+        # get the correct appendix
+        appendix = self.SAVE["PROCESSED_APPENDIX"];
         if isRaw:
-            appendix = SAVE["RAW_APPENDIX"]
-        return rawFilename+appendix+SAVE["EXP_SUFFIX"];
+            appendix = self.SAVE["RAW_APPENDIX"]
+        return rawFilename+appendix+self.SAVE["EXP_SUFFIX"];
+    
+    def build_head(self):
+        return " ".join([self.MARKER["HEADER"], self.date, self.time])
 
                     
