@@ -34,10 +34,6 @@ PLOT = config["PLOT"];
 FILE = config["FILE"]
 
 
-       
-
-
-
 # class AnalysisWindow(QMainWindow):
 #     """Main Analysis Window Class """
 
