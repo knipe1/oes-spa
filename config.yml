@@ -17,32 +17,32 @@ PLOT:
     PROCESSED_Y_LABEL: Intensity / a.u.
     DEF_LINEWIDTH: 0.5
     DEF_AXIS_COLOR: '0.2'
-    
+
 FILE:
     DEF_DIR: "../ASTERIX1059"
     DEF_FILE: ""
-    
-   
+
+
 SAVE:
     RAW_APPENDIX: _raw
     PROCESSED_APPENDIX: _processed
     EXP_SUFFIX: .csv
-    
+
 LOAD:
     VALID_SUFFIX:
-        - csv
-        - spk
-        - Spk
+        - "csv"
+        - "spk"
+        - "Spk"
     SUFFIXES:
         - "SpexHex File (*.spk)"
         - "Exported Raw spectrum (*.csv)"
-    
+
 DIALECT:
-    name: spectral_data
+    name: "spectral_data"
     delimiter: "\t"
     #csv.QUOTE_MINIMAL = 0
-    quoting: 0 
+    quoting: 0
 
 MARKER:
-    HEADER: Date
-    DATA: Data
+    HEADER: "Date"
+    DATA: "Data"
