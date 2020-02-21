@@ -13,13 +13,14 @@ Batch analysis of OES spectra
 
 import matplotlib as mpl
 from PyQt5.QtCore import QFileInfo, QStringListModel
-from PyQt5.QtWidgets import QFileDialog, QDialog
+from PyQt5.QtWidgets import QDialog
 
 from ui.UIBatch import UIBatch
 
 import modules.FileReader as r_file
 import modules.DataHandler as dproc
 import modules.Universal as uni
+import dialog_messages as dialog
 
 # set interactive backend
 mpl.use("Qt5Agg")
@@ -44,7 +45,7 @@ class BatchAnalysis(QDialog):
         self.model = QStringListModel()
         # init of mui has to be at last, because it connects self.model i.a.
         self.mui = UIBatch(self)
-        
+
 
     def dragEnterEvent(self, event):
         """Drag file over window event """
@@ -82,10 +83,7 @@ class BatchAnalysis(QDialog):
 
     def set_filename(self):
         """Handling target filename """
-        # TODO: repetition
-        filename, _ = QFileDialog.getSaveFileName(self, 'Set Filename',
-                                                  self.lastdir,
-                                                  "Comma separated (*.csv)")
+        filename = dialog.dialog_saveFile(self.lastdir, parent=self)
         if str(filename) != "":
             if QFileInfo(filename).suffix() != "csv":
                 filename = filename+".csv"
@@ -106,7 +104,7 @@ class BatchAnalysis(QDialog):
         if len(self.files) != 0:
             self.accept_files();
 #            self.model.setStringList(self.files)
-            
+
             self.enable_UI(True)
 #            self.mui.DispSpin.setMaximum(int(len(filenames)-1))
             self.mui.files2analyze.setCurrentIndex(self.model.index(0))
@@ -209,18 +207,18 @@ class BatchAnalysis(QDialog):
         """Get Current selected file by index """
         self.mui.files2analyze.setCurrentIndex(index)
         self.mui.DispSpin.setValue(index.row())
-        
+
     def set_progressBar(self, percentage):
         """sets hte percentage to the progress bar"""
         self.mui.progressBar.setValue(int(percentage*100))
         return 0;
-    
+
     def enable_UI(self, enable):
         """enable/disable elements if files/no file is in the list"""
         self.mui.groupBox.setEnabled(enable)
         [elem.setEnabled(enable) for elem in self.mui.groupDisplay.children()]
         [btn.setEnabled(enable) for btn in self.mui.btnFileaction.buttons()]
-        
+
     def accept_files(self):
         """setting the list of files and the maximum index"""
         numerOfFiles = len(self.files);
@@ -229,7 +227,7 @@ class BatchAnalysis(QDialog):
             self.mui.DispSpin.setMaximum(0)
         else:
             self.mui.DispSpin.setMaximum(numerOfFiles-1)
-    
+
     def clear_files(self):
         """setting the list of files and the maximum index"""
         self.files =  []

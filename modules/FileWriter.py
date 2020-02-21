@@ -8,9 +8,11 @@ Created on Mon Jan 27 11:02:13 2020
 """
 import csv
 
-from PyQt5.QtWidgets import QFileDialog
+# from PyQt5.QtWidgets import QFileDialog
 
 from modules.FileFramework import FileFramework
+
+import dialog_messages as dialog
 
 
 class FileWriter(FileFramework):
@@ -18,18 +20,18 @@ class FileWriter(FileFramework):
     def __init__(self, parent, filename, date, time):
         FileFramework.__init__(self)
         self.parent = parent
-        
+
         self.directory = self.select_directory()
         self.filename, self.date, self.time = filename, date, time
-        
-        
-        
+
+
+
     def write_data(self, xyData, xLabel, yLabel, additionalInformation = {},
                    isRaw=False):
         """"""
         if not self.directory:
             return 1
-                
+
         expFilename = self.build_exp_filename(isRaw)
         # TODO: sense of newline=''?
         with open(expFilename, 'w', newline='') as expFile:
@@ -42,18 +44,19 @@ class FileWriter(FileFramework):
             csvWr.writerow([self.MARKER["DATA"]])
             csvWr.writerows(xyData)
         return 0
-    
+
     def select_directory(self):
         # open a dialog to set the filename if not given
-        saveMessage = 'Save spectrum to...'
-        directory = QFileDialog.getExistingDirectory(self.parent.widget,
-                                   caption=saveMessage, 
-                                   directory=self.parent.lastdir)
+        # saveMessage = 'Save spectrum to...'
+        # directory = QFileDialog.getExistingDirectory(self.parent.widget,
+        #                            caption=saveMessage,
+        #                            directory=self.parent.lastdir)
+        dialog.dialog_getDirectory(self.parent.lastdir, self.parent.widget)
         # back up the used directory, if a directory was selected
         if directory:
             self.parent.lastdir = directory
         return directory
-    
+
     def build_exp_filename(self, isRaw=False):
         """Alters the current filename to a standard processed export
         filename"""
@@ -66,8 +69,7 @@ class FileWriter(FileFramework):
         if isRaw:
             appendix = self.SAVE["RAW_APPENDIX"]
         return rawFilename+appendix+self.SAVE["EXP_SUFFIX"];
-    
+
     def build_head(self):
         return " ".join([self.MARKER["HEADER"], self.date, self.time])
 
-                    

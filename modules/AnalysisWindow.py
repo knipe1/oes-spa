@@ -14,19 +14,20 @@ __status__ = "alpha"
 
 
 from PyQt5.QtCore import QFileInfo
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QMainWindow
 
 
 #from ui.ui_main_window import Ui_main
 import matplotlib as mpl
-from ui.UImain import UImain
+from ui.UIMain import UIMain
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
 from modules.BatchAnalysis import BatchAnalysis
 import modules.Universal as uni
+import dialog_messages as dialog
 
-    
+
 # parameters
 # r+string --> raw string, no special characters like \n, \t,...
 
@@ -51,21 +52,21 @@ class AnalysisWindow(QMainWindow):
         self.setAcceptDrops(True)
         self.droppedFile = None
         self.widget = self.centralWidget()
-        
+
         # Set up the user interface from Designer.
         # Load batch dialog
         self.batch = BatchAnalysis(self)
         # Load the main window (uses self.batch already)
-        self.window = UImain(self)
+        self.window = UIMain(self)
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
         # event.accept --> dropEvent is handled by Widget not by BatchAnalysis
-        
+
         #Prequerities
-        validScheme = ["file"];                 
+        validScheme = ["file"];
         urls = event.mimeData().urls();
-        
+
         if len(urls) > 1:
             self.batch.show();
         elif len(urls) == 1:
@@ -77,7 +78,7 @@ class AnalysisWindow(QMainWindow):
                 event.ignore();
         else:
             event.ignore();
-    
+
 
     def dropEvent(self, event):
 		# TODO: ought be a function and in the event handler just a function call, right?
@@ -101,8 +102,8 @@ class AnalysisWindow(QMainWindow):
 
         if filename != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
-            self.lastdir = str(QFileInfo(filename).absolutePath()) 
-            
+            self.lastdir = str(QFileInfo(filename).absolutePath())
+
             self.apply_data(filename)
 
     def draw_spectra(self, x_data, y_data):
@@ -112,8 +113,9 @@ class AnalysisWindow(QMainWindow):
         # Check whether data was found in the files
         if not x_data.any():
             self.plot_redrawable(False)
-            QMessageBox.critical(self, "Error: File could not be opened",
-                                 "Filetype unknown or file unreadable!")
+            # QMessageBox.critical(self, "Error: File could not be opened",
+            #                      "Filetype unknown or file unreadable!")
+            dialog.critical_unknownFiletype(self)
             return 1
 
 
@@ -128,9 +130,9 @@ class AnalysisWindow(QMainWindow):
         procX, procY = spec_proc.get_processed_data()
         baseline, avg = spec_proc.get_baseline()
         peak_height, peak_area = spec_proc.get_peak()
-        
+
         # display results
-        # TODO: expected behaviour? What happens if not everything is given? 
+        # TODO: expected behaviour? What happens if not everything is given?
         # Is there a scenario in which just one result is calculated/set?
         self.window.EdBaseline.setText(str(avg))
         self.window.EdPeakHeight.setText(str(peak_height))
@@ -141,27 +143,27 @@ class AnalysisWindow(QMainWindow):
         # Raw
         rawPlot = self.window.MplRaw;
         self.init_plot(rawPlot, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]);
-        self.update_plot(rawPlot, x_data, y_data, 
+        self.update_plot(rawPlot, x_data, y_data,
                          PLOT["RAW_DATA_MRK"], PLOT["RAW_DATA_LABEL"]);
-        self.update_plot(rawPlot, x_data, baseline, 
+        self.update_plot(rawPlot, x_data, baseline,
                          PLOT["RAW_BASELINE_MRK"], PLOT["RAW_BASELINE_LABEL"]);
 
         # Processed
         processedPlot = self.window.MplProcessed;
         self.init_plot(processedPlot, PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]);
-        self.update_plot(processedPlot, procX, procY, 
+        self.update_plot(processedPlot, procX, procY,
                          PLOT["PROCESSED_DATA_MRK"], PLOT["PROCESSED_DATA_LABEL"]);
 
-                
+
         # Enable Redraw Events
         self.plot_redrawable(True)
-        
+
         return 0
 
     def redraw(self):
         """Redraw the current spectrum selected """
         # TODO: separate elements for displaying information and input elements
-        # --> new class attribute for self.activeFile, 
+        # --> new class attribute for self.activeFile,
         #   which is set, whenever something is drawn
         # is it openfile?
         # --> and update the displayed filename
@@ -170,17 +172,17 @@ class AnalysisWindow(QMainWindow):
             x_data, y_data = self.openFile.get_values()
             self.draw_spectra(x_data, y_data)
         else:
-            QMessageBox.warning(self.widget, "Warning", "No File selected!")		#magic
+            dialog.warning_fileSelection(self.widget)
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
-        xyData = uni.extract_xy_data(self.window.MplRaw.axes, 
+        xyData = uni.extract_xy_data(self.window.MplRaw.axes,
                                      PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"], 
+        csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"],
                              isRaw=True)
         return 0;
 
@@ -188,33 +190,33 @@ class AnalysisWindow(QMainWindow):
         """Save processed spectrum to CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
-        xyData = uni.extract_xy_data(self.window.MplProcessed.axes, 
+        xyData = uni.extract_xy_data(self.window.MplProcessed.axes,
                                      PLOT["PROCESSED_DATA_LABEL"])
-        
+
         results = {}
         results["PeakHeight"] = self.window.EdPeakHeight.text()
         results["PeakArea"] = self.window.EdPeakArea.text()
-        
+
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData, 
-                             PLOT["PROCESSED_X_LABEL"], 
+        csvWriter.write_data(xyData,
+                             PLOT["PROCESSED_X_LABEL"],
                              PLOT["PROCESSED_Y_LABEL"],
                              results)
         return 0;
-    
+
     def init_plot(self, plotObj, xlabel, ylabel):
         """Gets a plot object and label it after clearing it"""
         plotObj.axes.clear();
         plotObj.axes.set_xlabel(xlabel);
         plotObj.axes.set_ylabel(ylabel);
-        plotObj.axes.axhline(linewidth=PLOT["DEF_LINEWIDTH"], 
+        plotObj.axes.axhline(linewidth=PLOT["DEF_LINEWIDTH"],
                              color=PLOT["DEF_AXIS_COLOR"]);
-        plotObj.axes.axvline(linewidth=PLOT["DEF_LINEWIDTH"], 
+        plotObj.axes.axvline(linewidth=PLOT["DEF_LINEWIDTH"],
                              color=PLOT["DEF_AXIS_COLOR"]);
         return 0;
-    
-    
+
+
     def update_plot(self, plotObj, xData, yData, color, label):
         """updates a given plot"""
         plotObj.axes.plot(xData, yData, color, label=label);
@@ -222,8 +224,8 @@ class AnalysisWindow(QMainWindow):
         plotObj.axes.legend();
         plotObj.draw();
         return 0;
-        
-    
+
+
     def plot_redrawable(self, enable = True):
         """set the status (enabled/disabled) of redraw button/action"""
         self.window.BtRedraw.setEnabled(enable);
@@ -231,13 +233,13 @@ class AnalysisWindow(QMainWindow):
         # menu --> File --> save
         self.window.menuSave.setEnabled(enable)
         return 0;
-    
+
     def get_fileinformation(self):
         filename = self.window.EdFilename.text()
         date = self.window.EdDate.text()
         time = self.window.EdTime.text()
         return filename, date, time
-    
+
     def set_fileinformation(self, filename, date, time):
         """set the file information (filename, date and time)"""
         # validate inputs
@@ -247,15 +249,15 @@ class AnalysisWindow(QMainWindow):
             raise TypeError("date must be of type string")
         if type(time) not in [str]:
             raise TypeError("time must be of type string")
-        
+
         # set values
         self.window.EdFilename.setText(filename)
         self.window.EdDate.setText(date)
         self.window.EdTime.setText(time)
         return 0
-    
+
     def apply_data(self, filename):
-        """read out a file and extract its information, 
+        """read out a file and extract its information,
         then set header information and draw spectra"""
         # TODO: error handling
         # Read out the chosen file

@@ -28,7 +28,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="setfilename">
+      <widget class="QPushButton" name="btnSetFilename">
        <property name="text">
         <string>&amp;Set Filename</string>
        </property>
@@ -44,7 +44,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QPushButton" name="browseBtn">
+        <widget class="QPushButton" name="btnBrowse">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -54,7 +54,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="calcBtn">
+        <widget class="QPushButton" name="btnCalculate">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -62,12 +62,12 @@
           <string>&amp;Calculate</string>
          </property>
          <attribute name="buttonGroup">
-          <string notr="true">btnFileaction</string>
+          <string notr="true">BtnFileaction</string>
          </attribute>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="clearBtn">
+        <widget class="QPushButton" name="btnClear">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -75,7 +75,7 @@
           <string>Clear</string>
          </property>
          <attribute name="buttonGroup">
-          <string notr="true">btnFileaction</string>
+          <string notr="true">BtnFileaction</string>
          </attribute>
         </widget>
        </item>
@@ -113,7 +113,7 @@
            <string>Peak height</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">btnParameters</string>
+           <string notr="true">BtnParameters</string>
           </attribute>
          </widget>
         </item>
@@ -123,7 +123,7 @@
            <string>Peak area</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">btnParameters</string>
+           <string notr="true">BtnParameters</string>
           </attribute>
          </widget>
         </item>
@@ -133,7 +133,7 @@
            <string>Baseline</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">btnParameters</string>
+           <string notr="true">BtnParameters</string>
           </attribute>
          </widget>
         </item>
@@ -143,7 +143,7 @@
            <string>Peak Position</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">btnParameters</string>
+           <string notr="true">BtnParameters</string>
           </attribute>
          </widget>
         </item>
@@ -157,7 +157,7 @@
            <string>Header info</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">btnParameters</string>
+           <string notr="true">BtnParameters</string>
           </attribute>
          </widget>
         </item>
@@ -167,7 +167,7 @@
            <string>Peak height (not corrected)</string>
           </property>
           <attribute name="buttonGroup">
-           <string notr="true">btnParameters</string>
+           <string notr="true">BtnParameters</string>
           </attribute>
          </widget>
         </item>
@@ -185,7 +185,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="btnSelectAll">
           <property name="text">
            <string>Select All</string>
           </property>
@@ -250,10 +250,10 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>setfilename</tabstop>
-  <tabstop>browseBtn</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>calcBtn</tabstop>
+  <tabstop>btnSetFilename</tabstop>
+  <tabstop>btnBrowse</tabstop>
+  <tabstop>btnSelectAll</tabstop>
+  <tabstop>btnCalculate</tabstop>
   <tabstop>ChPeakHeight</tabstop>
   <tabstop>ChPeakArea</tabstop>
   <tabstop>ChBaseline</tabstop>
@@ -264,7 +264,7 @@
   <tabstop>csvfile</tabstop>
   <tabstop>DispFile</tabstop>
   <tabstop>files2analyze</tabstop>
-  <tabstop>clearBtn</tabstop>
+  <tabstop>btnClear</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -286,12 +286,12 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="btnParameters">
+  <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="btnFileaction">
+  <buttongroup name="BtnParameters">
    <property name="exclusive">
     <bool>false</bool>
    </property>

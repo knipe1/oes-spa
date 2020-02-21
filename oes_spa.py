@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 """OES-Spectra-Analysis
 
-Single and batch analysis of OES spectra
-"""
+Single and batch analysis of OES spectra"""
 
 __author__ = "Peter Knittel"
 __copyright__ = "Copyright 2019"
@@ -18,6 +17,7 @@ import sys
 
 import matplotlib as mpl
 from PyQt5.QtWidgets import QApplication
+
 
 from modules.AnalysisWindow import AnalysisWindow
 
@@ -35,12 +35,12 @@ def main():
 
     # Show Window
     window.show()
+    # automatic open and close routine
     window.file_open("H:/OES/ASTERIX1059/Asterix1059 5.Spk")
-    window.save_raw("test")
-    window.save_processed("test")
     window.file_open("H:/OES/ASTERIX1059/Asterix1059 5_raw.csv")
+
     sys.exit(app.exec_())
-    
+
 
 # in Py3 you just need main() without the if statement
 if __name__ == '__main__':

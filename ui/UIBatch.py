@@ -13,6 +13,7 @@ __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de
 __status__ = "alpha"
 
 
+
 from ui.ui_batch_dialog import Ui_batch
 
 class UIBatch(Ui_batch):
@@ -25,9 +26,10 @@ class UIBatch(Ui_batch):
         self.setupUi(self.parent)
         # Setup Events
         self.set_connections()
-        
-        
+
+
     def set_connections(self):
+        # TODO: care. untested code.
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
         # TODO: what is that one good for?
@@ -35,15 +37,15 @@ class UIBatch(Ui_batch):
         # click/valueChanged connections
         self.files2analyze.clicked.connect(self.parent.get_list_index)
         self.DispSpin.valueChanged.connect(self.parent.disp_curve)
-        self.setfilename.clicked.connect(self.parent.set_filename)
-        self.browseBtn.clicked.connect(self.parent.set_spectra)
-        self.clearBtn.clicked.connect(self.parent.clear)
-        self.calcBtn.clicked.connect(self.parent.multi_calc)
-        self.pushButton.clicked.connect(self.set_all)
-        
-        
+        self.btnSetFilename.clicked.connect(self.parent.set_filename)
+        self.btnBrowse.clicked.connect(self.parent.set_spectra)
+        self.btnClear.clicked.connect(self.parent.clear)
+        self.btnCalculate.clicked.connect(self.parent.multi_calc)
+        self.btnSelectAll.clicked.connect(self.set_all)
+
+
     def set_all(self):
         """set all buttons in the group, independent if more buttons are
         added or some are deleted"""
-        for button in self.btnParameters.buttons():
+        for button in self.BtnParameters.buttons():
             button.setChecked(True)
