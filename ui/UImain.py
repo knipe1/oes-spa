@@ -50,13 +50,11 @@ class UIMain(Ui_main):
         None.
 
         """
-        # Action: option in a dropdown of the menu bar
-        # Bt : Button
-        self.BtFileOpen.clicked.connect(self.parent.file_open)
-        self.ActionOpen.triggered.connect(self.parent.file_open)
-        self.BtRedraw.clicked.connect(self.parent.redraw)
-        self.ActionRedraw.triggered.connect(self.parent.redraw)
-        self.ActionSaveRaw.triggered.connect(self.parent.save_raw)
-        self.ActionSaveProcessed.triggered.connect(self.parent.save_processed)
-        self.ActionAnalyzeMultipleFiles.triggered.\
-            connect(self.parent.batch.show)
+        # act: option in a dropdown of the menu bar
+        # btn : Button
+        self.btnFileOpen.clicked.connect(self.parent.file_open)
+        self.actOpen.triggered.connect(self.parent.file_open)
+        self.actRedraw.triggered.connect(self.parent.redraw)
+        self.actSaveRaw.triggered.connect(self.parent.save_raw)
+        self.actSaveProcessed.triggered.connect(self.parent.save_processed)
+        self.actOpenBatch.triggered.connect(self.parent.batch.show)

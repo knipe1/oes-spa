@@ -127,8 +127,8 @@ class AnalysisWindow(QMainWindow):
         # TODO: function required for getting parameters and errorhandling!
         # TODO: Is Central wavelength depending on the selected Fitting?
         spec_proc = DataHandler(x_data, y_data,
-                        float(self.window.EdCWavelength.text()),
-                        int(self.window.GratingBox.currentText()))
+                        float(self.window.tinCentralWavelength.text()),
+                        int(self.window.ddGrating.currentText()))
         #calculate results
         # TODO: no validation of results?
         procX, procY = spec_proc.get_processed_data()
@@ -138,14 +138,14 @@ class AnalysisWindow(QMainWindow):
         # display results
         # TODO: expected behaviour? What happens if not everything is given?
         # Is there a scenario in which just one result is calculated/set?
-        self.window.EdBaseline.setText(str(avg))
-        self.window.EdPeakHeight.setText(str(peak_height))
-        self.window.EdPeakArea.setText(str(peak_area))
+        self.window.toutBaseline.setText(str(avg))
+        self.window.toutPeakHeight.setText(str(peak_height))
+        self.window.toutPeakArea.setText(str(peak_area))
 
         # Clear the widget from previous spectra
         # Draw the spectra in MatPlotLibWidgets
         # Raw
-        rawPlot = self.window.MplRaw;
+        rawPlot = self.window.mplRaw;
         self.init_plot(rawPlot, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]);
         self.update_plot(rawPlot, x_data, y_data,
                          PLOT["RAW_DATA_MRK"], PLOT["RAW_DATA_LABEL"]);
@@ -153,7 +153,7 @@ class AnalysisWindow(QMainWindow):
                          PLOT["RAW_BASELINE_MRK"], PLOT["RAW_BASELINE_LABEL"]);
 
         # Processed
-        processedPlot = self.window.MplProcessed;
+        processedPlot = self.window.mplProcessed;
         self.init_plot(processedPlot, PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]);
         self.update_plot(processedPlot, procX, procY,
                          PLOT["PROCESSED_DATA_MRK"], PLOT["PROCESSED_DATA_LABEL"]);
@@ -171,7 +171,7 @@ class AnalysisWindow(QMainWindow):
         #   which is set, whenever something is drawn
         # is it openfile?
         # --> and update the displayed filename
-        filename = str(self.window.EdFilename.text())
+        filename = str(self.window.toutFilename.text())
         if filename:
             x_data, y_data = self.openFile.get_values()
             self.draw_spectra(x_data, y_data)
@@ -182,7 +182,7 @@ class AnalysisWindow(QMainWindow):
         """Save Raw-Data in CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
-        xyData = uni.extract_xy_data(self.window.MplRaw.axes,
+        xyData = uni.extract_xy_data(self.window.mplRaw.axes,
                                      PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
@@ -194,12 +194,12 @@ class AnalysisWindow(QMainWindow):
         """Save processed spectrum to CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
-        xyData = uni.extract_xy_data(self.window.MplProcessed.axes,
+        xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
                                      PLOT["PROCESSED_DATA_LABEL"])
 
         results = {}
-        results["PeakHeight"] = self.window.EdPeakHeight.text()
-        results["PeakArea"] = self.window.EdPeakArea.text()
+        results["PeakHeight"] = self.window.toutPeakHeight.text()
+        results["PeakArea"] = self.window.toutPeakArea.text()
 
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
@@ -232,16 +232,15 @@ class AnalysisWindow(QMainWindow):
 
     def plot_redrawable(self, enable = True):
         """set the status (enabled/disabled) of redraw button/action"""
-        self.window.BtRedraw.setEnabled(enable);
-        self.window.ActionRedraw.setEnabled(enable);
+        self.window.actRedraw.setEnabled(enable);
         # menu --> File --> save
         self.window.menuSave.setEnabled(enable)
         return 0;
 
     def get_fileinformation(self):
-        filename = self.window.EdFilename.text()
-        date = self.window.EdDate.text()
-        time = self.window.EdTime.text()
+        filename = self.window.toutFilename.text()
+        date = self.window.toutDate.text()
+        time = self.window.toutTime.text()
         return filename, date, time
 
     def set_fileinformation(self, filename, date, time):
@@ -255,9 +254,9 @@ class AnalysisWindow(QMainWindow):
             raise TypeError("time must be of type string")
 
         # set values
-        self.window.EdFilename.setText(filename)
-        self.window.EdDate.setText(date)
-        self.window.EdTime.setText(time)
+        self.window.toutFilename.setText(filename)
+        self.window.toutDate.setText(date)
+        self.window.toutTime.setText(time)
         return 0
 
     def apply_data(self, filename):

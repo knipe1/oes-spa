@@ -71,9 +71,6 @@ class BatchAnalysis(QDialog):
                 self.files.append(url.toLocalFile())
         self.accept_files();
 #        self.model.setStringList(self.files)
-#        self.mui.listFiles.setModel(self.model)
-#        self.mui.clearBtn.setEnabled(True)
-#        self.mui.DispSpin.setEnabled(True)
 #        self.mui.DispSpin.setMaximum(int(len(self.files)-1)) # TODO: typecast unneccessary
 #        self.mui.DispSpin.setMaximum(len(self.files)-1) # TODO: typecast unneccessary
         self.enable_UI(True)
@@ -168,8 +165,8 @@ class BatchAnalysis(QDialog):
             # Get Parameters
             spec_proc = dproc.DataHandler(
                         data_x, data_y,
-                        float(self.parent().window.EdCWavelength.text()),
-                        int(self.parent().window.GratingBox.currentText()))
+                        float(self.parent().window.tinCentralWavelength.text()),
+                        int(self.parent().window.ddGrating.currentText()))
             procX, procY = spec_proc.get_processed_data()
             baseline, avg = spec_proc.get_baseline()
             peak_height, peak_area = spec_proc.get_peak()
