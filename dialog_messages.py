@@ -58,7 +58,9 @@ def dialog_openFiles(directory, allowedSuffixes, parent=None):
     return filenames;
 
 
-def dialog_saveFile(directory, presetFilename="batch", parent=None):
+def dialog_saveFile(directory, presetFilename="_batch", parent=None):
+    # TODO: set filter as parameter
+    # TODO: Load preset from config
     title = "Set Filename"
     filter = "Comma separated (*.csv)"
 

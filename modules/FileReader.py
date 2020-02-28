@@ -11,13 +11,13 @@ import numpy as np
 from PyQt5.QtCore import QFileInfo # provides system-independent file info
 
 from modules.FileFramework import FileFramework
-                                           
+
 
 class FileReader(FileFramework):
     """File reader for spectral data files """
     def __init__(self, filename):
         FileFramework.__init__(self)
-        print(filename) # is the path+filename
+        # print(filename) # is the path+filename
         self.file = filename
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
@@ -36,7 +36,7 @@ class FileReader(FileFramework):
         """Readout given file"""
         # TODO: config? parentclass?
         DEFAULT_TYPE = np.float64
-        
+
         # declaration
         x_data = []
         y_data = []
@@ -45,7 +45,7 @@ class FileReader(FileFramework):
             # Get Data from tab separated ascii file
             with open(self.file, 'r') as csvFile:
                 csvReader = csv.reader(csvFile, dialect=self.dialect)
-                
+
                 row = next(csvReader)
                 self.read_head(row[0], self.MARKER["HEADER"])
                 row = next(csvReader)   #header
@@ -53,7 +53,7 @@ class FileReader(FileFramework):
                 dataCol = 3
                 if self.file.find(".csv") >= 0:
                     dataCol = 1
-                    
+
                 for row in csvReader:
                     # TODO: is there any value with a commata?
                     x_data.append(row[0].replace(',', '.')) # TODO: magic
@@ -73,17 +73,17 @@ class FileReader(FileFramework):
         if not self.get_filetype():
             self.read_file()
         return self.time, self.date
-    
+
     def read_head(self, data, marker):
-        """read the date and time, 
+        """read the date and time,
         if the marker is in the first element of the data
         return: 0 if header was found, else 1"""
         if not marker in data:
             return 1
-        
+
         sep = data.split()
         self.date = sep[1]
         self.time = sep[2]
         return 0
-        
-                
+
+

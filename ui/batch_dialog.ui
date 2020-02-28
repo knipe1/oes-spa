@@ -56,7 +56,7 @@
        <item>
         <widget class="QPushButton" name="btnClear">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>Clear</string>
@@ -86,7 +86,7 @@
    <item>
     <widget class="QGroupBox" name="boxParameter">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="maximumSize">
       <size>
@@ -183,50 +183,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupDisplay">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Display</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QLineEdit" name="DispFile">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="DispSpin">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="layoutProcess">
      <item>
       <widget class="QProgressBar" name="barProcess">
@@ -260,31 +216,12 @@
   <tabstop>cbPeakArea</tabstop>
   <tabstop>cbBaseline</tabstop>
   <tabstop>cbHead</tabstop>
-  <tabstop>DispSpin</tabstop>
   <tabstop>foutCSV</tabstop>
-  <tabstop>DispFile</tabstop>
   <tabstop>listFiles</tabstop>
   <tabstop>btnClear</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>DispSpin</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>DispSpin</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>439</x>
-     <y>389</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>439</x>
-     <y>389</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <buttongroups>
   <buttongroup name="BtnParameters">
    <property name="exclusive">

@@ -27,6 +27,7 @@ SAVE:
     RAW_APPENDIX: _raw
     PROCESSED_APPENDIX: _processed
     EXP_SUFFIX: .csv
+    DEF_BATCH_NAME: "_batch"
 
 LOAD:
     VALID_SUFFIX:
@@ -49,3 +50,7 @@ DIALECT:
 MARKER:
     HEADER: "Date"
     DATA: "Data"
+
+BATCH:
+    SEPARATOR: ":"
+    INDEX_FORMAT: "4d"

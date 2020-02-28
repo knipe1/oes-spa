@@ -71,16 +71,14 @@ class BatchAnalysis(QDialog):
                 self.files.append(url.toLocalFile())
         self.accept_files();
 #        self.model.setStringList(self.files)
-#        self.mui.DispSpin.setMaximum(int(len(self.files)-1)) # TODO: typecast unneccessary
-#        self.mui.DispSpin.setMaximum(len(self.files)-1) # TODO: typecast unneccessary
         self.enable_UI(True)
         self.mui.listFiles.setCurrentIndex(self.model.index(0))
-        self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
+        # self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
         self.parent().file_open(self.files[0])
 
     def set_filename(self):
         """Handling target filename """
-        filename = dialog.dialog_saveFile(self.lastdir, parent=self)
+        filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
         if str(filename) != "":
             if QFileInfo(filename).suffix() != "csv":
                 filename = filename+".csv"
@@ -103,15 +101,13 @@ class BatchAnalysis(QDialog):
 #            self.model.setStringList(self.files)
 
             self.enable_UI(True)
-#            self.mui.DispSpin.setMaximum(int(len(filenames)-1))
             self.mui.listFiles.setCurrentIndex(self.model.index(0))
-            self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
+            # self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
             self.parent().file_open(self.files[0])
 #            self.mui.listFiles.setModel(self.model)
 
     def clear(self):
         """Reset UI """
-#        self.mui.DispSpin.setValue(0)
 #        self.model.setStringList([])
         self.clear_files();
         self.enable_UI(False)
@@ -125,7 +121,7 @@ class BatchAnalysis(QDialog):
         s_peak_position = self.mui.ChPeakPos.checkState()
         s_peak_height_raw = self.mui.ChPeakHeightRaw.checkState()
         s_head = self.mui.ChHead.checkState()
-#        self.model = self.mui.listFiles.model() # TODO: doesn't change at anny given time
+#        self.model = self.mui.listFiles.model() # TODO: doesn't change at any given time
         filenames = self.model.stringList()
         amount = int(len(filenames))
 
@@ -194,16 +190,14 @@ class BatchAnalysis(QDialog):
 
     def disp_curve(self, value):
         """Display curve with selected index in MainWindow """
-#        self.model = self.mui.listFiles.model() # TODO: doesn't change at anny given time
         self.mui.listFiles.setCurrentIndex(self.model.index(value))
-        filenames = self.model.stringList()
-        self.mui.DispFile.setText(QFileInfo(filenames[value]).fileName())
-        self.parent().file_open(filenames[value])
+        # self.mui.DispFile.setText(QFileInfo(self.files[value]).fileName())
+        self.parent().file_open(self.files[value])
 
     def get_list_index(self, index):
         """Get Current selected file by index """
         self.mui.listFiles.setCurrentIndex(index)
-        self.mui.DispSpin.setValue(index.row())
+        self.parent().file_open(self.files[index.row()])
 
     def set_progressBar(self, percentage):
         """sets hte percentage to the progress bar"""
@@ -213,17 +207,14 @@ class BatchAnalysis(QDialog):
     def enable_UI(self, enable):
         """enable/disable elements if files/no file is in the list"""
         self.mui.boxParameter.setEnabled(enable)
-        [elem.setEnabled(enable) for elem in self.mui.groupDisplay.children()]
-        [btn.setEnabled(enable) for btn in self.mui.btnFileaction.buttons()]
+        [btn.setEnabled(enable) for btn in self.mui.BtnFileaction.buttons()]
 
     def accept_files(self):
         """setting the list of files and the maximum index"""
         numerOfFiles = len(self.files);
+        # self.model.setStringList(uni.add_index_to_text(uni.reduce_path(self.files)))
+        self.model.setStringList(uni.reduce_path(self.files))
         self.model.setStringList(self.files)
-        if numerOfFiles < 0:
-            self.mui.DispSpin.setMaximum(0)
-        else:
-            self.mui.DispSpin.setMaximum(numerOfFiles-1)
 
     def clear_files(self):
         """setting the list of files and the maximum index"""

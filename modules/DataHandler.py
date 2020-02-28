@@ -33,7 +33,7 @@ class DataHandler:
      """
 
     def __init__(self, xData, yData, cwl, grat, debug=True, csvoutput=False):
-        print("__init__")
+        # print("__init__")
         self.debug = debug
         self.xData = xData
         self.yData = yData
@@ -49,7 +49,7 @@ class DataHandler:
             self.log = getLogger('DataHandler')
             self.log.info(strftime("Start Logging %d.%m.%y %H:%M:%S:",
                                    localtime()))
-            
+
 
         # TODO: csvoutput is always false?
         # AND has no attribute Config
@@ -82,7 +82,7 @@ class DataHandler:
         self.procY = self.procY / self.avgbase
 
         # Find Peak and obtain height and area
-        # check: If there are only self.attribute assignments and the 
+        # check: If there are only self.attribute assignments and the
         # function does not return anything else somewhere, the assignments can
         # be done within the function!
         # check: 433.5 is more or less the wavelength of the boron peak

@@ -36,7 +36,6 @@ class UIBatch(Ui_batch):
         self.listFiles.setModel(self.parent.model)
         # click/valueChanged connections
         self.listFiles.clicked.connect(self.parent.get_list_index)
-        self.DispSpin.valueChanged.connect(self.parent.disp_curve)
         self.btnSetFilename.clicked.connect(self.parent.set_filename)
         self.btnBrowse.clicked.connect(self.parent.set_spectra)
         self.btnClear.clicked.connect(self.parent.clear)
