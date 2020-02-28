@@ -33,9 +33,9 @@ class UIBatch(Ui_batch):
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
         # TODO: what is that one good for?
-        self.files2analyze.setModel(self.parent.model)
+        self.listFiles.setModel(self.parent.model)
         # click/valueChanged connections
-        self.files2analyze.clicked.connect(self.parent.get_list_index)
+        self.listFiles.clicked.connect(self.parent.get_list_index)
         self.DispSpin.valueChanged.connect(self.parent.disp_curve)
         self.btnSetFilename.clicked.connect(self.parent.set_filename)
         self.btnBrowse.clicked.connect(self.parent.set_spectra)

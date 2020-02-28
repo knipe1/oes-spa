@@ -37,6 +37,8 @@ LOAD:
         - "Data sets (*.spk *.csv)"
         - "SpexHex File (*.spk)"
         - "Exported Raw spectrum (*.csv)"
+    VALID_SCHEME:
+        - "file"
 
 DIALECT:
     name: "spectral_data"

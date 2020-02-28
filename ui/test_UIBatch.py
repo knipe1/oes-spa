@@ -40,8 +40,8 @@ class TestUIBatch(TestCase):
         """
         self.assertTrue(self.form.btnSetFilename.isEnabled())
         self.assertTrue(self.form.btnBrowse.isEnabled())
-        self.assertTrue(self.form.csvfile.isEnabled())
-        self.assertTrue(self.form.files2analyze.isEnabled())
+        self.assertTrue(self.form.foutCSV.isEnabled())
+        self.assertTrue(self.form.listFiles.isEnabled())
 
         self.assertFalse(self.form.btnCalculate.isEnabled())
         self.assertFalse(self.form.btnClear.isEnabled())
@@ -79,7 +79,7 @@ class TestUIBatch(TestCase):
         self.assertEqual(self.form.DispSpin.value(), 0)
         #file list
         self.assertEqual(self.form.parent.model.stringList(), [])
-        self.assertEqual(self.form.csvfile.text(), "")
+        self.assertEqual(self.form.foutCSV.text(), "")
 
 
     def test_setAll(self):

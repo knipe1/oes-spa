@@ -36,6 +36,8 @@ config = uni.load_config()
 PLOT = config["PLOT"];
 # filesystem
 FILE = config["FILE"]
+# filesystem
+LOAD = config["LOAD"]
 
 
 
@@ -64,7 +66,6 @@ class AnalysisWindow(QMainWindow):
         # event.accept --> dropEvent is handled by Widget not by BatchAnalysis
 
         #Prequerities
-        validScheme = ["file"];
         urls = event.mimeData().urls();
 
         if len(urls) > 1:
@@ -72,7 +73,7 @@ class AnalysisWindow(QMainWindow):
         elif len(urls) == 1:
             # TODO: only check the first one? different schemes possible?
             url = urls[0];
-            if url.isValid() and url.scheme() in validScheme:
+            if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
                 event.accept()
             else:
                 event.ignore();
@@ -98,7 +99,10 @@ class AnalysisWindow(QMainWindow):
         if filename is False:
             filename = uni.load_files(self.lastdir);
             # TODO: implement multi proc
-            filename = filename[0];
+            if filename:
+                filename = filename[0];
+            else:
+                filename = "";
 
         if filename != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
