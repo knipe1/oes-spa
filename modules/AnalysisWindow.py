@@ -72,10 +72,6 @@ class AnalysisWindow(QMainWindow):
             url = urls[0];
             if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
                 event.accept()
-            else:
-                event.ignore();
-        else:
-            event.ignore();
 
 
     def dropEvent(self, event):
@@ -87,6 +83,8 @@ class AnalysisWindow(QMainWindow):
             self.apply_data(self.droppedFile)
         else:
             event.ignore();
+
+        print(event.isAccepted())
 
     def file_open(self, filename):
         """Open FileDialog to choose Raw-Data-File """
