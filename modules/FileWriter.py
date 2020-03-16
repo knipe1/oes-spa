@@ -51,7 +51,7 @@ class FileWriter(FileFramework):
         # directory = QFileDialog.getExistingDirectory(self.parent.widget,
         #                            caption=saveMessage,
         #                            directory=self.parent.lastdir)
-        dialog.dialog_getDirectory(self.parent.lastdir, self.parent.widget)
+        directory = dialog.dialog_getDirectory(self.parent.lastdir, self.parent.widget)
         # back up the used directory, if a directory was selected
         if directory:
             self.parent.lastdir = directory

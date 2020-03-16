@@ -5,16 +5,16 @@
 # MRK --> marker, i.e. the displayed marker and the color in a plot
 # EXP --> Export
 PLOT:
-    RAW_DATA_LABEL: Raw Spectrum
-    RAW_DATA_MRK: r
-    RAW_BASELINE_LABEL: Baseline
-    RAW_BASELINE_MRK: b--
-    RAW_X_LABEL: Pixel
-    RAW_Y_LABEL: Intensity / a.u.
-    PROCESSED_DATA_LABEL: Processed Spectrum
-    PROCESSED_DATA_MRK: r
-    PROCESSED_X_LABEL: Wavelength / nm
-    PROCESSED_Y_LABEL: Intensity / a.u.
+    RAW_DATA_LABEL: "Raw Spectrum"
+    RAW_DATA_MRK: "r"
+    RAW_BASELINE_LABEL: "Baseline"
+    RAW_BASELINE_MRK: "b--"
+    RAW_X_LABEL: "Pixel"
+    RAW_Y_LABEL: "Intensity / a.u."
+    PROCESSED_DATA_LABEL: "Processed Spectrum"
+    PROCESSED_DATA_MRK: "r"
+    PROCESSED_X_LABEL: "Wavelength / nm"
+    PROCESSED_Y_LABEL: "Intensity / a.u."
     DEF_LINEWIDTH: 0.5
     DEF_AXIS_COLOR: '0.2'
 
@@ -24,9 +24,9 @@ FILE:
 
 
 SAVE:
-    RAW_APPENDIX: _raw
-    PROCESSED_APPENDIX: _processed
-    EXP_SUFFIX: .csv
+    RAW_APPENDIX: "_raw"
+    PROCESSED_APPENDIX: "_processed"
+    EXP_SUFFIX: ".csv"
     DEF_BATCH_FILTER: "Comma separated (*.csv)"
     DEF_BATCH_NAME: "_batch"
 
@@ -51,6 +51,10 @@ DIALECT:
 MARKER:
     HEADER: "Date"
     DATA: "Data"
+
+DATA_STRUCTURE:
+    SPK_DATA_COLUMN: 3
+    CSV_DATA_COLUMN: 1
 
 BATCH:
     SEPARATOR: ":"

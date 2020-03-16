@@ -102,7 +102,8 @@ class DataHandler:
     def peak_fitting(self, xData, yData, wl):
         """Fit peak at wavelength wl """
 
-        # check: MAGIC NUMBER
+        # TODO: MAGIC NUMBER
+        print("peak-fitting", xData, yData, wl)
         i_p = indexes(yData, thres=0.01, min_dist=2)
         peaks = xData[i_p]
         peak_idx = np.where(xData == peaks[(np.abs(xData[i_p] - wl)).argmin()])

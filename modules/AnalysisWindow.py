@@ -102,7 +102,7 @@ class AnalysisWindow(QMainWindow):
             self.apply_data(filename)
 
     def draw_spectra(self, x_data, y_data):
-        """Draw the raw spectrum and analyse it with DataHandler
+        """Draw the raw spectrum and analyze it with DataHandler
         to obtain all parameters for the processed spectrum.
         """
         # Check whether data was found in the files
@@ -258,7 +258,7 @@ class AnalysisWindow(QMainWindow):
         self.openFile = FileReader(filename)
         np_x, np_y = self.openFile.get_values()
         time, date = self.openFile.get_head()
-
+        print("x and y values", np_x, np_y)
         # Draw the spectra and print results
         self.set_fileinformation(filename, date, time)
         self.draw_spectra(np_x, np_y)
