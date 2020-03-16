@@ -15,6 +15,7 @@ from PyQt5.QtCore import QFileInfo
 
 import dialog_messages as dialog
 
+
 # load the configs
 config = load_config()
 LOAD = config["LOAD"]
