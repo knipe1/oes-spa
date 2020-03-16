@@ -10,7 +10,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1060</width>
+    <width>1053</width>
     <height>850</height>
    </rect>
   </property>
@@ -46,7 +46,7 @@
    <enum>Qt::ToolButtonTextOnly</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>9</x>
@@ -55,49 +55,39 @@
       <height>791</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="layoutGeneral">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="layoutPlot">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="layoutFilename">
          <property name="sizeConstraint">
           <enum>QLayout::SetDefaultConstraint</enum>
          </property>
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="lblFilename">
            <property name="text">
             <string>File:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="EdFilename">
+          <widget class="QLineEdit" name="toutFilename">
            <property name="readOnly">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="BtFileOpen">
+          <widget class="QPushButton" name="btnFileOpen">
            <property name="text">
             <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="BtRedraw">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Redraw</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="QGroupBox" name="raw_2">
+        <widget class="QGroupBox" name="boxRaw">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -121,7 +111,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="MatplotlibWidget" name="MplRaw" native="true">
+           <widget class="MatplotlibWidget" name="mplRaw" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -146,7 +136,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="fitted_2">
+        <widget class="QGroupBox" name="boxProcessed">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -164,7 +154,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="MatplotlibWidget" name="MplProcessed" native="true">
+           <widget class="MatplotlibWidget" name="mplProcessed" native="true">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -210,9 +200,9 @@
       </spacer>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="layoutInformation">
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="boxBasic">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -230,14 +220,14 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="lblCentralWavelength">
             <property name="text">
              <string>Central Wavelength (nm):</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="EdCWavelength">
+           <widget class="QLineEdit" name="tinCentralWavelength">
             <property name="text">
              <string>433</string>
             </property>
@@ -247,14 +237,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_3">
+           <widget class="QLabel" name="lblGrating">
             <property name="text">
              <string>Grating (l/mm):</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="GratingBox">
+           <widget class="QComboBox" name="ddGrating">
             <item>
              <property name="text">
               <string>2400</string>
@@ -263,14 +253,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_6">
+           <widget class="QLabel" name="lblFitting">
             <property name="text">
              <string>Fitting:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="FitTypeBox">
+           <widget class="QComboBox" name="ddFitting">
             <item>
              <property name="text">
               <string comment="B">Boron Peak Fitting</string>
@@ -282,7 +272,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="boxResults">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -300,42 +290,42 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="lblPeakHeight">
             <property name="text">
              <string>Peak Height:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="EdPeakHeight">
+           <widget class="QLineEdit" name="toutPeakHeight">
             <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_5">
+           <widget class="QLabel" name="lblPeakArea">
             <property name="text">
              <string>Peak Area:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="EdPeakArea">
+           <widget class="QLineEdit" name="toutPeakArea">
             <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_7">
+           <widget class="QLabel" name="lblBaseline">
             <property name="text">
              <string>Baseline:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="EdBaseline">
+           <widget class="QLineEdit" name="toutBaseline">
             <property name="text">
              <string/>
             </property>
@@ -348,7 +338,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_3">
+        <widget class="QGroupBox" name="boxFileInforamtion">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -366,28 +356,28 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QLabel" name="label_8">
+           <widget class="QLabel" name="lblDate">
             <property name="text">
              <string>Date:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="EdDate">
+           <widget class="QLineEdit" name="toutDate">
             <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_9">
+           <widget class="QLabel" name="lblTime">
             <property name="text">
              <string>Time:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="EdTime">
+           <widget class="QLineEdit" name="toutTime">
             <property name="readOnly">
              <bool>true</bool>
             </property>
@@ -419,11 +409,11 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1060</width>
+     <width>1053</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
@@ -434,32 +424,32 @@
      <property name="title">
       <string>Save...</string>
      </property>
-     <addaction name="ActionSaveRaw"/>
-     <addaction name="ActionSaveProcessed"/>
+     <addaction name="actSaveRaw"/>
+     <addaction name="actSaveProcessed"/>
     </widget>
-    <addaction name="ActionOpen"/>
-    <addaction name="ActionRedraw"/>
+    <addaction name="actOpen"/>
+    <addaction name="actRedraw"/>
     <addaction name="separator"/>
     <addaction name="menuSave"/>
     <addaction name="separator"/>
-    <addaction name="ActionQuit"/>
+    <addaction name="actQuit"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="ActionAnalyzeMultipleFiles"/>
+    <addaction name="actOpenBatch"/>
    </widget>
-   <addaction name="menu_File"/>
+   <addaction name="menuFile"/>
    <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="ActionOpen">
+  <action name="actOpen">
    <property name="text">
     <string>&amp;Open</string>
    </property>
   </action>
-  <action name="ActionRedraw">
+  <action name="actRedraw">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -467,22 +457,22 @@
     <string>&amp;Redraw Curves</string>
    </property>
   </action>
-  <action name="ActionQuit">
+  <action name="actQuit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
   </action>
-  <action name="ActionAnalyzeMultipleFiles">
+  <action name="actOpenBatch">
    <property name="text">
     <string>Analyze &amp;Multiple Files</string>
    </property>
   </action>
-  <action name="ActionSaveRaw">
+  <action name="actSaveRaw">
    <property name="text">
     <string>Raw Data</string>
    </property>
   </action>
-  <action name="ActionSaveProcessed">
+  <action name="actSaveProcessed">
    <property name="text">
     <string>Fitted result</string>
    </property>
@@ -501,17 +491,16 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>BtFileOpen</tabstop>
-  <tabstop>EdCWavelength</tabstop>
-  <tabstop>BtRedraw</tabstop>
-  <tabstop>EdPeakHeight</tabstop>
-  <tabstop>EdPeakArea</tabstop>
-  <tabstop>EdFilename</tabstop>
+  <tabstop>btnFileOpen</tabstop>
+  <tabstop>tinCentralWavelength</tabstop>
+  <tabstop>toutPeakHeight</tabstop>
+  <tabstop>toutPeakArea</tabstop>
+  <tabstop>toutFilename</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>ActionQuit</sender>
+   <sender>actQuit</sender>
    <signal>triggered()</signal>
    <receiver>main</receiver>
    <slot>close()</slot>
@@ -523,22 +512,6 @@
     <hint type="destinationlabel">
      <x>412</x>
      <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>EdCWavelength</sender>
-   <signal>returnPressed()</signal>
-   <receiver>BtRedraw</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>746</x>
-     <y>126</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>543</x>
-     <y>71</y>
     </hint>
    </hints>
   </connection>
