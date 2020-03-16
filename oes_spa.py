@@ -42,6 +42,5 @@ def main():
     sys.exit(app.exec_())
 
 
-# in Py3 you just need main() without the if statement
-if __name__ == '__main__':
-    main()
+# Run if opened as main
+main()
