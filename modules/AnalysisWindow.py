@@ -62,7 +62,6 @@ class AnalysisWindow(QMainWindow):
         # event.accept --> dropEvent is handled by Widget not by BatchAnalysis
 
         #Prequerities
-        print(event.isAccepted())
         urls = event.mimeData().urls();
 
         if len(urls) > 1:
@@ -81,10 +80,7 @@ class AnalysisWindow(QMainWindow):
         if uni.is_valid_filetype(self,url):
             self.droppedFile = url.toLocalFile();
             self.apply_data(self.droppedFile)
-        else:
-            event.ignore();
-
-        print(event.isAccepted())
+            event.accept();
 
     def file_open(self, filename):
         """Open FileDialog to choose Raw-Data-File """
