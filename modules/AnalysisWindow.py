@@ -16,20 +16,16 @@ __status__ = "alpha"
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QMainWindow
 
-
-#from ui.ui_main_window import Ui_main
 import matplotlib as mpl
+import modules.Universal as uni
+import dialog_messages as dialog
+
 from ui.UIMain import UIMain
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
 from modules.BatchAnalysis import BatchAnalysis
-import modules.Universal as uni
-import dialog_messages as dialog
 
-
-# parameters
-# r+string --> raw string, no special characters like \n, \t,...
 
 config = uni.load_config()
 # plots
@@ -66,6 +62,7 @@ class AnalysisWindow(QMainWindow):
         # event.accept --> dropEvent is handled by Widget not by BatchAnalysis
 
         #Prequerities
+        print(event.isAccepted())
         urls = event.mimeData().urls();
 
         if len(urls) > 1:

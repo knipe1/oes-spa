@@ -27,6 +27,7 @@ SAVE:
     RAW_APPENDIX: _raw
     PROCESSED_APPENDIX: _processed
     EXP_SUFFIX: .csv
+    DEF_BATCH_FILTER: "Comma separated (*.csv)"
     DEF_BATCH_NAME: "_batch"
 
 LOAD:

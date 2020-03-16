@@ -160,7 +160,7 @@ def dialog_saveFile(directory, presetFilename="", parent=None):
     title = "Set Filename";
     filter = SAVE["DEF_BATCH_FILTER"];
     # set the default batch name
-    if !presetFilename:
+    if not presetFilename:
         presetFilename = SAVE["DEF_BATCH_NAME"];
 
 
@@ -176,9 +176,33 @@ def dialog_saveFile(directory, presetFilename="", parent=None):
 
 
 def dialog_getDirectory(directory, parent=None):
-    # open a dialog to set the filename if not given
-     text = 'Save spectrum to...'
-     selectedDir = QFileDialog.getExistingDirectory(parent,
+    """
+    Opens a native  dialog to set the filename if not given.
+
+    Parameters
+    ----------
+    directory : path as a string
+        Path of the default directory.
+    parent : TQMainWindow (also other windows/widgets possible)
+        The window is given to place the messagebox on the screen. The default is None.
+
+    Raises
+    ------
+    TypeError
+        If directory is not a string.
+
+    Returns
+    -------
+    selectedDir : string
+        Path of the selected directory.
+
+    """
+    text = 'Save spectrum to...'
+
+    if type(directory) not in [str]:
+        raise TypeError("Directory must be a path (string)");
+
+    selectedDir = QFileDialog.getExistingDirectory(parent,
                                                     caption = text,
                                                     directory = directory)
-     return selectedDir
+    return selectedDir

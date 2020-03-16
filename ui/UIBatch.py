@@ -29,7 +29,6 @@ class UIBatch(Ui_batch):
 
 
     def set_connections(self):
-        # TODO: care. untested code.
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
         # TODO: what is that one good for?

@@ -1,11 +1,8 @@
 """This module is for general purposes and includes various functions
+
 """
+# load the config
 import yaml
-
-from PyQt5.QtCore import QFileInfo
-
-import dialog_messages as dialog
-
 def load_config():
     # load the config
     with open("./config.yml", "r") as ymlfile:
@@ -13,6 +10,12 @@ def load_config():
     return config
 
 
+# imports
+from PyQt5.QtCore import QFileInfo
+
+import dialog_messages as dialog
+
+# load the configs
 config = load_config()
 LOAD = config["LOAD"]
 BATCH = config["BATCH"]
