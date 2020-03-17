@@ -34,12 +34,15 @@ class UIBatch(Ui_batch):
         # TODO: what is that one good for?
         self.listFiles.setModel(self.parent.model)
         # click/valueChanged connections
-        self.listFiles.clicked.connect(self.parent.get_list_index)
+        self.listFiles.clicked.connect(self.parent.open_indexed_file)
         self.btnSetFilename.clicked.connect(self.parent.set_filename)
-        self.btnBrowse.clicked.connect(self.parent.set_spectra)
+        self.btnBrowse.clicked.connect(self.parent.browse_spectra)
         self.btnClear.clicked.connect(self.parent.clear)
         self.btnCalculate.clicked.connect(self.parent.multi_calc)
         self.btnSelectAll.clicked.connect(self.set_all)
+        # update the UI whenever a parameter button is toggled/clicked
+        for btn in self.BtnParameters.buttons():
+            btn.toggled.connect(self.parent.update_UI)
 
 
     def set_all(self):

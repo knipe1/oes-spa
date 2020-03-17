@@ -11,20 +11,6 @@ Batch-Analysis
 Batch analysis of OES spectra
 """
 
-import matplotlib as mpl
-from PyQt5.QtCore import QFileInfo, QStringListModel
-from PyQt5.QtWidgets import QDialog
-
-from ui.UIBatch import UIBatch
-
-import modules.FileReader as r_file
-import modules.DataHandler as dproc
-import modules.Universal as uni
-import dialog_messages as dialog
-
-# set interactive backend
-mpl.use("Qt5Agg")
-
 __author__ = "Hauke Wernecke"
 __copyright__ = "Copyright 2020"
 __license__ = ""
@@ -32,6 +18,29 @@ __version__ = "a1"
 __maintainer__ = "Hauke Wernecke/Peter Knittel"
 __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
+
+# TODO: generate docstrings
+
+import csv
+import matplotlib as mpl
+from PyQt5.QtCore import Qt, QFileInfo, QStringListModel, QModelIndex
+from PyQt5.QtWidgets import QDialog, QAbstractItemView
+
+import modules.Universal as uni
+import dialog_messages as dialog
+
+# classes
+from ui.UIBatch import UIBatch
+from modules.FileReader import FileReader
+from modules.DataHandler import DataHandler
+
+
+# set interactive backend
+mpl.use("Qt5Agg")
+
+config = uni.load_config()
+# batch properties
+BATCH = config["BATCH"];
 
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
@@ -45,178 +54,238 @@ class BatchAnalysis(QDialog):
         self.model = QStringListModel()
         # init of mui has to be at last, because it connects self.model i.a.
         self.mui = UIBatch(self)
+        self.mui.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
     def dragEnterEvent(self, event):
-        """Drag file over window event """
-        # TODO: purpose?
-        # If just one url has the scheme "file" the event is accepted
-#        if event.mimeData().hasUrls():
-#            for url in event.mimeData().urls():
-#                if url.isValid() and url.scheme() == "file":
-#                    self.files.append(url.toLocalFile())
-#                    event.accept()
-#        """alternative?!
+        """
+        Drag file over window event.
+        Is accepted if at least one file is dragged
+
+        Parameters
+        ----------
+        event : event
+            The event itself.
+
+        Returns
+        -------
+        None.
+
+        """
         urls = event.mimeData().urls();
         for url in urls:
             if url.scheme() == "file":
                 event.accept()
-#        """
 
     def dropEvent(self, event):
         """Dropping File """
+        # get the urls and check if they are valid.
+        # Append all valid files to the list and display them
         urls = event.mimeData().urls();
         for url in urls:
             if uni.is_valid_filetype(self, url):
                 self.files.append(url.toLocalFile())
-        self.accept_files();
-#        self.model.setStringList(self.files)
-        self.enable_UI(True)
-        self.mui.listFiles.setCurrentIndex(self.model.index(0))
-        # self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
-        self.parent().file_open(self.files[0])
+        self.display_filenames();
+        self.update_UI()
+
 
     def set_filename(self):
-        """Handling target filename """
+        """
+        Opens a dialog to set the filename and updates the UI.
+        NO setter function. Rather determine the filename e.g. after clicking the "set filename" button
+
+        Returns
+        -------
+        None.
+
+        """
+        # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
-        if str(filename) != "":
-            if QFileInfo(filename).suffix() != "csv":
-                filename = filename+".csv"
-            self.lastdir = str(QFileInfo(filename).absolutePath())
+        filenameInfo = QFileInfo(filename)
+
+        # TODO: Errorhandling?
+        # 1. filename is not a string?
+
+        # check the filename properties to have appropiate scheme
+        if filename:
+            # Validate the suffix
+            if not filenameInfo.suffix().lower() == BATCH["SUFFIX"]:
+                # TODO: Show information about the modification?
+                filename = filenameInfo.baseName + "." + BATCH["SUFFIX"]
+
+            # Change interface and preset for further dialogs (lastdir)
+            self.lastdir = str(filenameInfo.absolutePath())
             self.mui.foutCSV.setText(filename)
-#            self.mui.browseBtn.setEnabled(True)
-            if self.model.stringList():
-                self.enable_UI(True)
+            self.update_UI()
 
-    def set_spectra(self):
-        """Handling source filesnames """
-#        filenames = uni.load_files(self.lastdir);
+    def browse_spectra(self):
+        """
+        Opens a dialog to browse for spectra.
+        If not cancelled, spectra a loaded into the list and one is displayed
+
+        Returns
+        -------
+        None.
+
+        """
         self.files =  uni.load_files(self.lastdir);
-#        filenames, _ = QFileDialog.getOpenFileNames(
-#            self, 'Choose Files to analyze',
-#            self.lastdir, "SpexHex File (*.spk)")
 
-        if len(self.files) != 0:
-            self.accept_files();
-#            self.model.setStringList(self.files)
+        if self.files:
+            self.display_filenames();
 
-            self.enable_UI(True)
+            self.update_UI()
             self.mui.listFiles.setCurrentIndex(self.model.index(0))
-            # self.mui.DispFile.setText(QFileInfo(self.files[0]).fileName())
-            self.parent().file_open(self.files[0])
-#            self.mui.listFiles.setModel(self.model)
+            self.open_indexed_file(0)
 
-    def clear(self):
-        """Reset UI """
-#        self.model.setStringList([])
-        self.clear_files();
-        self.enable_UI(False)
 
     def multi_calc(self):
         """Batch process spectra and write to CSV """
-        csvfile = str(self.mui.foutCSV.text())
-        s_peak_height = self.mui.ChPeakHeight.checkState()
-        s_peak_area = self.mui.ChPeakArea.checkState()
-        s_baseline = self.mui.ChBaseline.checkState()
-        s_peak_position = self.mui.ChPeakPos.checkState()
-        s_peak_height_raw = self.mui.ChPeakHeightRaw.checkState()
-        s_head = self.mui.ChHead.checkState()
-#        self.model = self.mui.listFiles.model() # TODO: doesn't change at any given time
-        filenames = self.model.stringList()
-        amount = int(len(filenames))
 
-        import csv
+
+        # retrieve checkboxes and their properties
+        checkboxes = [{"checkbox": btn,
+                       "name": btn.objectName(),
+                       "state": btn.isChecked()
+                       } for btn in self.mui.BtnParameters.buttons()]
+        # make sure this is in the correct order
+        labels = ["Peak height", "Peak area", "Baseline", "Header info", "Peak position",]
+
+        # union labels and checkboxes
+        for idx, element in enumerate(checkboxes):
+            element.update({"label": labels[idx]})
+
+        # not used due to adding value-tag later
+        # keep only checked elements
+        # checkboxes = [element for element in checkboxes if element["state"]]
+
+
         # Set correct Filename and open it
-        myfile = open(csvfile, 'w')
+        csvfile = str(self.mui.foutCSV.text())
+        with open(csvfile, 'w', newline='') as batchFile:
+             # open writer with self defined dialect
+             # TODO: check/include the dialect
+            csvWr = csv.writer(batchFile, )#dialect=self.dialect)
 
-        # Open CSV-Writer Instance and write data in Excel dialect
-        csv_wr = csv.writer(myfile, dialect=csv.excel, quoting=csv.QUOTE_NONE)
-        header = ["Filename:"]
-        if s_peak_height == 2:
-            header.append("Peak height:")
-        if s_peak_area == 2:
-            header.append("Peak area:")
-        if s_baseline == 2:
-            header.append("Baseline:")
-        if s_peak_position == 2:
-            header.append("Peak position:")
-        if s_head == 2:
-            header.append("Header info:")
-        if s_peak_height_raw == 2:
-            header.append("Peak height (not corrected):")
+            header = ["Filename"]
+            for element in checkboxes:
+                if element["state"]:
+                    header.append(element["label"])
 
-        csv_wr.writerow(header)
-        # TODO: Why while-loop? Why no for-loop?
-        i = 0
-        while i < amount:
-            # Progress
-            self.set_progressBar(float(i+1)/float(amount))
+            csvWr.writerow(header)
 
-            # Read out the file
-            file = str(filenames[i])
-            self.openFile = r_file.FileReader(file)
-            data_x, data_y = self.openFile.get_values()
-            time, date = self.openFile.get_head()
+            amount = len(self.files)
+            for i in range(amount):
 
-            # Get Parameters
-            spec_proc = dproc.DataHandler(
-                        data_x, data_y,
-                        float(self.parent().window.tinCentralWavelength.text()),
-                        int(self.parent().window.ddGrating.currentText()))
-            procX, procY = spec_proc.get_processed_data()
-            baseline, avg = spec_proc.get_baseline()
-            peak_height, peak_area = spec_proc.get_peak()
-            peak_position, peak_raw = spec_proc.get_peak_raw()
+                # Read out the file
+                file = self.files[i]
+                self.openFile = FileReader(file)
+                data_x, data_y = self.openFile.get_values()
+                time, date = self.openFile.get_head()
 
-            row = [file]
+                # Get Parameters
+                spec_proc = DataHandler(
+                            data_x, data_y,
+                            float(self.parent().window.tinCentralWavelength.text()),
+                            int(self.parent().window.ddGrating.currentText()))
+                procX, procY = spec_proc.get_processed_data()
+                baseline, avg = spec_proc.get_baseline()
+                peak_height, peak_area = spec_proc.get_peak()
+                peak_position, peak_raw = spec_proc.get_peak_raw()
 
-            if s_peak_height == 2:
-                row.append(peak_height)
-            if s_peak_area == 2:
-                row.append(peak_area)
-            if s_baseline == 2:
-                row.append(avg)
-            if s_peak_position == 2:
-                row.append(peak_position)
-            if s_head == 2:
-                row.append(date + " " + time)
-            if s_peak_height_raw == 2:
-                row.append(peak_raw)
 
-            csv_wr.writerow(row)
-            i += 1
 
-        myfile.close()
+                checkboxes[0]["value"] = peak_height
+                checkboxes[1]["value"] = peak_area
+                checkboxes[2]["value"] = avg
+                checkboxes[3]["value"] = peak_height
+                checkboxes[4]["value"] = date + " " + time
 
-    def disp_curve(self, value):
-        """Display curve with selected index in MainWindow """
-        self.mui.listFiles.setCurrentIndex(self.model.index(value))
-        # self.mui.DispFile.setText(QFileInfo(self.files[value]).fileName())
-        self.parent().file_open(self.files[value])
 
-    def get_list_index(self, index):
-        """Get Current selected file by index """
-        self.mui.listFiles.setCurrentIndex(index)
-        self.parent().file_open(self.files[index.row()])
+                row = [file]
+                for element in checkboxes:
+                    if element["state"]:
+                        row.append(element["value"])
 
-    def set_progressBar(self, percentage):
+                csvWr.writerow(row)
+
+                # Update process bar
+                self.update_progressbar((i+1)/amount)
+
+
+    def open_indexed_file(self, index):
+        """
+        Retrieve the data of the selected file of the list.
+        Used for applying the data after clicking on the list
+
+        Parameters
+        ----------
+        index : QModelIndex or int
+            Transmitted by the list. Or manually
+
+        Returns
+        -------
+        None.
+
+        """
+        # Checking whether the given index is provided by the list model
+        if isinstance(index, QModelIndex):
+            index = index.row()
+        self.parent().file_open(self.files[index])
+
+    def update_progressbar(self, percentage):
+        """
+        Convert the percentage into a percent and sets the value to the progress bar
+
+        Parameters
+        ----------
+        percentage : float
+            The percentage.
+
+        Returns
+        -------
+        int
+            The percent calculated and set.
+
+        """
         """sets hte percentage to the progress bar"""
-        self.mui.progressBar.setValue(int(percentage*100))
-        return 0;
+        percent = int(percentage*100);
+        self.mui.barProgress.setValue(percent);
+        return percent;
 
-    def enable_UI(self, enable):
-        """enable/disable elements if files/no file is in the list"""
-        self.mui.boxParameter.setEnabled(enable)
-        [btn.setEnabled(enable) for btn in self.mui.BtnFileaction.buttons()]
+    def update_UI(self):
+        """
+        Updates the UI according to the currently seleceted options.
+        Set Filename, Browse, Clear, and Parameters are always available.
+        Availability of Calculate depends on the former elements.
 
-    def accept_files(self):
-        """setting the list of files and the maximum index"""
-        numerOfFiles = len(self.files);
-        # self.model.setStringList(uni.add_index_to_text(uni.reduce_path(self.files)))
-        self.model.setStringList(uni.reduce_path(self.files))
-        self.model.setStringList(self.files)
+        Returns
+        -------
+        None.
 
-    def clear_files(self):
-        """setting the list of files and the maximum index"""
+        """
+        enable = True;
+        # checks wheter a name was chosen
+        if not self.mui.foutCSV.text():
+            enable = False
+        # Checks whether files were selected
+        if not self.files:
+            enable = False
+        # checks whether any parameter was selected
+        if not any([btn.isChecked() for btn in self.mui.BtnParameters.buttons()]):
+            enable = False
+
+        self.mui.btnCalculate.setEnabled(enable)
+
+
+
+    def display_filenames(self):
+        """setting the list of files"""
+        files = uni.add_index_to_text(uni.reduce_path(self.files))
+        self.model.setStringList(files)
+
+
+    def clear(self):
+        """Reset UI """
         self.files =  []
-        self.accept_files()
+        self.display_filenames()
+        self.update_UI()

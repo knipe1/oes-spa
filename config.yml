@@ -57,6 +57,7 @@ DATA_STRUCTURE:
     CSV_DATA_COLUMN: 1
 
 BATCH:
+    SUFFIX: "csv"
     SEPARATOR: ":"
     INDEX_FORMAT: "4d"
 

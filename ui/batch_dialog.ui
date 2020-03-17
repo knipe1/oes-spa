@@ -185,7 +185,7 @@
    <item>
     <layout class="QHBoxLayout" name="layoutProcess">
      <item>
-      <widget class="QProgressBar" name="barProcess">
+      <widget class="QProgressBar" name="barProgress">
        <property name="value">
         <number>0</number>
        </property>

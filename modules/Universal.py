@@ -82,6 +82,8 @@ def reduce_path(url):
         Otherwise the fundtion return the filename and one directory
 
     """
+    # TODO: delimiter for windows? or cross platforms?
+    # Not in config? Due to static property?
     delimiter = "/";
 
     if type(url) == str:
@@ -161,7 +163,7 @@ def add_index_to_text(texts):
     """
     if type(texts) != list:
         raise TypeError("texts must be a list")
-    if all([type(text) != str for text in texts]):
+    if all([type(text) != str for text in texts]) and texts:
         raise TypeError("text must be a string")
 
     return [format(idx, BATCH["INDEX_FORMAT"]) +

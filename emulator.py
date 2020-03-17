@@ -20,7 +20,7 @@ __status__ = "alpha"
 from pynput.keyboard import Key, Controller
 from time import sleep
 
-PAUSE = 0.5;
+PAUSE = 1.5;
 
 
 def key_accept():
@@ -52,3 +52,19 @@ def key_reject():
     sleep(PAUSE)
     keyboard.press(Key.esc)
     keyboard.release(Key.esc)
+
+def key_alt_j():
+    """
+    Emulates a esc-key press after a pause.
+    Often used as a thread to reject a native file dialog.
+
+    Returns
+    -------
+    None.
+
+    """
+    keyboard = Controller()
+    sleep(PAUSE)
+    with keyboard.pressed(Key.alt):
+        keyboard.press("j")
+        keyboard.release("j")

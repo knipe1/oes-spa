@@ -33,7 +33,6 @@ class FileWriter(FileFramework):
             return 1
 
         expFilename = self.build_exp_filename(isRaw)
-        # TODO: sense of newline=''?
         with open(expFilename, 'w', newline='') as expFile:
             # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
