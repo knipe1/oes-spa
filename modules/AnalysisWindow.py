@@ -258,7 +258,6 @@ class AnalysisWindow(QMainWindow):
         self.openFile = FileReader(filename)
         np_x, np_y = self.openFile.get_values()
         time, date = self.openFile.get_head()
-        print("x and y values", np_x, np_y)
         # Draw the spectra and print results
         self.set_fileinformation(filename, date, time)
         self.draw_spectra(np_x, np_y)

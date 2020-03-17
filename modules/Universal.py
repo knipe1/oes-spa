@@ -3,9 +3,9 @@
 """
 # load the config
 import yaml
-def load_config():
+def load_config(path="./config.yml"):
     # load the config
-    with open("./config.yml", "r") as ymlfile:
+    with open(path, "r") as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return config
 

@@ -29,7 +29,6 @@ class FileReader(FileFramework):
     """File reader for spectral data files """
     def __init__(self, filename):
         FileFramework.__init__(self)
-        # print(filename) # is the path+filename
         self.file = filename
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
@@ -50,10 +49,6 @@ class FileReader(FileFramework):
         """Readout given file"""
         # TODO: config? parentclass?
         DEFAULT_TYPE = np.float64
-
-        # declaration
-        x_data = []
-        y_data = []
 
 
         # Get Data from tab separated ascii file
@@ -81,44 +76,18 @@ class FileReader(FileFramework):
             get_header(csvReader, MARKER["HEADER"])
             data = get_data(csvReader)
 
-
-            # spk-files have a different structure than csv files
-            # if self.file.find(SAVE["EXP_SUFFIX"]) >= 0:
-            #     dataCol = DATA_STRUCTURE["CSV_DATA_COLUMN"]
-            # else:
-            #     dataCol = DATA_STRUCTURE["SPK_DATA_COLUMN"]
-
-            # check if it is valid raw spectrum or critical processed spectrum
-
-            # if dataCol == DATA_STRUCTURE["CSV_DATA_COLUMN"] and row[0] != MARKER["DATA"]:
-            #     while row[0] != MARKER["DATA"]:
-            #         row = next(csvReader)
-            #     QMessageBox.warning(None, "Test", "Processed");
-
-            # for row in csvReader:
-            #     x_data.append(row[0].replace(',', '.')) # TODO: magic
-            #     y_data.append(row[dataCol].replace(',', '.')) # TODO: magic
-
-        # self.xData = np.array(x_data, dtype=DEFAULT_TYPE)
-        # self.yData = np.array(y_data, dtype=DEFAULT_TYPE)
         data = np.array(data, dtype=DEFAULT_TYPE)
-        print("shape:", data.shape)
-        print("type:", type(data))
-        self.xData = data[:, 0]
-        print("xData:", self.xData)
-        self.yData = data[:, 1]
+        self.xData, self.yData = data[:, 0], data[:, 1]
 
     def get_values(self):
         """Return x and y data of the file"""
-        if not self.xData:
-            print("Error 1")
+        if not self.xData or not self.yData:
             self.read_file()
         return self.xData, self.yData
 
     def get_head(self):
         """Return header information"""
-        if not self.time:
-            print("Error 2", self.time)
+        if not self.time or not self.date:
             self.read_file()
         return self.time, self.date
 
@@ -154,28 +123,29 @@ class FileReader(FileFramework):
             raise TypeError("Marker must be a string");
 
         # 1. Wrong file format if csvReader reads an empty row
-        # 2.
         for row in csvReader:
             if marker in row[0]:
-                sep = row[0].split()
-                self.date = sep[1]
-                self.time = sep[2]
+                _, self.date, self.time = row[0].split()
                 return 0;
 
         return 1
-        # if not len(data) > 0:
-        #     QMessageBox.critical(None, "Wrong Data", "No Data given to read out the Header")
-        #     return 2
-        # if not marker in data[0]:
-        #     QMessageBox.critical(None, "ValueError", "No Header included. Wrong format or wrong file input.")
-        #     return 1
 
 
-        # return 0
-
-    # TODO: doc
+    # TODO: error handlings
     def get_spk_data(self, csvReader):
+        """
+        Read out the data of a .spk-file respective to its structure.
 
+        Parameters
+        ----------
+        csvReader : csv.reader-object
+            Reader to iterate through the csv-file.
+
+        Returns
+        -------
+        List of pixel/intensity values
+
+        """
         data = [];
 
         row = next(csvReader)   #header
@@ -187,10 +157,22 @@ class FileReader(FileFramework):
 
         return data;
 
-    # TODO: doc
+    # TODO: error handling
     # TODO: distinguish _raw and _processed?
     def get_csv_data(self, csvReader):
+        """
+        Read out the data of a .csv-file respective to its structure.
 
+        Parameters
+        ----------
+        csvReader : csv.reader-object
+            Reader to iterate through the csv-file.
+
+        Returns
+        -------
+        List of pixel/intensity values
+
+        """
         data = [];
 
         # iterating until the marker was found

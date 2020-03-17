@@ -1,0 +1,27 @@
+# Example/Muster
+NAME: "Boron Peak Fitting"
+PEAKS:
+    -
+        wavelength: 433
+        lower_limit: 432
+        upper_limit:  434
+        minimum: 1
+        reference:
+            -
+                wavelength: 455
+                lower_limit: 454
+                upper_limit:  456
+    -
+        wavelength: 580
+        lower_limit: 578.5
+        upper_limit:  58.2
+        minimum: 1
+        reference:
+            -
+                wavelength: 133
+                lower_limit: 132
+                upper_limit:  134
+            -
+                wavelength: 665.3
+                lower_limit: 664.1
+                upper_limit:  666.4

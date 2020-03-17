@@ -33,7 +33,6 @@ class DataHandler:
      """
 
     def __init__(self, xData, yData, cwl, grat, debug=True, csvoutput=False):
-        # print("__init__")
         self.debug = debug
         self.xData = xData
         self.yData = yData
@@ -103,7 +102,6 @@ class DataHandler:
         """Fit peak at wavelength wl """
 
         # TODO: MAGIC NUMBER
-        print("peak-fitting", xData, yData, wl)
         i_p = indexes(yData, thres=0.01, min_dist=2)
         peaks = xData[i_p]
         peak_idx = np.where(xData == peaks[(np.abs(xData[i_p] - wl)).argmin()])

@@ -428,8 +428,6 @@
      <addaction name="actSaveProcessed"/>
     </widget>
     <addaction name="actOpen"/>
-    <addaction name="actRedraw"/>
-    <addaction name="separator"/>
     <addaction name="menuSave"/>
     <addaction name="separator"/>
     <addaction name="actQuit"/>

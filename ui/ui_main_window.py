@@ -225,8 +225,6 @@ class Ui_main(object):
         self.menuSave.addAction(self.actSaveRaw)
         self.menuSave.addAction(self.actSaveProcessed)
         self.menuFile.addAction(self.actOpen)
-        self.menuFile.addAction(self.actRedraw)
-        self.menuFile.addSeparator()
         self.menuFile.addAction(self.menuSave.menuAction())
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actQuit)
