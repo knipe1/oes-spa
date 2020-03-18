@@ -23,7 +23,7 @@ __status__ = "alpha"
 
 import csv
 import matplotlib as mpl
-from PyQt5.QtCore import Qt, QFileInfo, QStringListModel, QModelIndex
+from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
 from PyQt5.QtWidgets import QDialog, QAbstractItemView
 
 import modules.Universal as uni
@@ -33,6 +33,7 @@ import dialog_messages as dialog
 from ui.UIBatch import UIBatch
 from modules.FileReader import FileReader
 from modules.DataHandler import DataHandler
+from modules.Universal import ExportType
 
 
 # set interactive backend
@@ -164,14 +165,16 @@ class BatchAnalysis(QDialog):
         with open(csvfile, 'w', newline='') as batchFile:
              # open writer with self defined dialect
              # TODO: check/include the dialect
-            csvWr = csv.writer(batchFile, )#dialect=self.dialect)
+            # csvWr = csv.writer(batchFile, )#dialect=self.dialect)
 
             header = ["Filename"]
             for element in checkboxes:
                 if element["state"]:
                     header.append(element["label"])
 
-            csvWr.writerow(header)
+            # csvWr.writerow(header)
+
+            data = []
 
             amount = len(self.files)
             for i in range(amount):
@@ -206,10 +209,15 @@ class BatchAnalysis(QDialog):
                     if element["state"]:
                         row.append(element["value"])
 
-                csvWr.writerow(row)
+                # csvWr.writerow(row)
+                data.append(row)
 
                 # Update process bar
                 self.update_progressbar((i+1)/amount)
+
+        from modules.FileWriter import FileWriter
+        csvWriter = FileWriter(self, csvfile, "testdatum", "time")
+        csvWriter.write_data(data, header, uni.ExportType.BATCH)
 
 
     def open_indexed_file(self, index):

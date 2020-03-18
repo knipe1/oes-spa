@@ -38,6 +38,7 @@ def main():
     # automatic open and close routine
     import emulator as emu
     import threading as thrd
+    import modules.Universal as uni
     window.file_open("H:/OES/ASTERIX1059/Asterix1059 5.Spk")
     window.file_open("H:/OES/ASTERIX1059/Asterix1059 5_raw.csv")
     window.batch.show()

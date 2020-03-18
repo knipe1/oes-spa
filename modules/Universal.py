@@ -12,6 +12,7 @@ def load_config(path="./config.yml"):
 
 # imports
 from PyQt5.QtCore import QFileInfo
+from enum import Enum, auto
 
 import dialog_messages as dialog
 
@@ -21,15 +22,17 @@ config = load_config()
 LOAD = config["LOAD"]
 BATCH = config["BATCH"]
 
+class ExportType(Enum):
+    """
+    class to provide an interace for file properties depending on the export type
+    """
+    RAW = auto()
+    PROCESSED = auto()
+    BATCH = auto()
 
+
+# TODO: Sinnvoll?
 def load_files(directory):
-    # if type(directory) not in [str]:
-    #     raise TypeError("directory must be a path (string)")
-    # filenames, _ = QFileDialog.getOpenFileNames(
-    #         caption = 'Load file(s)',
-    #         directory = directory,
-    #         filter = ";;".join(LOAD["SUFFIXES"]))
-    # return filenames;
     return dialog.dialog_openFiles(directory, LOAD["SUFFIXES"])
 
 def is_valid_filetype(parent, url):

@@ -25,6 +25,7 @@ from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
 from modules.BatchAnalysis import BatchAnalysis
+from modules.Universal import ExportType
 
 
 config = uni.load_config()
@@ -173,18 +174,19 @@ class AnalysisWindow(QMainWindow):
         """Save Raw-Data in CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
+        labels = [PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]]
         xyData = uni.extract_xy_data(self.window.mplRaw.axes,
                                      PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"],
-                             isRaw=True)
+        csvWriter.write_data(xyData, labels, ExportType.RAW)
         return 0;
 
     def save_processed(self, filename):
         """Save processed spectrum to CSV-File """
         # collect data
         filename, date, time = self.get_fileinformation()
+        labels = [PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]]
         xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
                                      PLOT["PROCESSED_DATA_LABEL"])
 
@@ -194,10 +196,7 @@ class AnalysisWindow(QMainWindow):
 
         # write data to csv
         csvWriter = FileWriter(self, filename, date, time)
-        csvWriter.write_data(xyData,
-                             PLOT["PROCESSED_X_LABEL"],
-                             PLOT["PROCESSED_Y_LABEL"],
-                             results)
+        csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
         return 0;
 
     def init_plot(self, plotObj, xlabel, ylabel):

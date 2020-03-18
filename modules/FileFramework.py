@@ -11,6 +11,7 @@ import csv
 
 import modules.Universal as uni
 
+
 class FileFramework:
     # load config
     config = uni.load_config()

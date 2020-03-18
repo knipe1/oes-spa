@@ -61,3 +61,9 @@ BATCH:
     SEPARATOR: ":"
     INDEX_FORMAT: "4d"
 
+TEST:
+    type: string
+    enum:
+        - raw
+        - processed
+        - batch
