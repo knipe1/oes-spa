@@ -12,20 +12,24 @@ __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
 
+# third-party imports
+#import matplotlib as mpl
 
-from PyQt5.QtCore import QFileInfo
-from PyQt5.QtWidgets import QMainWindow
-
-import matplotlib as mpl
+# imports
 import modules.Universal as uni
 import dialog_messages as dialog
 
-from ui.UIMain import UIMain
+# third-party classes
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QMainWindow
+
+# classes
+from modules.BatchAnalysis import BatchAnalysis
+from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
-from modules.DataHandler import DataHandler
-from modules.BatchAnalysis import BatchAnalysis
 from modules.Universal import ExportType
+from ui.UIMain import UIMain
 
 
 config = uni.load_config()
@@ -49,7 +53,6 @@ class AnalysisWindow(QMainWindow):
         self.openFile = FILE["DEF_FILE"];
         # general settings
         self.setAcceptDrops(True)
-        self.droppedFile = None
         self.widget = self.centralWidget()
 
         # Set up the user interface from Designer.
@@ -79,8 +82,7 @@ class AnalysisWindow(QMainWindow):
         """Dropping File """
         url = event.mimeData().urls()[0];
         if uni.is_valid_filetype(self,url):
-            self.droppedFile = url.toLocalFile();
-            self.apply_data(self.droppedFile)
+            self.apply_data(url.toLocalFile())
             event.accept();
 
     def file_open(self, filename):
@@ -173,19 +175,19 @@ class AnalysisWindow(QMainWindow):
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
         # collect data
-        filename, date, time = self.get_fileinformation()
+        filename, timestamp = self.get_fileinformation()
         labels = [PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]]
         xyData = uni.extract_xy_data(self.window.mplRaw.axes,
                                      PLOT["RAW_DATA_LABEL"])
         # write data to csv
-        csvWriter = FileWriter(self, filename, date, time)
+        csvWriter = FileWriter(self, filename, timestamp)
         csvWriter.write_data(xyData, labels, ExportType.RAW)
         return 0;
 
     def save_processed(self, filename):
         """Save processed spectrum to CSV-File """
         # collect data
-        filename, date, time = self.get_fileinformation()
+        filename, timestamp = self.get_fileinformation()
         labels = [PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]]
         xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
                                      PLOT["PROCESSED_DATA_LABEL"])
@@ -195,7 +197,7 @@ class AnalysisWindow(QMainWindow):
         results["PeakArea"] = self.window.toutPeakArea.text()
 
         # write data to csv
-        csvWriter = FileWriter(self, filename, date, time)
+        csvWriter = FileWriter(self, filename, timestamp)
         csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
         return 0;
 
@@ -231,7 +233,8 @@ class AnalysisWindow(QMainWindow):
         filename = self.window.toutFilename.text()
         date = self.window.toutDate.text()
         time = self.window.toutTime.text()
-        return filename, date, time
+        timestamp = date + " " + time
+        return filename, timestamp
 
     def set_fileinformation(self, filename, date, time):
         """set the file information (filename, date and time)"""

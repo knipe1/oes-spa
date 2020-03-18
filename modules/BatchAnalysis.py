@@ -2,10 +2,6 @@
 """
 Created on Mon Jan 20 10:22:44 2020
 
-@author: Wernecke
-"""
-
-"""
 Batch-Analysis
 
 Batch analysis of OES spectra
@@ -19,29 +15,42 @@ __maintainer__ = "Hauke Wernecke/Peter Knittel"
 __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-# TODO: generate docstrings
+# third-party imports
+#import matplotlib as mpl
 
-import csv
-import matplotlib as mpl
-from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
-from PyQt5.QtWidgets import QDialog, QAbstractItemView
-
+#imports
 import modules.Universal as uni
 import dialog_messages as dialog
+
+# third-party classes
+from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
+from PyQt5.QtWidgets import QDialog, QAbstractItemView
+from datetime import datetime
+from enum import Enum
 
 # classes
 from ui.UIBatch import UIBatch
 from modules.FileReader import FileReader
+from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
 from modules.Universal import ExportType
 
+class CHARACTERISTIC(Enum):
+    PEAK_HEIGHT = "Peak height"
+    PEAK_AREA = "Peak area"
+    BASELINE = "Baseline"
+    PEAK_POSITION = "Peak position"
+    HEADER_INFO = "Header info"
+
 
 # set interactive backend
-mpl.use("Qt5Agg")
+#mpl.use("Qt5Agg")
 
 config = uni.load_config()
 # batch properties
 BATCH = config["BATCH"];
+# save properties
+SAVE = config["SAVE"];
 
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
@@ -56,6 +65,7 @@ class BatchAnalysis(QDialog):
         # init of mui has to be at last, because it connects self.model i.a.
         self.mui = UIBatch(self)
         self.mui.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
 
 
     def dragEnterEvent(self, event):
@@ -82,12 +92,14 @@ class BatchAnalysis(QDialog):
         """Dropping File """
         # get the urls and check if they are valid.
         # Append all valid files to the list and display them
+        valid_urls = [];
+        # seperate valid and invalid urls
         urls = event.mimeData().urls();
         for url in urls:
             if uni.is_valid_filetype(self, url):
-                self.files.append(url.toLocalFile())
-        self.display_filenames();
-        self.update_UI()
+                valid_urls.append(url.toLocalFile())
+        # updates the filelist with the valid urls and updates the ui
+        self.update_filelist(valid_urls)
 
 
     def set_filename(self):
@@ -116,6 +128,7 @@ class BatchAnalysis(QDialog):
 
             # Change interface and preset for further dialogs (lastdir)
             self.lastdir = str(filenameInfo.absolutePath())
+            # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
             self.mui.foutCSV.setText(filename)
             self.update_UI()
 
@@ -129,31 +142,15 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        self.files =  uni.load_files(self.lastdir);
+        self.update_filelist(uni.load_files(self.lastdir))
 
-        if self.files:
-            self.display_filenames();
 
-            self.update_UI()
-            self.mui.listFiles.setCurrentIndex(self.model.index(0))
-            self.open_indexed_file(0)
 
 
     def multi_calc(self):
         """Batch process spectra and write to CSV """
 
-
-        # retrieve checkboxes and their properties
-        checkboxes = [{"checkbox": btn,
-                       "name": btn.objectName(),
-                       "state": btn.isChecked()
-                       } for btn in self.mui.BtnParameters.buttons()]
-        # make sure this is in the correct order
-        labels = ["Peak height", "Peak area", "Baseline", "Header info", "Peak position",]
-
-        # union labels and checkboxes
-        for idx, element in enumerate(checkboxes):
-            element.update({"label": labels[idx]})
+        checkboxes = self.retrieve_batch_config();
 
         # not used due to adding value-tag later
         # keep only checked elements
@@ -161,64 +158,97 @@ class BatchAnalysis(QDialog):
 
 
         # Set correct Filename and open it
+        # TODO: Do not read from ui...
         csvfile = str(self.mui.foutCSV.text())
-        with open(csvfile, 'w', newline='') as batchFile:
-             # open writer with self defined dialect
-             # TODO: check/include the dialect
-            # csvWr = csv.writer(batchFile, )#dialect=self.dialect)
 
-            header = ["Filename"]
-            for element in checkboxes:
-                if element["state"]:
-                    header.append(element["label"])
-
-            # csvWr.writerow(header)
-
-            data = []
-
-            amount = len(self.files)
-            for i in range(amount):
-
-                # Read out the file
-                file = self.files[i]
-                self.openFile = FileReader(file)
-                data_x, data_y = self.openFile.get_values()
-                time, date = self.openFile.get_head()
-
-                # Get Parameters
-                spec_proc = DataHandler(
-                            data_x, data_y,
-                            float(self.parent().window.tinCentralWavelength.text()),
-                            int(self.parent().window.ddGrating.currentText()))
-                procX, procY = spec_proc.get_processed_data()
-                baseline, avg = spec_proc.get_baseline()
-                peak_height, peak_area = spec_proc.get_peak()
-                peak_position, peak_raw = spec_proc.get_peak_raw()
+        data = self.retrieve_data(checkboxes)
 
 
 
-                checkboxes[0]["value"] = peak_height
-                checkboxes[1]["value"] = peak_area
-                checkboxes[2]["value"] = avg
-                checkboxes[3]["value"] = peak_height
-                checkboxes[4]["value"] = date + " " + time
+        # create and format timestamp
+        timestamp = datetime.now()
+        timestamp = timestamp.strftime(SAVE["FORMAT_TIMESTAMP"])
+
+        # assemble header
+        header = ["Filename"]
+        header += self.get_values_of_dict(checkboxes, "label")
+
+        # export in csv file
+        csvWriter = FileWriter(self, csvfile, timestamp)
+        csvWriter.write_data(data, header, ExportType.BATCH)
+
+    def retrieve_data(self, dictionary):
+        data = []
+
+        amount = len(self.files)
+        for i in range(amount):
+
+            # Read out the file
+            file = self.files[i]
+            self.openFile = FileReader(file)
+            data_x, data_y = self.openFile.get_values()
+            time, date = self.openFile.get_head()
+
+            # Get Parameters
+            spec_proc = DataHandler(data_x, data_y,
+                        float(self.parent().window.tinCentralWavelength.text()),
+                        int(self.parent().window.ddGrating.currentText()))
+            # procX, procY = spec_proc.get_processed_data()
+            _, avg = spec_proc.get_baseline()
+            peak_height, peak_area = spec_proc.get_peak()
+            peak_position, _ = spec_proc.get_peak_raw()
+
+            # link values to dicts
+            # If the list of characteristics gets larger, a loop is possible by assigning a dict (works as a reference) to the value, e.g.:
+            # peak_height = {}
+            # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
+            # peak_height["numerical value"] = xy
+
+            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
+            dictionary[CHARACTERISTIC.PEAK_AREA.value]["value"] = peak_area
+            dictionary[CHARACTERISTIC.BASELINE.value]["value"] = avg
+            dictionary[CHARACTERISTIC.HEADER_INFO.value]["value"] = date + " " + time
+            dictionary[CHARACTERISTIC.PEAK_POSITION.value]["value"] = peak_position[0]
 
 
-                row = [file]
-                for element in checkboxes:
-                    if element["state"]:
-                        row.append(element["value"])
 
-                # csvWr.writerow(row)
-                data.append(row)
+            # assembling the row and appending it to the data
+            row = [file]
+            row += self.get_values_of_dict(dictionary, "value")
+            data.append(row)
 
-                # Update process bar
-                self.update_progressbar((i+1)/amount)
+            # Update process bar
+            self.update_progressbar((i+1)/amount)
+        return data
 
-        from modules.FileWriter import FileWriter
-        csvWriter = FileWriter(self, csvfile, "testdatum", "time")
-        csvWriter.write_data(data, header, uni.ExportType.BATCH)
+    def retrieve_batch_config(self):
+        properties = {}
+        # make sure this is in the correct order
+        labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
+                  CHARACTERISTIC.PEAK_AREA.value,
+                  CHARACTERISTIC.BASELINE.value,
+                  CHARACTERISTIC.HEADER_INFO.value,
+                  CHARACTERISTIC.PEAK_POSITION.value,]
 
+        # retrieve checkboxes and their properties
+        checkboxes = [{"checkbox": btn,
+                       "name": btn.objectName(),
+                       "state": btn.isChecked(),
+                       "value": 0
+                       } for btn in self.mui.BtnParameters.buttons()]
+
+        # union labels and checkboxes
+        for idx, element in enumerate(checkboxes):
+            element.update({"label": labels[idx]})
+            properties[element["label"]] = element
+        return properties;
+
+    def get_values_of_dict(self, dictionary, key):
+        data = []
+        for label, item in dictionary.items():
+            if item["state"]:
+                data.append(item[key])
+        return data;
 
     def open_indexed_file(self, index):
         """
@@ -240,25 +270,7 @@ class BatchAnalysis(QDialog):
             index = index.row()
         self.parent().file_open(self.files[index])
 
-    def update_progressbar(self, percentage):
-        """
-        Convert the percentage into a percent and sets the value to the progress bar
 
-        Parameters
-        ----------
-        percentage : float
-            The percentage.
-
-        Returns
-        -------
-        int
-            The percent calculated and set.
-
-        """
-        """sets hte percentage to the progress bar"""
-        percent = int(percentage*100);
-        self.mui.barProgress.setValue(percent);
-        return percent;
 
     def update_UI(self):
         """
@@ -290,10 +302,54 @@ class BatchAnalysis(QDialog):
         """setting the list of files"""
         files = uni.add_index_to_text(uni.reduce_path(self.files))
         self.model.setStringList(files)
+        self.update_UI()
 
+    def update_filelist(self, filelist):
+        """
+        Updates the filelist of the model and refreshes the ui
+
+        Parameters
+        ----------
+        filelist : list of string
+            List of strings including valid urls/filenames.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.files = list(set().union(self.files, filelist))
+        self.files.sort(key=uni.natural_keys)
+
+        # update the files if at least one is selected
+        if self.files:
+            isInit = self.model.index(0).row()
+            self.display_filenames();
+            # selects the first one if list was empty before
+            if isInit:
+                self.mui.listFiles.setCurrentIndex(self.model.index(0))
+                self.open_indexed_file(0)
 
     def clear(self):
         """Reset UI """
         self.files =  []
         self.display_filenames()
-        self.update_UI()
+
+    def update_progressbar(self, percentage):
+        """
+        Convert the percentage into a percent and sets the value to the progress bar
+
+        Parameters
+        ----------
+        percentage : float
+            The percentage.
+
+        Returns
+        -------
+        int
+            The percent calculated and set.
+
+        """
+        percent = int(percentage*100);
+        self.mui.barProgress.setValue(percent);
+        return percent;

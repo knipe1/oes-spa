@@ -21,22 +21,13 @@ from modules.Universal import ExportType
 
 class FileWriter(FileFramework):
     """File reader for spectral data files """
-    def __init__(self, parent, filename, date, time):
+    def __init__(self, parent, filename, timestamp):
         FileFramework.__init__(self)
         self.parent = parent
 
         # TODO: Errorhandling if directory is cancelled or does not exist
         # self.directory = self.select_directory()
-        self.filename, self.date, self.time = filename, date, time
-        self.directory = QFileInfo(filename).absolutePath()
-        # test = QFileInfo(filename)
-        # print(filename)
-        # print(test.absolutePath())
-        # print(test.baseName())
-        # print(str(test.path()))
-        # print(str(test.absoluteDir()))
-        # print(test.canonicalFilePath())
-        # print(test.canonicalPath())
+        self.filename, self.timestamp = filename, timestamp
 
 
 
@@ -63,8 +54,9 @@ class FileWriter(FileFramework):
             1: if directory is not set
 
         """
-        if not self.directory:
-            return 1
+        # obsolet
+        # if not self.directory:
+        #     return 1
 
 
         expFilename = self.build_exp_filename(exportType)
@@ -85,21 +77,21 @@ class FileWriter(FileFramework):
             csvWr.writerows(data)
         return 0
 
-    def select_directory(self):
-        """
-        Opens a native dialog to select a directory. If one is selected that one is saved as last used directory
+    # def select_directory(self):
+    #     """
+    #     Opens a native dialog to select a directory. If one is selected that one is saved as last used directory
 
-        Returns
-        -------
-        directory : string
-            Path of the directory.
+    #     Returns
+    #     -------
+    #     directory : string
+    #         Path of the directory.
 
-        """
-        directory = dialog.dialog_getDirectory(self.parent.lastdir)#, self.parent.widget)
-        # back up the used directory, if a directory was selected
-        if directory:
-            self.parent.lastdir = directory
-        return directory
+    #     """
+    #     directory = dialog.dialog_getDirectory(self.parent.lastdir)#, self.parent.widget)
+    #     # back up the used directory, if a directory was selected
+    #     if directory:
+    #         self.parent.lastdir = directory
+    #     return directory
 
     def build_exp_filename(self, exportType):
         """Alters the current filename to a standard processed export
@@ -119,5 +111,5 @@ class FileWriter(FileFramework):
         return rawFilename+appendix+self.SAVE["EXP_SUFFIX"];
 
     def build_head(self):
-        return " ".join([self.MARKER["HEADER"], self.date, self.time])
+        return " ".join([self.MARKER["HEADER"], self.timestamp])
 

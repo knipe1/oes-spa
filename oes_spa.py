@@ -35,26 +35,9 @@ def main():
 
     # Show Window
     window.show()
-    # automatic open and close routine
-    import emulator as emu
-    import threading as thrd
-    import modules.Universal as uni
-    window.file_open("H:/OES/ASTERIX1059/Asterix1059 5.Spk")
-    window.file_open("H:/OES/ASTERIX1059/Asterix1059 5_raw.csv")
-    window.batch.show()
-    enter = thrd.Thread(target=emu.key_accept)
-    enter.start()
-    yes = thrd.Thread(target=emu.key_alt_j)
-    yes.start()
-    window.batch.mui.btnSetFilename.click()
-    window.batch.mui.btnBrowse.click()
-    window.batch.mui.cbPeakHeight.click()
-    window.batch.mui.cbPeakArea.click()
-    window.batch.mui.cbBaseline.click()
-    window.batch.mui.btnCalculate.click()
 
     sys.exit(app.exec_())
 
 
-# Run if opened as main
+# Run as main if executed and not included
 main()

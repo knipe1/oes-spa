@@ -11,6 +11,7 @@ def load_config(path="./config.yml"):
 
 
 # imports
+import re
 from PyQt5.QtCore import QFileInfo
 from enum import Enum, auto
 
@@ -172,3 +173,34 @@ def add_index_to_text(texts):
     return [format(idx, BATCH["INDEX_FORMAT"]) +
             BATCH["SEPARATOR"] + text
             for idx, text in enumerate(texts)]
+
+
+def tryint(s):
+    """
+    Tries to convert s into a int.
+    Used for human sort corresponding to the natural_keys function.
+
+    Parameters
+    ----------
+    s : string
+        String that tried to convert into integer
+
+    Returns
+    -------
+    string or int
+        int expression of s or s itself.
+
+    """
+    try:
+        return int(s)
+    except ValueError:
+        return s
+
+def natural_keys(text):
+    """
+    alist.sort(key=natural_keys) sorts in human order.
+    https://nedbatchelder.com/blog/200712/human_sorting.html
+    """
+    # r'(\d+)' matches any digit number (# indicates one or more matches)
+    # splitting a list of all non-numerical and numerical pattern
+    return [ tryint(c) for c in re.split(r'(\d+)', text) ]

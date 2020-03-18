@@ -29,6 +29,7 @@ SAVE:
     EXP_SUFFIX: ".csv"
     DEF_BATCH_FILTER: "Comma separated (*.csv)"
     DEF_BATCH_NAME: "_batch"
+    FORMAT_TIMESTAMP: "%d.%m.%Y %H:%M:%S"
 
 LOAD:
     VALID_SUFFIX:
@@ -61,9 +62,3 @@ BATCH:
     SEPARATOR: ":"
     INDEX_FORMAT: "4d"
 
-TEST:
-    type: string
-    enum:
-        - raw
-        - processed
-        - batch
