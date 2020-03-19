@@ -31,9 +31,9 @@ class TestLoadFiles(unittest.TestCase):
         self.multSpk = 'H:/OES/__oes-spectra-analysis/modules/testfiles/"spkfile_1.Spk" "spkfile_2.spk"';
 
     def test_loadfiles(self):
-        enter = thrd.Thread(target=emu.key_accept)
-                # Open the dialog and reject it (start thread before open dialog)
+        # Open the dialog and reject it (start thread before open dialog)
         enter.start()
+        enter = thrd.Thread(target=emu.key_accept)
         singleSpkFile = load_files(self.spkFile_1)[0];
         enter = thrd.Thread(target=emu.key_accept)
         enter.start()

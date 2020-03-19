@@ -43,19 +43,18 @@ class TestUIBatch(TestCase):
         self.assertTrue(self.form.foutCSV.isEnabled())
         self.assertTrue(self.form.listFiles.isEnabled())
 
-        self.assertFalse(self.form.btnCalculate.isEnabled())
-        self.assertFalse(self.form.btnClear.isEnabled())
+        self.assertTrue(self.form.btnClear.isEnabled())
         # check boxes
-        self.assertFalse(self.form.cbPeakHeight.isEnabled())
-        self.assertFalse(self.form.cbPeakArea.isEnabled())
-        self.assertFalse(self.form.cbBaseline.isEnabled())
-        self.assertFalse(self.form.cbPeakPos.isEnabled())
-        self.assertFalse(self.form.cbHead.isEnabled())
-        # spins and bar
-        # self.assertFalse(self.form.DispSpin.isEnabled())
-        # self.assertFalse(self.form.DispFile.isEnabled())
+        self.assertTrue(self.form.cbPeakHeight.isEnabled())
+        self.assertTrue(self.form.cbPeakArea.isEnabled())
+        self.assertTrue(self.form.cbBaseline.isEnabled())
+        self.assertTrue(self.form.cbPeakPos.isEnabled())
+        self.assertTrue(self.form.cbHead.isEnabled())
         # TODO: Why is barProcess initially enabled?
-        self.assertEqual(self.form.barProcess.isEnabled(), True)
+        self.assertTrue(self.form.barProgress.isEnabled())
+
+
+        self.assertFalse(self.form.btnCalculate.isEnabled())
 
 
     def test_defaults(self):
@@ -73,8 +72,6 @@ class TestUIBatch(TestCase):
         self.assertEqual(self.form.cbBaseline.isChecked(), False)
         self.assertEqual(self.form.cbPeakPos.isChecked(), False)
         self.assertEqual(self.form.cbHead.isChecked(), False)
-        #Spinner
-        self.assertEqual(self.form.DispSpin.value(), 0)
         #file list
         self.assertEqual(self.form.parent.model.stringList(), [])
         self.assertEqual(self.form.foutCSV.text(), "")
@@ -118,8 +115,6 @@ class TestUIBatch(TestCase):
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
         #check if the button "Calculate" is not enabled
         self.assertFalse(self.form.btnCalculate.isEnabled(), "btnCalculate is enabled")
-        #check if the parameters are not enabled
-        self.checkboxesEnabled(False)
 
     def test_setFilename_accept(self):
         """
@@ -131,19 +126,18 @@ class TestUIBatch(TestCase):
         None.
 
         """
-        # checks if the form is visible
-        # self.assertTrue(self.form.isVisible())
         #preset the reject and accept threads
         esc = thrd.Thread(target=emu.key_reject)
         enter = thrd.Thread(target=emu.key_accept)
         # Open the dialog and accept it (start thread before open dialog)
         enter.start()
+        # confirm override if file already exists
+        yes = thrd.Thread(target=emu.key_alt_j)
+        yes.start()
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
         # TODO: Check if a file is actually selected or batch.csv (preserved name) is acutally saved?
         #check if the button "Calculate" is enabled
         #self.assertTrue(self.form.btnCalculate.isEnabled(), "btnCalculate is not enabled")
-        #check if the parameters are enabled
-        self.checkboxesEnabled()
 
     def checkboxesEnabled(self, enabled=True):
         """
