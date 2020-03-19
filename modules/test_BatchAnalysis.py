@@ -76,10 +76,10 @@ class TestBatchAnalysis(TestCase):
 
         """
         text = "Dateiname"
-        text_csv = "Dateiname.csv"
-        text_CSV = "Dateiname.CSV"
-        text_txt = "Dateiname.txt"
-        text_spk = "Dateiname.spk"
+        text_csv = text + ".csv"
+        text_CSV = text + ".CSV"
+        text_txt = text + ".txt"
+        text_spk = text + ".spk"
         defaultFilename = r"H:/OES/ASTERIX1059/_batch.csv"
         arbitraryFilename = r"H:/OES/ASTERIX1059/"+text+".csv"
 
@@ -99,12 +99,12 @@ class TestBatchAnalysis(TestCase):
 
 
         """ Test falsy suffixes"""
+        """spk"""
+        self.routine_set_filename(arbitraryFilename, text_spk)
         """Capital CSV"""
         self.routine_set_filename(arbitraryFilename, text_CSV)
         """txt"""
         self.routine_set_filename(arbitraryFilename, text_txt)
-        """spk"""
-        self.routine_set_filename(arbitraryFilename, text_spk)
 
     def test_browse_spectra(self):
         """Browse spectra"""

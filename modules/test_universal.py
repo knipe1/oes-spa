@@ -32,8 +32,8 @@ class TestLoadFiles(unittest.TestCase):
 
     def test_loadfiles(self):
         # Open the dialog and reject it (start thread before open dialog)
-        enter.start()
         enter = thrd.Thread(target=emu.key_accept)
+        enter.start()
         singleSpkFile = load_files(self.spkFile_1)[0];
         enter = thrd.Thread(target=emu.key_accept)
         enter.start()
