@@ -261,6 +261,8 @@ class AnalysisWindow(QMainWindow):
         np_x, np_y = self.openFile.get_values()
         time, date = self.openFile.get_head()
         # Draw the spectra and print results
+        if not (time and date and np_x.size and np_y.size):
+            return 1
         self.set_fileinformation(filename, date, time)
         self.draw_spectra(np_x, np_y)
         return 0

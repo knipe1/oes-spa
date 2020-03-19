@@ -20,7 +20,7 @@ __status__ = "alpha"
 from pynput.keyboard import Key, Controller
 from time import sleep
 
-PAUSE = 1.5;
+PAUSE = 2.;
 
 
 def key_accept():
@@ -55,8 +55,8 @@ def key_reject():
 
 def key_alt_j():
     """
-    Emulates a esc-key press after a pause.
-    Often used as a thread to reject a native file dialog.
+    Emulates a alt+j press after a pause.
+    Often used as a thread to accept a native file dialog.
 
     Returns
     -------
@@ -68,3 +68,44 @@ def key_alt_j():
     with keyboard.pressed(Key.alt):
         keyboard.press("j")
         keyboard.release("j")
+
+def key_select_file(iterations):
+    """
+    Emulates a alt+j press after a pause.
+    Often used as a thread to accept a native file dialog.
+
+    Returns
+    -------
+    None.
+
+    """
+    keyboard = Controller()
+    sleep(PAUSE)
+    with keyboard.pressed(Key.shift_l):
+        keyboard.press(Key.tab)
+        keyboard.release(Key.tab)
+        keyboard.press(Key.tab)
+        keyboard.release(Key.tab)
+        for i in range(iterations):
+            keyboard.press(Key.down)
+            keyboard.release(Key.down)
+        keyboard.press(Key.up)
+        keyboard.release(Key.up)
+        keyboard.press(Key.up)
+        keyboard.release(Key.up)
+    keyboard.press(Key.enter)
+    keyboard.release(Key.enter)
+
+def key_arbitrary(text):
+    """
+    Emulates a key presses of arbitrary text after a pause.
+    Often used as a thread to name something in a native file dialog.
+
+    Returns
+    -------
+    None.
+
+    """
+    keyboard = Controller()
+    sleep(PAUSE)
+    keyboard.type(text)

@@ -54,6 +54,7 @@ def critical_unknownFiletype(parent=None):
     QMessageBox.critical(parent, title, text);
 
 
+
 def critical_unknownSuffix(suffixes, parent=None):
     """
     Displays an error message if the file cannot be opened due to a wrong suffix. It will also display the valid suffixes.
@@ -132,6 +133,11 @@ def dialog_openFiles(directory, allowedSuffixes, parent=None):
                                                 filter = filter, );
     return filenames;
 
+def information_BatchAnalysisFinished(skippedFiles, parent=None):
+    # TODO docstring
+    title = "Batch Analysis finished";
+    text = "Skipped Files: \n" + "\n".join(skippedFiles);
+    QMessageBox.information(parent, title, text);
 
 def dialog_saveFile(directory, presetFilename="", parent=None):
     """

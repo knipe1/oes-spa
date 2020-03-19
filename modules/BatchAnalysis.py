@@ -122,15 +122,18 @@ class BatchAnalysis(QDialog):
         # check the filename properties to have appropiate scheme
         if filename:
             # Validate the suffix
-            if not filenameInfo.suffix().lower() == BATCH["SUFFIX"]:
+            if not filenameInfo.completeSuffix() == BATCH["SUFFIX"]:
                 # TODO: Show information about the modification?
-                filename = filenameInfo.baseName + "." + BATCH["SUFFIX"]
+                path = filenameInfo.absolutePath() + "/"
+                fileCompleteName = filenameInfo.baseName() + "." + BATCH["SUFFIX"]
+                filename = path + fileCompleteName
 
             # Change interface and preset for further dialogs (lastdir)
             self.lastdir = str(filenameInfo.absolutePath())
             # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
             self.mui.foutCSV.setText(filename)
             self.update_UI()
+        return filename
 
     def browse_spectra(self):
         """
@@ -161,7 +164,7 @@ class BatchAnalysis(QDialog):
         # TODO: Do not read from ui...
         csvfile = str(self.mui.foutCSV.text())
 
-        data = self.retrieve_data(checkboxes)
+        data, skippedFiles = self.retrieve_data(checkboxes)
 
 
 
@@ -177,18 +180,27 @@ class BatchAnalysis(QDialog):
         csvWriter = FileWriter(self, csvfile, timestamp)
         csvWriter.write_data(data, header, ExportType.BATCH)
 
+        print("BatchAnalysis: mult_calc finished")
+        print("Skipped Files:", *skippedFiles)
+        dialog.information_BatchAnalysisFinished(skippedFiles, self)
+
     def retrieve_data(self, dictionary):
         data = []
+        skippedFiles = []
 
         amount = len(self.files)
         for i in range(amount):
+            # Update process bar
+            self.update_progressbar((i+1)/amount)
 
             # Read out the file
             file = self.files[i]
             self.openFile = FileReader(file)
             data_x, data_y = self.openFile.get_values()
             time, date = self.openFile.get_head()
-
+            if not (time and date and data_x.size and data_y.size):
+                skippedFiles.append(file)
+                continue
             # Get Parameters
             spec_proc = DataHandler(data_x, data_y,
                         float(self.parent().window.tinCentralWavelength.text()),
@@ -196,7 +208,13 @@ class BatchAnalysis(QDialog):
             # procX, procY = spec_proc.get_processed_data()
             _, avg = spec_proc.get_baseline()
             peak_height, peak_area = spec_proc.get_peak()
-            peak_position, _ = spec_proc.get_peak_raw()
+            _, peak_position = spec_proc.get_peak_raw()
+
+            # TODO: Check more exlude condiions
+            # excluding file if no appropiate data given like in processed spectra
+            if not peak_height:
+                skippedFiles.append(file)
+                continue
 
             # link values to dicts
             # If the list of characteristics gets larger, a loop is possible by assigning a dict (works as a reference) to the value, e.g.:
@@ -208,7 +226,7 @@ class BatchAnalysis(QDialog):
             dictionary[CHARACTERISTIC.PEAK_AREA.value]["value"] = peak_area
             dictionary[CHARACTERISTIC.BASELINE.value]["value"] = avg
             dictionary[CHARACTERISTIC.HEADER_INFO.value]["value"] = date + " " + time
-            dictionary[CHARACTERISTIC.PEAK_POSITION.value]["value"] = peak_position[0]
+            dictionary[CHARACTERISTIC.PEAK_POSITION.value]["value"] = peak_position
 
 
 
@@ -216,10 +234,7 @@ class BatchAnalysis(QDialog):
             row = [file]
             row += self.get_values_of_dict(dictionary, "value")
             data.append(row)
-
-            # Update process bar
-            self.update_progressbar((i+1)/amount)
-        return data
+        return data, skippedFiles
 
     def retrieve_batch_config(self):
         properties = {}

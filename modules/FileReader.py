@@ -73,15 +73,21 @@ class FileReader(FileFramework):
                 print(filetype)
                 return 1
 
-            get_header(csvReader, MARKER["HEADER"])
+
+            if get_header(csvReader, MARKER["HEADER"]) > 0:
+                print("FileReader: No valid header")
+                return 1
             data = get_data(csvReader)
+            if not len(data)> 0:
+                print("FileReader: No valid data")
+                return 2
 
         data = np.array(data, dtype=DEFAULT_TYPE)
         self.xData, self.yData = data[:, 0], data[:, 1]
 
     def get_values(self):
         """Return x and y data of the file"""
-        if not self.xData or not self.yData:
+        if not self.xData.size > 0 or not self.yData.size > 0:
             self.read_file()
         return self.xData, self.yData
 
