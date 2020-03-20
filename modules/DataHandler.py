@@ -32,6 +32,8 @@ class DataHandler:
             used grating
      """
 
+    # TODO: debug?
+    # TODO: csvoutput?
     def __init__(self, xData, yData, cwl, grat, debug=True, csvoutput=False):
         self.debug = debug
         self.xData = xData
@@ -41,6 +43,7 @@ class DataHandler:
         self.dispersion = 14/grat
         self.process_data()
 
+        # TODO: ???
         if self.debug:
             from logging import basicConfig, getLogger, INFO
             from time import localtime, strftime
@@ -53,6 +56,7 @@ class DataHandler:
         # TODO: csvoutput is always false?
         # AND has no attribute Config
         # AND it would just overwrite self.csvoutput
+        # TODO: ???
         if csvoutput:
             csvfile = self.Config.get('CSVOutput', 'Filename')
             self.csvoutput(csvfile)
@@ -72,6 +76,7 @@ class DataHandler:
         # self.procY = self.baseline_als(self.yData, 0.05, 10000)
 
         # Baseline fitting with peakutils
+        # TODO: what is calculated here?
         self.baseline = baseline(self.yData)
         self.avgbase = reduce(lambda x, y: x + y,
                               self.baseline) / len(self.baseline)
@@ -85,6 +90,7 @@ class DataHandler:
         # function does not return anything else somewhere, the assignments can
         # be done within the function!
         # check: 433.5 is more or less the wavelength of the boron peak
+        # TODO: from boron_fitting.conf?
         self.peak_height, self.peak_area, self.peak_position =\
             self.peak_fitting(self.procX, self.procY, 433.5)
 
@@ -102,6 +108,7 @@ class DataHandler:
         """Fit peak at wavelength wl """
 
         # TODO: MAGIC NUMBER
+        # TODO: what is calculated here?
         i_p = indexes(yData, thres=0.01, min_dist=2)
         peaks = xData[i_p]
         peak_idx = np.where(xData == peaks[(np.abs(xData[i_p] - wl)).argmin()])
@@ -109,6 +116,7 @@ class DataHandler:
         peak_y = float(yData[peak_idx[0]])
 
         # check: MAGIC NUMBER
+        # TODO:from boron_fitting.conf?
         peak_r_border = np.where(
                 xData == xData[(np.abs(xData - peak_x-0.1)).argmin()])
         peak_l_border = np.where(
@@ -117,6 +125,7 @@ class DataHandler:
         peak_area_x = xData[int(peak_l_border[0]):int(peak_r_border[0])]
         peak_area_y = yData[int(peak_l_border[0]):int(peak_r_border[0])]
 
+        # TODO: what is calculated here?
         peak_area = np.trapz(peak_area_y, peak_area_x)
 
         if not wl-1 < peak_x < wl+1:

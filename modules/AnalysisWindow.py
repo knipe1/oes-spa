@@ -37,7 +37,7 @@ config = uni.load_config()
 PLOT = config["PLOT"];
 # filesystem
 FILE = config["FILE"]
-# filesystem
+# load properties
 LOAD = config["LOAD"]
 
 
@@ -52,7 +52,9 @@ class AnalysisWindow(QMainWindow):
         self.lastdir = FILE["DEF_DIR"];
         self.openFile = FILE["DEF_FILE"];
         # general settings
+        # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
+        # TODO: comment?
         self.widget = self.centralWidget()
 
         # Set up the user interface from Designer.
@@ -67,12 +69,14 @@ class AnalysisWindow(QMainWindow):
 
         #Prequerities
         urls = event.mimeData().urls();
-
+        # accept event only if one file is dropped
+        # transmit files to Batch if more files are dropped
         if len(urls) > 1:
             self.batch.show();
         elif len(urls) == 1:
             # TODO: only check the first one? different schemes possible?
             url = urls[0];
+            # TODO: see also uni.is_valid_filetype
             if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
                 event.accept()
 
@@ -80,8 +84,11 @@ class AnalysisWindow(QMainWindow):
     def dropEvent(self, event):
 		# TODO: ought be a function and in the event handler just a function call, right?
         """Dropping File """
+        # can only be one single file.
+        # TODO: errorhandling?
         url = event.mimeData().urls()[0];
-        if uni.is_valid_filetype(self,url):
+        # TODO: why doublecheck (see above)
+        if uni.is_valid_filetype(self, url):
             self.apply_data(url.toLocalFile())
             event.accept();
 
@@ -90,16 +97,22 @@ class AnalysisWindow(QMainWindow):
         # Load a file via menu bar
         # File-->Open
         # Batch-->Drag&Drop or -->Browse Files
+        # TODO: Check cases in which filename is False/True something else
+        # TODO: rename filename into files
         if filename is False:
             filename = uni.load_files(self.lastdir);
             # TODO: implement multi proc
-            if filename:
+            if len(filename) > 0:
+                self.batch.show();
+                self.batch.update_filelist(filename)
+            elif len(filename) == 1:
                 filename = filename[0];
             else:
                 filename = "";
 
         if filename != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
+            # TODO: neccesary
             self.lastdir = str(QFileInfo(filename).absolutePath())
 
             self.apply_data(filename)
@@ -110,12 +123,10 @@ class AnalysisWindow(QMainWindow):
         """
         # Check whether data was found in the files
         if not x_data.any():
+            # TODO: obsolet?
             self.plot_redrawable(False)
-            # QMessageBox.critical(self, "Error: File could not be opened",
-            #                      "Filetype unknown or file unreadable!")
             dialog.critical_unknownFiletype(self)
             return 1
-
 
         # Sent the raw data to the DataHandler and get parameters
         # TODO: function required for getting parameters and errorhandling!
@@ -132,6 +143,7 @@ class AnalysisWindow(QMainWindow):
         # display results
         # TODO: expected behaviour? What happens if not everything is given?
         # Is there a scenario in which just one result is calculated/set?
+        # TODO: new function?
         self.window.toutBaseline.setText(str(avg))
         self.window.toutPeakHeight.setText(str(peak_height))
         self.window.toutPeakArea.setText(str(peak_area))
@@ -154,10 +166,12 @@ class AnalysisWindow(QMainWindow):
 
 
         # Enable Redraw Events
+        # TODO: obsolet?
         self.plot_redrawable(True)
 
         return 0
 
+    # TODO: obsolet????
     def redraw(self):
         """Redraw the current spectrum selected """
         # TODO: separate elements for displaying information and input elements
@@ -193,8 +207,9 @@ class AnalysisWindow(QMainWindow):
                                      PLOT["PROCESSED_DATA_LABEL"])
 
         results = {}
-        results["PeakHeight"] = self.window.toutPeakHeight.text()
-        results["PeakArea"] = self.window.toutPeakArea.text()
+        # TODO: use enum?
+        results["Peak Height"] = self.window.toutPeakHeight.text()
+        results["Peak Area"] = self.window.toutPeakArea.text()
 
         # write data to csv
         csvWriter = FileWriter(self, filename, timestamp)
@@ -202,6 +217,7 @@ class AnalysisWindow(QMainWindow):
         return 0;
 
     def init_plot(self, plotObj, xlabel, ylabel):
+        # TODO: errorhandling
         """Gets a plot object and label it after clearing it"""
         plotObj.axes.clear();
         plotObj.axes.set_xlabel(xlabel);
@@ -215,6 +231,7 @@ class AnalysisWindow(QMainWindow):
 
     def update_plot(self, plotObj, xData, yData, color, label):
         """updates a given plot"""
+        # TODO: errorhandling
         plotObj.axes.plot(xData, yData, color, label=label);
         plotObj.axes.set_xlim(xData[0], xData[-1]);
         plotObj.axes.legend();
@@ -226,10 +243,14 @@ class AnalysisWindow(QMainWindow):
         """set the status (enabled/disabled) of redraw button/action"""
         self.window.actRedraw.setEnabled(enable);
         # menu --> File --> save
+        # TODO: but important!!!
         self.window.menuSave.setEnabled(enable)
         return 0;
 
     def get_fileinformation(self):
+        # TODO: self.file
+        # TODO: self.timestamp
+        # TODO: self.file = {name: asd, timestamp: sad}
         filename = self.window.toutFilename.text()
         date = self.window.toutDate.text()
         time = self.window.toutTime.text()
@@ -237,8 +258,10 @@ class AnalysisWindow(QMainWindow):
         return filename, timestamp
 
     def set_fileinformation(self, filename, date, time):
+        # TODO: date+time = timestamp?
         """set the file information (filename, date and time)"""
         # validate inputs
+        # TODO: try catch?
         if type(filename) not in [str]:
             raise TypeError("date must be of type string")
         if type(date) not in [str]:

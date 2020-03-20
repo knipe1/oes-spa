@@ -48,6 +48,9 @@ class FileReader(FileFramework):
     def read_file(self):
         """Readout given file"""
         # TODO: config? parentclass?
+        # TODO: issue if file has no header
+        # TODO: issue if there were no data
+        # TODO: issue if file starts with empty line
         DEFAULT_TYPE = np.float64
 
 

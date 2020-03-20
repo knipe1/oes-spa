@@ -15,6 +15,7 @@ __maintainer__ = "Hauke Wernecke/Peter Knittel"
 __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
+# when do we use matplotlib? Why setting the backend here?
 # third-party imports
 #import matplotlib as mpl
 
@@ -131,6 +132,7 @@ class BatchAnalysis(QDialog):
             # Change interface and preset for further dialogs (lastdir)
             self.lastdir = str(filenameInfo.absolutePath())
             # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
+            # TODO: set her: self.csv? self.batchfile? to differentiate ui and logic
             self.mui.foutCSV.setText(filename)
             self.update_UI()
         return filename
@@ -161,7 +163,7 @@ class BatchAnalysis(QDialog):
 
 
         # Set correct Filename and open it
-        # TODO: Do not read from ui...
+        # TODO: Do not read from ui... self.csv/batchFile?
         csvfile = str(self.mui.foutCSV.text())
 
         data, skippedFiles = self.retrieve_data(checkboxes)
@@ -180,11 +182,11 @@ class BatchAnalysis(QDialog):
         csvWriter = FileWriter(self, csvfile, timestamp)
         csvWriter.write_data(data, header, ExportType.BATCH)
 
-        print("BatchAnalysis: mult_calc finished")
-        print("Skipped Files:", *skippedFiles)
         dialog.information_BatchAnalysisFinished(skippedFiles, self)
 
     def retrieve_data(self, dictionary):
+        # TODO: docstring
+        # TODO: errorhandling
         data = []
         skippedFiles = []
 
@@ -197,6 +199,7 @@ class BatchAnalysis(QDialog):
             file = self.files[i]
             self.openFile = FileReader(file)
             data_x, data_y = self.openFile.get_values()
+            # TODO: .get_timestamp?
             time, date = self.openFile.get_head()
             if not (time and date and data_x.size and data_y.size):
                 skippedFiles.append(file)
@@ -206,6 +209,7 @@ class BatchAnalysis(QDialog):
                         float(self.parent().window.tinCentralWavelength.text()),
                         int(self.parent().window.ddGrating.currentText()))
             # procX, procY = spec_proc.get_processed_data()
+            # TODO:  never in use?
             _, avg = spec_proc.get_baseline()
             peak_height, peak_area = spec_proc.get_peak()
             _, peak_position = spec_proc.get_peak_raw()
@@ -237,6 +241,8 @@ class BatchAnalysis(QDialog):
         return data, skippedFiles
 
     def retrieve_batch_config(self):
+        # TODO: docstring
+        # TODO: errorhandling
         properties = {}
         # make sure this is in the correct order
         labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
@@ -349,6 +355,7 @@ class BatchAnalysis(QDialog):
         """Reset UI """
         self.files =  []
         self.display_filenames()
+        # TODO: clear plots?
 
     def update_progressbar(self, percentage):
         """
