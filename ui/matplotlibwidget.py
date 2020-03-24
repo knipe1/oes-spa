@@ -9,7 +9,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT\
                                             as NavigationToolbar
 from matplotlib.figure import Figure
 
-from matplotlib import rcParams
+from matplotlib import rcParams, use
 rcParams['font.size'] = 9
 
 

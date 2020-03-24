@@ -15,7 +15,7 @@ __status__ = "alpha"
 # imports
 import sys
 
-import matplotlib as mpl
+# import matplotlib as mpl
 from PyQt5.QtWidgets import QApplication
 
 
@@ -23,7 +23,7 @@ from modules.AnalysisWindow import AnalysisWindow
 
 
 # set interactive backend
-mpl.use("Qt5Agg")
+# mpl.use("Qt5Agg")
 
 
 def main():
