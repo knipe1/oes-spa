@@ -1,4 +1,7 @@
-"""This module is for general purposes and includes various functions
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+This module is for general purposes and includes various functions
 
 """
 # load the config

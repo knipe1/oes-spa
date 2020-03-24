@@ -25,7 +25,7 @@ import dialog_messages as dialog
 
 # third-party classes
 from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
-from PyQt5.QtWidgets import QDialog, QAbstractItemView
+from PyQt5.QtWidgets import QDialog, QAbstractItemView, QWidget
 from datetime import datetime
 from enum import Enum
 
@@ -42,6 +42,13 @@ class CHARACTERISTIC(Enum):
     BASELINE = "Baseline"
     PEAK_POSITION = "Peak position"
     HEADER_INFO = "Header info"
+
+class BATCH_CONFIG(Enum):
+    CHECKBOX = "checkbox"
+    VALUE = "value"
+    STATUS = "status"
+    LABEL = "label"
+    NAME = "name"
 
 
 # set interactive backend
@@ -68,9 +75,9 @@ class BatchAnalysis(QDialog):
         self.lastdir = parent.lastdir
         self.model = QStringListModel()
         # init of mui has to be at last, because it connects self.model i.a.
-        self.mui = UIBatch(self)
+        self.window = UIBatch(self)
         # disable option to edit the strings in the file list.
-        self.mui.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.window.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
     # section: Events
@@ -163,7 +170,7 @@ class BatchAnalysis(QDialog):
 
         # not used due to adding value-tag later
         # keep only checked elements
-        # checkboxes = [element for element in checkboxes if element["state"]]
+        # checkboxes = [element for element in checkboxes if element["status"]]
 
 
         # Set correct Filename and open it
@@ -180,7 +187,7 @@ class BatchAnalysis(QDialog):
 
         # assemble header
         header = ["Filename"]
-        header += self.get_values_of_dict(checkboxes, "label")
+        header += self.extract_values_of_dict(checkboxes, BATCH_CONFIG.LABEL)
 
         # export in csv file
         csvWriter = FileWriter(self, csvfile, timestamp)
@@ -214,7 +221,7 @@ class BatchAnalysis(QDialog):
             peak_height, peak_area = spec_proc.get_peak()
             _, peak_position = spec_proc.get_peak_raw()
 
-            # TODO: Check more exlude condiions
+            # TODO: Check more exlude conditions
             # excluding file if no appropiate data given like in processed spectra
             if not peak_height:
                 skippedFiles.append(file)
@@ -225,22 +232,23 @@ class BatchAnalysis(QDialog):
             # peak_height = {}
             # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
             # peak_height["numerical value"] = xy
-
-            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
-            dictionary[CHARACTERISTIC.PEAK_AREA.value]["value"] = peak_area
-            dictionary[CHARACTERISTIC.BASELINE.value]["value"] = avg
-            dictionary[CHARACTERISTIC.HEADER_INFO.value]["value"] = date + " " + time
-            dictionary[CHARACTERISTIC.PEAK_POSITION.value]["value"] = peak_position
+            # TODO: is dict.get() useful here?
+            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value][BATCH_CONFIG.VALUE.value] = peak_height
+            dictionary[CHARACTERISTIC.PEAK_AREA.value][BATCH_CONFIG.VALUE.value] = peak_area
+            dictionary[CHARACTERISTIC.BASELINE.value][BATCH_CONFIG.VALUE.value] = avg
+            dictionary[CHARACTERISTIC.HEADER_INFO.value][BATCH_CONFIG.VALUE.value] = date + " " + time
+            dictionary[CHARACTERISTIC.PEAK_POSITION.value][BATCH_CONFIG.VALUE.value] = peak_position
 
 
 
             # assembling the row and appending it to the data
             row = [file]
-            row += self.get_values_of_dict(dictionary, "value")
+            row += self.extract_values_of_dict(dictionary, BATCH_CONFIG.VALUE)
             data.append(row)
         return data, skippedFiles
 
     def retrieve_batch_config(self):
+        value_placeholder = 0
         properties = {}
         # make sure this is in the correct order
         labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
@@ -250,22 +258,45 @@ class BatchAnalysis(QDialog):
                   CHARACTERISTIC.PEAK_POSITION.value,]
 
         # retrieve checkboxes and their properties
-        checkboxes = [{"checkbox": btn,
-                       "name": btn.objectName(),
-                       "state": btn.isChecked(),
-                       "value": 0
-                       } for btn in self.mui.BtnParameters.buttons()]
+        checkboxes = [{BATCH_CONFIG.CHECKBOX.value: cb,
+                       BATCH_CONFIG.NAME.value: cb.objectName(),
+                       BATCH_CONFIG.STATUS.value: cb.isChecked(),
+                       BATCH_CONFIG.VALUE.value: value_placeholder
+                       } for cb in self.mui.BtnParameters.buttons()]
+
+        if len(checkboxes) != len(labels):
+            raise ValueError("Checkboxes and labels are not fitting! Please check configuration")
 
         # union labels and checkboxes
-        for idx, element in enumerate(checkboxes):
-            element.update({"label": labels[idx]})
-            properties[element["label"]] = element
+        for checkbox, label in zip(checkboxes, labels):
+            checkbox.update({BATCH_CONFIG.LABEL.value: label})
+            properties[checkbox[BATCH_CONFIG.LABEL.value]] = checkbox
         return properties;
 
-    def get_values_of_dict(self, dictionary, key):
+    def extract_values_of_dict(self, dictionary, key):
+        """
+        Extract the values of the given dictionary with the specifc key
+        if the dictionary contains a key, value pair with "status", True
+
+        Parameters
+        ----------
+        dictionary : dict
+            A dict that must contain the given key and the key "status".
+        key : string
+            Key to retrieve the specific value of all items of the dictionary.
+
+        Returns
+        -------
+        list
+            Contains all items of the specific key. Empty if "status"-key does not exist in dictionary
+
+        """
         data = []
+        # check type
+        if isinstance (key, Enum):
+            key = key.value
         for label, item in dictionary.items():
-            if item.get("state"):
+            if item.get("status"):
                 data.append(item[key])
         return data;
 

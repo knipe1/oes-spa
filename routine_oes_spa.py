@@ -35,8 +35,6 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
-    # Show Window
-    window.show()
     # automatic open and close routine
     try:
         window.file_open("./sample files/Asterix1059 5.Spk")
@@ -55,7 +53,7 @@ def main():
     # in case of file already exists
     # yes = thrd.Thread(target=emu.key_alt_j)
     # yes.start()
-    window.batch.mui.btnSetFilename.click()
+    # window.batch.mui.btnSetFilename.click()
     # selection = thrd.Thread(target=emu.key_select_file, args=[10])
     # selection.start()
     # window.batch.browse_spectra()

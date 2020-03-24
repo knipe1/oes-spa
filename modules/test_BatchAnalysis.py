@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Still a lot of untested code. 
+If errors occur, extend this file to test the issue.
+
 Created on Wed Mar 18 18:28:42 2020
 
 Testing the class BatchAnalysis

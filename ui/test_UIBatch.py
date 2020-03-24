@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Feb 17 11:59:03 2020
@@ -50,9 +51,7 @@ class TestUIBatch(TestCase):
         self.assertTrue(self.form.cbBaseline.isEnabled())
         self.assertTrue(self.form.cbPeakPos.isEnabled())
         self.assertTrue(self.form.cbHead.isEnabled())
-        # TODO: Why is barProcess initially enabled?
         self.assertTrue(self.form.barProgress.isEnabled())
-
 
         self.assertFalse(self.form.btnCalculate.isEnabled())
 
@@ -109,7 +108,6 @@ class TestUIBatch(TestCase):
         # self.assertTrue(self.form.isVisible())
         #preset the reject and accept threads
         esc = thrd.Thread(target=emu.key_reject)
-        enter = thrd.Thread(target=emu.key_accept)
         # Open the dialog and reject it (start thread before open dialog)
         esc.start()
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
@@ -126,8 +124,7 @@ class TestUIBatch(TestCase):
         None.
 
         """
-        #preset the reject and accept threads
-        esc = thrd.Thread(target=emu.key_reject)
+        #preset the accept thread
         enter = thrd.Thread(target=emu.key_accept)
         # Open the dialog and accept it (start thread before open dialog)
         enter.start()

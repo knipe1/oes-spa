@@ -66,6 +66,22 @@ class AnalysisWindow(QMainWindow):
         # initial settings
         if initialShow:
             self.show()
+            
+    def closeEvent(self, event):
+        """
+        Closing the BatchAnalysis dialog to have a clear shutdown.
+
+        Parameters
+        ----------
+        event : event
+            close event of the main window.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.batch.close()
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """

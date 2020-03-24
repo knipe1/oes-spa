@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jan 27 2020
@@ -56,7 +57,9 @@ class UIMain(Ui_main):
         # btn : Button
         self.btnFileOpen.clicked.connect(self.parent.file_open)
         self.actOpen.triggered.connect(self.parent.file_open)
-        self.actRedraw.triggered.connect(self.parent.redraw)
+        # self.actRedraw.triggered.connect(self.parent.redraw)
         self.actSaveRaw.triggered.connect(self.parent.save_raw)
         self.actSaveProcessed.triggered.connect(self.parent.save_processed)
         self.actOpenBatch.triggered.connect(self.parent.batch.show)
+        # Following connection is unneccesary due to handling in closeEvent of AnalysisWindow
+        # self.actQuit.triggered.connect(self.parent.batch.close)
