@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jan 27 2020
+
+Is the layout of the main window with minor extensions to the qt functionalty
 """
 
 

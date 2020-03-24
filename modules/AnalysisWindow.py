@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 """
@@ -45,21 +45,27 @@ LOAD = config["LOAD"]
 class AnalysisWindow(QMainWindow):
     """Main Analysis Window Class """
 
-    def __init__(self):
-        QMainWindow.__init__(self)
+    def __init__(self, initialShow=True):
+        """initialize the parent class ( == QMainWindow.__init__(self)"""
+        super(AnalysisWindow, self).__init__()
 
         # Set file and directory
         self.lastdir = FILE["DEF_DIR"];
         self.openFile = FILE["DEF_FILE"];
         # general settings
         self.setAcceptDrops(True)
-        self.widget = self.centralWidget()
+        # TODO: Usage? self.centralWidget() return None and is never used.
+        # self.widget = self.centralWidget()
 
         # Set up the user interface from Designer.
         # Load batch dialog
         self.batch = BatchAnalysis(self)
         # Load the main window (uses self.batch already)
         self.window = UIMain(self)
+        
+        # initial settings
+        if initialShow:
+            self.show()
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
@@ -158,19 +164,20 @@ class AnalysisWindow(QMainWindow):
 
         return 0
 
-    def redraw(self):
-        """Redraw the current spectrum selected """
-        # TODO: separate elements for displaying information and input elements
-        # --> new class attribute for self.activeFile,
-        #   which is set, whenever something is drawn
-        # is it openfile?
-        # --> and update the displayed filename
-        filename = str(self.window.toutFilename.text())
-        if filename:
-            x_data, y_data = self.openFile.get_values()
-            self.draw_spectra(x_data, y_data)
-        else:
-            dialog.warning_fileSelection(self.widget)
+    # def redraw(self):
+    #     """Redraw the current spectrum selected """
+    #     # TODO: separate elements for displaying information and input elements
+    #     # --> new class attribute for self.activeFile,
+    #     #   which is set, whenever something is drawn
+    #     # is it openfile?
+    #     # --> and update the displayed filename
+    #     filename = str(self.window.toutFilename.text())
+    #     if filename:
+    #         x_data, y_data = self.openFile.get_values()
+    #         self.draw_spectra(x_data, y_data)
+    #     else:
+    #         # dialog.warning_fileSelection(self.widget)
+    #         dialog.warning_fileSelection()
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """

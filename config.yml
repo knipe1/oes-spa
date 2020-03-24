@@ -19,7 +19,7 @@ PLOT:
     DEF_AXIS_COLOR: '0.2'
 
 FILE:
-    DEF_DIR: "../ASTERIX1059"
+    DEF_DIR: "./sample files"
     DEF_FILE: ""
 
 

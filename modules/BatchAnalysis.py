@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 20 10:22:44 2020
@@ -55,19 +56,24 @@ SAVE = config["SAVE"];
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
+        """initialize the parent class ( == QDialog.__init__(self)"""
         super(BatchAnalysis, self).__init__(parent)
 
+        # general settings
         self.setAcceptDrops(True)
         self.files = []
+        # TODO: check whether there will be some inconsistency if self.lastdir is set
+        # TODO: or if it even useful to implement it like this.
         self.lastdir = parent.lastdir
         self.model = QStringListModel()
         # init of mui has to be at last, because it connects self.model i.a.
         self.mui = UIBatch(self)
+        # disable option to edit the strings in the file list.
         self.mui.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
-
+    # section: Events
     def dragEnterEvent(self, event):
         """
         Drag file over window event.
@@ -101,7 +107,7 @@ class BatchAnalysis(QDialog):
         # updates the filelist with the valid urls and updates the ui
         self.update_filelist(valid_urls)
 
-
+    # section: Methods
     def set_filename(self):
         """
         Opens a dialog to set the filename and updates the UI.
@@ -180,8 +186,6 @@ class BatchAnalysis(QDialog):
         csvWriter = FileWriter(self, csvfile, timestamp)
         csvWriter.write_data(data, header, ExportType.BATCH)
 
-        print("BatchAnalysis: mult_calc finished")
-        print("Skipped Files:", *skippedFiles)
         dialog.information_BatchAnalysisFinished(skippedFiles, self)
 
     def retrieve_data(self, dictionary):
@@ -261,7 +265,7 @@ class BatchAnalysis(QDialog):
     def get_values_of_dict(self, dictionary, key):
         data = []
         for label, item in dictionary.items():
-            if item["state"]:
+            if item.get("state"):
                 data.append(item[key])
         return data;
 

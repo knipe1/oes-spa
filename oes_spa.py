@@ -30,11 +30,10 @@ def main():
     """Main program """
 
     # Setup GUI
+    # TODO: why sys.argv?
+    # sys.argv is a list containing the arguments given in the command line
     app = QApplication(sys.argv)
     window = AnalysisWindow()
-
-    # Show Window
-    window.show()
 
     sys.exit(app.exec_())
 
