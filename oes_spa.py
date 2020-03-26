@@ -12,18 +12,15 @@ __maintainer__ = "Peter Knittel/ Hauke Wernecke"
 __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-# imports
+# standard libs
 import sys
 
-# import matplotlib as mpl
+# third-party libs
 from PyQt5.QtWidgets import QApplication
 
-
+# local modules/libs
 from modules.AnalysisWindow import AnalysisWindow
 
-
-# set interactive backend
-# mpl.use("Qt5Agg")
 
 
 def main():
