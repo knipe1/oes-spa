@@ -17,14 +17,15 @@ __maintainer__ = "Hauke Wernecke/Peter Knittel"
 __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-# third-party imports
+# third-party libs
 from unittest import TestLoader, TestSuite, TextTestRunner
 
-# classes 
+# local modules/libs
+## modules
 import modules.test_BatchAnalysis as t_batch
 import modules.test_FileFramework as t_file
 import modules.test_universal as t_uni
-
+## ui
 import ui.test_UIBatch as t_ui_batch
 import ui.test_UIMain as t_ui_main
 

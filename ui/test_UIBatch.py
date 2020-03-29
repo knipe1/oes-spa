@@ -6,17 +6,19 @@ Created on Mon Feb 17 11:59:03 2020
 @author: wernecke
 """
 
+# standard libs
 import sys
-from unittest import TestCase
-from PyQt5.QtTest import QTest
 
+# third-party libs
+import emulator as emu
+import threading as thrd
+from unittest import TestCase
 from PyQt5.QtTest import QTest
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
-from modules.AnalysisWindow import AnalysisWindow
 
-import emulator as emu
-import threading as thrd
+# local modules/libs
+from modules.AnalysisWindow import AnalysisWindow
 
 
 app = QApplication(sys.argv)

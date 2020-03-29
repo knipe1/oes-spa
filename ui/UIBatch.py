@@ -15,6 +15,7 @@ __status__ = "alpha"
 
 
 
+# local modules/libs
 from ui.ui_batch_dialog import Ui_batch
 
 class UIBatch(Ui_batch):

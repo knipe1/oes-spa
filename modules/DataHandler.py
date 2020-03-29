@@ -5,8 +5,10 @@
 Contains routines to convert raw data and obtain different parameters
 """
 
+# standard libs
 import numpy as np
 
+# third-party libs
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 from peakutils import baseline, indexes
@@ -32,7 +34,7 @@ class DataHandler:
             used grating
      """
 
-    def __init__(self, xData, yData, cwl, grat, debug=True, csvoutput=False):
+    def __init__(self, xData, yData, cwl, grat, debug=False, csvoutput=False):
         self.debug = debug
         self.xData = xData
         self.yData = yData

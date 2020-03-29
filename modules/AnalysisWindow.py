@@ -12,18 +12,16 @@ __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
 
-# third-party imports
+# standard libs
 #import matplotlib as mpl
 
-# imports
-import modules.Universal as uni
-import dialog_messages as dialog
-
-# third-party classes
+# third-party libs
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QMainWindow
 
-# classes
+# local modules/libs
+import modules.Universal as uni
+import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
 from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
@@ -38,7 +36,7 @@ PLOT = config["PLOT"];
 # filesystem
 FILE = config["FILE"]
 # filesystem
-LOAD = config["LOAD"]
+IMPORT = config["IMPORT"]
 
 
 
@@ -95,7 +93,7 @@ class AnalysisWindow(QMainWindow):
         elif len(urls) == 1:
             # TODO: only check the first one? different schemes possible?
             url = urls[0];
-            if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
+            if url.isValid() and url.scheme() in IMPORT["VALID_SCHEME"]:
                 event.accept()
 
 
@@ -107,24 +105,27 @@ class AnalysisWindow(QMainWindow):
             self.apply_data(url.toLocalFile())
             event.accept();
 
-    def file_open(self, filename):
+    def file_open(self, files):
         """Open FileDialog to choose Raw-Data-File """
         # Load a file via menu bar
         # File-->Open
         # Batch-->Drag&Drop or -->Browse Files
-        if filename is False:
-            filename = uni.load_files(self.lastdir);
-            # TODO: implement multi proc
-            if filename:
-                filename = filename[0];
+        if files is False:
+            files = uni.load_files(self.lastdir);
+            if len(files) > 1:
+                self.batch.show();
+                self.batch.update_filelist(files)
+            elif len(files) == 1:
+                files = files[0];
             else:
-                filename = "";
+                files = "";
 
-        if filename != "":
+
+        if files != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
-            self.lastdir = str(QFileInfo(filename).absolutePath())
+            self.lastdir = str(QFileInfo(files).absolutePath())
 
-            self.apply_data(filename)
+            self.apply_data(files)
 
     def draw_spectra(self, x_data, y_data):
         """Draw the raw spectrum and analyze it with DataHandler
@@ -133,8 +134,6 @@ class AnalysisWindow(QMainWindow):
         # Check whether data was found in the files
         if not x_data.any():
             self.plot_redrawable(False)
-            # QMessageBox.critical(self, "Error: File could not be opened",
-            #                      "Filetype unknown or file unreadable!")
             dialog.critical_unknownFiletype(self)
             return 1
 

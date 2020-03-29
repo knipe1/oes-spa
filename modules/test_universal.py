@@ -1,37 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import unittest
-import sys
 
+
+# standard libs
+import sys
+import unittest
+
+# third-party libs
+import emulator as emu
+import threading as thrd
+from PyQt5.QtCore import QFileInfo
+
+# local modules/libs
 from modules.Universal import load_files
 from modules.Universal import reduce_path
 from modules.Universal import add_index_to_text
-
-from PyQt5.QtCore import QFileInfo#, QStringListModel
-# from PyQt5.QtWidgets import QApplication, QFileDialog,\
-#                             QMainWindow, QMessageBox, QDialog
-
-import emulator as emu
-import threading as thrd
 
 class TestLoadFiles(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
         """
-        Setting up the ui and the corresponding variables
+        Setting up the corresponding variables
         """
-        # UI
-        # cls.app = QApplication(sys.argv)
-        # cls.window = AnalysisWindow()
-        # # display the uis
-        # cls.window.show()
-        # cls.window.batch.show()
-        # # variables
-        # cls.batch = cls.window.batch
-        # cls.form = cls.window.batch.mui
-        
-        
         # prequerities
         # path
         path = "./modules/testfiles/"
@@ -43,21 +34,10 @@ class TestLoadFiles(unittest.TestCase):
         cls.textfile_2 = path + "textfile.docx";
         cls.multSpk = path + '"spkfile_1.Spk" "spkfile_2.spk"';
         
-        # convert the relative path to an absolute path,
-        # because the function load_files will return an absolute path.
-        # cls.csvFile_1 = QFileInfo(self.csvFile_1).absoluteFilePath()
-        # cls.spkFile_1 = QFileInfo(self.spkFile_1).absoluteFilePath()
-        # cls.spkFile_2 = QFileInfo(self.spkFile_2).absoluteFilePath()
-        # cls.textfile_2 = QFileInfo(self.textfile_2).absoluteFilePath()
-        # cls.multSpk = QFileInfo(self.multSpk).absoluteFilePath()
         
     @classmethod
     def tearDownClass(cls):
         pass
-        # close the window if something raises an error
-        # cls.batch.close()
-        # cls.window.close()
-        # cls.app.quit()
     
     def setUp(self):        
         pass

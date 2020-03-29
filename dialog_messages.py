@@ -23,16 +23,16 @@ __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
 
+# third-party libs
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
+# local modules/libs
 import modules.Universal as uni
 
 
 config = uni.load_config()
 # save properties
-SAVE = config["SAVE"];
-
-
+EXPORT = config["EXPORT"];
 
 
 
@@ -165,10 +165,10 @@ def dialog_saveFile(directory, presetFilename="", parent=None):
 
     """
     title = "Set Filename";
-    filter = SAVE["DEF_BATCH_FILTER"];
+    filter = EXPORT["DEF_BATCH_FILTER"];
     # set the default batch name
     if not presetFilename:
-        presetFilename = SAVE["DEF_BATCH_NAME"];
+        presetFilename = EXPORT["DEF_BATCH_NAME"];
 
 
     if type(directory) not in [str]:

@@ -16,20 +16,15 @@ __maintainer__ = "Hauke Wernecke/Peter Knittel"
 __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-# third-party imports
-#import matplotlib as mpl
-
-#imports
-import modules.Universal as uni
-import dialog_messages as dialog
-
-# third-party classes
+# third-party libs
 from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
 from PyQt5.QtWidgets import QDialog, QAbstractItemView, QWidget
 from datetime import datetime
 from enum import Enum
 
-# classes
+# local modules/libs
+import modules.Universal as uni
+import dialog_messages as dialog
 from ui.UIBatch import UIBatch
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
@@ -50,15 +45,16 @@ class BATCH_CONFIG(Enum):
     LABEL = "label"
     NAME = "name"
 
-
-# set interactive backend
-#mpl.use("Qt5Agg")
+from Logger import Logger
 
 config = uni.load_config()
 # batch properties
 BATCH = config["BATCH"];
 # save properties
-SAVE = config["SAVE"];
+EXPORT = config["EXPORT"];
+
+# set up the logger
+logger = Logger(__name__)
 
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
@@ -66,6 +62,11 @@ class BatchAnalysis(QDialog):
     def __init__(self, parent):
         """initialize the parent class ( == QDialog.__init__(self)"""
         super(BatchAnalysis, self).__init__(parent)
+        
+        logger.debug("init  batch")
+        
+        # properties
+        self._batchFile = ""
 
         # general settings
         self.setAcceptDrops(True)
@@ -74,11 +75,20 @@ class BatchAnalysis(QDialog):
         # TODO: or if it even useful to implement it like this.
         self.lastdir = parent.lastdir
         self.model = QStringListModel()
-        # init of mui has to be at last, because it connects self.model i.a.
+        # init of window has to be at last, because it connects self.model i.a.
         self.window = UIBatch(self)
         # disable option to edit the strings in the file list.
         self.window.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
+
+    @property
+    def batchFile(self):
+        return self._batchFile
+
+    @batchFile.setter
+    def batchFile(self, text):
+        self.window.foutCSV.setText(text)
+        self._batchFile = text
 
     # section: Events
     def dragEnterEvent(self, event):
@@ -143,8 +153,8 @@ class BatchAnalysis(QDialog):
 
             # Change interface and preset for further dialogs (lastdir)
             self.lastdir = str(filenameInfo.absolutePath())
-            # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
-            self.mui.foutCSV.setText(filename)
+            # setting the batch filename
+            self.batchFile = filename
             self.update_UI()
         return filename
 
@@ -172,25 +182,20 @@ class BatchAnalysis(QDialog):
         # keep only checked elements
         # checkboxes = [element for element in checkboxes if element["status"]]
 
-
-        # Set correct Filename and open it
-        # TODO: Do not read from ui...
-        csvfile = str(self.mui.foutCSV.text())
-
         data, skippedFiles = self.retrieve_data(checkboxes)
 
 
 
         # create and format timestamp
         timestamp = datetime.now()
-        timestamp = timestamp.strftime(SAVE["FORMAT_TIMESTAMP"])
+        timestamp = timestamp.strftime(EXPORT["FORMAT_TIMESTAMP"])
 
         # assemble header
         header = ["Filename"]
         header += self.extract_values_of_dict(checkboxes, BATCH_CONFIG.LABEL)
 
         # export in csv file
-        csvWriter = FileWriter(self, csvfile, timestamp)
+        csvWriter = FileWriter(self, self.batchFile, timestamp)
         csvWriter.write_data(data, header, ExportType.BATCH)
 
         dialog.information_BatchAnalysisFinished(skippedFiles, self)
@@ -206,6 +211,7 @@ class BatchAnalysis(QDialog):
 
             # Read out the file
             file = self.files[i]
+            
             self.openFile = FileReader(file)
             data_x, data_y = self.openFile.get_values()
             time, date = self.openFile.get_head()
@@ -262,7 +268,7 @@ class BatchAnalysis(QDialog):
                        BATCH_CONFIG.NAME.value: cb.objectName(),
                        BATCH_CONFIG.STATUS.value: cb.isChecked(),
                        BATCH_CONFIG.VALUE.value: value_placeholder
-                       } for cb in self.mui.BtnParameters.buttons()]
+                       } for cb in self.window.BtnParameters.buttons()]
 
         if len(checkboxes) != len(labels):
             raise ValueError("Checkboxes and labels are not fitting! Please check configuration")
@@ -335,16 +341,16 @@ class BatchAnalysis(QDialog):
         """
         enable = True;
         # checks wheter a name was chosen
-        if not self.mui.foutCSV.text():
+        if not self.batchFile:
             enable = False
         # Checks whether files were selected
         if not self.files:
             enable = False
         # checks whether any parameter was selected
-        if not any([btn.isChecked() for btn in self.mui.BtnParameters.buttons()]):
+        if not any([btn.isChecked() for btn in self.window.BtnParameters.buttons()]):
             enable = False
 
-        self.mui.btnCalculate.setEnabled(enable)
+        self.window.btnCalculate.setEnabled(enable)
 
 
 
@@ -377,7 +383,7 @@ class BatchAnalysis(QDialog):
             self.display_filenames();
             # selects the first one if list was empty before
             if isInit:
-                self.mui.listFiles.setCurrentIndex(self.model.index(0))
+                self.window.listFiles.setCurrentIndex(self.model.index(0))
                 self.open_indexed_file(0)
 
     def clear(self):
@@ -401,5 +407,5 @@ class BatchAnalysis(QDialog):
 
         """
         percent = int(percentage*100);
-        self.mui.barProgress.setValue(percent);
+        self.window.barProgress.setValue(percent);
         return percent;

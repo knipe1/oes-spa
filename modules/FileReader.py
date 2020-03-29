@@ -4,15 +4,16 @@
 
 Import XY data from different filetypes
 """
-# imports
+
+# standard libs
 import csv
-
 import numpy as np
-from PyQt5.QtCore import QFileInfo  # provides system-independent file info
-from PyQt5.QtWidgets import QMessageBox # TODO: remove
 
+# third-party libs
+from PyQt5.QtCore import QFileInfo  # provides system-independent file info
+
+# local modules/libs
 import modules.Universal as uni
-# classes
 from modules.FileFramework import FileFramework
 
 
@@ -20,7 +21,7 @@ config = uni.load_config()
 # marker
 MARKER = config["MARKER"];
 # export/save
-SAVE = config["SAVE"];
+EXPORT = config["EXPORT"];
 # file strucutre
 DATA_STRUCTURE = config["DATA_STRUCTURE"];
 

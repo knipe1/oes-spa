@@ -16,6 +16,7 @@ __email__ = "hauke.wernecke@iaf.fraunhhofer.de", "peter.knittel@iaf.fraunhhofer.
 __status__ = "alpha"
 
 
+# local modules/libs
 from ui.ui_main_window import Ui_main
 
 class UIMain(Ui_main):
@@ -57,7 +58,6 @@ class UIMain(Ui_main):
         # btn : Button
         self.btnFileOpen.clicked.connect(self.parent.file_open)
         self.actOpen.triggered.connect(self.parent.file_open)
-        # self.actRedraw.triggered.connect(self.parent.redraw)
         self.actSaveRaw.triggered.connect(self.parent.save_raw)
         self.actSaveProcessed.triggered.connect(self.parent.save_processed)
         self.actOpenBatch.triggered.connect(self.parent.batch.show)

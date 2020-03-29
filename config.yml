@@ -23,7 +23,7 @@ FILE:
     DEF_FILE: ""
 
 
-SAVE:
+EXPORT:
     RAW_APPENDIX: "_raw"
     PROCESSED_APPENDIX: "_processed"
     EXP_SUFFIX: ".csv"
@@ -31,7 +31,7 @@ SAVE:
     DEF_BATCH_NAME: "_batch"
     FORMAT_TIMESTAMP: "%d.%m.%Y %H:%M:%S"
 
-LOAD:
+IMPORT:
     VALID_SUFFIX:
         - "csv"
         - "spk"
