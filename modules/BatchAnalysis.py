@@ -18,7 +18,7 @@ __status__ = "alpha"
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
-from PyQt5.QtWidgets import QDialog, QAbstractItemView, QWidget
+from PyQt5.QtWidgets import QDialog, QAbstractItemView
 from datetime import datetime
 from enum import Enum
 
@@ -55,6 +55,7 @@ EXPORT = config["EXPORT"];
 
 # set up the logger
 logger = Logger(__name__)
+logger.critical("WTF")
 
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
@@ -84,7 +85,7 @@ class BatchAnalysis(QDialog):
     @property
     def batchFile(self):
         return self._batchFile
-
+    
     @batchFile.setter
     def batchFile(self, text):
         self.window.foutCSV.setText(text)
@@ -211,6 +212,20 @@ class BatchAnalysis(QDialog):
 
             # Read out the file
             file = self.files[i]
+            
+            ##### test
+            try:
+                self.parent().apply_data(file)
+                logger.info("parent(), data applied")
+            except:
+                pass
+            
+            try:
+                self.parent().apply_data(file)
+                logger.info("parent, data applied")
+            except:
+                pass
+            #####
             
             self.openFile = FileReader(file)
             data_x, data_y = self.openFile.get_values()

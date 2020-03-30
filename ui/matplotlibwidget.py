@@ -65,3 +65,4 @@ class MatplotlibWidget(QWidget):
 
     def draw(self):
         self.canvas.draw()
+        self.canvas.flush_events()

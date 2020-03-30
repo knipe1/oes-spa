@@ -84,24 +84,73 @@ class Logger():
                  mode = LOG_MODE):
         
         """initialize the parent class ( == logging.Logger.__init__(self)"""
-        # super(Logger, self).__init__(logging.Logger)
-        # logging.Logger.__init__(self)
         
         # creating a new logger with file specific name
         self.logger = logging.getLogger(name)
         
-        # setting the debug level
-        self.logger.setLevel = level
+        # setting the default logging level
+        self.logger.setLevel(logging.DEBUG)
+        
         
         # removing all handler from previous sessions
-        while len(logger.handlers):
-            logger.removeHandler(logger.handlers[0])
+        while len(self.logger.handlers):
+            self.logger.removeHandler(self.logger.handlers[0])
 
+        # print(self.logger.getEffectiveLevel(), self.logger.handlers)
+        # setting the logging level
+        # try:
+        #     print(self.logger.getEffectiveLevel())
+        #     self.logger.setLevel(logging.DEBUG)
+        # except:
+        #     pass
+        # try:
+        #     print(self.logger.getEffectiveLevel())
+        #     self.logger.setLevel(level)
+        # except:
+        #     pass
+        # try:
+        #     print(self.logger.getEffectiveLevel())
+        #     self.logger.setLevel = level
+        # except:
+        #     pass
+        # try:
+        #     print(self.logger.getEffectiveLevel(), level)
+        # except:
+        #     pass
+
+
+        # setting the format
+        formatter = logging.Formatter(LOG_FORMAT)
+        
         # config the default handler
         fhandler = logging.FileHandler(filename = FILENAME, mode = LOG_MODE)
+        # setting the logging level
+        fhandler.setLevel(level)
         #adding the format
-        formatter = logging.Formatter(LOG_FORMAT)
         fhandler.setFormatter(formatter)
+        
+        
+        # # setting the logging level
+        # try:
+        #     print(self.logger.getEffectiveLevel())
+        #     self.logger.setLevel(logging.DEBUG)
+        # except:
+        #     pass
+        # try:
+        #     print(self.logger.getEffectiveLevel())
+        #     self.logger.setLevel(level)
+        # except:
+        #     pass
+        # try:
+        #     print(self.logger.getEffectiveLevel())
+        #     self.logger.setLevel = level
+        # except:
+        #     pass
+        # try:
+        #     print(self.logger.getEffectiveLevel(), level)
+        # except:
+        #     pass
+        
         # adding the configured handler
         self.logger.addHandler(fhandler)
         

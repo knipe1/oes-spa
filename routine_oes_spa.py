@@ -48,19 +48,19 @@ def main():
             
 
     window.batch.show()
-    text = "filename"
+    # text = "filename"
     # arbitrary = thrd.Thread(target=emu.key_arbitrary, args=[text])
     # arbitrary.start()
     # accept the name
-    # enter = thrd.Thread(target=emu.key_accept)
-    # enter.start()
+    enter = thrd.Thread(target=emu.key_accept)
+    enter.start()
     # # in case of file already exists
-    # yes = thrd.Thread(target=emu.key_alt_j)
-    # yes.start()
-    # window.batch.window.btnSetFilename.click()
-    # selection = thrd.Thread(target=emu.key_select_file, args=[10])
-    # selection.start()
-    # window.batch.browse_spectra()
+    yes = thrd.Thread(target=emu.key_alt_j)
+    yes.start()
+    window.batch.window.btnSetFilename.click()
+    selection = thrd.Thread(target=emu.key_select_file, args=[10])
+    selection.start()
+    window.batch.browse_spectra()
     window.batch.window.cbPeakHeight.click()
     window.batch.window.cbPeakArea.click()
     window.batch.window.cbBaseline.click()
