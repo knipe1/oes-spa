@@ -33,6 +33,8 @@ class UIBatch(Ui_batch):
     def set_connections(self):
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
+        # Properties
+        self.cbUpdatePlots.stateChanged.connect(self.set_prop_updatePlots)
         # TODO: what is that one good for?
         self.listFiles.setModel(self.parent.model)
         # click/valueChanged connections
@@ -52,3 +54,6 @@ class UIBatch(Ui_batch):
         added or some are deleted"""
         for button in self.BtnParameters.buttons():
             button.setChecked(True)
+            
+    def set_prop_updatePlots(self, enable):
+        self.parent.updatePlots = enable

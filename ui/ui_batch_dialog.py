@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'batch_dialog.ui'
@@ -99,6 +98,10 @@ class Ui_batch(object):
         self.barProgress.setProperty("value", 0)
         self.barProgress.setObjectName("barProgress")
         self.layoutProcess.addWidget(self.barProgress)
+        self.cbUpdatePlots = QtWidgets.QCheckBox(batch)
+        self.cbUpdatePlots.setEnabled(True)
+        self.cbUpdatePlots.setObjectName("cbUpdatePlots")
+        self.layoutProcess.addWidget(self.cbUpdatePlots)
         self.btnCalculate = QtWidgets.QPushButton(batch)
         self.btnCalculate.setEnabled(False)
         self.btnCalculate.setObjectName("btnCalculate")
@@ -131,5 +134,6 @@ class Ui_batch(object):
         self.cbHead.setText(_translate("batch", "Header info"))
         self.cbPeakPos.setText(_translate("batch", "Peak Position"))
         self.btnSelectAll.setText(_translate("batch", "Select All"))
+        self.cbUpdatePlots.setText(_translate("batch", "Update Plots"))
         self.btnCalculate.setText(_translate("batch", "&Calculate"))
 

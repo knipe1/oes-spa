@@ -8,11 +8,11 @@ Created on Mon Feb 17 11:59:03 2020
 
 # standard libs
 import sys
+import unittest
 
 # third-party libs
 import emulator as emu
 import threading as thrd
-from unittest import TestCase
 from PyQt5.QtTest import QTest
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
@@ -21,16 +21,32 @@ from PyQt5.QtWidgets import QApplication
 from modules.AnalysisWindow import AnalysisWindow
 
 
-app = QApplication(sys.argv)
-window = AnalysisWindow()
-
-
-class TestUIBatch(TestCase):
+class TestUIBatch(unittest.TestCase):
+    
+    
+    @classmethod
     def setUp(self):
-        window.show()
-        window.batch.show()
-        self.form = window.batch.mui
-
+        """
+        Setting up the ui and the corresponding variables
+        """
+        # UI
+        self.app = QApplication(sys.argv)
+        self.window = AnalysisWindow()
+        # # display the uis
+        self.window.show()
+        self.window.batch.show()
+        # # variables
+        self.batch = self.window.batch
+        self.form = self.window.batch.window
+        
+        
+    @classmethod
+    def tearDown(self):
+        # close the window if something raises an error
+        self.batch.close()
+        self.window.close()
+        
+    
 
     def test_availability(self):
         """
@@ -76,6 +92,28 @@ class TestUIBatch(TestCase):
         #file list
         self.assertEqual(self.form.parent.model.stringList(), [])
         self.assertEqual(self.form.foutCSV.text(), "")
+        
+    def test_propUpdatePlots_default(self):
+        """Testing the default values of property and ui"""
+        checkbox = self.form.cbUpdatePlots.isChecked()
+        prop = self.batch.updatePlots 
+        self.assertEqual(checkbox, prop)
+    
+    def test_propUpdatePlots_setUI(self):
+        """setting the UI and then testing if they are equal"""
+        self.form.cbUpdatePlots.setChecked(True)
+        # self.form.cbUpdatePlots.click()
+        checkbox = self.form.cbUpdatePlots.isChecked()
+        prop = self.batch.updatePlots 
+        self.assertEqual(checkbox, prop)
+        
+    def test_propUpdatePlots_setProp(self):
+        """setting the UI and then testing if they are equal"""
+        self.batch.updatePlots = True
+        checkbox = self.form.cbUpdatePlots.isChecked()
+        prop = self.batch.updatePlots 
+        self.assertEqual(checkbox, prop)
+        
 
 
     def test_setAll(self):
@@ -179,3 +217,6 @@ class TestUIBatch(TestCase):
 
         for button in self.form.BtnParameters.buttons():
             self.assertTrue(button.isChecked())
+
+if __name__ == '__main__':
+    unittest.main()

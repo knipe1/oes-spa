@@ -67,7 +67,9 @@ class BatchAnalysis(QDialog):
         logger.debug("init  batch")
         
         # properties
+        # TODO: defaults are set afterwards, but here are the definitions of the props...
         self._batchFile = ""
+        self._updatePlots = False
 
         # general settings
         self.setAcceptDrops(True)
@@ -90,6 +92,15 @@ class BatchAnalysis(QDialog):
     def batchFile(self, text):
         self.window.foutCSV.setText(text)
         self._batchFile = text
+        
+    @property
+    def updatePlots(self):
+        return self._updatePlots
+    
+    @updatePlots.setter
+    def updatePlots(self, enable):
+        self.window.cbUpdatePlots.setChecked(enable)
+        self._updatePlots = bool(enable)
 
     # section: Events
     def dragEnterEvent(self, event):
@@ -214,17 +225,10 @@ class BatchAnalysis(QDialog):
             file = self.files[i]
             
             ##### test
-            try:
+            print(self.updatePlots, self.window.cbUpdatePlots.isChecked())
+            if self.updatePlots:
                 self.parent().apply_data(file)
                 logger.info("parent(), data applied")
-            except:
-                pass
-            
-            try:
-                self.parent().apply_data(file)
-                logger.info("parent, data applied")
-            except:
-                pass
             #####
             
             self.openFile = FileReader(file)
