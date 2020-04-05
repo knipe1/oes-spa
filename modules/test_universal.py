@@ -1,34 +1,48 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import unittest
-import sys
 
+
+# standard libs
+import sys
+import unittest
+
+# third-party libs
+import emulator as emu
+import threading as thrd
+from PyQt5.QtCore import QFileInfo
+
+# local modules/libs
 from modules.Universal import load_files
 from modules.Universal import reduce_path
 from modules.Universal import add_index_to_text
 
-from PyQt5.QtCore import QFileInfo, QStringListModel
-from PyQt5.QtWidgets import QApplication, QFileDialog,\
-                            QMainWindow, QMessageBox, QDialog
-
-import emulator as emu
-import threading as thrd
-
 class TestLoadFiles(unittest.TestCase):
-    def setUp(self):
-        # Setup GUI
-        self.app = QApplication(sys.argv)
-        self.window = QMainWindow()
-
-        # Show Window
-        self.window.show()
-        #sys.exit(app.exec_())
-
+    
+    @classmethod
+    def setUpClass(cls):
+        """
+        Setting up the corresponding variables
+        """
         # prequerities
-        self.csvFile_1 = "H:/OES/__oes-spectra-analysis/modules/testfiles/csvfile_1.csv";
-        self.spkFile_1 = "H:/OES/__oes-spectra-analysis/modules/testfiles/spkfile_1.Spk";
-        self.spkFile_2 = "H:/OES/__oes-spectra-analysis/modules/testfiles/spkfile_2.spk";
-        self.textfile_2 = "H:/OES/__oes-spectra-analysis/modules/testfiles/textfile.docx";
-        self.multSpk = 'H:/OES/__oes-spectra-analysis/modules/testfiles/"spkfile_1.Spk" "spkfile_2.spk"';
+        # path
+        path = "./modules/testfiles/"
+        path = QFileInfo(path).absolutePath() + "/"
+        # files
+        cls.csvFile_1 = path + "csvfile_1.csv";
+        cls.spkFile_1 = path + "spkfile_1.Spk";
+        cls.spkFile_2 = path + "spkfile_2.spk";
+        cls.textfile_2 = path + "textfile.docx";
+        cls.multSpk = path + '"spkfile_1.Spk" "spkfile_2.spk"';
+        
+        
+    @classmethod
+    def tearDownClass(cls):
+        pass
+    
+    def setUp(self):        
+        pass
+    def tearDown(self):
+        pass
 
     def test_loadfiles(self):
         # Open the dialog and reject it (start thread before open dialog)
@@ -45,20 +59,21 @@ class TestLoadFiles(unittest.TestCase):
         enter.start()
         multDataFiles = load_files(self.multSpk);
 
-
-        self.assertAlmostEqual(singleSpkFile, self.spkFile_1);
-        self.assertAlmostEqual(singleCsvFile, self.csvFile_1);
-        self.assertAlmostEqual(singleDocxFile, self.textfile_2);
+        self.assertEqual(singleSpkFile, self.spkFile_1, "Spk-File");
+        self.assertEqual(singleCsvFile, self.csvFile_1, "Csv-File");
+        self.assertEqual(singleDocxFile, self.textfile_2, "Docx-File");
+        self.assertEqual(len(multDataFiles), 2, "Multiple Files");
 
     def test_values(self):
-        self.assertRaises(TypeError, load_files, 12);
-        self.assertRaises(TypeError, load_files, ["asd", 12]);
-        self.assertRaises(TypeError, load_files, 3.4);
+        with self.assertRaises(TypeError):
+            load_files(12)
+            load_files(["asd", 12])
+            load_files(3.4)
 
 class TestReducePath(unittest.TestCase):
     def setUp(self):
         # normal urls
-        self.url = "H:/OES/__oes-spectra-analysis/modules/testfiles/csvfile_1.csv";
+        self.url = "./modules/testfiles/csvfile_1.csv";
         self.shortUrl = "H:/csvfile_1.csv"
         self.filenameUrl = "csvfile_1.csv"
         self.listUrl = [self.url, self.shortUrl, self.filenameUrl]
@@ -104,3 +119,6 @@ class TestAddIndexToText(unittest.TestCase):
         self.assertRaises(TypeError, add_index_to_text, self.list);
         self.assertRaises(TypeError, add_index_to_text, self.number);
 
+
+if __name__ == '__main__':
+    unittest.main()

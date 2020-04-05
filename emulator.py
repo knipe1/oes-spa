@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 This module is meant to emulate key-presses.
@@ -17,6 +18,7 @@ __email__ = "hauke.wernecke@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
 
+# third-party libs
 from pynput.keyboard import Key, Controller
 from time import sleep
 
@@ -66,8 +68,10 @@ def key_alt_j():
     keyboard = Controller()
     sleep(PAUSE)
     with keyboard.pressed(Key.alt):
-        keyboard.press("j")
-        keyboard.release("j")
+        # keyboard.press("j")
+        # keyboard.release("j")
+        keyboard.press("y")
+        keyboard.release("y")
 
 def key_select_file(iterations):
     """
@@ -84,15 +88,21 @@ def key_select_file(iterations):
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)
-        keyboard.press(Key.tab)
-        keyboard.release(Key.tab)
+        # windows (next 2 linies outcommented)
+        # keyboard.press(Key.tab)
+        # keyboard.release(Key.tab)
+    # linux (next 3 linies not outcommented)
+    keyboard.press(Key.down)
+    keyboard.release(Key.down)
+    with keyboard.pressed(Key.shift_l):
         for i in range(iterations):
             keyboard.press(Key.down)
             keyboard.release(Key.down)
         keyboard.press(Key.up)
         keyboard.release(Key.up)
-        keyboard.press(Key.up)
-        keyboard.release(Key.up)
+        # linux (next 2 linies outcommented)
+        # keyboard.press(Key.up)
+        # keyboard.release(Key.up)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
 
@@ -107,5 +117,5 @@ def key_arbitrary(text):
 
     """
     keyboard = Controller()
-    sleep(PAUSE)
+    sleep(PAUSE*0.9)
     keyboard.type(text)

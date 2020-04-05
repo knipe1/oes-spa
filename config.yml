@@ -19,11 +19,12 @@ PLOT:
     DEF_AXIS_COLOR: '0.2'
 
 FILE:
-    DEF_DIR: "../ASTERIX1059"
+    DEF_DIR: "./sample files"
     DEF_FILE: ""
+    LOG_FILE: "/home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log"
 
 
-SAVE:
+EXPORT:
     RAW_APPENDIX: "_raw"
     PROCESSED_APPENDIX: "_processed"
     EXP_SUFFIX: ".csv"
@@ -31,7 +32,7 @@ SAVE:
     DEF_BATCH_NAME: "_batch"
     FORMAT_TIMESTAMP: "%d.%m.%Y %H:%M:%S"
 
-LOAD:
+IMPORT:
     VALID_SUFFIX:
         - "csv"
         - "spk"

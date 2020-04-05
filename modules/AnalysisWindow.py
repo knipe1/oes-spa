@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 """
@@ -12,18 +12,16 @@ __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
 
-# third-party imports
+# standard libs
 #import matplotlib as mpl
 
-# imports
-import modules.Universal as uni
-import dialog_messages as dialog
-
-# third-party classes
+# third-party libs
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QMainWindow
 
-# classes
+# local modules/libs
+import modules.Universal as uni
+import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
 from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
@@ -37,16 +35,25 @@ config = uni.load_config()
 PLOT = config["PLOT"];
 # filesystem
 FILE = config["FILE"]
+<<<<<<< HEAD
 # load properties
 LOAD = config["LOAD"]
+||||||| merged common ancestors
+# filesystem
+LOAD = config["LOAD"]
+=======
+# filesystem
+IMPORT = config["IMPORT"]
+>>>>>>> WER_overview
 
 
 
 class AnalysisWindow(QMainWindow):
     """Main Analysis Window Class """
 
-    def __init__(self):
-        QMainWindow.__init__(self)
+    def __init__(self, initialShow=True):
+        """initialize the parent class ( == QMainWindow.__init__(self)"""
+        super(AnalysisWindow, self).__init__()
 
         # Set file and directory
         self.lastdir = FILE["DEF_DIR"];
@@ -54,14 +61,41 @@ class AnalysisWindow(QMainWindow):
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
+<<<<<<< HEAD
         # TODO: comment?
         self.widget = self.centralWidget()
+||||||| merged common ancestors
+        self.widget = self.centralWidget()
+=======
+        # TODO: Usage? self.centralWidget() return None and is never used.
+        # self.widget = self.centralWidget()
+>>>>>>> WER_overview
 
         # Set up the user interface from Designer.
         # Load batch dialog
         self.batch = BatchAnalysis(self)
         # Load the main window (uses self.batch already)
         self.window = UIMain(self)
+        
+        # initial settings
+        if initialShow:
+            self.show()
+            
+    def closeEvent(self, event):
+        """
+        Closing the BatchAnalysis dialog to have a clear shutdown.
+
+        Parameters
+        ----------
+        event : event
+            close event of the main window.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.batch.close()
 
     def dragEnterEvent(self, event):
         """Drag Element over Window """
@@ -69,15 +103,20 @@ class AnalysisWindow(QMainWindow):
 
         #Prequerities
         urls = event.mimeData().urls();
-        # accept event only if one file is dropped
-        # transmit files to Batch if more files are dropped
+
         if len(urls) > 1:
             self.batch.show();
         elif len(urls) == 1:
             # TODO: only check the first one? different schemes possible?
             url = urls[0];
+<<<<<<< HEAD
             # TODO: see also uni.is_valid_filetype
             if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
+||||||| merged common ancestors
+            if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
+=======
+            if url.isValid() and url.scheme() in IMPORT["VALID_SCHEME"]:
+>>>>>>> WER_overview
                 event.accept()
 
 
@@ -92,11 +131,12 @@ class AnalysisWindow(QMainWindow):
             self.apply_data(url.toLocalFile())
             event.accept();
 
-    def file_open(self, filename):
+    def file_open(self, files):
         """Open FileDialog to choose Raw-Data-File """
         # Load a file via menu bar
         # File-->Open
         # Batch-->Drag&Drop or -->Browse Files
+<<<<<<< HEAD
         # TODO: Check cases in which filename is False/True something else
         # TODO: rename filename into files
         if filename is False:
@@ -107,15 +147,37 @@ class AnalysisWindow(QMainWindow):
                 self.batch.update_filelist(filename)
             elif len(filename) == 1:
                 filename = filename[0];
+||||||| merged common ancestors
+        if filename is False:
+            filename = uni.load_files(self.lastdir);
+            # TODO: implement multi proc
+            if filename:
+                filename = filename[0];
+=======
+        if files is False:
+            files = uni.load_files(self.lastdir);
+            if len(files) > 1:
+                self.batch.show();
+                self.batch.update_filelist(files)
+            elif len(files) == 1:
+                files = files[0];
+>>>>>>> WER_overview
             else:
-                filename = "";
+                files = "";
 
-        if filename != "":
+
+        if files != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
+<<<<<<< HEAD
             # TODO: neccesary
             self.lastdir = str(QFileInfo(filename).absolutePath())
+||||||| merged common ancestors
+            self.lastdir = str(QFileInfo(filename).absolutePath())
+=======
+            self.lastdir = str(QFileInfo(files).absolutePath())
+>>>>>>> WER_overview
 
-            self.apply_data(filename)
+            self.apply_data(files)
 
     def draw_spectra(self, x_data, y_data):
         """Draw the raw spectrum and analyze it with DataHandler
@@ -143,7 +205,6 @@ class AnalysisWindow(QMainWindow):
         # display results
         # TODO: expected behaviour? What happens if not everything is given?
         # Is there a scenario in which just one result is calculated/set?
-        # TODO: new function?
         self.window.toutBaseline.setText(str(avg))
         self.window.toutPeakHeight.setText(str(peak_height))
         self.window.toutPeakArea.setText(str(peak_area))
@@ -171,6 +232,7 @@ class AnalysisWindow(QMainWindow):
 
         return 0
 
+<<<<<<< HEAD
     # TODO: obsolet????
     def redraw(self):
         """Redraw the current spectrum selected """
@@ -185,6 +247,36 @@ class AnalysisWindow(QMainWindow):
             self.draw_spectra(x_data, y_data)
         else:
             dialog.warning_fileSelection(self.widget)
+||||||| merged common ancestors
+    def redraw(self):
+        """Redraw the current spectrum selected """
+        # TODO: separate elements for displaying information and input elements
+        # --> new class attribute for self.activeFile,
+        #   which is set, whenever something is drawn
+        # is it openfile?
+        # --> and update the displayed filename
+        filename = str(self.window.toutFilename.text())
+        if filename:
+            x_data, y_data = self.openFile.get_values()
+            self.draw_spectra(x_data, y_data)
+        else:
+            dialog.warning_fileSelection(self.widget)
+=======
+    # def redraw(self):
+    #     """Redraw the current spectrum selected """
+    #     # TODO: separate elements for displaying information and input elements
+    #     # --> new class attribute for self.activeFile,
+    #     #   which is set, whenever something is drawn
+    #     # is it openfile?
+    #     # --> and update the displayed filename
+    #     filename = str(self.window.toutFilename.text())
+    #     if filename:
+    #         x_data, y_data = self.openFile.get_values()
+    #         self.draw_spectra(x_data, y_data)
+    #     else:
+    #         # dialog.warning_fileSelection(self.widget)
+    #         dialog.warning_fileSelection()
+>>>>>>> WER_overview
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """

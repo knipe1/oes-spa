@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Module for general purposes regarding read and write operations
@@ -6,17 +6,19 @@ Module for general purposes regarding read and write operations
 Register a common  dialect and
 defines the configurations
 """
-# imports
+
+# standard libs
 import csv
 
+# local modules/libs
 import modules.Universal as uni
 
 
 class FileFramework:
     # load config
     config = uni.load_config()
-    SAVE = config["SAVE"]
-    LOAD = config["LOAD"]
+    EXPORT = config["EXPORT"]
+    IMPORT = config["IMPORT"]
     MARKER = config["MARKER"]
     DIALECT = config["DIALECT"]
 

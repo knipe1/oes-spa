@@ -1,16 +1,22 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
+# standard libs
 import csv
 
+# third-party libs
 from unittest import TestCase
 
+# local modules/libs
 from modules.FileFramework import FileFramework
 
 class TestFileFramework(TestCase):
     framework = FileFramework()
 
     def test_init(self):
-        self.assertTrue(isinstance(self.framework.SAVE, dict));
-        self.assertTrue(isinstance(self.framework.LOAD, dict));
+        self.assertTrue(isinstance(self.framework.EXPORT, dict));
+        self.assertTrue(isinstance(self.framework.IMPORT, dict));
         self.assertTrue(isinstance(self.framework.MARKER, dict));
         self.assertTrue(isinstance(self.framework.DIALECT, dict));
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 20 10:22:44 2020
@@ -15,21 +16,15 @@ __maintainer__ = "Hauke Wernecke/Peter Knittel"
 __email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-# when do we use matplotlib? Why setting the backend here?
-# third-party imports
-#import matplotlib as mpl
-
-#imports
-import modules.Universal as uni
-import dialog_messages as dialog
-
-# third-party classes
+# third-party libs
 from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
 from PyQt5.QtWidgets import QDialog, QAbstractItemView
 from datetime import datetime
 from enum import Enum
 
-# classes
+# local modules/libs
+import modules.Universal as uni
+import dialog_messages as dialog
 from ui.UIBatch import UIBatch
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
@@ -43,32 +38,71 @@ class CHARACTERISTIC(Enum):
     PEAK_POSITION = "Peak position"
     HEADER_INFO = "Header info"
 
+class BATCH_CONFIG(Enum):
+    CHECKBOX = "checkbox"
+    VALUE = "value"
+    STATUS = "status"
+    LABEL = "label"
+    NAME = "name"
 
-# set interactive backend
-#mpl.use("Qt5Agg")
+from Logger import Logger
 
 config = uni.load_config()
 # batch properties
 BATCH = config["BATCH"];
 # save properties
-SAVE = config["SAVE"];
+EXPORT = config["EXPORT"];
+
+# set up the logger
+logger = Logger(__name__)
+logger.critical("WTF")
 
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
+        """initialize the parent class ( == QDialog.__init__(self)"""
         super(BatchAnalysis, self).__init__(parent)
+        
+        logger.debug("init  batch")
+        
+        # properties
+        # TODO: defaults are set afterwards, but here are the definitions of the props...
+        self._batchFile = ""
+        self._updatePlots = False
 
+        # general settings
         self.setAcceptDrops(True)
         self.files = []
+        # TODO: check whether there will be some inconsistency if self.lastdir is set
+        # TODO: or if it even useful to implement it like this.
         self.lastdir = parent.lastdir
         self.model = QStringListModel()
-        # init of mui has to be at last, because it connects self.model i.a.
-        self.mui = UIBatch(self)
-        self.mui.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # init of window has to be at last, because it connects self.model i.a.
+        self.window = UIBatch(self)
+        # disable option to edit the strings in the file list.
+        self.window.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
+    @property
+    def batchFile(self):
+        return self._batchFile
+    
+    @batchFile.setter
+    def batchFile(self, text):
+        self.window.foutCSV.setText(text)
+        self._batchFile = text
+        
+    @property
+    def updatePlots(self):
+        return self._updatePlots
+    
+    @updatePlots.setter
+    def updatePlots(self, enable):
+        self.window.cbUpdatePlots.setChecked(enable)
+        self._updatePlots = bool(enable)
 
+    # section: Events
     def dragEnterEvent(self, event):
         """
         Drag file over window event.
@@ -102,7 +136,7 @@ class BatchAnalysis(QDialog):
         # updates the filelist with the valid urls and updates the ui
         self.update_filelist(valid_urls)
 
-
+    # section: Methods
     def set_filename(self):
         """
         Opens a dialog to set the filename and updates the UI.
@@ -131,9 +165,17 @@ class BatchAnalysis(QDialog):
 
             # Change interface and preset for further dialogs (lastdir)
             self.lastdir = str(filenameInfo.absolutePath())
+<<<<<<< HEAD
             # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
             # TODO: set her: self.csv? self.batchfile? to differentiate ui and logic
             self.mui.foutCSV.setText(filename)
+||||||| merged common ancestors
+            # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
+            self.mui.foutCSV.setText(filename)
+=======
+            # setting the batch filename
+            self.batchFile = filename
+>>>>>>> WER_overview
             self.update_UI()
         return filename
 
@@ -159,12 +201,23 @@ class BatchAnalysis(QDialog):
 
         # not used due to adding value-tag later
         # keep only checked elements
+<<<<<<< HEAD
         # checkboxes = [element for element in checkboxes if element["state"]]
 
 
         # Set correct Filename and open it
         # TODO: Do not read from ui... self.csv/batchFile?
         csvfile = str(self.mui.foutCSV.text())
+||||||| merged common ancestors
+        # checkboxes = [element for element in checkboxes if element["state"]]
+
+
+        # Set correct Filename and open it
+        # TODO: Do not read from ui...
+        csvfile = str(self.mui.foutCSV.text())
+=======
+        # checkboxes = [element for element in checkboxes if element["status"]]
+>>>>>>> WER_overview
 
         data, skippedFiles = self.retrieve_data(checkboxes)
 
@@ -172,14 +225,14 @@ class BatchAnalysis(QDialog):
 
         # create and format timestamp
         timestamp = datetime.now()
-        timestamp = timestamp.strftime(SAVE["FORMAT_TIMESTAMP"])
+        timestamp = timestamp.strftime(EXPORT["FORMAT_TIMESTAMP"])
 
         # assemble header
         header = ["Filename"]
-        header += self.get_values_of_dict(checkboxes, "label")
+        header += self.extract_values_of_dict(checkboxes, BATCH_CONFIG.LABEL)
 
         # export in csv file
-        csvWriter = FileWriter(self, csvfile, timestamp)
+        csvWriter = FileWriter(self, self.batchFile, timestamp)
         csvWriter.write_data(data, header, ExportType.BATCH)
 
         dialog.information_BatchAnalysisFinished(skippedFiles, self)
@@ -197,6 +250,14 @@ class BatchAnalysis(QDialog):
 
             # Read out the file
             file = self.files[i]
+            
+            ##### test
+            print(self.updatePlots, self.window.cbUpdatePlots.isChecked())
+            if self.updatePlots:
+                self.parent().apply_data(file)
+                logger.info("parent(), data applied")
+            #####
+            
             self.openFile = FileReader(file)
             data_x, data_y = self.openFile.get_values()
             # TODO: .get_timestamp?
@@ -214,7 +275,7 @@ class BatchAnalysis(QDialog):
             peak_height, peak_area = spec_proc.get_peak()
             _, peak_position = spec_proc.get_peak_raw()
 
-            # TODO: Check more exlude condiions
+            # TODO: Check more exlude conditions
             # excluding file if no appropiate data given like in processed spectra
             if not peak_height:
                 skippedFiles.append(file)
@@ -225,24 +286,29 @@ class BatchAnalysis(QDialog):
             # peak_height = {}
             # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
             # peak_height["numerical value"] = xy
-
-            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
-            dictionary[CHARACTERISTIC.PEAK_AREA.value]["value"] = peak_area
-            dictionary[CHARACTERISTIC.BASELINE.value]["value"] = avg
-            dictionary[CHARACTERISTIC.HEADER_INFO.value]["value"] = date + " " + time
-            dictionary[CHARACTERISTIC.PEAK_POSITION.value]["value"] = peak_position
+            # TODO: is dict.get() useful here?
+            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value][BATCH_CONFIG.VALUE.value] = peak_height
+            dictionary[CHARACTERISTIC.PEAK_AREA.value][BATCH_CONFIG.VALUE.value] = peak_area
+            dictionary[CHARACTERISTIC.BASELINE.value][BATCH_CONFIG.VALUE.value] = avg
+            dictionary[CHARACTERISTIC.HEADER_INFO.value][BATCH_CONFIG.VALUE.value] = date + " " + time
+            dictionary[CHARACTERISTIC.PEAK_POSITION.value][BATCH_CONFIG.VALUE.value] = peak_position
 
 
 
             # assembling the row and appending it to the data
             row = [file]
-            row += self.get_values_of_dict(dictionary, "value")
+            row += self.extract_values_of_dict(dictionary, BATCH_CONFIG.VALUE)
             data.append(row)
         return data, skippedFiles
 
     def retrieve_batch_config(self):
+<<<<<<< HEAD
         # TODO: docstring
         # TODO: errorhandling
+||||||| merged common ancestors
+=======
+        value_placeholder = 0
+>>>>>>> WER_overview
         properties = {}
         # make sure this is in the correct order
         labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
@@ -252,22 +318,45 @@ class BatchAnalysis(QDialog):
                   CHARACTERISTIC.PEAK_POSITION.value,]
 
         # retrieve checkboxes and their properties
-        checkboxes = [{"checkbox": btn,
-                       "name": btn.objectName(),
-                       "state": btn.isChecked(),
-                       "value": 0
-                       } for btn in self.mui.BtnParameters.buttons()]
+        checkboxes = [{BATCH_CONFIG.CHECKBOX.value: cb,
+                       BATCH_CONFIG.NAME.value: cb.objectName(),
+                       BATCH_CONFIG.STATUS.value: cb.isChecked(),
+                       BATCH_CONFIG.VALUE.value: value_placeholder
+                       } for cb in self.window.BtnParameters.buttons()]
+
+        if len(checkboxes) != len(labels):
+            raise ValueError("Checkboxes and labels are not fitting! Please check configuration")
 
         # union labels and checkboxes
-        for idx, element in enumerate(checkboxes):
-            element.update({"label": labels[idx]})
-            properties[element["label"]] = element
+        for checkbox, label in zip(checkboxes, labels):
+            checkbox.update({BATCH_CONFIG.LABEL.value: label})
+            properties[checkbox[BATCH_CONFIG.LABEL.value]] = checkbox
         return properties;
 
-    def get_values_of_dict(self, dictionary, key):
+    def extract_values_of_dict(self, dictionary, key):
+        """
+        Extract the values of the given dictionary with the specifc key
+        if the dictionary contains a key, value pair with "status", True
+
+        Parameters
+        ----------
+        dictionary : dict
+            A dict that must contain the given key and the key "status".
+        key : string
+            Key to retrieve the specific value of all items of the dictionary.
+
+        Returns
+        -------
+        list
+            Contains all items of the specific key. Empty if "status"-key does not exist in dictionary
+
+        """
         data = []
+        # check type
+        if isinstance (key, Enum):
+            key = key.value
         for label, item in dictionary.items():
-            if item["state"]:
+            if item.get("status"):
                 data.append(item[key])
         return data;
 
@@ -306,16 +395,16 @@ class BatchAnalysis(QDialog):
         """
         enable = True;
         # checks wheter a name was chosen
-        if not self.mui.foutCSV.text():
+        if not self.batchFile:
             enable = False
         # Checks whether files were selected
         if not self.files:
             enable = False
         # checks whether any parameter was selected
-        if not any([btn.isChecked() for btn in self.mui.BtnParameters.buttons()]):
+        if not any([btn.isChecked() for btn in self.window.BtnParameters.buttons()]):
             enable = False
 
-        self.mui.btnCalculate.setEnabled(enable)
+        self.window.btnCalculate.setEnabled(enable)
 
 
 
@@ -348,7 +437,7 @@ class BatchAnalysis(QDialog):
             self.display_filenames();
             # selects the first one if list was empty before
             if isInit:
-                self.mui.listFiles.setCurrentIndex(self.model.index(0))
+                self.window.listFiles.setCurrentIndex(self.model.index(0))
                 self.open_indexed_file(0)
 
     def clear(self):
@@ -373,5 +462,5 @@ class BatchAnalysis(QDialog):
 
         """
         percent = int(percentage*100);
-        self.mui.barProgress.setValue(percent);
+        self.window.barProgress.setValue(percent);
         return percent;

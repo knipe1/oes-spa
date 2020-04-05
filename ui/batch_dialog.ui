@@ -192,6 +192,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="cbUpdatePlots">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Update Plots</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnCalculate">
        <property name="enabled">
         <bool>false</bool>
@@ -223,12 +233,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="BtnParameters">
+  <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="BtnFileaction">
+  <buttongroup name="BtnParameters">
    <property name="exclusive">
     <bool>false</bool>
    </property>

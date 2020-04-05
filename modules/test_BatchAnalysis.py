@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Still a lot of untested code. 
+If errors occur, extend this file to test the issue.
+
 Created on Wed Mar 18 18:28:42 2020
 
 Testing the class BatchAnalysis
@@ -7,62 +11,54 @@ Testing the class BatchAnalysis
 @author: wernecke
 """
 
+# third-party imports
 import sys
-from unittest import TestCase
-
-from PyQt5.QtTest import QTest
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
-from modules.AnalysisWindow import AnalysisWindow
-
-import emulator as emu
+import unittest 
 import threading as thrd
 
+# imports
+import emulator as emu
 
-app = QApplication(sys.argv)
-window = AnalysisWindow()
+# third-party classes 
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QApplication
+
+# classes 
+from modules.AnalysisWindow import AnalysisWindow
 
 
-class TestBatchAnalysis(TestCase):
+
+class TestBatchAnalysis(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        """
+        Setting up the ui and the corresponding variables
+        """
+        # UI
+        cls.app = QApplication(sys.argv)
+        cls.window = AnalysisWindow()
+        # # display the uis
+        cls.window.show()
+        cls.window.batch.show()
+        # # variables
+        cls.batch = cls.window.batch
+        cls.form = cls.window.batch.window
+        
+    @classmethod
+    def tearDownClass(cls):
+        # close the window if something raises an error
+        cls.batch.close()
+        cls.window.close()
+        # Hint: Do not use cls.app.quit() here, because it will result in some side effects for other tests...
+
+        
+        
     def setUp(self):
-        window.show()
-        window.batch.show()
-        self.batch = window.batch
-        self.form = window.batch.mui
-
-    def routine_set_filename(self, expectedFilename, text=""):
-        """Capital CSV"""
-        #set the name
-        if text:
-            arbitrary = thrd.Thread(target=emu.key_arbitrary(text))
-            arbitrary.start()
-        # accept the name
-        enter = thrd.Thread(target=emu.key_accept)
-        enter.start()
-        # in case of file already exists
-        yes = thrd.Thread(target=emu.key_alt_j)
-        yes.start()
-        self.assertEqual(self.batch.set_filename(), expectedFilename, "Filename: issue text is "+text)
-        self.assertEqual(self.form.foutCSV.text(), expectedFilename, "Filename: issue text is "+text)
-
-    def routine_browse_spectra(self, amount, msg="", clearAfter = True, isUpdate = False):
-        if isUpdate:
-            amount = amount // 2;
-        amount_before = len(self.batch.model.stringList())
-        test = thrd.Thread(target=emu.key_select_file, args=[amount])
-        test.start()
-        self.batch.browse_spectra()
-        amount_after = len(self.batch.model.stringList())
-        message = msg or "Brose: " + str(amount) + " files"
-        if isUpdate:
-            self.assertEqual(amount_before, amount*2, message)
-            self.assertEqual(amount_after, amount*2, message)
-        else:
-            self.assertEqual(amount_before, 0, message)
-            self.assertEqual(amount_after, amount, message)
-        if clearAfter:
-            self.batch.clear()
-
+        pass
+            
+    def tearDown(self):
+        pass
 
     def test_set_filename(self):
         """
@@ -75,13 +71,18 @@ class TestBatchAnalysis(TestCase):
         None.
 
         """
-        text = "Dateiname"
+        # paths
+        path = r"./sample files/"
+        path = QFileInfo(path).absoluteFilePath()
+        # names
+        text = "filename"
         text_csv = text + ".csv"
         text_CSV = text + ".CSV"
         text_txt = text + ".txt"
         text_spk = text + ".spk"
-        defaultFilename = r"H:/OES/ASTERIX1059/_batch.csv"
-        arbitraryFilename = r"H:/OES/ASTERIX1059/"+text+".csv"
+        # files
+        defaultFilename = path + "_batch.csv"
+        arbitraryFilename = path + text + ".csv"
 
 
         """test default"""
@@ -98,12 +99,12 @@ class TestBatchAnalysis(TestCase):
         self.assertEqual(self.form.foutCSV.text(), arbitraryFilename, "Filename: Cancel but old filename")
 
 
-        """ Test falsy suffixes"""
-        """spk"""
+        # """ Test falsy suffixes"""
+        # """spk"""
         self.routine_set_filename(arbitraryFilename, text_spk)
-        """Capital CSV"""
+        # """Capital CSV"""
         self.routine_set_filename(arbitraryFilename, text_CSV)
-        """txt"""
+        # """txt"""
         self.routine_set_filename(arbitraryFilename, text_txt)
 
     def test_browse_spectra(self):
@@ -111,17 +112,54 @@ class TestBatchAnalysis(TestCase):
         """Cancel selection"""
         esc = thrd.Thread(target=emu.key_reject)
         esc.start()
-        list1 = self.batch.model.stringList()
+        amount_before = self.batch.model.stringList()
         self.batch.browse_spectra()
-        list2 = self.batch.model.stringList()
-        self.assertEqual(list1, list2, "Browse: Cancel")
+        amount_after = self.batch.model.stringList()
+        # compare before and after, no qualitativ comparison
+        self.assertEqual(amount_before, amount_after, "Browse: Cancel")
 
         """select two files"""
         self.routine_browse_spectra(2)
 
         """select 100 files"""
-        self.routine_browse_spectra(100, clearAfter=False)
+        self.routine_browse_spectra(10, clearAfter=False)
         # update files
-        self.routine_browse_spectra(100, msg="Browse: update files", isUpdate=True)
+        self.routine_browse_spectra(10, msg="Browse: update files", isUpdate=True)
 
 
+    def routine_set_filename(self, expectedFilename, text=""):
+        #set the name
+        if text:
+            arbitrary = thrd.Thread(target=emu.key_arbitrary, args=[text])
+            arbitrary.start()
+        # accept the name
+        enter = thrd.Thread(target=emu.key_accept)
+        enter.start()
+        # in case of file already exists
+        yes = thrd.Thread(target=emu.key_alt_j)
+        yes.start()
+        self.assertEqual(self.batch.set_filename(), expectedFilename, "Filename: issue text is "+text)
+        self.assertEqual(self.form.foutCSV.text(), expectedFilename, "Filename: issue text is "+text)
+
+    def routine_browse_spectra(self, amount, msg="", clearAfter = True, isUpdate = False):
+        # if update only, there is no clear before and the amount is halfed
+        if isUpdate:
+            amount = amount // 2;
+        amount_before = len(self.batch.model.stringList())
+        # open and selecting the files
+        test = thrd.Thread(target=emu.key_select_file, args=[amount])
+        test.start()
+        self.batch.browse_spectra()
+        amount_after = len(self.batch.model.stringList())
+        message = msg or "Browse: " + str(amount) + " files"
+        if isUpdate:
+            self.assertEqual(amount_before, amount*2, message)
+            self.assertEqual(amount_after, amount*2, message)
+        else:
+            self.assertEqual(amount_before, 0, message)
+            self.assertEqual(amount_after, amount, message)
+        if clearAfter:
+            self.batch.clear()
+
+if __name__ == '__main__':
+    unittest.main()

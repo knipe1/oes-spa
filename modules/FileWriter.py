@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 File Writermodule
@@ -6,16 +7,16 @@ Export raw-/processed spectra
 
 Created on Mon Jan 27 11:02:13 2020
 """
+
+# standard libs
 import csv
 
-# from PyQt5.QtWidgets import QFileDialog
+# third-party libs
 from PyQt5.QtCore import QFileInfo
-
 from modules.FileFramework import FileFramework
 
+# local modules/libs
 import dialog_messages as dialog
-
-# classes
 from modules.Universal import ExportType
 
 
@@ -23,6 +24,7 @@ class FileWriter(FileFramework):
     """File reader for spectral data files """
     def __init__(self, parent, filename, timestamp):
         FileFramework.__init__(self)
+        # TODO: doublecheck usage of parent...
         self.parent = parent
 
         # TODO: Errorhandling if directory is cancelled or does not exist
@@ -54,12 +56,9 @@ class FileWriter(FileFramework):
             1: if directory is not set
 
         """
-        # obsolet
-        # if not self.directory:
-        #     return 1
-
-
         expFilename = self.build_exp_filename(exportType)
+        if not expFilename:
+            return 1
         with open(expFilename, 'w', newline='') as expFile:
             # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
@@ -99,16 +98,23 @@ class FileWriter(FileFramework):
         rawFilename = self.filename
         # remove the suffix
         # TODO: doublecheck methods
-        for suffix in self.LOAD["VALID_SUFFIX"]:
+        for suffix in self.IMPORT["VALID_SUFFIX"]:
             rawFilename = rawFilename.replace("."+suffix, "")
+            
+        # check whether the user is about to export an exported spectrum
+        if rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0\
+            or rawFilename.rfind(self.EXPORT["PROCESSED_APPENDIX"]) >= 0\
+            or rawFilename.rfind(self.EXPORT["DEF_BATCH_NAME"]) >= 0:
+                return ""
+        
         # get the correct appendix
         appendix = ""
         if exportType == ExportType.RAW:
-            appendix = self.SAVE["RAW_APPENDIX"]
+            appendix = self.EXPORT["RAW_APPENDIX"]
         elif exportType == ExportType.PROCESSED:
-            appendix = self.SAVE["PROCESSED_APPENDIX"];
+            appendix = self.EXPORT["PROCESSED_APPENDIX"];
 
-        return rawFilename+appendix+self.SAVE["EXP_SUFFIX"];
+        return rawFilename+appendix+self.EXPORT["EXP_SUFFIX"];
 
     def build_head(self):
         return " ".join([self.MARKER["HEADER"], self.timestamp])

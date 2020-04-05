@@ -1,26 +1,37 @@
-"""This module is for general purposes and includes various functions
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+This module is for general purposes and includes various functions
 
 """
-# load the config
-import yaml
+# prototyping for load_config-function
+load_config = lambda: 0
+# re-writing the load config-function
 def load_config(path="./config.yml"):
     # load the config
-    with open(path, "r") as ymlfile:
+    with open(path, "r", newline='') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return config
 
-
-# imports
+# standard libs
+import yaml
 import re
+
+# third-party libs
 from PyQt5.QtCore import QFileInfo
 from enum import Enum, auto
 
+# local modules/libs
 import dialog_messages as dialog
+
+
+
+
 
 
 # load the configs
 config = load_config()
-LOAD = config["LOAD"]
+IMPORT = config["IMPORT"]
 BATCH = config["BATCH"]
 
 class ExportType(Enum):
@@ -34,7 +45,7 @@ class ExportType(Enum):
 
 # TODO: Sinnvoll?
 def load_files(directory):
-    return dialog.dialog_openFiles(directory, LOAD["SUFFIXES"])
+    return dialog.dialog_openFiles(directory, IMPORT["SUFFIXES"])
 
 def is_valid_filetype(parent, url):
         """checks if the given url is valid to load the data"""
@@ -44,9 +55,9 @@ def is_valid_filetype(parent, url):
         if not url.isValid():
             isValid = False;
 
-        if not QFileInfo(file).completeSuffix().lower() in LOAD["VALID_SUFFIX"]:
+        if not QFileInfo(file).completeSuffix().lower() in IMPORT["VALID_SUFFIX"]:
             isValid = False;
-            dialog.critical_unknownSuffix(LOAD["VALID_SUFFIX"], parent)
+            dialog.critical_unknownSuffix(IMPORT["VALID_SUFFIX"], parent)
 
         return isValid;
 

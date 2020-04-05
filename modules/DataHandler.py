@@ -1,12 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Data processing module
 
 Contains routines to convert raw data and obtain different parameters
 """
 
+# standard libs
 import numpy as np
 
+# third-party libs
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 from peakutils import baseline, indexes
@@ -32,9 +34,7 @@ class DataHandler:
             used grating
      """
 
-    # TODO: debug?
-    # TODO: csvoutput?
-    def __init__(self, xData, yData, cwl, grat, debug=True, csvoutput=False):
+    def __init__(self, xData, yData, cwl, grat, debug=False, csvoutput=False):
         self.debug = debug
         self.xData = xData
         self.yData = yData
@@ -43,7 +43,6 @@ class DataHandler:
         self.dispersion = 14/grat
         self.process_data()
 
-        # TODO: ???
         if self.debug:
             from logging import basicConfig, getLogger, INFO
             from time import localtime, strftime
@@ -56,7 +55,6 @@ class DataHandler:
         # TODO: csvoutput is always false?
         # AND has no attribute Config
         # AND it would just overwrite self.csvoutput
-        # TODO: ???
         if csvoutput:
             csvfile = self.Config.get('CSVOutput', 'Filename')
             self.csvoutput(csvfile)
