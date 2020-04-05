@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 20 10:22:44 2020
@@ -42,7 +42,7 @@ class BATCH_CONFIG(Enum):
     CHECKBOX = "checkbox"
     VALUE = "value"
     STATUS = "status"
-    LABEL = "label"
+    TEST = "label"
     NAME = "name"
 
 from Logger import Logger
