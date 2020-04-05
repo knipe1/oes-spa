@@ -11,10 +11,6 @@ __maintainer__ = "Peter Knittel/ Hauke Wernecke"
 __email__ = "peter.knittel@iaf.fraunhhofer.de"
 __status__ = "alpha"
 
-
-# standard libs
-#import matplotlib as mpl
-
 # third-party libs
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QMainWindow
@@ -35,16 +31,8 @@ config = uni.load_config()
 PLOT = config["PLOT"];
 # filesystem
 FILE = config["FILE"]
-<<<<<<< HEAD
 # load properties
-LOAD = config["LOAD"]
-||||||| merged common ancestors
-# filesystem
-LOAD = config["LOAD"]
-=======
-# filesystem
 IMPORT = config["IMPORT"]
->>>>>>> WER_overview
 
 
 
@@ -61,15 +49,8 @@ class AnalysisWindow(QMainWindow):
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
-<<<<<<< HEAD
-        # TODO: comment?
-        self.widget = self.centralWidget()
-||||||| merged common ancestors
-        self.widget = self.centralWidget()
-=======
         # TODO: Usage? self.centralWidget() return None and is never used.
         # self.widget = self.centralWidget()
->>>>>>> WER_overview
 
         # Set up the user interface from Designer.
         # Load batch dialog
@@ -109,14 +90,7 @@ class AnalysisWindow(QMainWindow):
         elif len(urls) == 1:
             # TODO: only check the first one? different schemes possible?
             url = urls[0];
-<<<<<<< HEAD
-            # TODO: see also uni.is_valid_filetype
-            if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
-||||||| merged common ancestors
-            if url.isValid() and url.scheme() in LOAD["VALID_SCHEME"]:
-=======
             if url.isValid() and url.scheme() in IMPORT["VALID_SCHEME"]:
->>>>>>> WER_overview
                 event.accept()
 
 
@@ -136,24 +110,6 @@ class AnalysisWindow(QMainWindow):
         # Load a file via menu bar
         # File-->Open
         # Batch-->Drag&Drop or -->Browse Files
-<<<<<<< HEAD
-        # TODO: Check cases in which filename is False/True something else
-        # TODO: rename filename into files
-        if filename is False:
-            filename = uni.load_files(self.lastdir);
-            # TODO: implement multi proc
-            if len(filename) > 0:
-                self.batch.show();
-                self.batch.update_filelist(filename)
-            elif len(filename) == 1:
-                filename = filename[0];
-||||||| merged common ancestors
-        if filename is False:
-            filename = uni.load_files(self.lastdir);
-            # TODO: implement multi proc
-            if filename:
-                filename = filename[0];
-=======
         if files is False:
             files = uni.load_files(self.lastdir);
             if len(files) > 1:
@@ -161,21 +117,13 @@ class AnalysisWindow(QMainWindow):
                 self.batch.update_filelist(files)
             elif len(files) == 1:
                 files = files[0];
->>>>>>> WER_overview
             else:
                 files = "";
 
 
         if files != "":
             #str() for typecast from utf16(Qstring) to utf8(python string)
-<<<<<<< HEAD
-            # TODO: neccesary
-            self.lastdir = str(QFileInfo(filename).absolutePath())
-||||||| merged common ancestors
-            self.lastdir = str(QFileInfo(filename).absolutePath())
-=======
             self.lastdir = str(QFileInfo(files).absolutePath())
->>>>>>> WER_overview
 
             self.apply_data(files)
 
@@ -231,52 +179,6 @@ class AnalysisWindow(QMainWindow):
         self.plot_redrawable(True)
 
         return 0
-
-<<<<<<< HEAD
-    # TODO: obsolet????
-    def redraw(self):
-        """Redraw the current spectrum selected """
-        # TODO: separate elements for displaying information and input elements
-        # --> new class attribute for self.activeFile,
-        #   which is set, whenever something is drawn
-        # is it openfile?
-        # --> and update the displayed filename
-        filename = str(self.window.toutFilename.text())
-        if filename:
-            x_data, y_data = self.openFile.get_values()
-            self.draw_spectra(x_data, y_data)
-        else:
-            dialog.warning_fileSelection(self.widget)
-||||||| merged common ancestors
-    def redraw(self):
-        """Redraw the current spectrum selected """
-        # TODO: separate elements for displaying information and input elements
-        # --> new class attribute for self.activeFile,
-        #   which is set, whenever something is drawn
-        # is it openfile?
-        # --> and update the displayed filename
-        filename = str(self.window.toutFilename.text())
-        if filename:
-            x_data, y_data = self.openFile.get_values()
-            self.draw_spectra(x_data, y_data)
-        else:
-            dialog.warning_fileSelection(self.widget)
-=======
-    # def redraw(self):
-    #     """Redraw the current spectrum selected """
-    #     # TODO: separate elements for displaying information and input elements
-    #     # --> new class attribute for self.activeFile,
-    #     #   which is set, whenever something is drawn
-    #     # is it openfile?
-    #     # --> and update the displayed filename
-    #     filename = str(self.window.toutFilename.text())
-    #     if filename:
-    #         x_data, y_data = self.openFile.get_values()
-    #         self.draw_spectra(x_data, y_data)
-    #     else:
-    #         # dialog.warning_fileSelection(self.widget)
-    #         dialog.warning_fileSelection()
->>>>>>> WER_overview
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
