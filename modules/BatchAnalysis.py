@@ -165,17 +165,8 @@ class BatchAnalysis(QDialog):
 
             # Change interface and preset for further dialogs (lastdir)
             self.lastdir = str(filenameInfo.absolutePath())
-<<<<<<< HEAD
-            # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
-            # TODO: set her: self.csv? self.batchfile? to differentiate ui and logic
-            self.mui.foutCSV.setText(filename)
-||||||| merged common ancestors
-            # TODO: use self.batchFile instead of reading and writing foutCSV all the time?
-            self.mui.foutCSV.setText(filename)
-=======
             # setting the batch filename
             self.batchFile = filename
->>>>>>> WER_overview
             self.update_UI()
         return filename
 
@@ -201,23 +192,6 @@ class BatchAnalysis(QDialog):
 
         # not used due to adding value-tag later
         # keep only checked elements
-<<<<<<< HEAD
-        # checkboxes = [element for element in checkboxes if element["state"]]
-
-
-        # Set correct Filename and open it
-        # TODO: Do not read from ui... self.csv/batchFile?
-        csvfile = str(self.mui.foutCSV.text())
-||||||| merged common ancestors
-        # checkboxes = [element for element in checkboxes if element["state"]]
-
-
-        # Set correct Filename and open it
-        # TODO: Do not read from ui...
-        csvfile = str(self.mui.foutCSV.text())
-=======
-        # checkboxes = [element for element in checkboxes if element["status"]]
->>>>>>> WER_overview
 
         data, skippedFiles = self.retrieve_data(checkboxes)
 
@@ -302,13 +276,9 @@ class BatchAnalysis(QDialog):
         return data, skippedFiles
 
     def retrieve_batch_config(self):
-<<<<<<< HEAD
         # TODO: docstring
         # TODO: errorhandling
-||||||| merged common ancestors
-=======
         value_placeholder = 0
->>>>>>> WER_overview
         properties = {}
         # make sure this is in the correct order
         labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
