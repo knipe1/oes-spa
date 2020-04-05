@@ -42,7 +42,7 @@ class BATCH_CONFIG(Enum):
     CHECKBOX = "checkbox"
     VALUE = "value"
     STATUS = "status"
-    TEST = "label"
+    LABEL = "label"
     NAME = "name"
 
 from Logger import Logger
