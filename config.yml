@@ -1,65 +1,49 @@
-# DEF --> Default
-# DIR --> Directory
-# RAW --> settings for the raw dataset
-# PROCESSED --> settings for the processed data
-# MRK --> marker, i.e. the displayed marker and the color in a plot
-# EXP --> Export
-PLOT:
-    RAW_DATA_LABEL: "Raw Spectrum"
-    RAW_DATA_MRK: "r"
-    RAW_BASELINE_LABEL: "Baseline"
-    RAW_BASELINE_MRK: "b--"
-    RAW_X_LABEL: "Pixel"
-    RAW_Y_LABEL: "Intensity / a.u."
-    PROCESSED_DATA_LABEL: "Processed Spectrum"
-    PROCESSED_DATA_MRK: "r"
-    PROCESSED_X_LABEL: "Wavelength / nm"
-    PROCESSED_Y_LABEL: "Intensity / a.u."
-    DEF_LINEWIDTH: 0.5
-    DEF_AXIS_COLOR: '0.2'
-
-FILE:
-    DEF_DIR: "./sample files"
-    DEF_FILE: ""
-    LOG_FILE: "/asdhome/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log"
-
-
-EXPORT:
-    RAW_APPENDIX: "_raw"
-    PROCESSED_APPENDIX: "_processed"
-    EXP_SUFFIX: ".csv"
-    DEF_BATCH_FILTER: "Comma separated (*.csv)"
-    DEF_BATCH_NAME: "_batch"
-    FORMAT_TIMESTAMP: "%d.%m.%Y %H:%M:%S"
-
-IMPORT:
-    VALID_SUFFIX:
-        - "csv"
-        - "spk"
-        - "Spk"
-    SUFFIXES:
-        - "Data sets (*.spk *.csv)"
-        - "SpexHex File (*.spk)"
-        - "Exported Raw spectrum (*.csv)"
-    VALID_SCHEME:
-        - "file"
-
-DIALECT:
-    name: "spectral_data"
-    delimiter: "\t"
-    #csv.QUOTE_MINIMAL = 0
-    quoting: 0
-
-MARKER:
-    HEADER: "Date"
-    DATA: "Data"
-
-DATA_STRUCTURE:
-    SPK_DATA_COLUMN: 3
-    CSV_DATA_COLUMN: 1
-
 BATCH:
-    SUFFIX: "csv"
-    SEPARATOR: ":"
-    INDEX_FORMAT: "4d"
-
+  INDEX_FORMAT: 4d
+  SEPARATOR: ':'
+  SUFFIX: csv
+DATA_STRUCTURE:
+  CSV_DATA_COLUMN: 1
+  SPK_DATA_COLUMN: 3
+DIALECT:
+  delimiter: "\t"
+  name: spectral_data
+  quoting: 0
+EXPORT:
+  DEF_BATCH_FILTER: Comma separated (*.csv)
+  DEF_BATCH_NAME: _batch
+  EXP_SUFFIX: .csv
+  FORMAT_TIMESTAMP: '%d.%m.%Y %H:%M:%S'
+  PROCESSED_APPENDIX: _processed
+  RAW_APPENDIX: _raw
+FILE:
+  DEF_DIR: ./sample files
+  DEF_FILE: ''
+  LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
+IMPORT:
+  SUFFIXES:
+  - Data sets (*.spk *.csv)
+  - SpexHex File (*.spk)
+  - Exported Raw spectrum (*.csv)
+  VALID_SCHEME:
+  - file
+  VALID_SUFFIX:
+  - csv
+  - spk
+  - Spk
+MARKER:
+  DATA: Data
+  HEADER: Date
+PLOT:
+  DEF_AXIS_COLOR: '0.2'
+  DEF_LINEWIDTH: 0.5
+  PROCESSED_DATA_LABEL: Processed Spectrum
+  PROCESSED_DATA_MRK: r
+  PROCESSED_X_LABEL: Wavelength / nm
+  PROCESSED_Y_LABEL: Intensity / a.u.
+  RAW_BASELINE_LABEL: Baseline
+  RAW_BASELINE_MRK: b--
+  RAW_DATA_LABEL: Raw Spectrum
+  RAW_DATA_MRK: r
+  RAW_X_LABEL: Pixel
+  RAW_Y_LABEL: Intensity / a.u.

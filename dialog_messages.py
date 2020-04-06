@@ -33,6 +33,8 @@ import modules.Universal as uni
 config = uni.load_config()
 # save properties
 EXPORT = config["EXPORT"];
+# filesystem properties
+FILE = config["FILE"];
 
 
 
@@ -140,12 +142,29 @@ def information_BatchAnalysisFinished(skippedFiles, parent=None):
     text = "Skipped Files: \n" + "\n".join(skippedFiles);
     QMessageBox.information(parent, title, text);
     
-def information_LogFileNotFound(defaultFilename, parent=None):
+def dialog_LogFileNotFound(parent=None):
     # TODO docstring
+    defaultDirectory = "./debug.log"
+    # Prompt the user
     title = "Log file could not be found";
-    text = f"""Please adjust the path of the logfile in the config.yml: FILE -> 
-    LOG_FILE. Default path is: {defaultFilename}""";
+    text = """Please select a new default path for your config file.""";
     QMessageBox.information(parent, title, text);
+    
+    # select a new log file
+    caption = "Please select a log.file";
+    filename, _ = QFileDialog.getOpenFileName(parent = parent,
+                                              caption = caption,
+                                              directory = defaultDirectory,);
+
+    # get the new or a default filename
+    filename = filename if filename else defaultDirectory
+
+    # getting the current config and change the LOG_FILE property    
+    config = uni.load_config()
+    config["FILE"]["LOG_FILE"] = filename
+    uni.save_config(config)
+    
+    return filename
     
 
 def dialog_saveFile(directory, presetFilename="", parent=None):

@@ -28,7 +28,6 @@ from Logger import Logger
 
 # set up the logger
 logger = Logger(__name__)
-logger.info("Tüdelü")
 
 def main():
     """Main program """

@@ -4,9 +4,7 @@
 This module is for general purposes and includes various functions
 
 """
-# prototyping for load_config-function
-load_config = lambda: 0
-# re-writing the load config-function
+# load_config-function
 def load_config(path="./config.yml"):
     # load the config
     with open(path, "r", newline='') as ymlfile:
@@ -25,7 +23,11 @@ from enum import Enum, auto
 import dialog_messages as dialog
 
 
-
+def save_config(conf: dict, path="./config.yml"):
+    # load the config
+    with open(path, "w", newline='') as ymlfile:
+        config = yaml.dump(conf, ymlfile)
+    return config
 
 
 

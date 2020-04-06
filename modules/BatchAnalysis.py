@@ -47,24 +47,24 @@ class BATCH_CONFIG(Enum):
 
 from Logger import Logger
 
-config = uni.load_config()
-# batch properties
-BATCH = config["BATCH"];
-# save properties
-EXPORT = config["EXPORT"];
-
-# set up the logger
-logger = Logger(__name__)
-logger.critical("WTF")
 
 class BatchAnalysis(QDialog):
     """Class for batch analysis. """
+    
+    config = uni.load_config()
+    # batch properties
+    BATCH = config["BATCH"];
+    # save properties
+    EXPORT = config["EXPORT"];
+    
+    # set up the logger
+    logger = Logger(__name__)
 
     def __init__(self, parent):
         """initialize the parent class ( == QDialog.__init__(self)"""
         super(BatchAnalysis, self).__init__(parent)
         
-        logger.debug("init  batch")
+        self.logger.debug("init  batch")
         
         # properties
         # TODO: defaults are set afterwards, but here are the definitions of the props...
@@ -157,10 +157,10 @@ class BatchAnalysis(QDialog):
         # check the filename properties to have appropiate scheme
         if filename:
             # Validate the suffix
-            if not filenameInfo.completeSuffix() == BATCH["SUFFIX"]:
+            if not filenameInfo.completeSuffix() == self.BATCH["SUFFIX"]:
                 # TODO: Show information about the modification?
                 path = filenameInfo.absolutePath() + "/"
-                fileCompleteName = filenameInfo.baseName() + "." + BATCH["SUFFIX"]
+                fileCompleteName = filenameInfo.baseName() + "." + self.BATCH["SUFFIX"]
                 filename = path + fileCompleteName
 
             # Change interface and preset for further dialogs (lastdir)
@@ -199,7 +199,7 @@ class BatchAnalysis(QDialog):
 
         # create and format timestamp
         timestamp = datetime.now()
-        timestamp = timestamp.strftime(EXPORT["FORMAT_TIMESTAMP"])
+        timestamp = timestamp.strftime(self.EXPORT["FORMAT_TIMESTAMP"])
 
         # assemble header
         header = ["Filename"]
@@ -229,7 +229,7 @@ class BatchAnalysis(QDialog):
             print(self.updatePlots, self.window.cbUpdatePlots.isChecked())
             if self.updatePlots:
                 self.parent().apply_data(file)
-                logger.info("parent(), data applied")
+                self.logger.info("parent(), data applied")
             #####
             
             self.openFile = FileReader(file)

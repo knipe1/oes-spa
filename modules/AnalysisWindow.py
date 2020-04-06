@@ -26,26 +26,27 @@ from modules.Universal import ExportType
 from ui.UIMain import UIMain
 
 
-config = uni.load_config()
-# plots
-PLOT = config["PLOT"];
-# filesystem
-FILE = config["FILE"]
-# load properties
-IMPORT = config["IMPORT"]
 
 
 
 class AnalysisWindow(QMainWindow):
     """Main Analysis Window Class """
+        
+    config = uni.load_config()
+    # plots
+    PLOT = config["PLOT"];
+    # filesystem
+    FILE = config["FILE"]
+    # load properties
+    IMPORT = config["IMPORT"]
 
     def __init__(self, initialShow=True):
         """initialize the parent class ( == QMainWindow.__init__(self)"""
         super(AnalysisWindow, self).__init__()
 
         # Set file and directory
-        self.lastdir = FILE["DEF_DIR"];
-        self.openFile = FILE["DEF_FILE"];
+        self.lastdir = self.FILE["DEF_DIR"];
+        self.openFile = self.FILE["DEF_FILE"];
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
@@ -90,7 +91,7 @@ class AnalysisWindow(QMainWindow):
         elif len(urls) == 1:
             # TODO: only check the first one? different schemes possible?
             url = urls[0];
-            if url.isValid() and url.scheme() in IMPORT["VALID_SCHEME"]:
+            if url.isValid() and url.scheme() in self.IMPORT["VALID_SCHEME"]:
                 event.accept()
 
 
@@ -161,17 +162,17 @@ class AnalysisWindow(QMainWindow):
         # Draw the spectra in MatPlotLibWidgets
         # Raw
         rawPlot = self.window.mplRaw;
-        self.init_plot(rawPlot, PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]);
+        self.init_plot(rawPlot, self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]);
         self.update_plot(rawPlot, x_data, y_data,
-                         PLOT["RAW_DATA_MRK"], PLOT["RAW_DATA_LABEL"]);
+                         self.PLOT["RAW_DATA_MRK"], self.PLOT["RAW_DATA_LABEL"]);
         self.update_plot(rawPlot, x_data, baseline,
-                         PLOT["RAW_BASELINE_MRK"], PLOT["RAW_BASELINE_LABEL"]);
+                         self.PLOT["RAW_BASELINE_MRK"], self.PLOT["RAW_BASELINE_LABEL"]);
 
         # Processed
         processedPlot = self.window.mplProcessed;
-        self.init_plot(processedPlot, PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]);
+        self.init_plot(processedPlot, self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]);
         self.update_plot(processedPlot, procX, procY,
-                         PLOT["PROCESSED_DATA_MRK"], PLOT["PROCESSED_DATA_LABEL"]);
+                         self.PLOT["PROCESSED_DATA_MRK"], self.PLOT["PROCESSED_DATA_LABEL"]);
 
 
         # Enable Redraw Events
@@ -184,9 +185,9 @@ class AnalysisWindow(QMainWindow):
         """Save Raw-Data in CSV-File """
         # collect data
         filename, timestamp = self.get_fileinformation()
-        labels = [PLOT["RAW_X_LABEL"], PLOT["RAW_Y_LABEL"]]
+        labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
         xyData = uni.extract_xy_data(self.window.mplRaw.axes,
-                                     PLOT["RAW_DATA_LABEL"])
+                                     self.PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = FileWriter(self, filename, timestamp)
         csvWriter.write_data(xyData, labels, ExportType.RAW)
@@ -196,9 +197,9 @@ class AnalysisWindow(QMainWindow):
         """Save processed spectrum to CSV-File """
         # collect data
         filename, timestamp = self.get_fileinformation()
-        labels = [PLOT["PROCESSED_X_LABEL"], PLOT["PROCESSED_Y_LABEL"]]
+        labels = [self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]]
         xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
-                                     PLOT["PROCESSED_DATA_LABEL"])
+                                     self.PLOT["PROCESSED_DATA_LABEL"])
 
         results = {}
         # TODO: use enum?
@@ -216,10 +217,10 @@ class AnalysisWindow(QMainWindow):
         plotObj.axes.clear();
         plotObj.axes.set_xlabel(xlabel);
         plotObj.axes.set_ylabel(ylabel);
-        plotObj.axes.axhline(linewidth=PLOT["DEF_LINEWIDTH"],
-                             color=PLOT["DEF_AXIS_COLOR"]);
-        plotObj.axes.axvline(linewidth=PLOT["DEF_LINEWIDTH"],
-                             color=PLOT["DEF_AXIS_COLOR"]);
+        plotObj.axes.axhline(linewidth=self.PLOT["DEF_LINEWIDTH"],
+                             color=self.PLOT["DEF_AXIS_COLOR"]);
+        plotObj.axes.axvline(linewidth=self.PLOT["DEF_LINEWIDTH"],
+                             color=self.PLOT["DEF_AXIS_COLOR"]);
         return 0;
 
 
