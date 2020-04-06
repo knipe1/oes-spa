@@ -102,6 +102,8 @@ class Logger():
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     filename = FILE["LOG_FILE"]
     mode = "w"
+    defaultFilename = "./debug.log"
+    showedFileNotFound = False
     
     def __init__(self, name: str):
         """
@@ -133,7 +135,14 @@ class Logger():
             fhandler = logging.FileHandler(filename = self.filename, 
                                            mode = self.mode)
         except FileNotFoundError:
-            information_LogFileNotFound()
+            # Show the information about the wrong path of the log.file just
+            # once
+            if not Logger.showedFileNotFound:
+                information_LogFileNotFound(self.defaultFilename)
+                Logger.showedFileNotFound = True
+            # set the default log.file
+            fhandler = logging.FileHandler(filename = self.defaultFilename, 
+                                           mode = self.mode)
         
         fhandler.setLevel(self.level)
         
