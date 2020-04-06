@@ -142,6 +142,12 @@ def information_BatchAnalysisFinished(skippedFiles, parent=None):
     text = "Skipped Files: \n" + "\n".join(skippedFiles);
     QMessageBox.information(parent, title, text);
     
+def information_ExportFinished(filename, parent=None):
+    # TODO docstring
+    title = "Successfully exported";
+    text = f"Exported to: {filename}";
+    QMessageBox.information(parent, title, text);
+    
 def dialog_LogFileNotFound(parent=None):
     # TODO docstring
     defaultDirectory = "./debug.log"

@@ -190,7 +190,9 @@ class AnalysisWindow(QMainWindow):
                                      self.PLOT["RAW_DATA_LABEL"])
         # write data to csv
         csvWriter = FileWriter(self, filename, timestamp)
-        csvWriter.write_data(xyData, labels, ExportType.RAW)
+        isExported = csvWriter.write_data(xyData, labels, ExportType.RAW)
+        if isExported == 0:
+            dialog.information_ExportFinished(filename)
         return 0;
 
     def save_processed(self, filename):
@@ -208,7 +210,9 @@ class AnalysisWindow(QMainWindow):
 
         # write data to csv
         csvWriter = FileWriter(self, filename, timestamp)
-        csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
+        isExported = csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
+        if isExported == 0:
+            dialog.information_ExportFinished(filename)
         return 0;
 
     def init_plot(self, plotObj, xlabel, ylabel):
