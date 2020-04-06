@@ -48,6 +48,7 @@ import logging
 
 # local modules/libs
 import modules.Universal as uni
+from dialog_messages import information_LogFileNotFound
 
 class Logger():
     """
@@ -81,8 +82,18 @@ class Logger():
 
     Methods
     -------
-    says(sound=None)
-        Prints the animals name and what sound it makes
+    debug(msg: str, extra=None)
+         Writing the message to the log with level DEBUG.
+    info(msg: str, extra=None)
+         Writing the message to the log with level INFO.
+    warning(msg: str, extra=None)
+         Writing the message to the log with level WARNING.
+    error(msg: str, extra=None)
+         Writing the message to the log with level ERROR.
+    exception(msg: str, extra=None)
+         Writing the message to the log with level ERROR inclusive Traceback.
+    critical(msg: str, extra=None)
+         Writing the message to the log with level CRITICAL.
     """
     
     config = uni.load_config()
@@ -118,8 +129,12 @@ class Logger():
 
         
         # config a file handler
-        fhandler = logging.FileHandler(filename = self.filename, 
-                                       mode = self.mode)
+        try:
+            fhandler = logging.FileHandler(filename = self.filename, 
+                                           mode = self.mode)
+        except FileNotFoundError:
+            information_LogFileNotFound()
+        
         fhandler.setLevel(self.level)
         
         # config the format of the handler

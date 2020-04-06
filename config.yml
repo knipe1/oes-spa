@@ -21,7 +21,7 @@ PLOT:
 FILE:
     DEF_DIR: "./sample files"
     DEF_FILE: ""
-    LOG_FILE: "/home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log"
+    LOG_FILE: "/asdhome/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log"
 
 
 EXPORT:

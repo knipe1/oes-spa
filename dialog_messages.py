@@ -139,6 +139,13 @@ def information_BatchAnalysisFinished(skippedFiles, parent=None):
     title = "Batch Analysis finished";
     text = "Skipped Files: \n" + "\n".join(skippedFiles);
     QMessageBox.information(parent, title, text);
+    
+def information_LogFileNotFound(parent=None):
+    # TODO docstring
+    title = "Log file could not be found";
+    text = "Please adjust the path of the logfile in the config.yml: FILE $rightarrow LOG_FILE";
+    QMessageBox.information(parent, title, text);
+    
 
 def dialog_saveFile(directory, presetFilename="", parent=None):
     """
