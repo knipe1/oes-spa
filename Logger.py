@@ -94,10 +94,12 @@ class Logger():
          Writing the message to the log with level ERROR inclusive Traceback.
     critical(msg: str, extra=None)
          Writing the message to the log with level CRITICAL.
+         
     """
     
     config = uni.load_config()
     FILE = config["FILE"]
+    
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     filename = FILE["LOG_FILE"]

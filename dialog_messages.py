@@ -173,9 +173,9 @@ def dialog_LogFileNotFound(parent=None):
     return filename
     
 
-def dialog_saveFile(directory, presetFilename="", parent=None):
+def dialog_saveFile(directory: str, presetFilename="", parent=None):
     """
-
+    TODO: description
 
     Parameters
     ----------
@@ -197,13 +197,15 @@ def dialog_saveFile(directory, presetFilename="", parent=None):
         Path of the filename.
 
     """
+    
+    # default properties of the dialog
     title = "Set Filename";
     filter = EXPORT["DEF_BATCH_FILTER"];
     # set the default batch name
     if not presetFilename:
         presetFilename = EXPORT["DEF_BATCH_NAME"];
 
-
+    # TODO: neccessary? Useful Errorhandling? Maybe log? 
     if type(directory) not in [str]:
         raise TypeError("Directory must be a path (string)");
 
