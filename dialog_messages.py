@@ -12,15 +12,10 @@ Hints:
         second, after the underscore the name is followed in camelCase
 
 Created on Tue Feb 18 10:10:29 2020
+
+@author: Hauke Wernecke
 """
 
-__author__ = "Peter Knittel"
-__copyright__ = "Copyright 2020"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Peter Knittel/ Hauke Wernecke"
-__email__ = "peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 
 # third-party libs

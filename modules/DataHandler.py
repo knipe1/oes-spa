@@ -3,6 +3,8 @@
 """Data processing module
 
 Contains routines to convert raw data and obtain different parameters
+
+@author: Peter Knittel, Hauke Wernecke
 """
 
 # standard libs

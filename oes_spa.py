@@ -4,7 +4,7 @@
 
 Single and batch analysis of OES spectra"""
 
-__author__ = "Peter Knittel"
+__author__ = "Peter Knittel, Hauke Wernecke"
 __copyright__ = "Copyright 2019"
 __license__ = ""
 __version__ = "a1"

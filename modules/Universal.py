@@ -3,6 +3,7 @@
 """
 This module is for general purposes and includes various functions
 
+@author: Hauke Wernecke
 """
 # load_config-function
 def load_config(path="./config.yml"):

@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+
+@author: Hauke Wernecke
 """
 
-__author__ = "Peter Knittel"
-__copyright__ = "Copyright 2019"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Peter Knittel/ Hauke Wernecke"
-__email__ = "peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
@@ -111,6 +106,7 @@ class AnalysisWindow(QMainWindow):
         # Load a file via menu bar
         # File-->Open
         # Batch-->Drag&Drop or -->Browse Files
+        # TODO: Why check specific False? Why not falsy?
         if files is False:
             files = uni.load_files(self.lastdir);
             if len(files) > 1:

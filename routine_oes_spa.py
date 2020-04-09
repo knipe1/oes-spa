@@ -2,15 +2,8 @@
 # -*- coding: utf-8 -*-
 """OES-Spectra-Analysis
 
-Single and batch analysis of OES spectra"""
-
-__author__ = "Peter Knittel"
-__copyright__ = "Copyright 2019"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Peter Knittel/ Hauke Wernecke"
-__email__ = "peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
+Single and batch analysis of OES spectra
+"""
 
 # standard libs
 import sys

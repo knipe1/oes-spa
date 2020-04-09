@@ -5,6 +5,8 @@ Module for general purposes regarding read and write operations
 
 Register a common  dialect and
 defines the configurations
+
+@author: Hauke Wernecke
 """
 
 # standard libs

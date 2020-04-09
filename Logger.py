@@ -24,7 +24,7 @@ https://docs.python.org/3/library/logging.html
 
 Created on Sun Mar 29 12:21:03 2020
 
-@author: hauke
+@author: Hauke Wernecke
 """
 
 # TODO: Add metadata

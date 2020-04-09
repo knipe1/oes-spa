@@ -14,15 +14,10 @@ Glossary:
 
 
 Created on Mon Jan 20 10:22:44 2020
+
+@author: Hauke Wernecke
 """
 
-__author__ = "Hauke Wernecke"
-__copyright__ = "Copyright 2020"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Hauke Wernecke/Peter Knittel"
-__email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
