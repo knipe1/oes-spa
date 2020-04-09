@@ -36,7 +36,7 @@ class UIMain(Ui_main):
         self.parent = parent
         self.setupUi(self.parent)
         # Setup Events
-        self.set_connections()
+        # self.set_connections()
 
 
     def set_connections(self):
@@ -56,5 +56,4 @@ class UIMain(Ui_main):
         self.actSaveRaw.triggered.connect(self.parent.save_raw)
         self.actSaveProcessed.triggered.connect(self.parent.save_processed)
         self.actOpenBatch.triggered.connect(self.parent.batch.show)
-        # Following connection is unneccesary due to handling in closeEvent of AnalysisWindow
-        # self.actQuit.triggered.connect(self.parent.batch.close)
+        self.ddFitting.currentIndexChanged.connect(self.parent.fittings.load_current_fitting)

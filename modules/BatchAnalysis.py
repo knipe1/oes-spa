@@ -36,6 +36,7 @@ from modules.DataHandler import DataHandler
 from modules.Universal import ExportType
 
 
+# Enums
 class CHARACTERISTIC(Enum):
     """Including the labels to link numerical values to characteristic ones."""
     PEAK_HEIGHT = "Peak height"

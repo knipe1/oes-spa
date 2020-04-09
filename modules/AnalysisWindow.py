@@ -17,6 +17,7 @@ from modules.BatchAnalysis import BatchAnalysis
 from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
+from modules.Fitting import Fitting
 from modules.Universal import ExportType
 from ui.UIMain import UIMain
 
@@ -26,7 +27,7 @@ from ui.UIMain import UIMain
 
 class AnalysisWindow(QMainWindow):
     """Main Analysis Window Class """
-        
+
     config = uni.load_config()
     # plots
     PLOT = config["PLOT"];
@@ -48,16 +49,22 @@ class AnalysisWindow(QMainWindow):
         # TODO: Usage? self.centralWidget() return None and is never used.
         # self.widget = self.centralWidget()
 
+
         # Set up the user interface from Designer.
+        # Load the main window
+        self.window = UIMain(self)
         # Load batch dialog
         self.batch = BatchAnalysis(self)
-        # Load the main window (uses self.batch already)
-        self.window = UIMain(self)
-        
+        # init the fitting and the dropdown of the fittings
+        self.fittings = Fitting(self.window.ddFitting)
+        # link the events between the elements
+        self.window.set_connections()
+
         # initial settings
         if initialShow:
             self.show()
-            
+
+
     def closeEvent(self, event):
         """
         Closing the BatchAnalysis dialog to have a clear shutdown.

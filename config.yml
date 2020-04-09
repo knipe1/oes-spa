@@ -47,3 +47,6 @@ PLOT:
   RAW_DATA_MRK: r
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
+FITTING:
+    FILE_PATTERN: "fitting.yml"
+    DIR: "./fittings/"
