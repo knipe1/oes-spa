@@ -36,30 +36,14 @@ class DataHandler:
             used grating
      """
 
-    def __init__(self, xData, yData, cwl, grat, debug=False, csvoutput=False):
-        self.debug = debug
+    def __init__(self, xData, yData, cWL, grat):
         self.xData = xData
         self.yData = yData
-        self.cWL = cwl
+        self.cWL = cWL
         # TODO: MAGIC NUMBER, what is 14?
         self.dispersion = 14/grat
         self.process_data()
 
-        if self.debug:
-            from logging import basicConfig, getLogger, INFO
-            from time import localtime, strftime
-            basicConfig(filename='debug.log', level=INFO)
-            self.log = getLogger('DataHandler')
-            self.log.info(strftime("Start Logging %d.%m.%y %H:%M:%S:",
-                                   localtime()))
-
-
-        # TODO: csvoutput is always false?
-        # AND has no attribute Config
-        # AND it would just overwrite self.csvoutput
-        if csvoutput:
-            csvfile = self.Config.get('CSVOutput', 'Filename')
-            self.csvoutput(csvfile)
 
     def process_data(self):
         """Processes the raw data to obtain the OES spectrum:
@@ -71,9 +55,6 @@ class DataHandler:
         # Set x values to correct wavelength
         self.procX = self.assign_wavelength(self.xData, self.cWL,
                                             self.dispersion)
-
-        # Assymetic baseline fitting
-        # self.procY = self.baseline_als(self.yData, 0.05, 10000)
 
         # Baseline fitting with peakutils
         # TODO: what is calculated here?
@@ -135,22 +116,6 @@ class DataHandler:
             peak_area = 0
 
         return peak_y, peak_area, peak_x
-
-    def baseline_als(self, y, lam, p, niter=10):
-        """Asymmetric baseline fitting
-            Generally 0.001 ≤ p ≤ 0.1 is a good choice
-            (for a signal with positive peaks) and 10^2 ≤ λ ≤ 10^9
-        """
-        L = len(y)
-        D = sparse.csc_matrix(np.diff(np.eye(L), 2))
-        w = np.ones(L)
-        for i in range(niter):
-            W = sparse.spdiags(w, 0, L, L)
-            Z = W + lam * D.dot(D.transpose())
-            z = spsolve(Z, w*y)
-            w = p * (y > z) + (1-p) * (y < z)
-
-        return z
 
     def get_processed_data(self):
         """Returns processed data """

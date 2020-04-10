@@ -58,6 +58,7 @@ class AnalysisWindow(QMainWindow):
         # init the fitting and the dropdown of the fittings
         self.fittings = Fitting(self.window.ddFitting)
         # link the events between the elements
+        # requires init of self.fittings and self.batch
         self.window.set_connections()
 
         # initial settings
