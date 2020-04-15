@@ -8,7 +8,7 @@ Created on Wed Mar 18 18:28:42 2020
 
 Testing the class BatchAnalysis
 
-@author: wernecke
+@author: Hauke Wernecke
 """
 
 # third-party imports

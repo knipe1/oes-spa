@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Is the layout of the main window with minor extensions to the qt functionality
+
 Created on Fri Jan 27 2020
 
-Is the layout of the main window with minor extensions to the qt functionalty
+@author: Hauke Wernecke
 """
 
 
-__author__ = "Hauke Wernecke"
-__copyright__ = "Copyright 2020"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Hauke Wernecke/Peter Knittel"
-__email__ = "hauke.wernecke@iaf.fraunhhofer.de", "peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 
 # local modules/libs
@@ -41,7 +36,7 @@ class UIMain(Ui_main):
         self.parent = parent
         self.setupUi(self.parent)
         # Setup Events
-        self.set_connections()
+        # self.set_connections()
 
 
     def set_connections(self):
@@ -61,5 +56,4 @@ class UIMain(Ui_main):
         self.actSaveRaw.triggered.connect(self.parent.save_raw)
         self.actSaveProcessed.triggered.connect(self.parent.save_processed)
         self.actOpenBatch.triggered.connect(self.parent.batch.show)
-        # Following connection is unneccesary due to handling in closeEvent of AnalysisWindow
-        # self.actQuit.triggered.connect(self.parent.batch.close)
+        self.ddFitting.currentIndexChanged.connect(self.parent.fittings.load_current_fitting)

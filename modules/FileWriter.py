@@ -6,6 +6,8 @@ File Writermodule
 Export raw-/processed spectra
 
 Created on Mon Jan 27 11:02:13 2020
+
+@author: Hauke Wernecke
 """
 
 # standard libs

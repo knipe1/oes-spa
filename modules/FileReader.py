@@ -3,6 +3,8 @@
 """File Reader module
 
 Import XY data from different filetypes
+
+@author: Hauke Wernecke
 """
 
 # standard libs
@@ -78,11 +80,12 @@ class FileReader(FileFramework):
                 return 1
 
 
-            if get_header(csvReader, MARKER["HEADER"]) > 0:
+            if get_header(csvReader, MARKER["HEADER"]):
                 print("FileReader: No valid header")
                 return 1
+            
             data = get_data(csvReader)
-            if not len(data)> 0:
+            if not len(data):
                 print("FileReader: No valid data")
                 return 2
 
@@ -91,7 +94,7 @@ class FileReader(FileFramework):
 
     def get_values(self):
         """Return x and y data of the file"""
-        if not self.xData.size > 0 or not self.yData.size > 0:
+        if not self.xData.size or not self.yData.size:
             self.read_file()
         return self.xData, self.yData
 

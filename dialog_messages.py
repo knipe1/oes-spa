@@ -12,15 +12,10 @@ Hints:
         second, after the underscore the name is followed in camelCase
 
 Created on Tue Feb 18 10:10:29 2020
+
+@author: Hauke Wernecke
 """
 
-__author__ = "Peter Knittel"
-__copyright__ = "Copyright 2020"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Peter Knittel/ Hauke Wernecke"
-__email__ = "peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 
 # third-party libs
@@ -33,6 +28,8 @@ import modules.Universal as uni
 config = uni.load_config()
 # save properties
 EXPORT = config["EXPORT"];
+# filesystem properties
+FILE = config["FILE"];
 
 
 
@@ -140,17 +137,40 @@ def information_BatchAnalysisFinished(skippedFiles, parent=None):
     text = "Skipped Files: \n" + "\n".join(skippedFiles);
     QMessageBox.information(parent, title, text);
     
-def information_LogFileNotFound(defaultFilename, parent=None):
+def information_ExportFinished(filename, parent=None):
     # TODO docstring
-    title = "Log file could not be found";
-    text = f"""Please adjust the path of the logfile in the config.yml: FILE -> 
-    LOG_FILE. Default path is: {defaultFilename}""";
+    title = "Successfully exported";
+    text = f"Exported to: {filename}";
     QMessageBox.information(parent, title, text);
     
+def dialog_LogFileNotFound(parent=None):
+    # TODO docstring
+    defaultDirectory = "./debug.log"
+    # Prompt the user
+    title = "Log file could not be found";
+    text = """Please select a new default path for your config file.""";
+    QMessageBox.information(parent, title, text);
+    
+    # select a new log file
+    caption = "Please select a log.file";
+    filename, _ = QFileDialog.getOpenFileName(parent = parent,
+                                              caption = caption,
+                                              directory = defaultDirectory,);
 
-def dialog_saveFile(directory, presetFilename="", parent=None):
+    # get the new or a default filename
+    filename = filename if filename else defaultDirectory
+
+    # getting the current config and change the LOG_FILE property    
+    config = uni.load_config()
+    config["FILE"]["LOG_FILE"] = filename
+    uni.save_config(config)
+    
+    return filename
+    
+
+def dialog_saveFile(directory: str, presetFilename="", parent=None):
     """
-
+    TODO: description
 
     Parameters
     ----------
@@ -172,13 +192,15 @@ def dialog_saveFile(directory, presetFilename="", parent=None):
         Path of the filename.
 
     """
+    
+    # default properties of the dialog
     title = "Set Filename";
     filter = EXPORT["DEF_BATCH_FILTER"];
     # set the default batch name
     if not presetFilename:
         presetFilename = EXPORT["DEF_BATCH_NAME"];
 
-
+    # TODO: neccessary? Useful Errorhandling? Maybe log? 
     if type(directory) not in [str]:
         raise TypeError("Directory must be a path (string)");
 

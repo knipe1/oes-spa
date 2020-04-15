@@ -24,7 +24,7 @@ https://docs.python.org/3/library/logging.html
 
 Created on Sun Mar 29 12:21:03 2020
 
-@author: hauke
+@author: Hauke Wernecke
 """
 
 # TODO: Add metadata
@@ -48,7 +48,7 @@ import logging
 
 # local modules/libs
 import modules.Universal as uni
-from dialog_messages import information_LogFileNotFound
+from dialog_messages import dialog_LogFileNotFound
 
 class Logger():
     """
@@ -94,16 +94,16 @@ class Logger():
          Writing the message to the log with level ERROR inclusive Traceback.
     critical(msg: str, extra=None)
          Writing the message to the log with level CRITICAL.
+         
     """
     
     config = uni.load_config()
     FILE = config["FILE"]
+    
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     filename = FILE["LOG_FILE"]
     mode = "w"
-    defaultFilename = "./debug.log"
-    showedFileNotFound = False
     
     def __init__(self, name: str):
         """
@@ -131,18 +131,16 @@ class Logger():
 
         
         # config a file handler
+        # TODO: Adjust according to issue #17!
         try:
             fhandler = logging.FileHandler(filename = self.filename, 
                                            mode = self.mode)
         except FileNotFoundError:
-            # Show the information about the wrong path of the log.file just
-            # once
-            if not Logger.showedFileNotFound:
-                information_LogFileNotFound(self.defaultFilename)
-                Logger.showedFileNotFound = True
+            filename = dialog_LogFileNotFound()
             # set the default log.file
-            fhandler = logging.FileHandler(filename = self.defaultFilename, 
+            fhandler = logging.FileHandler(filename = filename, 
                                            mode = self.mode)
+            print(name)
         
         fhandler.setLevel(self.level)
         

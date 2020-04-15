@@ -6,16 +6,8 @@ Can be extended to emulate mouse clicks.
 
 Created on Fri Feb 21 09:14:12 2020
 
-@author: wernecke
+@author: Hauke Wernecke
 """
-
-__author__ = "Hauke Wernecke"
-__copyright__ = "Copyright 2020"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Hauke Wernecke"
-__email__ = "hauke.wernecke@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 
 # third-party libs

@@ -2,16 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jan 24 12:00:10 2020
+
+@author: Hauke Wernecke
 """
 
-
-__author__ = "Hauke Wernecke"
-__copyright__ = "Copyright 2020"
-__license__ = ""
-__version__ = "a1"
-__maintainer__ = "Hauke Wernecke/Peter Knittel"
-__email__ = "hauke.wernecke@iaf.fraunhhofer.de, peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
 
 
 

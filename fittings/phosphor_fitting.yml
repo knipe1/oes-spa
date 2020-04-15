@@ -1,0 +1,40 @@
+# Example/Muster
+# Name of the Fitting: Displayed in the Dropdown-Menu
+NAME: "Phoshpor Peak Fitting"
+# 1-n Peaks:
+PEAKS:
+    # list of peaks
+    -
+    # TODO: maybe adding an index?
+        # label indicate the naming of the peak. Might be useful in extracting information
+        label: "BH Peak"
+        # central wavelength of the peak
+        wavelength: 433
+        # limits of integration for that peak
+        lower_limit: 432
+        upper_limit:  434
+        # minimum value to evaluate the ?peak area? as peak
+        # should fail for already processed data?
+        minimum: 1
+        # 1-n reference peaks to which the characteristic value (BH Peak) is related and therefore the BH value is calculated due to this relation
+        reference:
+            -
+                wavelength: 455
+                lower_limit: 454
+                upper_limit:  456
+    -
+        # another example for a second example peak
+        label: "CN Peak"
+        wavelength: 580
+        lower_limit: 578.5
+        upper_limit:  58.2
+        minimum: 1
+        reference:
+            -
+                wavelength: 133
+                lower_limit: 132
+                upper_limit:  134
+            -
+                wavelength: 665.3
+                lower_limit: 664.1
+                upper_limit:  666.4
