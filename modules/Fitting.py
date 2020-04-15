@@ -120,8 +120,9 @@ class Fitting():
             Contains the config of the selected fitting.
 
         """
-        # TODO: another funciton? if so, use current_fitting as property
+        # TODO: another function? if so, use current_fitting as property
         # and use the other funtion?
+        # TODO: check out the class Peak!
         text = self.dropdown.currentText()  # text as key of the dict
         # get the selected fitting
         for fit, name in self.fittings.items():
