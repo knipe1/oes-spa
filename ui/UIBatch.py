@@ -6,10 +6,6 @@ Created on Fri Jan 24 12:00:10 2020
 @author: Hauke Wernecke
 """
 
-
-
-
-# local modules/libs
 from ui.ui_batch_dialog import Ui_batch
 
 class UIBatch(Ui_batch):
@@ -17,6 +13,9 @@ class UIBatch(Ui_batch):
     Methods can be added (like set_all) or connections etc can be made without
     handling the normal generated class, which is overridden whenever the gui
     is changed"""
+
+
+
     def __init__(self, parent):
         self.parent = parent
         self.setupUi(self.parent)
@@ -48,6 +47,8 @@ class UIBatch(Ui_batch):
         added or some are deleted"""
         for button in self.BtnParameters.buttons():
             button.setChecked(True)
-            
+
     def set_prop_updatePlots(self, enable):
         self.parent.updatePlots = enable
+
+

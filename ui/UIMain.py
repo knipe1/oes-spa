@@ -8,10 +8,12 @@ Created on Fri Jan 27 2020
 @author: Hauke Wernecke
 """
 
-
+# standard libs
+import os
 
 
 # local modules/libs
+import modules.Universal as uni
 from ui.ui_main_window import Ui_main
 
 class UIMain(Ui_main):
@@ -19,6 +21,29 @@ class UIMain(Ui_main):
     Methods can be added (like set_all) or connections etc can be made without
     handling the normal generated class, which is overridden whenever the gui
     is changed"""
+
+    # Getting the neccessary configs
+    config = uni.load_config()
+    FITTING = config["FITTING"];
+
+
+    @property
+    def fittings(self):
+        """fittings getter"""
+        return self._fittings
+
+    @fittings.setter
+    def fittings(self, fits:dict):
+        """fittings setter
+
+        Updating the ui
+        """
+        self._fittings = fits
+        # TODO: check condition?!?!?!
+        if not self.dropdown == None:
+            self.dropdown.clear()
+            self.dropdown.addItems(fits.values())
+
     def __init__(self, parent):
         """
 
@@ -35,8 +60,7 @@ class UIMain(Ui_main):
         """
         self.parent = parent
         self.setupUi(self.parent)
-        # Setup Events
-        # self.set_connections()
+        self.retrieve_fittings()
 
 
     def set_connections(self):
@@ -57,3 +81,29 @@ class UIMain(Ui_main):
         self.actSaveProcessed.triggered.connect(self.parent.save_processed)
         self.actOpenBatch.triggered.connect(self.parent.batch.show)
         self.ddFitting.currentIndexChanged.connect(self.parent.fittings.load_current_fitting)
+
+
+    @classmethod
+    def retrieve_fittings(cls) -> list:
+        """
+        Retrieve all fitting files of the directory of fittings.
+
+        Returns
+        -------
+        fitList : list
+            Containing the filenames of the fittings.
+
+        """
+        fitDict = {}
+        # check out the default directory for fittings
+        for _, _, f in os.walk(cls.FITTING["DIR"]):
+            for file in f:
+                # get the fitting files matching the pattern
+                if file.rfind(cls.FITTING["FILE_PATTERN"]) > -1:
+                    # loading the parameter and set up the dict using the
+                    # filename and the name of the fitting
+                    path = os.path.join(cls.FITTING["DIR"], file)
+                    fitConfig = uni.load_config(path)
+                    fitName = fitConfig.get("NAME")
+                    fitDict[file] = fitName
+        return fitDict

@@ -51,59 +51,22 @@ class Fitting():
     # variables
     _fittings = {}
 
-    def __init__(self, dropdown=None):
-        self.dropdown = dropdown
-        self.fittings = self.retrieve_fittings()
-        self._currentFitting = self.load_current_fitting(dropdown.currentIndex())
+    def __init__(self):
+        # self.dropdown = dropdown
+        # self.fittings = self.retrieve_fittings()
+        self._currentFitting = self.load_current_fitting(0)
 
     ### Properties
-
-    @property
-    def fittings(self):
-        """fittings getter"""
-        return self._fittings
-
-    @fittings.setter
-    def fittings(self, fits:dict):
-        """fittings setter
-
-        Updating the ui
-        """
-        self._fittings = fits
-        # TODO: check condition?!?!?!
-        if not self.dropdown == None:
-            self.dropdown.clear()
-            self.dropdown.addItems(fits.values())
-
     @property
     def currentFitting(self) -> dict:
         """currentFitting getter"""
         return self._currentFitting
+    @currentFitting.setter
+    def currentFitting(self, fitting):
+        # TODO: doublecheck
+        self._currentFitting = fitting
 
-    @classmethod
-    def retrieve_fittings(cls) -> list:
-        """
-        Retrieve all fitting files of the directory of fittings.
 
-        Returns
-        -------
-        fitList : list
-            Containing the filenames of the fittings.
-
-        """
-        fitDict = {}
-        # check out the default directory for fittings
-        for _, _, f in os.walk(cls.FITTING["DIR"]):
-            for file in f:
-                # get the fitting files matching the pattern
-                if file.rfind(cls.FITTING["FILE_PATTERN"]) > -1:
-                    # loading the parameter and set up the dict using the
-                    # filename and the name of the fitting
-                    path = os.path.join(cls.FITTING["DIR"], file)
-                    fitConfig = uni.load_config(path)
-                    fitName = fitConfig.get("NAME")
-                    fitDict[file] = fitName
-        return fitDict
 
     def load_current_fitting(self, index:int) -> dict:
         """
@@ -136,3 +99,8 @@ class Fitting():
 
         return fitConfig
 
+
+    def calculate_characteristic_value(self):
+        # calculating the value if references are given
+        # and checking against the minimum value
+        pass
