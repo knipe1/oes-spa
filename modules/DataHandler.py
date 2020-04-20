@@ -11,13 +11,15 @@ Contains routines to convert raw data and obtain different parameters
 import numpy as np
 
 # third-party libs
+from PyQt5.QtCore import QObject, pyqtSignal
 from peakutils import baseline, indexes
 
 # local modules/libs
 from Logger import Logger
+from custom_types.UI_RESULTS import UI_RESULTS
 
 
-class DataHandler:
+class DataHandler(QObject):
     """Data handler for OES spectral data
 
     This class provides several methods for analysing raw
@@ -39,15 +41,75 @@ class DataHandler:
     # set up the logger
     logger = Logger(__name__)
 
-    def __init__(self, xData, yData, cWL, grat):
+    # properties
+    _peak_height = 0;
+    _peak_area = 0;
+    _baseline = 0;
+
+    # qt-signals
+    signal_peakHeight = pyqtSignal(str)
+    signal_peakArea = pyqtSignal(str)
+    signal_peakBaseline = pyqtSignal(str)
+
+    ### Properties - Getter & Setter
+    @property
+    def peak_height(self) -> float:
+        """peak_height getter"""
+        return self._peak_height
+
+    @peak_height.setter
+    def peak_height(self, height:float):
+        """peak_height setter"""
+        self._peak_height = height
+        self.signal_peakHeight.emit(str(self.peak_height))
+
+    @property
+    def peak_area(self) -> float:
+        """peak_area getter"""
+        return self._peak_area
+
+    @peak_area.setter
+    def peak_area(self, area:float):
+        """peak_area setter"""
+        self._peak_area = area
+        self.signal_peakArea.emit(str(self.peak_area))
+
+    @property
+    def avgbase(self) -> float:
+        """avgbase getter"""
+        return self._avgbase
+
+    @avgbase.setter
+    def avgbase(self, base:float):
+        """avgbase setter"""
+        self._avgbase = base
+        self.signal_peakBaseline.emit(str(self.avgbase))
+
+
+
+    def __init__(self, xData, yData, cWL, grat, funConnection):
+        super(DataHandler, self).__init__()
         # TODO: properties to ensure the correct type?
         self.xData = xData
         self.yData = yData
         self.cWL = cWL
         # TODO: MAGIC NUMBER, what is 14?
         self.dispersion = 14/grat
+
+        if funConnection:
+            self.InitSignals()
+            funConnection(self.signals)
+
+        self.__post_init__()
+
+    def __post_init__(self):
         self.process_data()
 
+    def InitSignals(self):
+        self.signals = {UI_RESULTS["tout_PEAK_HEIGHT"]: self.signal_peakHeight,
+                        UI_RESULTS["tout_PEAK_AREA"]: self.signal_peakArea,
+                        UI_RESULTS["tout_BASELINE"]: self.signal_peakBaseline,
+                        }
 
     def process_data(self):
         """Processes the raw data to obtain the OES spectrum:

@@ -1,6 +1,6 @@
 # Example/Muster
 # Name of the Fitting: Displayed in the Dropdown-Menu
-NAME: "Boron Peak Fitting"
+NAME: "Example Fitting"
 # 1-n Peaks:
 PEAKS:
     # list of peaks

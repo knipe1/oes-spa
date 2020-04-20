@@ -16,6 +16,7 @@ Created on Thu Apr  9 10:51:31 2020
 import os
 
 # third-party libs
+from PyQt5 import QtCore #test
 
 # local modules/libs
 import modules.Universal as uni
@@ -23,7 +24,7 @@ from Logger import Logger
 
 # Enums
 
-class Fitting():
+class Fitting(QtCore.QObject):
     """
     # TODO: docstring
     summary line
@@ -51,31 +52,39 @@ class Fitting():
     # variables
     _fittings = {}
 
-    def __init__(self):
-        # self.dropdown = dropdown
-        # self.fittings = self.retrieve_fittings()
-        self._currentFitting = self.load_current_fitting(0)
+    #### test
+    test = QtCore.pyqtSignal(str)
+
+    def do_signal(self):
+        self.test.emit("Hi")
+    #####
+
+    def __init__(self, fittings):
+        QtCore.QObject.__init__(self)
+        self.fittings = fittings
 
     ### Properties
     @property
     def currentFitting(self) -> dict:
         """currentFitting getter"""
         return self._currentFitting
+
     @currentFitting.setter
     def currentFitting(self, fitting):
         # TODO: doublecheck
+        self.logger.info("current fitting:")
+        self.logger.info(fitting)
         self._currentFitting = fitting
 
 
-
-    def load_current_fitting(self, index:int) -> dict:
+    def load_current_fitting(self, fitting_name:str) -> dict:
         """
         Retrieve the config of the currently selected fitting.
 
         Parameters
         ----------
-        index : int
-            The index of the selected fitting within the dropdown.
+        fitting_name : str
+            The name of the selected fitting within the ui element.
 
         Returns
         -------
@@ -86,18 +95,18 @@ class Fitting():
         # TODO: another function? if so, use current_fitting as property
         # and use the other funtion?
         # TODO: check out the class Peak!
-        text = self.dropdown.currentText()  # text as key of the dict
         # get the selected fitting
+        self.logger.info("load current fitting")
         for fit, name in self.fittings.items():
-            if name == text:
+            if name == fitting_name:
                 current_fit = fit
                 break
 
-        # TODO: dry: path and load config... see above
+        # load the config from the file and set the current config
         path = os.path.join(self.FITTING["DIR"], current_fit)
         fitConfig = uni.load_config(path)
 
-        return fitConfig
+        self.currentFitting = fitConfig
 
 
     def calculate_characteristic_value(self):

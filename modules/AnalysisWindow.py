@@ -55,15 +55,24 @@ class AnalysisWindow(QMainWindow):
         self.window = UIMain(self)
         # Load batch dialog
         self.batch = BatchAnalysis(self)
-        # init the fitting and the dropdown of the fittings
-        self.fittings = Fitting(self.window.ddFitting)
-        # link the events between the elements
-        # requires init of self.fittings and self.batch
-        self.window.set_connections()
+        # init the fitting and with the retrieved fittings
+        self.fittings = Fitting(self.window.fittings)
+
+        self.__post_init__()
 
         # initial settings
         if initialShow:
             self.show()
+
+    def __post_init__(self):
+        self.set_connections()
+
+    def set_connections(self):
+        self.window.connect_exportRaw(self.save_raw)
+        self.window.connect_exportProcessed(self.save_processed)
+        self.window.connect_showBatch(self.batch.show)
+        self.window.connect_openFile(self.file_open)
+        self.window.connect_selectFitting(self.fittings.load_current_fitting)
 
 
     def closeEvent(self, event):
@@ -148,19 +157,13 @@ class AnalysisWindow(QMainWindow):
         # TODO: Is Central wavelength depending on the selected Fitting?
         spec_proc = DataHandler(x_data, y_data,
                         float(self.window.tinCentralWavelength.text()),
-                        int(self.window.ddGrating.currentText()))
+                        int(self.window.ddGrating.currentText()),
+                        funConnection=self.window.ConnectSlotResults)
         #calculate results
         # TODO: no validation of results?
         procX, procY = spec_proc.get_processed_data()
         baseline, avg = spec_proc.get_baseline()
         peak_height, peak_area = spec_proc.get_peak()
-
-        # display results
-        # TODO: expected behaviour? What happens if not everything is given?
-        # Is there a scenario in which just one result is calculated/set?
-        self.window.toutBaseline.setText(str(avg))
-        self.window.toutPeakHeight.setText(str(peak_height))
-        self.window.toutPeakArea.setText(str(peak_area))
 
         # Clear the widget from previous spectra
         # Draw the spectra in MatPlotLibWidgets
@@ -187,6 +190,7 @@ class AnalysisWindow(QMainWindow):
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
+        print("Export Raw spectrum")
         # collect data
         filename, timestamp = self.get_fileinformation()
         labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
@@ -244,7 +248,7 @@ class AnalysisWindow(QMainWindow):
 
     def plot_redrawable(self, enable = True):
         """set the status (enabled/disabled) of redraw button/action"""
-        self.window.actRedraw.setEnabled(enable);
+        # self.window.actRedraw.setEnabled(enable);
         # menu --> File --> save
         # TODO: but important!!!
         self.window.menuSave.setEnabled(enable)
