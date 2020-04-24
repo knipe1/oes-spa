@@ -22,8 +22,8 @@ from custom_types.UI_RESULTS import UI_RESULTS
 class DataHandler(QObject):
     """Data handler for OES spectral data
 
-    This class provides several methods for analysing raw
-    spectral data
+    This class provides several methods for analysing raw spectral data. And
+    calculates characteristic values using fittings.
 
     DataHandler(xdata, ydata):
     Parameters:
@@ -45,11 +45,14 @@ class DataHandler(QObject):
     _peak_height = 0;
     _peak_area = 0;
     _baseline = 0;
+    _characteristicValue = 0;
 
     # qt-signals
     signal_peakHeight = pyqtSignal(str)
     signal_peakArea = pyqtSignal(str)
     signal_peakBaseline = pyqtSignal(str)
+    signal_characteristicValue = pyqtSignal(str)
+    signal_characteristicName = pyqtSignal(str)
 
     ### Properties - Getter & Setter
     @property
@@ -85,9 +88,20 @@ class DataHandler(QObject):
         self._avgbase = base
         self.signal_peakBaseline.emit(str(self.avgbase))
 
+    @property
+    def characteristicValue(self) -> float:
+        """avgbase getter"""
+        return self._characteristicValue
+
+    @characteristicValue.setter
+    def characteristicValue(self, value:float):
+        """avgbase setter"""
+        self._characteristicValue = value
+        self.signal_characteristicValue.emit(str(self.characteristicValue))
+        self.signal_characteristicName.emit(self.fittings.currentPeak.name)
 
 
-    def __init__(self, xData, yData, cWL, grat, funConnection):
+    def __init__(self, xData, yData, cWL, grat, fittings, funConnection):
         super(DataHandler, self).__init__()
         # TODO: properties to ensure the correct type?
         self.xData = xData
@@ -95,6 +109,7 @@ class DataHandler(QObject):
         self.cWL = cWL
         # TODO: MAGIC NUMBER, what is 14?
         self.dispersion = 14/grat
+        self.fittings = fittings
 
         if funConnection:
             self.InitSignals()
@@ -105,10 +120,17 @@ class DataHandler(QObject):
     def __post_init__(self):
         self.process_data()
 
+
     def InitSignals(self):
-        self.signals = {UI_RESULTS["tout_PEAK_HEIGHT"]: self.signal_peakHeight,
-                        UI_RESULTS["tout_PEAK_AREA"]: self.signal_peakArea,
-                        UI_RESULTS["tout_BASELINE"]: self.signal_peakBaseline,
+        self.signals = {UI_RESULTS.tout_PEAK_HEIGHT: self.signal_peakHeight,
+                        UI_RESULTS.tout_PEAK_AREA: self.signal_peakArea,
+                        UI_RESULTS.tout_BASELINE: self.signal_peakBaseline,
+                        UI_RESULTS.tout_CHARACTERISTIC_VALUE:
+                            self.signal_characteristicValue,
+                        UI_RESULTS.tout_BASELINE: self.signal_peakBaseline,
+                        UI_RESULTS.lbl_CHARACTERISTIC_VALUE:
+                            self.signal_characteristicName,
+
                         }
 
     def process_data(self):
@@ -123,7 +145,7 @@ class DataHandler(QObject):
                                             self.dispersion)
 
         # Baseline fitting with peakutils
-        # TODO: what is calculated here?
+        # TODO: what is calculated here? @knittel/@reinke
         # docs: https://peakutils.readthedocs.io/en/latest/reference.html
         self.baseline = baseline(self.yData)
         self.avgbase = np.mean(self.baseline)
@@ -131,14 +153,31 @@ class DataHandler(QObject):
         # shifting ydata
         self.procY = self.yData - self.baseline
         # Normalizing data to average baseline Intensity
-        # TODO: Check Eichfaktor
         self.procY = self.procY / self.avgbase
 
-        # Find Peak and obtain height and area
-        # check: 433.5 is more or less the wavelength of the boron peak
-        # TODO: from boron_fitting.conf?
+        # Find Peak and obtain height, area, and position
         self.peak_height, self.peak_area, self.peak_position =\
             self.peak_fitting(self.procX, self.procY, 433.5)
+        # TODO: Evaluate!
+        self.characteristicValue = self.CalculateCharacteristicValue(
+            self.fittings.currentPeak, self.fittings.currentReference)
+
+    def CalculateCharacteristicValue(self, peak, reference):
+        # Calculate characteristics of the peak
+        self.peak_height, self.peak_area, self.peak_position =\
+            self.CalculatePeak(peak, self.procX, self.procY)
+
+        # Calculate characteristics of the reference peak
+        refHeight, refArea, refPosition = self.CalculatePeak(
+            reference, self.procX, self.procY)
+
+        characteristicValue = None
+        if refHeight:
+           characteristicValue = self.peak_area / refHeight \
+               * self.fittings.currentPeak.normalizationFactor
+        print(characteristicValue)
+        return characteristicValue
+
 
     def assign_wavelength(self, xData, cWL, dispersion):
         """Assigns wavelength to the recorded Pixels """
@@ -147,21 +186,47 @@ class DataHandler(QObject):
         start = cWL - center*dispersion
         # convert the data from pixels to wavelength and shift it.
         xData = xData*dispersion + start
-        # TODO: return xData*disp + (cWL - center*disp)
+
         return xData
 
-    def peak_fitting(self, xData, yData, wl):
-        """Fit peak at wavelength wl """
+    def peak_fitting(self, xData:list, yData:list, wl:float)->(float, float,
+                                                               float):
+        """
+        Peak fit at given wavelength.
+
+        Searching the given data for peaks and find the closest peak to the
+        wavelength (just closest, due to discrete values). Integrates the peak.
+
+        Parameters
+        ----------
+        xData : list
+            Contains the wavelengths of the spectra.
+        yData : list
+            Contains the intensities of the spectra.
+        wl : float
+            The central wavelength of the peak.
+
+        Returns
+        -------
+        (peak_y:float, peak_area:float, peak_x:float)
+            peak_y: The intensity of the peak, aka peak height.
+            peak_area: The area of the peak.
+            peak_x: The wavelength of the peak.
+
+        """
+        THRESHOLD = 0.01
+        MIN_DISTANCE = 2
 
         # TODO: MAGIC NUMBER. From Fitting.
         # Get the indexes of the peaks from the data.
         # Function with rough approximation.
-        i_p = indexes(yData, thres=0.01, min_dist=2)
+        i_p = indexes(yData, thres=THRESHOLD, min_dist=MIN_DISTANCE)
 
         # getting the index of the peak which is closest to the wavelength
         peak_idx = i_p[np.abs(xData[i_p]-wl).argmin()]
         peak_x = xData[peak_idx]
         peak_y = yData[peak_idx]
+        self.peak_raw = (peak_x, self.yData[peak_idx])
 
         # check: MAGIC NUMBER
         # TODO: from boron_fitting.conf?
@@ -183,6 +248,69 @@ class DataHandler(QObject):
 
         return peak_y, peak_area, peak_x
 
+    ### prototype
+    def CalculatePeak(self, peak, procXData:list, procYData:list)->(float,
+                                                                    float,
+                                                                    float):
+        """
+        Peak fit at given wavelength.
+
+        Searching the given data for peaks and find the closest peak to the
+        wavelength (just closest, due to discrete values). Integrates the peak.
+
+        Parameters
+        ----------
+        peak : Peak
+            Defines the values for the analysis of the peak.
+        procXData : list
+            Contains the wavelengths of the spectra.
+        procYData : list
+            Contains the intensities of the spectra.
+
+        Returns
+        -------
+        (peak_y:float, peak_area:float, peak_x:float)
+            peak_y: The intensity of the peak, aka peak height.
+            peak_area: The area of the peak.
+            peak_x: The wavelength of the peak.
+
+        """
+        THRESHOLD = 0.01
+        MIN_DISTANCE = 2
+
+        # Get the indexes of the peaks from the data.
+        # Function with rough approximation.
+        idxPeaksApprox = indexes(procYData, thres=THRESHOLD,
+                                 min_dist=MIN_DISTANCE)
+
+        # getting the index of the peak which is closest to the wavelength
+        diffWavelength = np.abs(procXData[idxPeaksApprox]-peak.centralWavelength)
+        peak_idx = idxPeaksApprox[diffWavelength.argmin()]
+        peak_x = procXData[peak_idx]
+        peak_y = procYData[peak_idx]
+        self.peak_raw = (peak_x, self.yData[peak_idx])
+
+        # get the borders for integration
+        idxBorderRight = np.abs(procXData - peak.upperLimit).argmin()
+        idxBorderLeft = np.abs(procXData - peak.lowerLimit).argmin()
+
+
+        # getting all wavelength(x) and the intensities(y)
+        peak_area_x = procXData[idxBorderLeft:idxBorderRight]
+        peak_area_y = procYData[idxBorderLeft:idxBorderRight]
+
+        # Integrate along the given axis using the composite trapezoidal rule.
+        peak_area = np.trapz(peak_area_y, peak_area_x)
+
+
+        # validation
+        if peak_y <= peak.minimum:
+            return 0, 0, 0
+        # TODO: further validation?!?
+
+        return peak_y, peak_area, peak_x
+
+
     def get_processed_data(self):
         """Returns processed data """
         return self.procX, self.procY
@@ -196,6 +324,5 @@ class DataHandler(QObject):
         return self.peak_height, self.peak_area
 
     def get_peak_raw(self):
-        """Returns raw peak height and fitting position """
-        return self.yData[np.where(self.procX == self.peak_position)],\
-            self.peak_position
+        """Returns raw  fitting position and peak intensity"""
+        return self.peak_raw

@@ -26,7 +26,24 @@ from ui.UIMain import UIMain
 
 
 class AnalysisWindow(QMainWindow):
-    """Main Analysis Window Class """
+    """
+    Main Window. Organization and interfaces of sub-types/windows.
+
+
+    Further descriptions...
+
+    Usage:
+
+
+    Attributes
+    ----------
+    name : type
+        description.
+
+
+    Methods
+    -------
+    """
 
     config = uni.load_config()
     # plots
@@ -158,6 +175,7 @@ class AnalysisWindow(QMainWindow):
         spec_proc = DataHandler(x_data, y_data,
                         float(self.window.tinCentralWavelength.text()),
                         int(self.window.ddGrating.currentText()),
+                        fittings=self.fittings,
                         funConnection=self.window.ConnectSlotResults)
         #calculate results
         # TODO: no validation of results?

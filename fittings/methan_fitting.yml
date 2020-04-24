@@ -1,0 +1,11 @@
+NAME: "Methan Peak Fitting"
+PEAKS:
+    name: "MH Peak"
+    centralWavelength: 436.5
+    lowerLimit: 436.3
+    upperLimit:  436.8
+    minimum: 1
+    reference:
+        centralWavelength: 455
+        lowerLimit: 454
+        upperLimit:  456

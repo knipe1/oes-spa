@@ -15,6 +15,28 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ReferencePeak:
+    """
+    Describes the properties of a (reference) peak.
+
+    Usage:
+        TODO!
+
+
+    Attributes
+    ----------
+    centralWavelength: float
+        The wavelength of the peak.
+    upperLimit: float
+        The upper limit of the peak regarding the integration.
+    lowerLimit: float
+        The lower limit of the peak regarding the integration.
+    minimum: float = 0.0
+        The minimum value(height?/area?) the peak needs to be valid.
+
+
+    Methods
+    -------
+    """
     centralWavelength: float
     upperLimit: float
     lowerLimit: float

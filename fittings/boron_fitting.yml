@@ -1,11 +1,12 @@
 NAME: "Boron Peak Fitting"
 PEAKS:
-    label: "BH Peak"
-    wavelength: 433
-    lower_limit: 432
-    upper_limit:  434
-    minimum: 1
+    name: "BH Peak"
+    centralWavelength: 433.5
+    lowerLimit: 433.4
+    upperLimit:  433.7
+    normalizationFactor: 4550
     reference:
-        wavelength: 455
-        lower_limit: 454
-        upper_limit:  456
+        centralWavelength: 455
+        lowerLimit: 454
+        upperLimit:  456
+        minimum: 0.02

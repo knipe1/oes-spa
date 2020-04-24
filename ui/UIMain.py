@@ -137,6 +137,10 @@ class UIMain(Ui_main):
                    UI_RESULTS.tout_PEAK_HEIGHT: self.toutPeakHeight,
                    UI_RESULTS.tout_PEAK_AREA: self.toutPeakArea,
                    UI_RESULTS.tout_BASELINE: self.toutBaseline,
+                   UI_RESULTS.tout_CHARACTERISTIC_VALUE:
+                       self.toutCharacteristicValue,
+                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE:
+                       self.lblCharacteristicValue,
                    }
         return mapping
 
@@ -234,6 +238,12 @@ class UIMain(Ui_main):
     def retrieve_fittings(self) -> list:
         """
         Retrieve all fitting files of the directory of fittings.
+
+        Requirements: Path and pattern of fitting files provided by the config
+            file.
+            UI element to display the fitting names.
+            Interface to connect the event to a load currently selected
+            fitting method/function.
 
         Returns
         -------

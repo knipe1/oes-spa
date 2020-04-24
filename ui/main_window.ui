@@ -284,6 +284,23 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
+           <widget class="QLabel" name="lblCharacteristicValue">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Characteristic Value:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="toutCharacteristicValue">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="lblPeakHeight">
             <property name="text">
              <string>Peak Height:</string>

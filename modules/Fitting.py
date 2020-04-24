@@ -16,20 +16,22 @@ Created on Thu Apr  9 10:51:31 2020
 import os
 
 # third-party libs
-from PyQt5 import QtCore #test
+from PyQt5 import QtCore
 
 # local modules/libs
 import modules.Universal as uni
 from Logger import Logger
+from modules.Peak import Peak
 
 # Enums
 
 class Fitting(QtCore.QObject):
     """
     # TODO: docstring
-    summary line
+    Interface for properties of the current active fitting.
 
-    further information
+    Contains information about characteristic values, names, peaks and the
+    corresponding reference peaks.
 
 
     Attributes
@@ -38,6 +40,8 @@ class Fitting(QtCore.QObject):
 
     Methods
     -------
+    load_current_fitting(fitting_name:str) -> dict:
+        Retrieve the config of the currently selected fitting.
 
     """
 
@@ -52,13 +56,6 @@ class Fitting(QtCore.QObject):
     # variables
     _fittings = {}
 
-    #### test
-    test = QtCore.pyqtSignal(str)
-
-    def do_signal(self):
-        self.test.emit("Hi")
-    #####
-
     def __init__(self, fittings):
         QtCore.QObject.__init__(self)
         self.fittings = fittings
@@ -71,15 +68,41 @@ class Fitting(QtCore.QObject):
 
     @currentFitting.setter
     def currentFitting(self, fitting):
-        # TODO: doublecheck
-        self.logger.info("current fitting:")
-        self.logger.info(fitting)
+        self.currentPeak = Peak(**fitting.get("PEAKS"))
+        self.currentName = fitting.get("NAME")
         self._currentFitting = fitting
 
+    @property
+    def currentPeak(self) -> Peak:
+        return self._currentPeak
+
+    @currentPeak.setter
+    def currentPeak(self, peak):
+        self.currentReference = Peak(**peak.reference)
+        self._currentPeak = peak
+
+    @property
+    def currentReference(self) -> Peak:
+        return self._currentReference
+
+    @currentReference.setter
+    def currentReference(self, reference):
+        self._currentReference = reference
+
+    @property
+    def currentName(self) -> str:
+        return self._currentName
+
+    @currentName.setter
+    def currentName(self, name):
+        self._currentName = name
 
     def load_current_fitting(self, fitting_name:str) -> dict:
         """
         Retrieve the config of the currently selected fitting.
+
+        Can be connected to the signal of an ui element, e.g.
+        "currentTextChanged".
 
         Parameters
         ----------
@@ -107,9 +130,3 @@ class Fitting(QtCore.QObject):
         fitConfig = uni.load_config(path)
 
         self.currentFitting = fitConfig
-
-
-    def calculate_characteristic_value(self):
-        # calculating the value if references are given
-        # and checking against the minimum value
-        pass

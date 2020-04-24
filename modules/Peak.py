@@ -19,6 +19,7 @@ from modules.ReferencePeak import ReferencePeak
 @dataclass(frozen=True)
 class Peak(ReferencePeak):
     name: str = "";
+    normalizationFactor: float = 0.0;
     reference: List[ReferencePeak] = field(default_factory=list);
 
     def add_reference(self, reference: ReferencePeak):
