@@ -23,8 +23,6 @@ from ui.UIMain import UIMain
 
 
 
-
-
 class AnalysisWindow(QMainWindow):
     """
     Main Window. Organization and interfaces of sub-types/windows.
@@ -90,7 +88,12 @@ class AnalysisWindow(QMainWindow):
         self.window.connect_showBatch(self.batch.show)
         self.window.connect_openFile(self.file_open)
         self.window.connect_selectFitting(self.fittings.load_current_fitting)
+        self.window.connect_changeBasicSettings(self.redraw)
 
+
+    def redraw(self):
+        file = self.window.toutFilename.text()
+        self.apply_data(file)
 
     def closeEvent(self, event):
         """

@@ -113,6 +113,7 @@ class Ui_main(object):
         self.lblCentralWavelength.setObjectName("lblCentralWavelength")
         self.verticalLayout.addWidget(self.lblCentralWavelength)
         self.tinCentralWavelength = QtWidgets.QLineEdit(self.boxBasic)
+        self.tinCentralWavelength.setInputMask("")
         self.tinCentralWavelength.setReadOnly(False)
         self.tinCentralWavelength.setObjectName("tinCentralWavelength")
         self.verticalLayout.addWidget(self.tinCentralWavelength)

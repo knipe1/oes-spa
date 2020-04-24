@@ -228,6 +228,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="tinCentralWavelength">
+            <property name="inputMask">
+             <string comment="9900"/>
+            </property>
             <property name="text">
              <string>433</string>
             </property>

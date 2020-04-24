@@ -122,6 +122,7 @@ class UIMain(Ui_main):
 
         """
         self.setupUi(parent)
+        self.tinCentralWavelength.editingFinished.connect(parent.redraw)
         self.__post_init__()
 
 
@@ -165,9 +166,16 @@ class UIMain(Ui_main):
 
 
     def connect_openFile(self, fun):
-        """Interface to connect fun signal of the button and action."""
+        """Interface to connect fun of the button and action."""
         self.btnFileOpen.clicked.connect(fun)
         self.actOpen.triggered.connect(fun)
+
+
+    def connect_changeBasicSettings(self, fun):
+        """Interface to connect fun to changes of the basic setting"""
+        self.tinCentralWavelength.editingFinished.connect(fun)
+        self.ddGrating.currentIndexChanged.connect(fun)
+        self.ddFitting.currentIndexChanged.connect(fun)
 
 
     def connect_selectFitting(self, fun):

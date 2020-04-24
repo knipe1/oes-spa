@@ -1,11 +1,11 @@
-NAME: "Methan Peak Fitting"
+NAME: "Nitrogen Peak Fitting"
 PEAKS:
-    name: "MH Peak"
-    centralWavelength: 436.5
-    lowerLimit: 436.3
-    upperLimit:  436.8
-    minimum: 1
+    name: "CN Peak"
+    centralWavelength: 388.3
+    lowerLimit: 388.2
+    upperLimit:  388.37
     reference:
-        centralWavelength: 455
-        lowerLimit: 454
-        upperLimit:  456
+        centralWavelength: 388.86
+        lowerLimit: 388.86
+        upperLimit:  388.95
+        minimum: 0.01
