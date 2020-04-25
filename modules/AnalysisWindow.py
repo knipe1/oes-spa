@@ -31,7 +31,7 @@ class AnalysisWindow(QMainWindow):
     Further descriptions...
 
     Usage:
-
+        TODO
 
     Attributes
     ----------
@@ -83,17 +83,14 @@ class AnalysisWindow(QMainWindow):
         self.set_connections()
 
     def set_connections(self):
-        self.window.connect_exportRaw(self.save_raw)
-        self.window.connect_exportProcessed(self.save_processed)
-        self.window.connect_showBatch(self.batch.show)
-        self.window.connect_openFile(self.file_open)
-        self.window.connect_selectFitting(self.fittings.load_current_fitting)
-        self.window.connect_changeBasicSettings(self.redraw)
+        win = self.window
+        win.connect_exportRaw(self.save_raw)
+        win.connect_exportProcessed(self.save_processed)
+        win.connect_showBatch(self.batch.show)
+        win.connect_openFile(self.file_open)
+        win.connect_selectFitting(self.fittings.load_current_fitting)
+        win.connect_changeBasicSettings(self.redraw)
 
-
-    def redraw(self):
-        file = self.window.toutFilename.text()
-        self.apply_data(file)
 
     def closeEvent(self, event):
         """
@@ -317,3 +314,28 @@ class AnalysisWindow(QMainWindow):
         self.set_fileinformation(filename, date, time)
         self.draw_spectra(np_x, np_y)
         return 0
+
+
+    def redraw(self, text:str=""):
+        """
+        Redraw the plots with the currently opened file.
+
+        Uses self.openFile.file to get the filename.
+
+        Parameters
+        ----------
+        text : str
+            The text of the new selected option. Informative in the logger.
+            (Default: "")
+
+        Returns
+        -------
+        None.
+
+        """
+        try:
+            self.apply_data(self.openFile.file)
+            self.logger.info("Redraw triggered by:" + text)
+        except:
+            pass
+

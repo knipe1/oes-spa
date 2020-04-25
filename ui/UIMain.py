@@ -122,7 +122,6 @@ class UIMain(Ui_main):
 
         """
         self.setupUi(parent)
-        self.tinCentralWavelength.editingFinished.connect(parent.redraw)
         self.__post_init__()
 
 
@@ -173,9 +172,9 @@ class UIMain(Ui_main):
 
     def connect_changeBasicSettings(self, fun):
         """Interface to connect fun to changes of the basic setting"""
-        self.tinCentralWavelength.editingFinished.connect(fun)
-        self.ddGrating.currentIndexChanged.connect(fun)
-        self.ddFitting.currentIndexChanged.connect(fun)
+        self.tinCentralWavelength.textChanged.connect(fun)
+        self.ddGrating.currentTextChanged.connect(fun)
+        self.ddFitting.currentTextChanged.connect(fun)
 
 
     def connect_selectFitting(self, fun):
