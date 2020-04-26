@@ -21,6 +21,7 @@ from modules.Fitting import Fitting
 from modules.Universal import ExportType
 from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
+from Logger import Logger
 
 
 
@@ -52,13 +53,17 @@ class AnalysisWindow(QMainWindow):
     # load properties
     IMPORT = config["IMPORT"]
 
+
+    # set up the logger
+    logger = Logger(__name__)
+
     def __init__(self, initialShow=True):
         """initialize the parent class ( == QMainWindow.__init__(self)"""
         super(AnalysisWindow, self).__init__()
 
         # Set file and directory
         self.lastdir = self.FILE["DEF_DIR"];
-        self.openFile = self.FILE["DEF_FILE"];
+        self.openFile = None;
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
@@ -82,16 +87,21 @@ class AnalysisWindow(QMainWindow):
 
     def __post_init__(self):
         self.set_connections()
+        self.init_spectra()
 
     def set_connections(self):
         win = self.window
-        win.connect_export_raw(self.save_raw)
-        win.connect_export_processed(self.save_processed)
+        win.connect_export_raw(self.export_raw)
+        win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
         win.connect_open_file(self.file_open)
         win.connect_select_fitting(self.fittings.load_current_fitting)
         win.connect_change_basic_settings(self.redraw)
 
+    def init_spectra(self):
+        self.rawSpectrum = Spectrum(self.window.mplRaw, ExportType.RAW);
+        self.processedSpectrum = Spectrum(self.window.mplProcessed,
+                                          ExportType.PROCESSED);
 
     def closeEvent(self, event):
         """
@@ -187,13 +197,13 @@ class AnalysisWindow(QMainWindow):
         # Draw the spectra in MatPlotLibWidgets
         # Raw
         # config
-        rawSpectrum = Spectrum(self.window.mplRaw, x_data, y_data,
-                               ExportType.RAW, baseline);
+        self.rawSpectrum.update_data(x_data, y_data)
+        self.rawSpectrum.add_baseline(baseline)
 
         # plotting
         # self.init_plot(rawSpectrum.ui, **rawSpectrum.labels);
-        self.init_plot(rawSpectrum);
-        self.update_plot(rawSpectrum)
+        self.init_plot(self.rawSpectrum);
+        self.update_plot(self.rawSpectrum)
         # self.update_plot(rawSpectrum.ui, rawSpectrum.xData, rawSpectrum.yData,
         #                  **rawSpectrum.markup);
         # self.update_plot(rawSpectrum.ui, x_data, rawSpectrum.baseline,
@@ -201,12 +211,15 @@ class AnalysisWindow(QMainWindow):
 
         # Processed
         # config
-        processedSpectrum = Spectrum(self.window.mplProcessed, procX, procY,
-                                     ExportType.PROCESSED)
+
+        self.processedSpectrum.update_data(procX, procY)
+        # self.processedSpectrum.add_baseline(baseline)
+        # processedSpectrum = Spectrum(self.window.mplProcessed, procX, procY,
+        #                              ExportType.PROCESSED)
         # plotting
         # self.init_plot(processedSpectrum.ui, **processedSpectrum.labels);
-        self.init_plot(processedSpectrum);
-        self.update_plot(processedSpectrum)
+        self.init_plot(self.processedSpectrum);
+        self.update_plot(self.processedSpectrum);
         # self.update_plot(processedSpectrum.ui, processedSpectrum.xData,
         #                  processedSpectrum.yData, **processedSpectrum.markup);
 
@@ -217,39 +230,66 @@ class AnalysisWindow(QMainWindow):
 
         return 0
 
-    def save_raw(self, filename):
+    def export_spectrum(self, spectrum):
+        """Export raw/processed spectrum."""
+        isExported = False
+
+        # collect data
+        filename, timestamp = self.get_fileinformation()
+        if filename == None:
+            isExported = False
+
+        labels = spectrum.labels
+        xyData = uni.extract_xy_data(spectrum.ui.axes,
+                                     spectrum.markup.get("label"))
+
+        # write data to csv
+        csvWriter = FileWriter(self, filename, timestamp)
+        isExported = csvWriter.write_data(xyData, labels, spectrum.exportType)
+
+        if isExported:
+            dialog.information_ExportFinished(filename)
+        return 0;
+
+    def export_raw(self):
         """Save Raw-Data in CSV-File """
-        # collect data
-        filename, timestamp = self.get_fileinformation()
-        labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
-        xyData = uni.extract_xy_data(self.window.mplRaw.axes,
-                                     self.PLOT["RAW_DATA_LABEL"])
-        # write data to csv
-        csvWriter = FileWriter(self, filename, timestamp)
-        isExported = csvWriter.write_data(xyData, labels, ExportType.RAW)
-        if isExported == 0:
-            dialog.information_ExportFinished(filename)
-        return 0;
+        self.export_spectrum(self.rawSpectrum)
+        return 0
+        # # collect data
+        # filename, timestamp = self.get_fileinformation()
+        # if filename == None:
+        #     return 1
+        # labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
+        # xyData = uni.extract_xy_data(self.window.mplRaw.axes,
+        #                              self.PLOT["RAW_DATA_LABEL"])
+        # # write data to csv
+        # csvWriter = FileWriter(self, filename, timestamp)
+        # isExported = csvWriter.write_data(xyData, labels, ExportType.RAW)
+        # if isExported:
+        #     dialog.information_ExportFinished(filename)
+        # return 0;
 
-    def save_processed(self, filename):
+    def export_processed(self, filename):
         """Save processed spectrum to CSV-File """
-        # collect data
-        filename, timestamp = self.get_fileinformation()
-        labels = [self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]]
-        xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
-                                     self.PLOT["PROCESSED_DATA_LABEL"])
+        self.export_spectrum(self.processedSpectrum)
+        return 0
+        # # collect data
+        # filename, timestamp = self.get_fileinformation()
+        # labels = [self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]]
+        # xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
+        #                              self.PLOT["PROCESSED_DATA_LABEL"])
 
-        results = {}
-        # TODO: use enum?
-        results["Peak Height"] = self.window.toutPeakHeight.text()
-        results["Peak Area"] = self.window.toutPeakArea.text()
+        # results = {}
+        # # TODO: use enum?
+        # results["Peak Height"] = self.window.toutPeakHeight.text()
+        # results["Peak Area"] = self.window.toutPeakArea.text()
 
-        # write data to csv
-        csvWriter = FileWriter(self, filename, timestamp)
-        isExported = csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
-        if isExported == 0:
-            dialog.information_ExportFinished(filename)
-        return 0;
+        # # write data to csv
+        # csvWriter = FileWriter(self, filename, timestamp)
+        # isExported = csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
+        # if isExported:
+        #     dialog.information_ExportFinished(filename)
+        # return 0;
 
     # def init_plot(self, plotObj, xLabel, yLabel):
     #     # TODO: errorhandling
@@ -321,10 +361,16 @@ class AnalysisWindow(QMainWindow):
         # TODO: self.file
         # TODO: self.timestamp
         # TODO: self.file = {name: asd, timestamp: sad}
-        filename = self.window.toutFilename.text()
-        date = self.window.toutDate.text()
-        time = self.window.toutTime.text()
-        timestamp = date + " " + time
+        try:
+            filename = self.openFile.file
+            date = self.window.toutDate.text()
+            time = self.window.toutTime.text()
+            timestamp = date + " " + time
+        except:
+            self.logger.error("Could not get filename/fileinformation.")
+            filename = None;
+            timestamp = None;
+
         return filename, timestamp
 
     def set_fileinformation(self, filename, date, time):

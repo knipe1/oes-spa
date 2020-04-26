@@ -35,7 +35,7 @@ def main():
     # # automatic open and close routine
     try:
         window.file_open("./sample files/Asterix1059 1.Spk")
-        window.file_open("./sample files/Asterix1059 1_raw.csv")
+        # window.file_open("./sample files/Asterix1059 1_raw.csv")
     except:
         pass
 

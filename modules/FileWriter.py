@@ -53,14 +53,15 @@ class FileWriter(FileFramework):
 
         Returns
         -------
-        int
-            0: if exported
-            1: if directory is not set
+        bool
+            True: if exported.
+            False: if directory is not set.
 
         """
         expFilename = self.build_exp_filename(exportType)
         if not expFilename:
-            return 1
+            return False
+
         with open(expFilename, 'w', newline='') as expFile:
             # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
@@ -76,7 +77,7 @@ class FileWriter(FileFramework):
                 csvWr.writerow([self.MARKER["DATA"]])
             # write data
             csvWr.writerows(data)
-        return 0
+        return True
 
     # def select_directory(self):
     #     """
@@ -102,13 +103,13 @@ class FileWriter(FileFramework):
         # TODO: doublecheck methods
         for suffix in self.IMPORT["VALID_SUFFIX"]:
             rawFilename = rawFilename.replace("."+suffix, "")
-            
+
         # check whether the user is about to export an exported spectrum
         if rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0\
             or rawFilename.rfind(self.EXPORT["PROCESSED_APPENDIX"]) >= 0\
             or rawFilename.rfind(self.EXPORT["DEF_BATCH_NAME"]) >= 0:
                 return ""
-        
+
         # get the correct appendix
         appendix = ""
         if exportType == ExportType.RAW:

@@ -58,12 +58,13 @@ class Spectrum():
         return markup
 
 
-    def __init__(self, uiElement, xData, yData, exportType, baseline=[]):
+    def __init__(self, uiElement, exportType, xData=[], yData=[], baseline=[]):
         self.ui = uiElement;
+        if not isinstance(exportType, ExportType):
+            raise TypeError("Invalid instance of Spectrum-object!")
+        self.exportType = exportType;
         self.xData = xData;
         self.yData = yData;
-        # TODO: validate type of exportType = ExportType
-        self.exportType = exportType;
         self.labels = self.get_labels(exportType)
         self.markup = self.get_markup(exportType)
         self.add_baseline(baseline)
@@ -72,4 +73,9 @@ class Spectrum():
         self.baseline = baseline;
         if len(baseline):
             self.baselineMarkup = self.get_markup(self.BASELINE)
+
+    def update_data(self, xData, yData):
+        # option: add validation here.
+        self.xData = xData
+        self.yData = yData
 
