@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QApplication
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 from Logger import Logger
+from modules.Spectrum import Spectrum
 
 
 # set up the logger

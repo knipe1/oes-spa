@@ -64,17 +64,17 @@ class UIMain(Ui_main):
         Set up the mapping of ui elements and general keys.
     retrieve_fittings():
         Gets the fittings of the directory.
-    connect_exportRaw(fun):
+    connect_export_raw(fun):
         Interface to connect fun to triggered signal of the button.
-    connect_exportProcessed(fun):
+    connect_export_processed(fun):
         Interface to connect fun to triggered signal of the button.
-    connect_showBatch(fun):
+    connect_show_batch(fun):
         Interface to connect fun to triggered signal of the button.
-    connect_openFile(fun):
+    connect_open_file(fun):
         Interface to connect fun signal of the button and action.
-    connect_selectFitting(fun):
+    connect_select_fitting(fun):
         Interface to connect fun to text changed signal of the dropdown.
-    ConnectSlotResults(signals:dict):
+    connect_slot_results(signals:dict):
         Connect given signals to corresponding ui elements.
     """
 
@@ -149,35 +149,35 @@ class UIMain(Ui_main):
     # function
     # act: option in a dropdown of the menu bar
     # btn : Button
-    def connect_exportRaw(self, fun):
+    def connect_export_raw(self, fun):
         """Interface to connect fun to triggered signal of the button."""
         self.actSaveRaw.triggered.connect(fun)
 
 
-    def connect_exportProcessed(self, fun):
+    def connect_export_processed(self, fun):
         """Interface to connect fun to triggered signal of the button."""
         self.actSaveProcessed.triggered.connect(fun)
 
 
-    def connect_showBatch(self, fun):
+    def connect_show_batch(self, fun):
         """Interface to connect fun to triggered signal of the button."""
         self.actOpenBatch.triggered.connect(fun)
 
 
-    def connect_openFile(self, fun):
+    def connect_open_file(self, fun):
         """Interface to connect fun of the button and action."""
         self.btnFileOpen.clicked.connect(fun)
         self.actOpen.triggered.connect(fun)
 
 
-    def connect_changeBasicSettings(self, fun):
-        """Interface to connect fun to changes of the basic setting"""
+    def connect_change_basic_settings(self, fun):
+        """Interface to connect fun to changes of the basic setting."""
         self.tinCentralWavelength.textChanged.connect(fun)
         self.ddGrating.currentTextChanged.connect(fun)
         self.ddFitting.currentTextChanged.connect(fun)
 
 
-    def connect_selectFitting(self, fun):
+    def connect_select_fitting(self, fun):
         """Interface to connect fun to text changed signal of the dropdown."""
         # TODO: evaluate the pro and cons
         # Pro: ui element can be changed in one position
@@ -194,7 +194,7 @@ class UIMain(Ui_main):
 
 
 
-    def ConnectSlotResults(self, signals:dict):
+    def connect_slot_results(self, signals:dict):
         """
         Connect given signals to corresponding ui elements.
 
@@ -219,18 +219,18 @@ class UIMain(Ui_main):
         # TODO: doublecheck. Throw an error if noo dict is given?
         # Then remove upper comment and following 3 lines
         if not isinstance(signals, dict):
-            self.logger.warning("ConnectSlotResults: No dict given")
+            self.logger.warning("connect_slot_results: No dict given")
             return False
 
         # connect the signal with the corresponding ui element
         for element, signal in signals.items():
             # skip signal if not qt-signal
             if not isinstance(signal, pyqtBoundSignal):
-                self.logger.info("ConnectSlotResults: No valid signal")
+                self.logger.info("connect_slot_results: No valid signal")
                 continue
             # skip key if not defined in enum
             if not isinstance(element, UI_RESULTS):
-                self.logger.info("ConnectSlotResults: No valid element")
+                self.logger.info("connect_slot_results: No valid element")
                 continue
 
             # if a ui element is linked to that element, the signal is
@@ -272,3 +272,45 @@ class UIMain(Ui_main):
                     fitDict[file] = fitName
 
         return fitDict
+
+    def get_central_wavelength(self)->float:
+        """
+        Gets the value of the ui element.
+
+        Returns
+        -------
+        wavelength: float
+            The current text of the input ui element.
+
+        """
+        # TODO: try/except vs throw an error?
+        # try: no exception and the program can still run
+        # error: is it an error, if the ui element is not found -> prob. yes
+        # error: if something invalid is written? -> prompt
+        wavelength = None
+        try:
+            wavelength = self.tinCentralWavelength.text()
+            wavelength = float(wavelength)
+        except:
+            self.logger.error("Could not get valid value for wavelength!")
+        return wavelength
+
+
+    def get_grating(self)->int:
+        """
+        Gets the value of the ui element.
+
+        Returns
+        -------
+        grating: int
+            The current text of the input ui element.
+
+        """
+        # TODO: see above. compare get_central_wavelength
+        grating = None
+        try:
+            grating = self.ddGrating.currentText()
+            grating = int(grating)
+        except:
+            self.logger.error("Could not get valid value for grating!")
+        return grating

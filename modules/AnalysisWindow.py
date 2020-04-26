@@ -19,6 +19,7 @@ from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.Fitting import Fitting
 from modules.Universal import ExportType
+from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
 
 
@@ -84,12 +85,12 @@ class AnalysisWindow(QMainWindow):
 
     def set_connections(self):
         win = self.window
-        win.connect_exportRaw(self.save_raw)
-        win.connect_exportProcessed(self.save_processed)
-        win.connect_showBatch(self.batch.show)
-        win.connect_openFile(self.file_open)
-        win.connect_selectFitting(self.fittings.load_current_fitting)
-        win.connect_changeBasicSettings(self.redraw)
+        win.connect_export_raw(self.save_raw)
+        win.connect_export_processed(self.save_processed)
+        win.connect_show_batch(self.batch.show)
+        win.connect_open_file(self.file_open)
+        win.connect_select_fitting(self.fittings.load_current_fitting)
+        win.connect_change_basic_settings(self.redraw)
 
 
     def closeEvent(self, event):
@@ -173,31 +174,41 @@ class AnalysisWindow(QMainWindow):
         # TODO: function required for getting parameters and errorhandling!
         # TODO: Is Central wavelength depending on the selected Fitting?
         spec_proc = DataHandler(x_data, y_data,
-                        float(self.window.tinCentralWavelength.text()),
-                        int(self.window.ddGrating.currentText()),
+                        self.window.get_central_wavelength(),
+                        self.window.get_grating(),
                         fittings=self.fittings,
-                        funConnection=self.window.ConnectSlotResults)
+                        funConnection=self.window.connect_slot_results)
         #calculate results
         # TODO: no validation of results?
         procX, procY = spec_proc.get_processed_data()
         baseline, avg = spec_proc.get_baseline()
         peak_height, peak_area = spec_proc.get_peak()
 
-        # Clear the widget from previous spectra
         # Draw the spectra in MatPlotLibWidgets
         # Raw
-        rawPlot = self.window.mplRaw;
-        self.init_plot(rawPlot, self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]);
-        self.update_plot(rawPlot, x_data, y_data,
-                         self.PLOT["RAW_DATA_MRK"], self.PLOT["RAW_DATA_LABEL"]);
-        self.update_plot(rawPlot, x_data, baseline,
-                         self.PLOT["RAW_BASELINE_MRK"], self.PLOT["RAW_BASELINE_LABEL"]);
+        # config
+        rawSpectrum = Spectrum(self.window.mplRaw, x_data, y_data,
+                               ExportType.RAW, baseline);
+
+        # plotting
+        # self.init_plot(rawSpectrum.ui, **rawSpectrum.labels);
+        self.init_plot(rawSpectrum);
+        self.update_plot(rawSpectrum)
+        # self.update_plot(rawSpectrum.ui, rawSpectrum.xData, rawSpectrum.yData,
+        #                  **rawSpectrum.markup);
+        # self.update_plot(rawSpectrum.ui, x_data, rawSpectrum.baseline,
+        #                  **rawSpectrum.baselineMarkup);
 
         # Processed
-        processedPlot = self.window.mplProcessed;
-        self.init_plot(processedPlot, self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]);
-        self.update_plot(processedPlot, procX, procY,
-                         self.PLOT["PROCESSED_DATA_MRK"], self.PLOT["PROCESSED_DATA_LABEL"]);
+        # config
+        processedSpectrum = Spectrum(self.window.mplProcessed, procX, procY,
+                                     ExportType.PROCESSED)
+        # plotting
+        # self.init_plot(processedSpectrum.ui, **processedSpectrum.labels);
+        self.init_plot(processedSpectrum);
+        self.update_plot(processedSpectrum)
+        # self.update_plot(processedSpectrum.ui, processedSpectrum.xData,
+        #                  processedSpectrum.yData, **processedSpectrum.markup);
 
 
         # Enable Redraw Events
@@ -208,7 +219,6 @@ class AnalysisWindow(QMainWindow):
 
     def save_raw(self, filename):
         """Save Raw-Data in CSV-File """
-        print("Export Raw spectrum")
         # collect data
         filename, timestamp = self.get_fileinformation()
         labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
@@ -241,26 +251,61 @@ class AnalysisWindow(QMainWindow):
             dialog.information_ExportFinished(filename)
         return 0;
 
-    def init_plot(self, plotObj, xlabel, ylabel):
-        # TODO: errorhandling
-        """Gets a plot object and label it after clearing it"""
-        plotObj.axes.clear();
-        plotObj.axes.set_xlabel(xlabel);
-        plotObj.axes.set_ylabel(ylabel);
-        plotObj.axes.axhline(linewidth=self.PLOT["DEF_LINEWIDTH"],
-                             color=self.PLOT["DEF_AXIS_COLOR"]);
-        plotObj.axes.axvline(linewidth=self.PLOT["DEF_LINEWIDTH"],
-                             color=self.PLOT["DEF_AXIS_COLOR"]);
-        return 0;
+    # def init_plot(self, plotObj, xLabel, yLabel):
+    #     # TODO: errorhandling
+    #     """Gets a plot object and label it after clearing it"""
+    #     plotObj.axes.clear();
+    #     plotObj.axes.set_xlabel(xLabel);
+    #     plotObj.axes.set_ylabel(yLabel);
+    #     plotObj.axes.axhline(linewidth=self.PLOT["DEF_LINEWIDTH"],
+    #                          color=self.PLOT["DEF_AXIS_COLOR"]);
+    #     plotObj.axes.axvline(linewidth=self.PLOT["DEF_LINEWIDTH"],
+    #                          color=self.PLOT["DEF_AXIS_COLOR"]);
+    #     return 0;
+
+    def init_plot(self, spectrum):
+        # TODO: compare dict["key"] -> error if not found
+        # vs dict.get("key") -> default styles if not found
+        # vs config of rcParams in init -> overview and default styles if not
+        # found and central configuration
+        lineMarkup = {"linewidth": self.PLOT.get("DEF_LINEWIDTH"),
+                      "color": self.PLOT.get("DEF_AXIS_COLOR")}
+
+        axes = spectrum.ui.axes
+        axes.clear();
+        axes.set_xlabel(spectrum.labels.get("xLabel"));
+        axes.set_ylabel(spectrum.labels.get("yLabel"));
+        axes.axhline(**lineMarkup)
+        axes.axvline(**lineMarkup)
 
 
-    def update_plot(self, plotObj, xData, yData, color, label):
+    # def update_plot(self, plotObj, xData, yData, color, label):
+    #     """updates a given plot"""
+    #     # TODO: errorhandling
+    #     plotObj.axes.plot(xData, yData, color, label=label);
+    #     plotObj.axes.set_xlim(xData[0], xData[-1]);
+    #     plotObj.axes.legend();
+    #     plotObj.draw();
+    #     return 0;
+
+
+    def update_plot(self, spectrum):
         """updates a given plot"""
         # TODO: errorhandling
-        plotObj.axes.plot(xData, yData, color, label=label);
-        plotObj.axes.set_xlim(xData[0], xData[-1]);
-        plotObj.axes.legend();
-        plotObj.draw();
+        # define variables for easier maintenance
+        axes = spectrum.ui.axes
+        spec = spectrum
+
+        # plotting
+        axes.plot(spec.xData, spec.yData, **spec.markup);
+        if len(spec.baseline):
+            axes.plot(spec.xData, spec.baseline, **spec.baselineMarkup);
+
+        # zoom to specific area
+        axes.set_xlim(spec.xData[0], spec.xData[-1]);
+        axes.legend();
+
+        spec.ui.draw();
         return 0;
 
 
