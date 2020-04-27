@@ -6,7 +6,7 @@ PEAKS:
     upperLimit:  433.7
     normalizationFactor: 4550
     reference:
-        centralWavelength: 455
-        lowerLimit: 454
-        upperLimit:  456
-        minimum: 0.02
+        centralWavelength: 434.4
+        lowerLimit: 434.3
+        upperLimit:  434.6
+        minimum: 0.00002

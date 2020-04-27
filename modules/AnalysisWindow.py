@@ -61,9 +61,9 @@ class AnalysisWindow(QMainWindow):
 
 
     # qt-signals
-    signal_filename = pyqtSignal(str)
-    signal_date = pyqtSignal(str)
-    signal_time= pyqtSignal(str)
+    SIG_filename = pyqtSignal(str)
+    SIG_date = pyqtSignal(str)
+    SIG_time= pyqtSignal(str)
 
     def __init__(self, initialShow=True):
         """initialize the parent class ( == QMainWindow.__init__(self)"""
@@ -217,10 +217,6 @@ class AnalysisWindow(QMainWindow):
 
 
     def init_plot(self, spectrum):
-        # TODO: compare dict["key"] -> error if not found
-        # vs dict.get("key") -> default styles if not found
-        # vs config of rcParams in init -> overview and default styles if not
-        # --> config of rcParams for central definition and default settings
         # found and central configuration
         lineMarkup = {"linewidth": self.PLOT.get("DEF_LINEWIDTH"),
                       "color": self.PLOT.get("DEF_AXIS_COLOR")}
@@ -231,16 +227,6 @@ class AnalysisWindow(QMainWindow):
         axes.set_ylabel(spectrum.labels.get("yLabel", "y axis"));
         axes.axhline(**lineMarkup)
         axes.axvline(**lineMarkup)
-
-
-    # def update_plot(self, plotObj, xData, yData, color, label):
-    #     """updates a given plot"""
-    #     # TODO: errorhandling
-    #     plotObj.axes.plot(xData, yData, color, label=label);
-    #     plotObj.axes.set_xlim(xData[0], xData[-1]);
-    #     plotObj.axes.legend();
-    #     plotObj.draw();
-    #     return 0;
 
 
     def update_plot(self, spectrum):
@@ -290,12 +276,11 @@ class AnalysisWindow(QMainWindow):
             time, date = filereader.get_head()
 
             # set values
-            self.window.connect_fileinformation(self.signal_filename,
-                                                self.signal_date,
-                                                self.signal_time)
-            self.signal_filename.emit(filereader.filename)
-            self.signal_date.emit(date)
-            self.signal_time.emit(time)
+            self.window.connect_fileinformation(self.SIG_filename,
+                                                self.SIG_date,
+                                                self.SIG_time)
+            self.SIG_filename.emit(filereader.filename)
+            self.SIG_date.emit(date)
         except:
             pass
 

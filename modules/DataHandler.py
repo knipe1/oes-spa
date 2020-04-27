@@ -48,11 +48,11 @@ class DataHandler(QObject):
     _characteristicValue = 0;
 
     # qt-signals
-    signal_peakHeight = pyqtSignal(str)
-    signal_peakArea = pyqtSignal(str)
-    signal_peakBaseline = pyqtSignal(str)
-    signal_characteristicValue = pyqtSignal(str)
-    signal_characteristicName = pyqtSignal(str)
+    SIG_peakHeight = pyqtSignal(str)
+    SIG_peakArea = pyqtSignal(str)
+    SIG_peakBaseline = pyqtSignal(str)
+    SIG_characteristicValue = pyqtSignal(str)
+    SIG_characteristicName = pyqtSignal(str)
 
     ### Properties - Getter & Setter
     @property
@@ -64,7 +64,7 @@ class DataHandler(QObject):
     def peak_height(self, height:float):
         """peak_height setter"""
         self._peak_height = height
-        self.signal_peakHeight.emit(str(self.peak_height))
+        self.SIG_peakHeight.emit(str(self.peak_height))
 
     @property
     def peak_area(self) -> float:
@@ -75,7 +75,7 @@ class DataHandler(QObject):
     def peak_area(self, area:float):
         """peak_area setter"""
         self._peak_area = area
-        self.signal_peakArea.emit(str(self.peak_area))
+        self.SIG_peakArea.emit(str(self.peak_area))
 
     @property
     def avgbase(self) -> float:
@@ -86,7 +86,7 @@ class DataHandler(QObject):
     def avgbase(self, base:float):
         """avgbase setter"""
         self._avgbase = base
-        self.signal_peakBaseline.emit(str(self.avgbase))
+        self.SIG_peakBaseline.emit(str(self.avgbase))
 
     @property
     def characteristicValue(self) -> float:
@@ -97,8 +97,8 @@ class DataHandler(QObject):
     def characteristicValue(self, value:float):
         """avgbase setter"""
         self._characteristicValue = value
-        self.signal_characteristicValue.emit(str(self.characteristicValue))
-        self.signal_characteristicName.emit(self.fittings.currentPeak.name)
+        self.SIG_characteristicValue.emit(str(self.characteristicValue))
+        self.SIG_characteristicName.emit(self.fittings.currentPeak.name)
 
 
     def __init__(self, xData, yData, cWL, grating, fittings,
@@ -123,14 +123,14 @@ class DataHandler(QObject):
 
 
     def InitSignals(self):
-        self.signals = {UI_RESULTS.tout_PEAK_HEIGHT: self.signal_peakHeight,
-                        UI_RESULTS.tout_PEAK_AREA: self.signal_peakArea,
-                        UI_RESULTS.tout_BASELINE: self.signal_peakBaseline,
+        self.signals = {UI_RESULTS.tout_PEAK_HEIGHT: self.SIG_peakHeight,
+                        UI_RESULTS.tout_PEAK_AREA: self.SIG_peakArea,
+                        UI_RESULTS.tout_BASELINE: self.SIG_peakBaseline,
                         UI_RESULTS.tout_CHARACTERISTIC_VALUE:
-                            self.signal_characteristicValue,
-                        UI_RESULTS.tout_BASELINE: self.signal_peakBaseline,
+                            self.SIG_characteristicValue,
+                        UI_RESULTS.tout_BASELINE: self.SIG_peakBaseline,
                         UI_RESULTS.lbl_CHARACTERISTIC_VALUE:
-                            self.signal_characteristicName,
+                            self.SIG_characteristicName,
                         }
 
     def process_data(self):
