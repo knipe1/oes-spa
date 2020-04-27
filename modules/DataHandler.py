@@ -101,7 +101,7 @@ class DataHandler(QObject):
         self.signal_characteristicName.emit(self.fittings.currentPeak.name)
 
 
-    def __init__(self, xData, yData, cWL, grat, fittings, funConnection):
+    def __init__(self, xData, yData, cWL, grat, fittings, funConnection=None):
         super(DataHandler, self).__init__()
         # TODO: properties to ensure the correct type?
         self.xData = xData
@@ -140,7 +140,7 @@ class DataHandler(QObject):
             - Normalizes intensity to baseline intensity.
         """
 
-        # Set x values to correct wavelength
+        # Convert x data into wavelengths.
         self.procX = self.assign_wavelength(self.xData, self.cWL,
                                             self.dispersion)
 
@@ -150,28 +150,28 @@ class DataHandler(QObject):
         self.baseline = baseline(self.yData)
         self.avgbase = np.mean(self.baseline)
 
-        # shifting ydata
+        # shifting y data and normalization to average baseline intensity
         self.procY = self.yData - self.baseline
-        # Normalizing data to average baseline Intensity
         self.procY = self.procY / self.avgbase
 
         # Find Peak and obtain height, area, and position
         self.peak_height, self.peak_area, self.peak_position =\
             self.peak_fitting(self.procX, self.procY, 433.5)
         # TODO: Evaluate!
-        self.characteristicValue = self.CalculateCharacteristicValue(
+        self.characteristicValue = self.calculate_characteristic_value(
             self.fittings.currentPeak, self.fittings.currentReference)
 
-    def CalculateCharacteristicValue(self, peak, reference):
+    def calculate_characteristic_value(self, peak, reference):
         # Calculate characteristics of the peak
         self.peak_height, self.peak_area, self.peak_position =\
             self.CalculatePeak(peak, self.procX, self.procY)
 
         # Calculate characteristics of the reference peak
-        refHeight, refArea, refPosition = self.CalculatePeak(
-            reference, self.procX, self.procY)
+        refHeight, refArea, refPosition = self.CalculatePeak(reference,
+                                                             self.procX,
+                                                             self.procY)
 
-        characteristicValue = None
+        characteristicValue = 0
         if refHeight:
            characteristicValue = self.peak_area / refHeight \
                * self.fittings.currentPeak.normalizationFactor

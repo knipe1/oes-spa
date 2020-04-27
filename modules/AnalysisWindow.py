@@ -7,7 +7,7 @@
 
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
@@ -57,6 +57,12 @@ class AnalysisWindow(QMainWindow):
     # set up the logger
     logger = Logger(__name__)
 
+
+    # qt-signals
+    signal_filename = pyqtSignal(str)
+    signal_date = pyqtSignal(str)
+    signal_time= pyqtSignal(str)
+
     def __init__(self, initialShow=True):
         """initialize the parent class ( == QMainWindow.__init__(self)"""
         super(AnalysisWindow, self).__init__()
@@ -77,6 +83,8 @@ class AnalysisWindow(QMainWindow):
         # Load batch dialog
         self.batch = BatchAnalysis(self)
         # init the fitting and with the retrieved fittings
+        # TODO: provide interface? Like get_fittings? No, it is a attribute
+        # using the @property-decorator --> to be documented?
         self.fittings = Fitting(self.window.fittings)
 
         self.__post_init__()
@@ -99,24 +107,12 @@ class AnalysisWindow(QMainWindow):
         win.connect_change_basic_settings(self.redraw)
 
     def init_spectra(self):
-        self.rawSpectrum = Spectrum(self.window.mplRaw, ExportType.RAW);
-        self.processedSpectrum = Spectrum(self.window.mplProcessed,
+        self.rawSpectrum = Spectrum(self.window.get_raw_plot(), ExportType.RAW)
+        self.processedSpectrum = Spectrum(self.window.get_processed_plot(),
                                           ExportType.PROCESSED);
 
     def closeEvent(self, event):
-        """
-        Closing the BatchAnalysis dialog to have a clear shutdown.
-
-        Parameters
-        ----------
-        event : event
-            close event of the main window.
-
-        Returns
-        -------
-        None.
-
-        """
+        """Closing the BatchAnalysis dialog to have a clear shutdown."""
         self.batch.close()
 
     def dragEnterEvent(self, event):
@@ -173,10 +169,9 @@ class AnalysisWindow(QMainWindow):
         """Draw the raw spectrum and analyze it with DataHandler
         to obtain all parameters for the processed spectrum.
         """
+
         # Check whether data was found in the files
-        if not x_data.any():
-            # TODO: obsolet?
-            self.plot_redrawable(False)
+        if not len(x_data) and len(x_data) == len(y_data):
             dialog.critical_unknownFiletype(self)
             return 1
 
@@ -187,7 +182,7 @@ class AnalysisWindow(QMainWindow):
                         self.window.get_central_wavelength(),
                         self.window.get_grating(),
                         fittings=self.fittings,
-                        funConnection=self.window.connect_slot_results)
+                        funConnection=self.window.connect_results)
         #calculate results
         # TODO: no validation of results?
         procX, procY = spec_proc.get_processed_data()
@@ -226,30 +221,36 @@ class AnalysisWindow(QMainWindow):
 
         # Enable Redraw Events
         # TODO: obsolet?
-        self.plot_redrawable(True)
+        # self.plot_redrawable(True)
 
         return 0
 
     def export_spectrum(self, spectrum):
         """Export raw/processed spectrum."""
-        isExported = False
+        isExported = True
 
         # collect data
         filename, timestamp = self.get_fileinformation()
-        if filename == None:
-            isExported = False
-
         labels = spectrum.labels
         xyData = uni.extract_xy_data(spectrum.ui.axes,
                                      spectrum.markup.get("label"))
 
-        # write data to csv
-        csvWriter = FileWriter(self, filename, timestamp)
-        isExported = csvWriter.write_data(xyData, labels, spectrum.exportType)
+        if filename == None:
+            isExported = False;
+
+        if xyData is None:
+            isExported = False;
 
         if isExported:
-            dialog.information_ExportFinished(filename)
-        return 0;
+            # write data to csv
+            csvWriter = FileWriter(self, filename, timestamp)
+            isExported = csvWriter.write_data(xyData, labels,
+                                              spectrum.exportType)
+
+        if not isExported:
+            dialog.information_ExportAborted();
+
+        return isExported;
 
     def export_raw(self):
         """Save Raw-Data in CSV-File """
@@ -271,6 +272,7 @@ class AnalysisWindow(QMainWindow):
 
     def export_processed(self, filename):
         """Save processed spectrum to CSV-File """
+        # implement Peak Height and Peak Area
         self.export_spectrum(self.processedSpectrum)
         return 0
         # # collect data
@@ -349,22 +351,22 @@ class AnalysisWindow(QMainWindow):
         return 0;
 
 
-    def plot_redrawable(self, enable = True):
-        """set the status (enabled/disabled) of redraw button/action"""
-        # self.window.actRedraw.setEnabled(enable);
-        # menu --> File --> save
-        # TODO: but important!!!
-        self.window.menuSave.setEnabled(enable)
-        return 0;
+    # def plot_redrawable(self, enable = True):
+    #     """set the status (enabled/disabled) of redraw button/action"""
+    #     # self.window.actRedraw.setEnabled(enable);
+    #     # menu --> File --> save
+    #     # TODO: but important!!!
+    #     self.window.menuSave.setEnabled(enable)
+    #     return 0;
 
     def get_fileinformation(self):
-        # TODO: self.file
+        # TODO: self.filename
         # TODO: self.timestamp
-        # TODO: self.file = {name: asd, timestamp: sad}
+        # TODO: self.filename = {name: asd, timestamp: sad}
         try:
-            filename = self.openFile.file
-            date = self.window.toutDate.text()
-            time = self.window.toutTime.text()
+            filename = self.openFile.filename
+            date = self.openFile.date
+            time = self.openFile.time
             timestamp = date + " " + time
         except:
             self.logger.error("Could not get filename/fileinformation.")
@@ -373,23 +375,25 @@ class AnalysisWindow(QMainWindow):
 
         return filename, timestamp
 
-    def set_fileinformation(self, filename, date, time):
+    def set_fileinformation(self, filereader:FileReader):
+        """Updates the fileinformation"""
         # TODO: date+time = timestamp?
-        """set the file information (filename, date and time)"""
-        # validate inputs
+        # TODO: validate inputs
         # TODO: try catch?
-        if type(filename) not in [str]:
-            raise TypeError("date must be of type string")
-        if type(date) not in [str]:
-            raise TypeError("date must be of type string")
-        if type(time) not in [str]:
-            raise TypeError("time must be of type string")
+        # TODO: Review. Pythonic? Clean distinction between UI and logic, but
+        # looks kind of unstructured...
+        try:
+            time, date = filereader.get_head()
 
-        # set values
-        self.window.toutFilename.setText(filename)
-        self.window.toutDate.setText(date)
-        self.window.toutTime.setText(time)
-        return 0
+            # set values
+            self.window.connect_fileinformation(self.signal_filename,
+                                                self.signal_date,
+                                                self.signal_time)
+            self.signal_filename.emit(filereader.filename)
+            self.signal_date.emit(date)
+            self.signal_time.emit(time)
+        except:
+            pass
 
     def apply_data(self, filename):
         """read out a file and extract its information,
@@ -398,12 +402,13 @@ class AnalysisWindow(QMainWindow):
         # Read out the chosen file
         self.openFile = FileReader(filename)
         np_x, np_y = self.openFile.get_values()
-        time, date = self.openFile.get_head()
-        # Draw the spectra and print results
-        if not (time and date and np_x.size and np_y.size):
+
+        # Validation.
+        if not (np_x.size and np_y.size):
             return 1
-        self.set_fileinformation(filename, date, time)
+        # Update plots and ui.
         self.draw_spectra(np_x, np_y)
+        self.set_fileinformation(self.openFile)
         return 0
 
 
@@ -411,7 +416,7 @@ class AnalysisWindow(QMainWindow):
         """
         Redraw the plots with the currently opened file.
 
-        Uses self.openFile.file to get the filename.
+        Uses self.openFile.filename to get the filename.
 
         Parameters
         ----------
@@ -425,7 +430,7 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_data(self.openFile.file)
+            self.apply_data(self.openFile.filename)
             self.logger.info("Redraw triggered by:" + text)
         except:
             pass

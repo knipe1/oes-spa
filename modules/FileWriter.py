@@ -25,13 +25,13 @@ from modules.Universal import ExportType
 class FileWriter(FileFramework):
     """File reader for spectral data files """
     def __init__(self, parent, filename, timestamp):
-        FileFramework.__init__(self)
+        FileFramework.__init__(self, filename)
         # TODO: doublecheck usage of parent...
         self.parent = parent
 
         # TODO: Errorhandling if directory is cancelled or does not exist
         # self.directory = self.select_directory()
-        self.filename, self.timestamp = filename, timestamp
+        self.timestamp = timestamp
 
 
 
@@ -77,6 +77,8 @@ class FileWriter(FileFramework):
                 csvWr.writerow([self.MARKER["DATA"]])
             # write data
             csvWr.writerows(data)
+
+        dialog.information_ExportFinished(expFilename)
         return True
 
     # def select_directory(self):

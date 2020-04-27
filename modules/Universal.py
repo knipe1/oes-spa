@@ -67,16 +67,19 @@ def is_valid_filetype(parent, url):
 
 
 def extract_xy_data(axis, label, separated=False):
-    """extract the x and y data from a axis object and
-   return them together or separated"""
+    """extract the x and y data from a axis object and return them together or
+    separated"""
+
+    data = None;
+
     for line in axis.get_lines():
         if line.get_label() == label:
             if separated:
-                return line.get_xdata(), line.get_ydata()
+                data = (line.get_xdata(), line.get_ydata())
             else:
-                return line.get_xydata()
+                data = line.get_xydata()
             break
-    return None
+    return data
 
 
 def reduce_path(url):

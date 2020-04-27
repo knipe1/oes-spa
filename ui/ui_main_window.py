@@ -207,7 +207,7 @@ class Ui_main(object):
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
         self.menuSave = QtWidgets.QMenu(self.menuFile)
-        self.menuSave.setEnabled(False)
+        self.menuSave.setEnabled(True)
         self.menuSave.setObjectName("menuSave")
         self.menuTools = QtWidgets.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")

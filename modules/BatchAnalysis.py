@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Set up a dialog interface to analyze multiple spectra and extract 
+Set up a dialog interface to analyze multiple spectra and extract
 characteristic values for further applications.
 
 Usage:
     from modules.BatchAnalysis import BatchAnalysis
     batch = BatchAnalysis(parent)  # parent as main window or application
-    
+
 
 Glossary:
     batchfile: The file in which the characteristic values are exported to.
@@ -57,14 +57,14 @@ class BATCH_CONFIG(Enum):
 class BatchAnalysis(QDialog):
     """
     Provides an interface to analyze multiple spectra.
-    
-    Provides a multiple file handling interface. 
+
+    Provides a multiple file handling interface.
     May extract characteristic values for further applications.
-    
+
     Usage:
         from modules.BatchAnalysis import BatchAnalysis
         batch = BatchAnalysis(parent)  # parent as main window or application
-    
+
     Attributes
     ----------
     _batchfile : str
@@ -79,7 +79,7 @@ class BatchAnalysis(QDialog):
         The ui.
     model : QStringListModel
         Object to handle the displayed files in the ui
-    
+
     Methods
     -------
     set_filename()
@@ -106,24 +106,24 @@ class BatchAnalysis(QDialog):
         Resets the filelist and clears the displayed files.
     update_progressbar(percentage:[int, float])
         Convert the percentage and sets the value to the progress bar.
-        
+
     """
-    
+
     # Getting the neccessary configs
     config = uni.load_config()
     BATCH = config["BATCH"];
     EXPORT = config["EXPORT"];
-    
+
     # set up the logger
     logger = Logger(__name__)
-    
+
     # properties
     # TODO: defaults are set afterwards, but here are the definitions of the props...
     _batchfile = ""
     _updatePlots = False
-    
+
     files = []
-    
+
 
     def __init__(self, parent):
         """
@@ -137,17 +137,17 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         self.logger.info("Init BatchAnalysis")
-        
+
         # initialize the parent class ( == QDialog.__init__(self)
         super(BatchAnalysis, self).__init__(parent)
 
-        
-        # TODO: check whether there will be some inconsistency if self.lastdir 
+
+        # TODO: check whether there will be some inconsistency if self.lastdir
         # is set or if it even useful to implement it like this.
         self.lastdir = parent.lastdir
-        
+
         # general settings
         self.setAcceptDrops(True)
         self.model = QStringListModel()
@@ -158,30 +158,30 @@ class BatchAnalysis(QDialog):
 
 
     ### Properties
-    
+
     @property
     def batchFile(self):
         """batchFile getter"""
         return self._batchFile
-    
+
     @batchFile.setter
     def batchFile(self, text:str):
         """batchFile setter
-        
+
         Updating the ui
         """
         self.window.foutCSV.setText(text)
         self._batchFile = text
-        
+
     @property
     def updatePlots(self):
         """updatePlots getter"""
         return self._updatePlots
-    
+
     @updatePlots.setter
     def updatePlots(self, enable:bool):
         """updatePlots setter
-        
+
         Updating the ui
         """
         self.window.cbUpdatePlots.setChecked(enable)
@@ -189,7 +189,7 @@ class BatchAnalysis(QDialog):
 
 
     ### Events
-    
+
     def dragEnterEvent(self, event):
         """
         Drag file over window event.
@@ -205,7 +205,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         # get the urls and check whether a file is among them
         urls = event.mimeData().urls();
         for url in urls:
@@ -228,26 +228,26 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         # Set up a list to append to valid files later
         valid_urls = []
-        
+
         # Get the urls and check their validity. Append to list if so.
         urls = event.mimeData().urls();
         for url in urls:
             if uni.is_valid_filetype(self, url):
                 valid_urls.append(url.toLocalFile())
-                
+
         # updates the filelist with the valid urls and updates the ui
         self.update_filelist(valid_urls)
 
 
     ### Methods
-    
+
     def set_filename(self):
         """
         Specifies the filename through a dialog.
-        
+
         Determines the batchfile, updates the lastdir-prop, updates the ui.
         NO setter function.
         Linked to ui button.
@@ -259,11 +259,11 @@ class BatchAnalysis(QDialog):
             quit or cancelled.
 
         """
-        
-        # TODO: Rename method... 
+
+        # TODO: Rename method...
         # What about: specify_batchfile leading to connection to the batchfile,
         # and that it is specified somehow
-        
+
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
         filenameInfo = QFileInfo(filename)
@@ -287,7 +287,7 @@ class BatchAnalysis(QDialog):
         # TODO: Check if it is useful to use properties and update the ui
         # always in the setter methods of the corresponding props
         self.update_UI()
-        
+
         return filename
 
 
@@ -300,7 +300,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         self.update_filelist(uni.load_files(self.lastdir))
 
 
@@ -318,7 +318,7 @@ class BatchAnalysis(QDialog):
         # Wrong format for the timestamp?
         # cannot found batchfile? If empty for example?
         # validate successful export?
-        
+
 
         # Load the dictionary for processing the data
         # TODO: Rename checkboxes...
@@ -347,7 +347,7 @@ class BatchAnalysis(QDialog):
     def retrieve_data(self, dictionary:dict):
         """
         Checks the config and retrieve the corresponing values from it.
-        
+
         Loops through the files and get the data. Optional it will also update
         the plots.
 
@@ -365,46 +365,49 @@ class BatchAnalysis(QDialog):
 
         """
         # TODO: errorhandling
-        
+
         # lists for data of valid files and the skipped files due not fitting
         # the format, e.g. other csv files
         data = []
         skippedFiles = []
         amount = len(self.files)
-        
-        # 
+
+        #
         for i in range(amount):
             # Update process bar
             self.update_progressbar((i+1)/amount)
 
             # Read out the file
             file = self.files[i]
-            
+
             # update the plots if ticked
             if self.updatePlots:
                 self.parent().apply_data(file)
-            
+
             self.openFile = FileReader(file)
             data_x, data_y = self.openFile.get_values()
             # TODO: .get_timestamp?
             time, date = self.openFile.get_head()
-            
+
             # Skip the file if data is invalid
             if not (time and date and data_x.size and data_y.size):
                 skippedFiles.append(file)
                 continue
-            
+
             # Get characteristic values
             # TODO: separate the ui and the logic...
             spec_proc = DataHandler(data_x, data_y,
-                        float(self.parent().window.tinCentralWavelength.text()),
-                        int(self.parent().window.ddGrating.currentText()))
+                        self.parent().window.get_central_wavelength(),
+                        self.parent().window.get_grating(),
+                        fittings=self.parent().fittings,
+                        funConnection=self.parent().window.connect_results)
+
             _, avg = spec_proc.get_baseline()
             peak_height, peak_area = spec_proc.get_peak()
             _, peak_position = spec_proc.get_peak_raw()
 
             # excluding file if no appropiate data given like in processed spectra
-            # TODO: Check more exlude conditions like characteristic value 
+            # TODO: Check more exlude conditions like characteristic value
             # below some defined threshold
             if not peak_height:
                 skippedFiles.append(file)
@@ -416,7 +419,7 @@ class BatchAnalysis(QDialog):
             # peak_height = {}
             # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
             # peak_height["numerical value"] = xy
-            # TODO: is dict.get() useful here? get  allows a default value, 
+            # TODO: is dict.get() useful here? get  allows a default value,
             # and will not raise a KeyError
             # see therefore: https://stackoverflow.com/questions/11041405/why-dict-getkey-instead-of-dictkey
             dictionary[CHARACTERISTIC.PEAK_HEIGHT.value][BATCH_CONFIG.VALUE.value] = peak_height
@@ -430,14 +433,14 @@ class BatchAnalysis(QDialog):
             row = [file]
             row += self.extract_values_of_dict(dictionary, BATCH_CONFIG.VALUE)
             data.append(row)
-            
+
         return data, skippedFiles
 
 
     def retrieve_batch_config(self):
         """
         Gets the config of the analysis as base for further analysis.
-        
+
         Provides the config in a dictionary to loop through in other methods.
 
         Raises
@@ -451,7 +454,7 @@ class BatchAnalysis(QDialog):
             Includes the ui elements and the matching labels.
 
         """
-        
+
         # TODO: errorhandling
         # TODO: rename checkboxes?
         defValue = 0   # should be falsy to skip file by default
@@ -473,20 +476,20 @@ class BatchAnalysis(QDialog):
 
         # Errorhandling
         if len(checkboxes) != len(labels):
-            raise ValueError("""Checkboxes and labels are not fitting! 
+            raise ValueError("""Checkboxes and labels are not fitting!
                              Please check configuration""")
 
         # Union labels and checkboxes
         for checkbox, label in zip(checkboxes, labels):
             checkbox.update({BATCH_CONFIG.LABEL.value: label})
             properties[checkbox[BATCH_CONFIG.LABEL.value]] = checkbox
-            
+
         return properties;
 
     def extract_values_of_dict(self, dictionary:dict, key:Enum):
         """
         Extract the values of the given dictionary with the specifc key.
-        
+
         If the dictionary contains a key, value pair with {"status": True}.
 
         Parameters
@@ -499,32 +502,32 @@ class BatchAnalysis(QDialog):
         Returns
         -------
         list
-            Contains all items of the specific key. Empty if "status"-key does 
+            Contains all items of the specific key. Empty if "status"-key does
             not exist in dictionary.
 
         """
-        
+
         # valid data to be returned
         data = []
-        
+
         # Check if the given key is of the Enum, cause the dictionary uses
         # the values of the key.
         if isinstance (key, Enum):
             key = key.value
-            
+
         # append value to list if status of the checkbox is checked
         for label, item in dictionary.items():
             if item.get("status"):
                 data.append(item[key])
-                
+
         return data;
 
 
     def open_indexed_file(self, index):
         """
         Retrieve the data of the selected file of the list.
-        
-        Used for applying the data after clicking on the list. 
+
+        Used for applying the data after clicking on the list.
         Connected to ui.
 
         Parameters
@@ -537,7 +540,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         # TODO: Errorhandling?
         # Distinguish given index by numerical value (from another method) or
         # is given by the ListModel (by an click event)
@@ -549,7 +552,7 @@ class BatchAnalysis(QDialog):
     def update_UI(self):
         """
         Updates the UI according to the currently seleceted options.
-        
+
         Set Filename, Browse, Clear, and Parameters are always available.
         Availability of Calculate depends on the former elements.
 
@@ -559,13 +562,13 @@ class BatchAnalysis(QDialog):
             The current status of the button "Calculate" (btnCalculate).
 
         """
-        
+
         # TODO: rename method? update_UI implicity explaims to update the whole
         # ui
-        
+
         # default enable, disable if any check fails
         enable = True;
-        
+
         # Check for specified batchFile, selected files, and checked parameters
         if not self.batchFile:
             enable = False
@@ -576,7 +579,7 @@ class BatchAnalysis(QDialog):
 
         # TODO: use a porperty to separate the ui from the logic?
         self.window.btnCalculate.setEnabled(enable)
-        
+
         return enable
 
 
@@ -589,7 +592,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         # formatting the paths of the files and update the list and the ui.
         files = uni.add_index_to_text(uni.reduce_path(self.files))
         self.model.setStringList(files)
@@ -609,7 +612,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        
+
         # sort the files in a unique and natural keys/human sort way
         self.files = list(set().union(self.files, filelist))
         self.files.sort(key=uni.natural_keys)
@@ -652,7 +655,7 @@ class BatchAnalysis(QDialog):
             The percent calculated and set.
 
         """
-        
+
         # TODO: separate ui and logic? Put this method into BatchUI?
         percent = int(percentage*100);
         self.window.barProgress.setValue(percent);

@@ -74,7 +74,7 @@ class UIMain(Ui_main):
         Interface to connect fun signal of the button and action.
     connect_select_fitting(fun):
         Interface to connect fun to text changed signal of the dropdown.
-    connect_slot_results(signals:dict):
+    connect_results(signals:dict):
         Connect given signals to corresponding ui elements.
     """
 
@@ -194,7 +194,7 @@ class UIMain(Ui_main):
 
 
 
-    def connect_slot_results(self, signals:dict):
+    def connect_results(self, signals:dict):
         """
         Connect given signals to corresponding ui elements.
 
@@ -219,18 +219,18 @@ class UIMain(Ui_main):
         # TODO: doublecheck. Throw an error if noo dict is given?
         # Then remove upper comment and following 3 lines
         if not isinstance(signals, dict):
-            self.logger.warning("connect_slot_results: No dict given")
+            self.logger.warning("connect_results: No dict given")
             return False
 
         # connect the signal with the corresponding ui element
         for element, signal in signals.items():
             # skip signal if not qt-signal
             if not isinstance(signal, pyqtBoundSignal):
-                self.logger.info("connect_slot_results: No valid signal")
+                self.logger.info("connect_results: No valid signal")
                 continue
             # skip key if not defined in enum
             if not isinstance(element, UI_RESULTS):
-                self.logger.info("connect_slot_results: No valid element")
+                self.logger.info("connect_results: No valid element")
                 continue
 
             # if a ui element is linked to that element, the signal is
@@ -240,6 +240,13 @@ class UIMain(Ui_main):
                 # TODO: validation: Check whether setText is a method? Use try
                 # except maybe? Or just check and log it?
                 signal.connect(uiElement.setText)
+
+    def connect_fileinformation(self, sigFilename, sigDate, sigTime):
+        # TODO: docstring, also add to class methods
+        sigFilename.connect(self.toutFilename.setText)
+        sigDate.connect(self.toutDate.setText)
+        sigTime.connect(self.toutTime.setText)
+
 
 
     def retrieve_fittings(self) -> list:
@@ -314,3 +321,29 @@ class UIMain(Ui_main):
         except:
             self.logger.error("Could not get valid value for grating!")
         return grating
+
+
+    def get_raw_plot(self):
+        """
+        Gets the ui element.
+
+        Returns
+        -------
+        MatplotlibWidget
+            The ui element for plotting the raw data.
+
+        """
+        return self.mplRaw
+
+
+    def get_processed_plot(self):
+        """
+        Gets the ui element.
+
+        Returns
+        -------
+        MatplotlibWidget
+            The ui element for plotting the processed data.
+
+        """
+        return self.mplProcessed

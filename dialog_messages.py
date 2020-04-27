@@ -136,13 +136,22 @@ def information_BatchAnalysisFinished(skippedFiles, parent=None):
     title = "Batch Analysis finished";
     text = "Skipped Files: \n" + "\n".join(skippedFiles);
     QMessageBox.information(parent, title, text);
-    
+
 def information_ExportFinished(filename, parent=None):
     # TODO docstring
     title = "Successfully exported";
     text = f"Exported to: {filename}";
     QMessageBox.information(parent, title, text);
-    
+
+
+def information_ExportAborted(parent=None):
+    # TODO docstring
+    title = "Export failed!";
+    text = f"""Export failed. Possible issues: No data found. Invalid file,
+    could not export raw or processed spectra.""";
+    QMessageBox.information(parent, title, text);
+
+
 def dialog_LogFileNotFound(parent=None):
     # TODO docstring
     defaultDirectory = "./debug.log"
@@ -150,7 +159,7 @@ def dialog_LogFileNotFound(parent=None):
     title = "Log file could not be found";
     text = """Please select a new default path for your config file.""";
     QMessageBox.information(parent, title, text);
-    
+
     # select a new log file
     caption = "Please select a log.file";
     filename, _ = QFileDialog.getOpenFileName(parent = parent,
@@ -160,13 +169,13 @@ def dialog_LogFileNotFound(parent=None):
     # get the new or a default filename
     filename = filename if filename else defaultDirectory
 
-    # getting the current config and change the LOG_FILE property    
+    # getting the current config and change the LOG_FILE property
     config = uni.load_config()
     config["FILE"]["LOG_FILE"] = filename
     uni.save_config(config)
-    
+
     return filename
-    
+
 
 def dialog_saveFile(directory: str, presetFilename="", parent=None):
     """
@@ -192,7 +201,7 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
         Path of the filename.
 
     """
-    
+
     # default properties of the dialog
     title = "Set Filename";
     filter = EXPORT["DEF_BATCH_FILTER"];
@@ -200,7 +209,7 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
     if not presetFilename:
         presetFilename = EXPORT["DEF_BATCH_NAME"];
 
-    # TODO: neccessary? Useful Errorhandling? Maybe log? 
+    # TODO: neccessary? Useful Errorhandling? Maybe log?
     if type(directory) not in [str]:
         raise TypeError("Directory must be a path (string)");
 
