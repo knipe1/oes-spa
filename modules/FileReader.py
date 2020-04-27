@@ -31,17 +31,17 @@ DATA_STRUCTURE = config["DATA_STRUCTURE"];
 class FileReader(FileFramework):
     """File reader for spectral data files """
     def __init__(self, filename):
-        FileFramework.__init__(self)
-        self.file = filename
+        FileFramework.__init__(self, filename)
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
+        self.timestamp = ""
         self.date = ""
         self.time = ""
 
     def get_filetype(self):
         """Determine filetype"""
         suffixes = ("spk", "Spk", "csv") # TODO: magic
-        fileinfo = QFileInfo(self.file).suffix().lower()
+        fileinfo = QFileInfo(self.filename).suffix().lower()
 
         if not fileinfo in suffixes:
             return ""
@@ -58,7 +58,7 @@ class FileReader(FileFramework):
 
 
         # Get Data from tab separated ascii file
-        with open(self.file, 'r', newline='') as csvFile:
+        with open(self.filename, 'r', newline='') as csvFile:
             csvReader = csv.reader(csvFile, dialect=self.dialect)
 
             # determine the filetype of the file to
@@ -83,7 +83,7 @@ class FileReader(FileFramework):
             if get_header(csvReader, MARKER["HEADER"]):
                 print("FileReader: No valid header")
                 return 1
-            
+
             data = get_data(csvReader)
             if not len(data):
                 print("FileReader: No valid data")
@@ -106,7 +106,9 @@ class FileReader(FileFramework):
 
     def get_exported_header(self, csvReader, marker):
         """
-        Iter through the file opened and accessed with the csvReader to find the marker and extract the date and time information to save it to the file object
+        Iter through the file opened and accessed with the csvReader to find
+        the marker and extract the date and time information to save it to the
+        file object
 
         Parameters
         ----------

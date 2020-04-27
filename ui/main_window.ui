@@ -228,6 +228,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="tinCentralWavelength">
+            <property name="inputMask">
+             <string comment="9900"/>
+            </property>
             <property name="text">
              <string>433</string>
             </property>
@@ -283,6 +286,23 @@
           <string>Results</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="lblCharacteristicValue">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Characteristic Value:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="toutCharacteristicValue">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QLabel" name="lblPeakHeight">
             <property name="text">
@@ -413,7 +433,7 @@
     </property>
     <widget class="QMenu" name="menuSave">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="title">
       <string>Save...</string>

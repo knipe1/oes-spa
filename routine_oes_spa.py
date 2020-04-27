@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QApplication
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 from Logger import Logger
+from modules.Spectrum import Spectrum
 
 
 # set up the logger
@@ -33,8 +34,12 @@ def main():
 
     # # automatic open and close routine
     try:
+        # window.export_raw()
         window.file_open("./sample files/Asterix1059 1.Spk")
-        window.file_open("./sample files/Asterix1059 1_raw.csv")
+        # window.export_raw()
+        # window.export_processed()
+        # window.file_open("./sample files/Asterix1059 1_raw.csv")
+        # window.export_processed()
     except:
         pass
 

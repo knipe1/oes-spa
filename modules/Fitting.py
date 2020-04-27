@@ -16,19 +16,22 @@ Created on Thu Apr  9 10:51:31 2020
 import os
 
 # third-party libs
+from PyQt5 import QtCore
 
 # local modules/libs
 import modules.Universal as uni
 from Logger import Logger
+from modules.Peak import Peak
 
 # Enums
 
-class Fitting():
+class Fitting(QtCore.QObject):
     """
     # TODO: docstring
-    summary line
+    Interface for properties of the current active fitting.
 
-    further information
+    Contains information about characteristic values, names, peaks and the
+    corresponding reference peaks.
 
 
     Attributes
@@ -37,6 +40,8 @@ class Fitting():
 
     Methods
     -------
+    load_current_fitting(fitting_name:str) -> dict:
+        Retrieve the config of the currently selected fitting.
 
     """
 
@@ -51,68 +56,58 @@ class Fitting():
     # variables
     _fittings = {}
 
-    def __init__(self, dropdown=None):
-        self.dropdown = dropdown
-        self.fittings = self.retrieve_fittings()
-        self._currentFitting = self.load_current_fitting(dropdown.currentIndex())
+    def __init__(self, fittings):
+        QtCore.QObject.__init__(self)
+        self.fittings = fittings
 
     ### Properties
-
-    @property
-    def fittings(self):
-        """fittings getter"""
-        return self._fittings
-
-    @fittings.setter
-    def fittings(self, fits:dict):
-        """fittings setter
-
-        Updating the ui
-        """
-        self._fittings = fits
-        # TODO: check condition?!?!?!
-        if not self.dropdown == None:
-            self.dropdown.clear()
-            self.dropdown.addItems(fits.values())
-
     @property
     def currentFitting(self) -> dict:
         """currentFitting getter"""
         return self._currentFitting
 
-    @classmethod
-    def retrieve_fittings(cls) -> list:
-        """
-        Retrieve all fitting files of the directory of fittings.
+    @currentFitting.setter
+    def currentFitting(self, fitting):
+        self.currentPeak = Peak(**fitting.get("PEAKS"))
+        self.currentName = fitting.get("NAME")
+        self._currentFitting = fitting
 
-        Returns
-        -------
-        fitList : list
-            Containing the filenames of the fittings.
+    @property
+    def currentPeak(self) -> Peak:
+        return self._currentPeak
 
-        """
-        fitDict = {}
-        # check out the default directory for fittings
-        for _, _, f in os.walk(cls.FITTING["DIR"]):
-            for file in f:
-                # get the fitting files matching the pattern
-                if file.rfind(cls.FITTING["FILE_PATTERN"]) > -1:
-                    # loading the parameter and set up the dict using the
-                    # filename and the name of the fitting
-                    path = os.path.join(cls.FITTING["DIR"], file)
-                    fitConfig = uni.load_config(path)
-                    fitName = fitConfig.get("NAME")
-                    fitDict[file] = fitName
-        return fitDict
+    @currentPeak.setter
+    def currentPeak(self, peak):
+        self.currentReference = Peak(**peak.reference)
+        self._currentPeak = peak
 
-    def load_current_fitting(self, index:int) -> dict:
+    @property
+    def currentReference(self) -> Peak:
+        return self._currentReference
+
+    @currentReference.setter
+    def currentReference(self, reference):
+        self._currentReference = reference
+
+    @property
+    def currentName(self) -> str:
+        return self._currentName
+
+    @currentName.setter
+    def currentName(self, name):
+        self._currentName = name
+
+    def load_current_fitting(self, fitting_name:str) -> dict:
         """
         Retrieve the config of the currently selected fitting.
 
+        Can be connected to the signal of an ui element, e.g.
+        "currentTextChanged".
+
         Parameters
         ----------
-        index : int
-            The index of the selected fitting within the dropdown.
+        fitting_name : str
+            The name of the selected fitting within the ui element.
 
         Returns
         -------
@@ -123,16 +118,15 @@ class Fitting():
         # TODO: another function? if so, use current_fitting as property
         # and use the other funtion?
         # TODO: check out the class Peak!
-        text = self.dropdown.currentText()  # text as key of the dict
         # get the selected fitting
+        self.logger.info("load current fitting")
         for fit, name in self.fittings.items():
-            if name == text:
+            if name == fitting_name:
                 current_fit = fit
                 break
 
-        # TODO: dry: path and load config... see above
+        # load the config from the file and set the current config
         path = os.path.join(self.FITTING["DIR"], current_fit)
         fitConfig = uni.load_config(path)
 
-        return fitConfig
-
+        self.currentFitting = fitConfig

@@ -25,13 +25,13 @@ from modules.Universal import ExportType
 class FileWriter(FileFramework):
     """File reader for spectral data files """
     def __init__(self, parent, filename, timestamp):
-        FileFramework.__init__(self)
+        FileFramework.__init__(self, filename)
         # TODO: doublecheck usage of parent...
         self.parent = parent
 
         # TODO: Errorhandling if directory is cancelled or does not exist
         # self.directory = self.select_directory()
-        self.filename, self.timestamp = filename, timestamp
+        self.timestamp = timestamp
 
 
 
@@ -53,14 +53,15 @@ class FileWriter(FileFramework):
 
         Returns
         -------
-        int
-            0: if exported
-            1: if directory is not set
+        bool
+            True: if exported.
+            False: if directory is not set.
 
         """
         expFilename = self.build_exp_filename(exportType)
         if not expFilename:
-            return 1
+            return False
+
         with open(expFilename, 'w', newline='') as expFile:
             # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
@@ -76,23 +77,10 @@ class FileWriter(FileFramework):
                 csvWr.writerow([self.MARKER["DATA"]])
             # write data
             csvWr.writerows(data)
-        return 0
 
-    # def select_directory(self):
-    #     """
-    #     Opens a native dialog to select a directory. If one is selected that one is saved as last used directory
+        dialog.information_ExportFinished(expFilename)
+        return True
 
-    #     Returns
-    #     -------
-    #     directory : string
-    #         Path of the directory.
-
-    #     """
-    #     directory = dialog.dialog_getDirectory(self.parent.lastdir)#, self.parent.widget)
-    #     # back up the used directory, if a directory was selected
-    #     if directory:
-    #         self.parent.lastdir = directory
-    #     return directory
 
     def build_exp_filename(self, exportType):
         """Alters the current filename to a standard processed export
@@ -102,13 +90,13 @@ class FileWriter(FileFramework):
         # TODO: doublecheck methods
         for suffix in self.IMPORT["VALID_SUFFIX"]:
             rawFilename = rawFilename.replace("."+suffix, "")
-            
+
         # check whether the user is about to export an exported spectrum
         if rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0\
             or rawFilename.rfind(self.EXPORT["PROCESSED_APPENDIX"]) >= 0\
             or rawFilename.rfind(self.EXPORT["DEF_BATCH_NAME"]) >= 0:
                 return ""
-        
+
         # get the correct appendix
         appendix = ""
         if exportType == ExportType.RAW:

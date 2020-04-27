@@ -7,7 +7,7 @@
 
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
@@ -19,14 +19,33 @@ from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.Fitting import Fitting
 from modules.Universal import ExportType
+from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
+from Logger import Logger
 
-
-
+# enums
+from custom_types.CHARACTERISTIC import CHARACTERISTIC
 
 
 class AnalysisWindow(QMainWindow):
-    """Main Analysis Window Class """
+    """
+    Main Window. Organization and interfaces of sub-types/windows.
+
+
+    Further descriptions...
+
+    Usage:
+        TODO
+
+    Attributes
+    ----------
+    name : type
+        description.
+
+
+    Methods
+    -------
+    """
 
     config = uni.load_config()
     # plots
@@ -36,50 +55,63 @@ class AnalysisWindow(QMainWindow):
     # load properties
     IMPORT = config["IMPORT"]
 
+
+    # set up the logger
+    logger = Logger(__name__)
+
+
+    # qt-signals
+    SIG_filename = pyqtSignal(str)
+    SIG_date = pyqtSignal(str)
+    SIG_time= pyqtSignal(str)
+
     def __init__(self, initialShow=True):
         """initialize the parent class ( == QMainWindow.__init__(self)"""
         super(AnalysisWindow, self).__init__()
 
         # Set file and directory
         self.lastdir = self.FILE["DEF_DIR"];
-        self.openFile = self.FILE["DEF_FILE"];
+        self.openFile = None;
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
-        # TODO: Usage? self.centralWidget() return None and is never used.
-        # self.widget = self.centralWidget()
-
 
         # Set up the user interface from Designer.
         # Load the main window
         self.window = UIMain(self)
         # Load batch dialog
         self.batch = BatchAnalysis(self)
-        # init the fitting and the dropdown of the fittings
-        self.fittings = Fitting(self.window.ddFitting)
-        # link the events between the elements
-        # requires init of self.fittings and self.batch
-        self.window.set_connections()
+        # init the fitting and with the retrieved fittings
+        # TODO: provide interface? Like get_fittings? No, it is a attribute
+        # using the @property-decorator --> to be documented?
+        self.fittings = Fitting(self.window.fittings)
+
+        self.__post_init__()
 
         # initial settings
         if initialShow:
             self.show()
 
+    def __post_init__(self):
+        self.set_connections()
+        self.init_spectra()
+
+    def set_connections(self):
+        win = self.window
+        win.connect_export_raw(self.export_raw)
+        win.connect_export_processed(self.export_processed)
+        win.connect_show_batch(self.batch.show)
+        win.connect_open_file(self.file_open)
+        win.connect_select_fitting(self.fittings.load_current_fitting)
+        win.connect_change_basic_settings(self.redraw)
+
+    def init_spectra(self):
+        self.rawSpectrum = Spectrum(self.window.get_raw_plot(), ExportType.RAW)
+        self.processedSpectrum = Spectrum(self.window.get_processed_plot(),
+                                          ExportType.PROCESSED);
 
     def closeEvent(self, event):
-        """
-        Closing the BatchAnalysis dialog to have a clear shutdown.
-
-        Parameters
-        ----------
-        event : event
-            close event of the main window.
-
-        Returns
-        -------
-        None.
-
-        """
+        """Closing the BatchAnalysis dialog to have a clear shutdown."""
         self.batch.close()
 
     def dragEnterEvent(self, event):
@@ -132,163 +164,202 @@ class AnalysisWindow(QMainWindow):
 
             self.apply_data(files)
 
-    def draw_spectra(self, x_data, y_data):
-        """Draw the raw spectrum and analyze it with DataHandler
-        to obtain all parameters for the processed spectrum.
-        """
-        # Check whether data was found in the files
-        if not x_data.any():
-            # TODO: obsolet?
-            self.plot_redrawable(False)
-            dialog.critical_unknownFiletype(self)
-            return 1
 
-        # Sent the raw data to the DataHandler and get parameters
-        # TODO: function required for getting parameters and errorhandling!
-        # TODO: Is Central wavelength depending on the selected Fitting?
-        spec_proc = DataHandler(x_data, y_data,
-                        float(self.window.tinCentralWavelength.text()),
-                        int(self.window.ddGrating.currentText()))
-        #calculate results
-        # TODO: no validation of results?
-        procX, procY = spec_proc.get_processed_data()
-        baseline, avg = spec_proc.get_baseline()
-        peak_height, peak_area = spec_proc.get_peak()
+    def draw_spectra(self, *spectra):
+        """Init and plot the given spectra."""
 
-        # display results
-        # TODO: expected behaviour? What happens if not everything is given?
-        # Is there a scenario in which just one result is calculated/set?
-        self.window.toutBaseline.setText(str(avg))
-        self.window.toutPeakHeight.setText(str(peak_height))
-        self.window.toutPeakArea.setText(str(peak_area))
-
-        # Clear the widget from previous spectra
-        # Draw the spectra in MatPlotLibWidgets
-        # Raw
-        rawPlot = self.window.mplRaw;
-        self.init_plot(rawPlot, self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]);
-        self.update_plot(rawPlot, x_data, y_data,
-                         self.PLOT["RAW_DATA_MRK"], self.PLOT["RAW_DATA_LABEL"]);
-        self.update_plot(rawPlot, x_data, baseline,
-                         self.PLOT["RAW_BASELINE_MRK"], self.PLOT["RAW_BASELINE_LABEL"]);
-
-        # Processed
-        processedPlot = self.window.mplProcessed;
-        self.init_plot(processedPlot, self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]);
-        self.update_plot(processedPlot, procX, procY,
-                         self.PLOT["PROCESSED_DATA_MRK"], self.PLOT["PROCESSED_DATA_LABEL"]);
-
-
-        # Enable Redraw Events
-        # TODO: obsolet?
-        self.plot_redrawable(True)
-
+        for spectrum in spectra:
+            if isinstance(spectrum, Spectrum):
+                self.init_plot(spectrum);
+                self.update_plot(spectrum);
         return 0
 
-    def save_raw(self, filename):
+
+    def export_spectrum(self, spectrum, results:dict={}):
+        """Export raw/processed spectrum."""
+        isExported = True
+
+        # collect data
+        filename, timestamp = self.get_fileinformation()
+        labels = spectrum.labels.values()
+        xyData = uni.extract_xy_data(spectrum.ui.axes,
+                                     spectrum.markup.get("label"))
+
+        if filename == None:
+            isExported = False;
+
+        if xyData is None:
+            isExported = False;
+
+        if isExported:
+            # write data to csv
+            csvWriter = FileWriter(self, filename, timestamp)
+            isExported = csvWriter.write_data(xyData, labels,
+                                              spectrum.exportType, results)
+
+        if not isExported:
+            dialog.information_ExportAborted();
+
+        return isExported;
+
+    def export_raw(self):
         """Save Raw-Data in CSV-File """
-        # collect data
-        filename, timestamp = self.get_fileinformation()
-        labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
-        xyData = uni.extract_xy_data(self.window.mplRaw.axes,
-                                     self.PLOT["RAW_DATA_LABEL"])
-        # write data to csv
-        csvWriter = FileWriter(self, filename, timestamp)
-        isExported = csvWriter.write_data(xyData, labels, ExportType.RAW)
-        if isExported == 0:
-            dialog.information_ExportFinished(filename)
-        return 0;
 
-    def save_processed(self, filename):
+        self.export_spectrum(self.rawSpectrum)
+        return 0
+
+    def export_processed(self):
         """Save processed spectrum to CSV-File """
-        # collect data
-        filename, timestamp = self.get_fileinformation()
-        labels = [self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]]
-        xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
-                                     self.PLOT["PROCESSED_DATA_LABEL"])
 
-        results = {}
-        # TODO: use enum?
-        results["Peak Height"] = self.window.toutPeakHeight.text()
-        results["Peak Area"] = self.window.toutPeakArea.text()
-
-        # write data to csv
-        csvWriter = FileWriter(self, filename, timestamp)
-        isExported = csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
-        if isExported == 0:
-            dialog.information_ExportFinished(filename)
-        return 0;
-
-    def init_plot(self, plotObj, xlabel, ylabel):
-        # TODO: errorhandling
-        """Gets a plot object and label it after clearing it"""
-        plotObj.axes.clear();
-        plotObj.axes.set_xlabel(xlabel);
-        plotObj.axes.set_ylabel(ylabel);
-        plotObj.axes.axhline(linewidth=self.PLOT["DEF_LINEWIDTH"],
-                             color=self.PLOT["DEF_AXIS_COLOR"]);
-        plotObj.axes.axvline(linewidth=self.PLOT["DEF_LINEWIDTH"],
-                             color=self.PLOT["DEF_AXIS_COLOR"]);
-        return 0;
+        results = self.window.get_results();
+        self.export_spectrum(self.processedSpectrum, results)
+        return 0
 
 
-    def update_plot(self, plotObj, xData, yData, color, label):
+    def init_plot(self, spectrum):
+        # found and central configuration
+        lineMarkup = {"linewidth": self.PLOT.get("DEF_LINEWIDTH"),
+                      "color": self.PLOT.get("DEF_AXIS_COLOR")}
+
+        axes = spectrum.ui.axes
+        axes.clear();
+        axes.set_xlabel(spectrum.labels.get("xLabel", "x axis"));
+        axes.set_ylabel(spectrum.labels.get("yLabel", "y axis"));
+        axes.axhline(**lineMarkup)
+        axes.axvline(**lineMarkup)
+
+
+    def update_plot(self, spectrum):
         """updates a given plot"""
         # TODO: errorhandling
-        plotObj.axes.plot(xData, yData, color, label=label);
-        plotObj.axes.set_xlim(xData[0], xData[-1]);
-        plotObj.axes.legend();
-        plotObj.draw();
+        # define variables for easier maintenance
+        axes = spectrum.ui.axes
+        spec = spectrum
+
+        # plotting
+        axes.plot(spec.xData, spec.yData, **spec.markup);
+        if len(spec.baseline):
+            axes.plot(spec.xData, spec.baseline, **spec.baselineMarkup);
+
+        # zoom to specific area
+        axes.set_xlim(spec.xData[0], spec.xData[-1]);
+        axes.legend();
+
+        spec.ui.draw();
         return 0;
 
-
-    def plot_redrawable(self, enable = True):
-        """set the status (enabled/disabled) of redraw button/action"""
-        self.window.actRedraw.setEnabled(enable);
-        # menu --> File --> save
-        # TODO: but important!!!
-        self.window.menuSave.setEnabled(enable)
-        return 0;
 
     def get_fileinformation(self):
-        # TODO: self.file
+        # TODO: self.filename
         # TODO: self.timestamp
-        # TODO: self.file = {name: asd, timestamp: sad}
-        filename = self.window.toutFilename.text()
-        date = self.window.toutDate.text()
-        time = self.window.toutTime.text()
-        timestamp = date + " " + time
+        # TODO: self.filename = {name: asd, timestamp: sad}
+        try:
+            filename = self.openFile.filename
+            date = self.openFile.date
+            time = self.openFile.time
+            timestamp = date + " " + time
+        except:
+            self.logger.error("Could not get filename/fileinformation.")
+            filename = None;
+            timestamp = None;
+
         return filename, timestamp
 
-    def set_fileinformation(self, filename, date, time):
+    def set_fileinformation(self, filereader:FileReader):
+        """Updates the fileinformation"""
         # TODO: date+time = timestamp?
-        """set the file information (filename, date and time)"""
-        # validate inputs
+        # TODO: validate inputs
         # TODO: try catch?
-        if type(filename) not in [str]:
-            raise TypeError("date must be of type string")
-        if type(date) not in [str]:
-            raise TypeError("date must be of type string")
-        if type(time) not in [str]:
-            raise TypeError("time must be of type string")
+        # TODO: Review. Pythonic? Clean distinction between UI and logic, but
+        # looks kind of unstructured...
+        try:
+            time, date = filereader.get_head()
 
-        # set values
-        self.window.toutFilename.setText(filename)
-        self.window.toutDate.setText(date)
-        self.window.toutTime.setText(time)
-        return 0
+            # set values
+            self.window.connect_fileinformation(self.SIG_filename,
+                                                self.SIG_date,
+                                                self.SIG_time)
+            self.SIG_filename.emit(filereader.filename)
+            self.SIG_date.emit(date)
+        except:
+            pass
 
     def apply_data(self, filename):
         """read out a file and extract its information,
         then set header information and draw spectra"""
         # TODO: error handling
         # Read out the chosen file
-        self.openFile = FileReader(filename)
-        np_x, np_y = self.openFile.get_values()
-        time, date = self.openFile.get_head()
-        # Draw the spectra and print results
-        if not (time and date and np_x.size and np_y.size):
-            return 1
-        self.set_fileinformation(filename, date, time)
-        self.draw_spectra(np_x, np_y)
+        file = FileReader(filename)
+        xData, yData = file.get_values()
+
+        # Update plots and ui.
+        self.analyze_data(xData, yData)
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+        self.set_fileinformation(file)
+
+        self.openFile = file;
         return 0
+
+    def analyze_data(self, xData, yData, updateResults=True):
+        """Analyze data with DataHandler to obtain all parameters for the
+        processed spectrum.
+        """
+
+        # Check for a valid structure of the data
+        if not len(xData) and len(xData) == len(yData):
+            dialog.critical_unknownFiletype(self)
+            return 1
+
+        connect = self.window.connect_results if updateResults else None;
+
+        # Sent the raw data to the DataHandler and get parameters
+        # TODO: function required for getting parameters and errorhandling!
+        # TODO: Is Central wavelength depending on the selected Fitting?
+        spec_proc = DataHandler(xData, yData,
+                        self.window.get_central_wavelength(),
+                        self.window.get_grating(),
+                        fittings=self.fittings,
+                        funConnection=connect)
+
+        #calculate results
+        # TODO: no validation of results?
+        procX, procY = spec_proc.get_processed_data()
+        baseline, avg = spec_proc.get_baseline()
+        peak_height, peak_area = spec_proc.get_peak()
+        peak_raw_height, peak_position = spec_proc.get_peak_raw()
+
+        characteristics = {};
+        characteristics[CHARACTERISTIC.PEAK_AREA] = peak_area
+
+        # Update and plot the spectra
+        self.rawSpectrum.update_data(xData, yData)
+        self.rawSpectrum.add_baseline(baseline)
+        self.processedSpectrum.update_data(procX, procY)
+
+        # TODO: return dict with characteristics?
+        return 0
+
+
+    def redraw(self, text:str=""):
+        """
+        Redraw the plots with the currently opened file.
+
+        Uses self.openFile.filename to get the filename.
+
+        Parameters
+        ----------
+        text : str
+            The text of the new selected option. Informative in the logger.
+            (Default: "")
+
+        Returns
+        -------
+        None.
+
+        """
+        try:
+            self.apply_data(self.openFile.filename)
+            self.logger.info("Redraw triggered by:" + text)
+        except:
+            pass
+
