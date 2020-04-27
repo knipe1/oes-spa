@@ -130,7 +130,6 @@ class BatchAnalysis(QDialog):
         # initialize the parent class ( == QDialog.__init__(self)
         super(BatchAnalysis, self).__init__(parent)
 
-
         # TODO: check whether there will be some inconsistency if self.lastdir
         # is set or if it even useful to implement it like this.
         self.lastdir = parent.lastdir
@@ -279,15 +278,7 @@ class BatchAnalysis(QDialog):
 
 
     def browse_spectra(self):
-        """
-        Opens a dialog to browse for spectra and updates the filelist.
-
-        Returns
-        -------
-        None.
-
-        """
-
+        """Opens a dialog to browse for spectra and updates the filelist."""
         self.update_filelist(uni.load_files(self.lastdir))
 
 
@@ -406,7 +397,7 @@ class BatchAnalysis(QDialog):
             # peak_height = {}
             # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
             # peak_height["numerical value"] = xy
-            # TODO: is dict.get() useful here? get  allows a default value,
+            # TODO: is dict.get() useful here? get allows a default value,
             # and will not raise a KeyError
             # see therefore: https://stackoverflow.com/questions/11041405/why-dict-getkey-instead-of-dictkey
             dictionary[CHARACTERISTIC.PEAK_HEIGHT.value][BATCH_CONFIG.VALUE.value] = peak_height

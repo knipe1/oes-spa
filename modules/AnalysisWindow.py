@@ -75,9 +75,6 @@ class AnalysisWindow(QMainWindow):
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
-        # TODO: Usage? self.centralWidget() return None and is never used.
-        # self.widget = self.centralWidget()
-
 
         # Set up the user interface from Designer.
         # Load the main window
@@ -223,14 +220,15 @@ class AnalysisWindow(QMainWindow):
         # TODO: compare dict["key"] -> error if not found
         # vs dict.get("key") -> default styles if not found
         # vs config of rcParams in init -> overview and default styles if not
+        # --> config of rcParams for central definition and default settings
         # found and central configuration
         lineMarkup = {"linewidth": self.PLOT.get("DEF_LINEWIDTH"),
                       "color": self.PLOT.get("DEF_AXIS_COLOR")}
 
         axes = spectrum.ui.axes
         axes.clear();
-        axes.set_xlabel(spectrum.labels.get("xLabel"));
-        axes.set_ylabel(spectrum.labels.get("yLabel"));
+        axes.set_xlabel(spectrum.labels.get("xLabel", "x axis"));
+        axes.set_ylabel(spectrum.labels.get("yLabel", "y axis"));
         axes.axhline(**lineMarkup)
         axes.axvline(**lineMarkup)
 
@@ -341,13 +339,19 @@ class AnalysisWindow(QMainWindow):
         #calculate results
         # TODO: no validation of results?
         procX, procY = spec_proc.get_processed_data()
-        baseline, _ = spec_proc.get_baseline()
+        baseline, avg = spec_proc.get_baseline()
+        peak_height, peak_area = spec_proc.get_peak()
+        peak_raw_height, peak_position = spec_proc.get_peak_raw()
+
+        characteristics = {};
+        characteristics[CHARACTERISTIC.PEAK_AREA] = peak_area
 
         # Update and plot the spectra
         self.rawSpectrum.update_data(xData, yData)
         self.rawSpectrum.add_baseline(baseline)
         self.processedSpectrum.update_data(procX, procY)
 
+        # TODO: return dict with characteristics?
         return 0
 
 

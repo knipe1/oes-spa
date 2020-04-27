@@ -36,8 +36,8 @@ def main():
     try:
         # window.export_raw()
         window.file_open("./sample files/Asterix1059 1.Spk")
-        window.export_raw()
-        window.export_processed()
+        # window.export_raw()
+        # window.export_processed()
         # window.file_open("./sample files/Asterix1059 1_raw.csv")
         # window.export_processed()
     except:
