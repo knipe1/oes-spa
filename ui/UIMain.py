@@ -34,6 +34,7 @@ from Logger import Logger
 
 # enums
 from custom_types.UI_RESULTS import UI_RESULTS
+from custom_types.CHARACTERISTIC import CHARACTERISTIC
 
 class UIMain(Ui_main):
     """
@@ -144,11 +145,24 @@ class UIMain(Ui_main):
                    }
         return mapping
 
+    def get_results(self):
+        results = {CHARACTERISTIC.PEAK_HEIGHT.value:
+                       self.toutPeakHeight.text(),
+                   CHARACTERISTIC.PEAK_AREA.value:
+                       self.toutPeakArea.text(),
+                   CHARACTERISTIC.BASELINE.value:
+                       self.toutBaseline.text(),
+                   self.lblCharacteristicValue.text():
+                       self.toutCharacteristicValue.text(),
+                   }
+        return results
+
 
     # Connect methods: Provides at least one event (signal) to connect to a
     # function
     # act: option in a dropdown of the menu bar
     # btn : Button
+    # fun : function/method
     def connect_export_raw(self, fun):
         """Interface to connect fun to triggered signal of the button."""
         self.actSaveRaw.triggered.connect(fun)

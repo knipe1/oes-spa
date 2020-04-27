@@ -34,7 +34,7 @@ class DataHandler(QObject):
             Intensity
         cwl: float
             Central Wavelength
-        grat: int
+        grating: int
             used grating
      """
 
@@ -101,14 +101,15 @@ class DataHandler(QObject):
         self.signal_characteristicName.emit(self.fittings.currentPeak.name)
 
 
-    def __init__(self, xData, yData, cWL, grat, fittings, funConnection=None):
+    def __init__(self, xData, yData, cWL, grating, fittings,
+                 funConnection=None):
         super(DataHandler, self).__init__()
         # TODO: properties to ensure the correct type?
         self.xData = xData
         self.yData = yData
         self.cWL = cWL
         # TODO: MAGIC NUMBER, what is 14?
-        self.dispersion = 14/grat
+        self.dispersion = 14/grating
         self.fittings = fittings
 
         if funConnection:
@@ -130,7 +131,6 @@ class DataHandler(QObject):
                         UI_RESULTS.tout_BASELINE: self.signal_peakBaseline,
                         UI_RESULTS.lbl_CHARACTERISTIC_VALUE:
                             self.signal_characteristicName,
-
                         }
 
     def process_data(self):

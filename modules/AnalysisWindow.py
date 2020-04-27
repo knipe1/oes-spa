@@ -23,6 +23,8 @@ from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
 from Logger import Logger
 
+# enums
+from custom_types.CHARACTERISTIC import CHARACTERISTIC
 
 
 class AnalysisWindow(QMainWindow):
@@ -165,73 +167,24 @@ class AnalysisWindow(QMainWindow):
 
             self.apply_data(files)
 
-    def draw_spectra(self, x_data, y_data):
-        """Draw the raw spectrum and analyze it with DataHandler
-        to obtain all parameters for the processed spectrum.
-        """
 
-        # Check whether data was found in the files
-        if not len(x_data) and len(x_data) == len(y_data):
-            dialog.critical_unknownFiletype(self)
-            return 1
+    def draw_spectra(self, *spectra):
+        """Init and plot the given spectra."""
 
-        # Sent the raw data to the DataHandler and get parameters
-        # TODO: function required for getting parameters and errorhandling!
-        # TODO: Is Central wavelength depending on the selected Fitting?
-        spec_proc = DataHandler(x_data, y_data,
-                        self.window.get_central_wavelength(),
-                        self.window.get_grating(),
-                        fittings=self.fittings,
-                        funConnection=self.window.connect_results)
-        #calculate results
-        # TODO: no validation of results?
-        procX, procY = spec_proc.get_processed_data()
-        baseline, avg = spec_proc.get_baseline()
-        peak_height, peak_area = spec_proc.get_peak()
-
-        # Draw the spectra in MatPlotLibWidgets
-        # Raw
-        # config
-        self.rawSpectrum.update_data(x_data, y_data)
-        self.rawSpectrum.add_baseline(baseline)
-
-        # plotting
-        # self.init_plot(rawSpectrum.ui, **rawSpectrum.labels);
-        self.init_plot(self.rawSpectrum);
-        self.update_plot(self.rawSpectrum)
-        # self.update_plot(rawSpectrum.ui, rawSpectrum.xData, rawSpectrum.yData,
-        #                  **rawSpectrum.markup);
-        # self.update_plot(rawSpectrum.ui, x_data, rawSpectrum.baseline,
-        #                  **rawSpectrum.baselineMarkup);
-
-        # Processed
-        # config
-
-        self.processedSpectrum.update_data(procX, procY)
-        # self.processedSpectrum.add_baseline(baseline)
-        # processedSpectrum = Spectrum(self.window.mplProcessed, procX, procY,
-        #                              ExportType.PROCESSED)
-        # plotting
-        # self.init_plot(processedSpectrum.ui, **processedSpectrum.labels);
-        self.init_plot(self.processedSpectrum);
-        self.update_plot(self.processedSpectrum);
-        # self.update_plot(processedSpectrum.ui, processedSpectrum.xData,
-        #                  processedSpectrum.yData, **processedSpectrum.markup);
-
-
-        # Enable Redraw Events
-        # TODO: obsolet?
-        # self.plot_redrawable(True)
-
+        for spectrum in spectra:
+            if isinstance(spectrum, Spectrum):
+                self.init_plot(spectrum);
+                self.update_plot(spectrum);
         return 0
 
-    def export_spectrum(self, spectrum):
+
+    def export_spectrum(self, spectrum, results:dict={}):
         """Export raw/processed spectrum."""
         isExported = True
 
         # collect data
         filename, timestamp = self.get_fileinformation()
-        labels = spectrum.labels
+        labels = spectrum.labels.values()
         xyData = uni.extract_xy_data(spectrum.ui.axes,
                                      spectrum.markup.get("label"))
 
@@ -245,7 +198,7 @@ class AnalysisWindow(QMainWindow):
             # write data to csv
             csvWriter = FileWriter(self, filename, timestamp)
             isExported = csvWriter.write_data(xyData, labels,
-                                              spectrum.exportType)
+                                              spectrum.exportType, results)
 
         if not isExported:
             dialog.information_ExportAborted();
@@ -254,56 +207,17 @@ class AnalysisWindow(QMainWindow):
 
     def export_raw(self):
         """Save Raw-Data in CSV-File """
+
         self.export_spectrum(self.rawSpectrum)
         return 0
-        # # collect data
-        # filename, timestamp = self.get_fileinformation()
-        # if filename == None:
-        #     return 1
-        # labels = [self.PLOT["RAW_X_LABEL"], self.PLOT["RAW_Y_LABEL"]]
-        # xyData = uni.extract_xy_data(self.window.mplRaw.axes,
-        #                              self.PLOT["RAW_DATA_LABEL"])
-        # # write data to csv
-        # csvWriter = FileWriter(self, filename, timestamp)
-        # isExported = csvWriter.write_data(xyData, labels, ExportType.RAW)
-        # if isExported:
-        #     dialog.information_ExportFinished(filename)
-        # return 0;
 
-    def export_processed(self, filename):
+    def export_processed(self):
         """Save processed spectrum to CSV-File """
-        # implement Peak Height and Peak Area
-        self.export_spectrum(self.processedSpectrum)
+
+        results = self.window.get_results();
+        self.export_spectrum(self.processedSpectrum, results)
         return 0
-        # # collect data
-        # filename, timestamp = self.get_fileinformation()
-        # labels = [self.PLOT["PROCESSED_X_LABEL"], self.PLOT["PROCESSED_Y_LABEL"]]
-        # xyData = uni.extract_xy_data(self.window.mplProcessed.axes,
-        #                              self.PLOT["PROCESSED_DATA_LABEL"])
 
-        # results = {}
-        # # TODO: use enum?
-        # results["Peak Height"] = self.window.toutPeakHeight.text()
-        # results["Peak Area"] = self.window.toutPeakArea.text()
-
-        # # write data to csv
-        # csvWriter = FileWriter(self, filename, timestamp)
-        # isExported = csvWriter.write_data(xyData, labels, ExportType.PROCESSED, results)
-        # if isExported:
-        #     dialog.information_ExportFinished(filename)
-        # return 0;
-
-    # def init_plot(self, plotObj, xLabel, yLabel):
-    #     # TODO: errorhandling
-    #     """Gets a plot object and label it after clearing it"""
-    #     plotObj.axes.clear();
-    #     plotObj.axes.set_xlabel(xLabel);
-    #     plotObj.axes.set_ylabel(yLabel);
-    #     plotObj.axes.axhline(linewidth=self.PLOT["DEF_LINEWIDTH"],
-    #                          color=self.PLOT["DEF_AXIS_COLOR"]);
-    #     plotObj.axes.axvline(linewidth=self.PLOT["DEF_LINEWIDTH"],
-    #                          color=self.PLOT["DEF_AXIS_COLOR"]);
-    #     return 0;
 
     def init_plot(self, spectrum):
         # TODO: compare dict["key"] -> error if not found
@@ -351,14 +265,6 @@ class AnalysisWindow(QMainWindow):
         return 0;
 
 
-    # def plot_redrawable(self, enable = True):
-    #     """set the status (enabled/disabled) of redraw button/action"""
-    #     # self.window.actRedraw.setEnabled(enable);
-    #     # menu --> File --> save
-    #     # TODO: but important!!!
-    #     self.window.menuSave.setEnabled(enable)
-    #     return 0;
-
     def get_fileinformation(self):
         # TODO: self.filename
         # TODO: self.timestamp
@@ -400,15 +306,48 @@ class AnalysisWindow(QMainWindow):
         then set header information and draw spectra"""
         # TODO: error handling
         # Read out the chosen file
-        self.openFile = FileReader(filename)
-        np_x, np_y = self.openFile.get_values()
+        file = FileReader(filename)
+        xData, yData = file.get_values()
 
-        # Validation.
-        if not (np_x.size and np_y.size):
-            return 1
         # Update plots and ui.
-        self.draw_spectra(np_x, np_y)
-        self.set_fileinformation(self.openFile)
+        self.analyze_data(xData, yData)
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+        self.set_fileinformation(file)
+
+        self.openFile = file;
+        return 0
+
+    def analyze_data(self, xData, yData, updateResults=True):
+        """Analyze data with DataHandler to obtain all parameters for the
+        processed spectrum.
+        """
+
+        # Check for a valid structure of the data
+        if not len(xData) and len(xData) == len(yData):
+            dialog.critical_unknownFiletype(self)
+            return 1
+
+        connect = self.window.connect_results if updateResults else None;
+
+        # Sent the raw data to the DataHandler and get parameters
+        # TODO: function required for getting parameters and errorhandling!
+        # TODO: Is Central wavelength depending on the selected Fitting?
+        spec_proc = DataHandler(xData, yData,
+                        self.window.get_central_wavelength(),
+                        self.window.get_grating(),
+                        fittings=self.fittings,
+                        funConnection=connect)
+
+        #calculate results
+        # TODO: no validation of results?
+        procX, procY = spec_proc.get_processed_data()
+        baseline, _ = spec_proc.get_baseline()
+
+        # Update and plot the spectra
+        self.rawSpectrum.update_data(xData, yData)
+        self.rawSpectrum.add_baseline(baseline)
+        self.processedSpectrum.update_data(procX, procY)
+
         return 0
 
 

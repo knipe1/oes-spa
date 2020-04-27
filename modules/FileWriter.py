@@ -81,21 +81,6 @@ class FileWriter(FileFramework):
         dialog.information_ExportFinished(expFilename)
         return True
 
-    # def select_directory(self):
-    #     """
-    #     Opens a native dialog to select a directory. If one is selected that one is saved as last used directory
-
-    #     Returns
-    #     -------
-    #     directory : string
-    #         Path of the directory.
-
-    #     """
-    #     directory = dialog.dialog_getDirectory(self.parent.lastdir)#, self.parent.widget)
-    #     # back up the used directory, if a directory was selected
-    #     if directory:
-    #         self.parent.lastdir = directory
-    #     return directory
 
     def build_exp_filename(self, exportType):
         """Alters the current filename to a standard processed export

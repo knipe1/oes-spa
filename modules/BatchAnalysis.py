@@ -37,21 +37,8 @@ from modules.Universal import ExportType
 
 
 # Enums
-class CHARACTERISTIC(Enum):
-    """Including the labels to link numerical values to characteristic ones."""
-    PEAK_HEIGHT = "Peak height"
-    PEAK_AREA = "Peak area"
-    BASELINE = "Baseline"
-    PEAK_POSITION = "Peak position"
-    HEADER_INFO = "Header info"
-
-class BATCH_CONFIG(Enum):
-    """Including the keys for the dictionary of the batch configuration."""
-    CHECKBOX = "checkbox"
-    VALUE = "value"
-    STATUS = "status"
-    LABEL = "label"
-    NAME = "name"
+from custom_types.CHARACTERISTIC import CHARACTERISTIC
+from custom_types.BATCH_CONFIG import BATCH_CONFIG
 
 
 class BatchAnalysis(QDialog):
@@ -399,8 +386,8 @@ class BatchAnalysis(QDialog):
             spec_proc = DataHandler(data_x, data_y,
                         self.parent().window.get_central_wavelength(),
                         self.parent().window.get_grating(),
-                        fittings=self.parent().fittings,
-                        funConnection=self.parent().window.connect_results)
+                        fittings=self.parent().fittings,)
+                        # funConnection=self.parent().window.connect_results)
 
             _, avg = spec_proc.get_baseline()
             peak_height, peak_area = spec_proc.get_peak()
