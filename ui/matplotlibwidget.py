@@ -10,59 +10,94 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT\
                                             as NavigationToolbar
 from matplotlib.figure import Figure
 
-from matplotlib import rcParams, use, pyplot
-rcParams['font.size'] = 9
+from matplotlib import rc
+from modules.Universal import load_config
+
+
+config = load_config();
+PLOT = config.get("PLOT")
+
+# set default rc parameter.
+if not PLOT == None:
+    rc('lines', linewidth=PLOT.get("DEF_LINEWIDTH"),
+       color=PLOT.get("DEF_AXIS_COLOR"))
+    # config param?
+    rc('font', size=9)
 
 
 class MplCanvas(Canvas):
-    def __init__(self, parent=None, title=' ', xlabel='x', ylabel='y',
-                 xlim=None, ylim=None, xscale='linear', yscale='linear',
-                 width=2, height=2, dpi=100):
-        self.figure = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.figure.add_subplot(1, 1, 1)
-        # set title and label
-        self.axes.set_title(title)
-        self.axes.set_xlabel(xlabel)
-        self.axes.set_ylabel(ylabel)
-        # scaling of the axes
-        if xscale is not None:
-            self.axes.set_xscale(xscale)
-        if yscale is not None:
-            self.axes.set_yscale(yscale)
-        # limits of the axes
-        if xlim is not None:
-            self.axes.set_xlim(*xlim)
-        if ylim is not None:
-            self.axes.set_ylim(*ylim)
+    def __init__(self, parent=None, title=None, xLabel='X', yLabel='Y',
+                 xlim=None, ylim=None, width=2, height=2, dpi=100):
+        # set up a figure
+        figure = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = figure.add_subplot(1, 1, 1)
+        Canvas.__init__(self, figure)
 
-        Canvas.__init__(self, self.figure)
-        self.setParent(parent)
-        Canvas.setSizePolicy(self, QSizePolicy.Expanding,
-                             QSizePolicy.Expanding)
-        Canvas.updateGeometry(self)
+        # set title and label
+        self.update_layout(title=title, xLabel=xLabel, yLabel=yLabel)
+
+        # TODO: neccessary?
+        # self.setParent(parent)
+        # TODO: neccessary?
+        # docs: https://doc.qt.io/qt-5/qsizepolicy.html
+        # Canvas.setSizePolicy(self, QSizePolicy.Expanding,
+        #                      QSizePolicy.Expanding)
+        # TODO: neccessary?
+        # Canvas.updateGeometry(self)
+
+        # Improves the layout and look of the plots.
         self.figure.set_tight_layout(True)
 
-    def sizeHint(self):
-        width, height = self.get_width_height()
-        return QSize(width, height)
 
-    def minimumSizeHint(self):
-        return QSize(10, 10)
+    def update_layout(self, title=None, xLabel=None, yLabel=None, xLimit=None,
+                      yLimit=None):
+
+        axes = self.axes;
+
+        if not title == None:
+            axes.set_title(title)
+        if not xLabel == None:
+            axes.set_xlabel(xLabel)
+        if not yLabel == None:
+            axes.set_ylabel(yLabel)
+        if not xLimit == None:
+            axes.set_xlim(*xLimit)
+        if not yLimit == None:
+            axes.set_ylim(*yLimit)
 
 
 class MatplotlibWidget(QWidget):
-    def __init__(self, parent=None, title=' ', xlabel='x', ylabel='y',
-                 xlim=None, ylim=None, xscale='linear', yscale='linear',
-                 width=2, height=2, dpi=100):
+    def __init__(self, parent=None):
+        # init the inherited class.
         QWidget.__init__(self, parent)
-        self.canvas = MplCanvas()
-        self.axes = self.canvas.axes
-        self.mpl_toolbar = NavigationToolbar(self.canvas, self)
+        # using a vertical layout: toolbar below graph.
         self.vbl = QVBoxLayout()
-        self.vbl.addWidget(self.canvas)
-        self.vbl.addWidget(self.mpl_toolbar)
+        self.add_canvas(self.vbl)
+        self.add_toolbar(self.vbl)
         self.setLayout(self.vbl)
 
+        # Enable the update-method also for axes instances
+        if self.canvas:
+            self.axes.update_layout = self.canvas.update_layout
+
+
     def draw(self):
+        # update the plot and redraw it immediately
+        self.axes.legend();
         self.canvas.draw()
         self.canvas.flush_events()
+
+
+
+    def add_canvas(self, layout, **kwargs):
+        # set up the canvas object (with no parameter).
+        # A canvas is a container holding several drawing elements(like axis,
+        # lines, shapes, ...)
+        self.canvas = MplCanvas(**kwargs)
+        self.axes = self.canvas.axes
+        layout.addWidget(self.canvas)
+
+    def add_toolbar(self, layout):
+        # set up a toolbar
+        mpl_toolbar = NavigationToolbar(self.canvas, self)
+        layout.addWidget(mpl_toolbar)

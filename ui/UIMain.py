@@ -262,7 +262,6 @@ class UIMain(Ui_main):
         sigTime.connect(self.toutTime.setText)
 
 
-
     def retrieve_fittings(self) -> list:
         """
         Retrieve all fitting files of the directory of fittings.

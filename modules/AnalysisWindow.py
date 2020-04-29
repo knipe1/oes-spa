@@ -217,16 +217,17 @@ class AnalysisWindow(QMainWindow):
 
 
     def init_plot(self, spectrum):
-        # found and central configuration
-        lineMarkup = {"linewidth": self.PLOT.get("DEF_LINEWIDTH"),
-                      "color": self.PLOT.get("DEF_AXIS_COLOR")}
 
         axes = spectrum.ui.axes
+        labels = spectrum.labels
+
+        # Reset plot.
         axes.clear();
-        axes.set_xlabel(spectrum.labels.get("xLabel", "x axis"));
-        axes.set_ylabel(spectrum.labels.get("yLabel", "y axis"));
-        axes.axhline(**lineMarkup)
-        axes.axvline(**lineMarkup)
+        # Add a coordinate origin with default markup.
+        axes.axhline()
+        axes.axvline()
+        # Update the labels of the plot.
+        axes.update_layout(**labels)
 
 
     def update_plot(self, spectrum):
@@ -242,8 +243,7 @@ class AnalysisWindow(QMainWindow):
             axes.plot(spec.xData, spec.baseline, **spec.baselineMarkup);
 
         # zoom to specific area
-        axes.set_xlim(spec.xData[0], spec.xData[-1]);
-        axes.legend();
+        axes.update_layout(xLimit=(spec.xData[0], spec.xData[-1]));
 
         spec.ui.draw();
         return 0;
@@ -281,6 +281,7 @@ class AnalysisWindow(QMainWindow):
                                                 self.SIG_time)
             self.SIG_filename.emit(filereader.filename)
             self.SIG_date.emit(date)
+            self.SIG_time.emit(time)
         except:
             pass
 
@@ -361,5 +362,5 @@ class AnalysisWindow(QMainWindow):
             self.apply_data(self.openFile.filename)
             self.logger.info("Redraw triggered by:" + text)
         except:
-            pass
+            self.logger.warning("Redraw Failed")
 
