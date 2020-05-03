@@ -15,36 +15,87 @@ import numpy as np
 from PyQt5.QtCore import QFileInfo  # provides system-independent file info
 
 # local modules/libs
-import modules.Universal as uni
+from ConfigLoader import ConfigLoader
 from modules.FileFramework import FileFramework
 
 
-config = uni.load_config()
-# marker
-MARKER = config["MARKER"];
-# export/save
-EXPORT = config["EXPORT"];
-# file strucutre
-DATA_STRUCTURE = config["DATA_STRUCTURE"];
+# Load the configuration for extracting data of a data structure.
+config = ConfigLoader()
+DATA_STRUCTURE = config.DATA_STRUCTURE;
 
 
 class FileReader(FileFramework):
     """File reader for spectral data files """
+
+    ### Properties
+
+    @property
+    def timestamp(self):
+        """timestamp getter"""
+        return self.date + " " + self.time
+
+    @property
+    def data(self):
+        """data getter"""
+        return (self.xData, self.yData)
+
+    @property
+    def header(self):
+        """header getter"""
+        return (self.filename, self.date, self.time)
+
     def __init__(self, filename):
         FileFramework.__init__(self, filename)
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
-        self.timestamp = ""
         self.date = ""
         self.time = ""
 
+        self.__post_init__()
+
+    def __post_init__(self):
+        self.read_file()
+
+    def is_valid_datafile(self) -> bool:
+        """
+        Checks whether the file contains valid data.
+
+        Returns
+        -------
+        isValid: bool
+            True: Contains valid data.
+            False: If not...
+
+        """
+        isValid = True;
+
+        # Filetype.
+        if not self.get_filetype():
+            isValid = False;
+
+        # Data in general.
+        if not len(self.xData):
+            isValid = False;
+
+        # Data that have same length.
+        if len(self.xData) != len(self.yData):
+            isValid = False;
+
+        # Check file information.
+        if not self.time or not self.date:
+            isValid = False;
+
+        return isValid;
+
+
     def get_filetype(self):
-        """Determine filetype"""
-        suffixes = ("spk", "Spk", "csv") # TODO: magic
+        """Determine filetype."""
+        # Use active dict access here to raise an error.
+        suffixes = self.IMPORT["VALID_SUFFIX"]
         fileinfo = QFileInfo(self.filename).suffix().lower()
 
         if not fileinfo in suffixes:
-            return ""
+            fileinfo = False;
 
         return fileinfo
 
@@ -80,7 +131,7 @@ class FileReader(FileFramework):
                 return 1
 
 
-            if get_header(csvReader, MARKER["HEADER"]):
+            if get_header(csvReader, self.MARKER["HEADER"]):
                 print("FileReader: No valid header")
                 return 1
 
@@ -91,18 +142,7 @@ class FileReader(FileFramework):
 
         data = np.array(data, dtype=DEFAULT_TYPE)
         self.xData, self.yData = data[:, 0], data[:, 1]
-
-    def get_values(self):
-        """Return x and y data of the file"""
-        if not self.xData.size or not self.yData.size:
-            self.read_file()
-        return self.xData, self.yData
-
-    def get_head(self):
-        """Return header information"""
-        if not self.time or not self.date:
-            self.read_file()
-        return self.time, self.date
+        return 0
 
     def get_exported_header(self, csvReader, marker):
         """
@@ -192,7 +232,7 @@ class FileReader(FileFramework):
 
         # iterating until the marker was found
         for row in csvReader:
-            if MARKER["DATA"] in row[0]:
+            if self.MARKER["DATA"] in row[0]:
                 break;
 
         # collecting the data

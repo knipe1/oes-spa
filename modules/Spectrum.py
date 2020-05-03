@@ -13,17 +13,17 @@ Created on Sat Apr 25 2020
 # third-party libs
 
 # local modules/libs
-import modules.Universal as uni
-from modules.Universal import ExportType
+from ConfigLoader import ConfigLoader
 from Logger import Logger
 
 # Enums
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 class Spectrum():
 
-    # Getting the neccessary configs
-    config = uni.load_config()
-    PLOT = config.get("PLOT");
+    # Load the configuration for plotting properties.
+    config = ConfigLoader()
+    PLOT = config.PLOT;
 
     # set up the logger
     logger = Logger(__name__)
@@ -33,10 +33,10 @@ class Spectrum():
     @classmethod
     def get_labels(cls, exportType):
         labels = {};
-        if exportType == ExportType.RAW:
+        if exportType == EXPORT_TYPE.RAW:
             labels = {"xLabel":cls.PLOT["RAW_X_LABEL"],
                       "yLabel":cls.PLOT["RAW_Y_LABEL"]}
-        elif exportType == ExportType.PROCESSED:
+        elif exportType == EXPORT_TYPE.PROCESSED:
             labels = {"xLabel":cls.PLOT["PROCESSED_X_LABEL"],
                       "yLabel":cls.PLOT["PROCESSED_Y_LABEL"]}
         return labels
@@ -45,10 +45,10 @@ class Spectrum():
     @classmethod
     def get_markup(cls, exportType):
         markup = {};
-        if exportType == ExportType.RAW:
+        if exportType == EXPORT_TYPE.RAW:
             markup = {"color": cls.PLOT["RAW_DATA_COLOR"],
                       "label": cls.PLOT["RAW_DATA_LABEL"]}
-        elif exportType == ExportType.PROCESSED:
+        elif exportType == EXPORT_TYPE.PROCESSED:
             markup = {"color": cls.PLOT["PROCESSED_DATA_COLOR"],
                       "label": cls.PLOT["PROCESSED_DATA_LABEL"]}
         elif exportType == cls.BASELINE:
@@ -60,7 +60,7 @@ class Spectrum():
 
     def __init__(self, uiElement, exportType, xData=[], yData=[], baseline=[]):
         self.ui = uiElement;
-        if not isinstance(exportType, ExportType):
+        if not isinstance(exportType, EXPORT_TYPE):
             raise TypeError("Invalid instance of Spectrum-object!")
         self.exportType = exportType;
         self.xData = xData;

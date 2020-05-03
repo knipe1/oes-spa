@@ -28,6 +28,7 @@ import os
 from PyQt5.QtCore import pyqtBoundSignal
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from ui.ui_main_window import Ui_main
 from Logger import Logger
@@ -82,9 +83,9 @@ class UIMain(Ui_main):
     # set up the logger
     logger = Logger(__name__)
 
-    # Getting the neccessary configs
-    config = uni.load_config()
-    FITTING = config["FITTING"];
+    # Load the configuration for fitting properties.
+    config = ConfigLoader()
+    FITTING = config.FITTING;
 
     ### properties
 
@@ -287,8 +288,9 @@ class UIMain(Ui_main):
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
                     path = os.path.join(self.FITTING["DIR"], file)
-                    fitConfig = uni.load_config(path)
-                    fitName = fitConfig.get("NAME")
+
+                    fitConfig = ConfigLoader(path)
+                    fitName = fitConfig.config.get("NAME")
                     fitDict[file] = fitName
 
         return fitDict

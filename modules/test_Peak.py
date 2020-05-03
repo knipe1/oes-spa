@@ -12,7 +12,7 @@ import unittest
 
 # third-party libs
 import emulator as emu
-import threading as thrd
+import threading as THR
 
 # local modules/libs
 from modules.Peak import Peak

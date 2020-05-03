@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Implementing a default config for a logger. Provides a general logging system 
+Implementing a default config for a logger. Provides a general logging system
 and using the default logging levels.
 
-Usage: 
+Usage:
     from Logger import Logger
     logger = Logger(__name__)
     # then use logger obj as normal logger for messages
@@ -37,7 +37,7 @@ Created on Sun Mar 29 12:21:03 2020
 
 # Advanced techniques
 # logger = logging.getLogger(__name__) --> __name__ is convention
-#   will use another logger with a possible different config to write in 
+#   will use another logger with a possible different config to write in
 #   different files, console output or something else.
 # streamhandler:
 # splitting of different setting to different handler (files or consoles)
@@ -47,7 +47,7 @@ Created on Sun Mar 29 12:21:03 2020
 import logging
 
 # local modules/libs
-import modules.Universal as uni
+from ConfigLoader import ConfigLoader
 from dialog_messages import dialog_LogFileNotFound
 
 class Logger():
@@ -56,15 +56,15 @@ class Logger():
 
     This class provides a universal logger that can be used for logging into
     the same file from different modules.
-    
-    Usage: 
+
+    Usage:
         from Logger import Logger
         logger = Logger(__name__)
         # then use logger obj as normal logger for messages
         logger.debug("debug message")
         # changing config requires access to logger.logger
         logger.logger.setLevel(logging.ERROR) #requires import logging.ERROR
-    
+
     Attributes
     ----------
     level : int
@@ -76,8 +76,8 @@ class Logger():
         Logs are written to this file (default defined in config.log->FILE
                                        ->LOG_FILE)
     mode : str
-        The logger opens the logfile in this mode. Options are: w, a 
-        (default w). 
+        The logger opens the logfile in this mode. Options are: w, a
+        (default w).
         See also: https://docs.python.org/3/library/functions.html#open
 
     Methods
@@ -94,17 +94,18 @@ class Logger():
          Writing the message to the log with level ERROR inclusive Traceback.
     critical(msg: str, extra=None)
          Writing the message to the log with level CRITICAL.
-         
+
     """
-    
-    config = uni.load_config()
-    FILE = config["FILE"]
-    
+
+    # Load the configuration for filesystem properties.
+    config = ConfigLoader()
+    FILE = config.FILE
+
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     filename = FILE["LOG_FILE"]
     mode = "w"
-    
+
     def __init__(self, name: str):
         """
         Parameters
@@ -119,38 +120,38 @@ class Logger():
         None.
 
         """
-        
+
         # Setting up the logger with the default configuration.
         self.logger = logging.getLogger(name)   # get or create the logger
         self.logger.setLevel(self.level)
-        
+
         # removing all handler from previous sessions to set up a clean logger
         while len(self.logger.handlers):
             self.logger.removeHandler(self.logger.handlers[0])
 
 
-        
+
         # config a file handler
         # TODO: Adjust according to issue #17!
         try:
-            fhandler = logging.FileHandler(filename = self.filename, 
+            fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
         except FileNotFoundError:
             filename = dialog_LogFileNotFound()
             # set the default log.file
-            fhandler = logging.FileHandler(filename = filename, 
+            fhandler = logging.FileHandler(filename = filename,
                                            mode = self.mode)
             print(name)
-        
+
         fhandler.setLevel(self.level)
-        
+
         # config the format of the handler
         formatter = logging.Formatter(self.format)
         fhandler.setFormatter(formatter)
-        
+
         # the handler can now log messages
         self.logger.addHandler(fhandler)
-        
+
     def debug(self, msg: str, extra=None):
         """
         Writing the message to the log with level DEBUG.
@@ -160,7 +161,7 @@ class Logger():
         msg : str
             This string will appear inside the log.
         extra : TYPE, optional
-            Additional arguments according to the docs of the logging module. 
+            Additional arguments according to the docs of the logging module.
             The default is None.
 
         Returns
@@ -168,9 +169,9 @@ class Logger():
         None.
 
         """
-        
+
         self.logger.debug(msg, extra = extra)
-        
+
     def info(self, msg: str, extra=None):
         """
         Writing the message to the log with level INFO.
@@ -180,7 +181,7 @@ class Logger():
         msg : str
             This string will appear inside the log.
         extra : TYPE, optional
-            Additional arguments according to the docs of the logging module. 
+            Additional arguments according to the docs of the logging module.
             The default is None.
 
         Returns
@@ -188,9 +189,9 @@ class Logger():
         None.
 
         """
-        
+
         self.logger.info(msg, extra = extra)
-        
+
     def warning(self, msg: str, extra=None):
         """
         Writing the message to the log with level WARNING.
@@ -200,7 +201,7 @@ class Logger():
         msg : str
             This string will appear inside the log.
         extra : TYPE, optional
-            Additional arguments according to the docs of the logging module. 
+            Additional arguments according to the docs of the logging module.
             The default is None.
 
         Returns
@@ -208,9 +209,9 @@ class Logger():
         None.
 
         """
-        
+
         self.logger.warning(msg, extra = extra)
-        
+
     def error(self, msg, extra=None):
         """
         Writing the message to the log with level ERROR.
@@ -220,7 +221,7 @@ class Logger():
         msg : str
             This string will appear inside the log.
         extra : TYPE, optional
-            Additional arguments according to the docs of the logging module. 
+            Additional arguments according to the docs of the logging module.
             The default is None.
 
         Returns
@@ -228,9 +229,9 @@ class Logger():
         None.
 
         """
-        
+
         self.logger.error(msg, extra = extra)
-        
+
     def critical(self, msg: str, extra=None):
         """
         Writing the message to the log with level CRITICAL.
@@ -240,7 +241,7 @@ class Logger():
         msg : str
             This string will appear inside the log.
         extra : TYPE, optional
-            Additional arguments according to the docs of the logging module. 
+            Additional arguments according to the docs of the logging module.
             The default is None.
 
         Returns
@@ -248,9 +249,9 @@ class Logger():
         None.
 
         """
-        
+
         self.logger.critical(msg, extra = extra)
-        
+
     def exception(self, msg, extra=None):
         """
         Writing the message to the log with level ERROR inclusive Traceback.
@@ -260,7 +261,7 @@ class Logger():
         msg : str
             This string will appear inside the log.
         extra : TYPE, optional
-            Additional arguments according to the docs of the logging module. 
+            Additional arguments according to the docs of the logging module.
             The default is None.
 
         Returns
@@ -268,6 +269,6 @@ class Logger():
         None.
 
         """
-        
+
         self.logger.exception(msg, extra = extra)
 

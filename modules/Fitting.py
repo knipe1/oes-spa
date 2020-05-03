@@ -19,6 +19,7 @@ import os
 from PyQt5 import QtCore
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from Logger import Logger
 from modules.Peak import Peak
@@ -45,12 +46,11 @@ class Fitting(QtCore.QObject):
 
     """
 
+    # Load the configuration for fitting properties.
+    config = ConfigLoader()
+    FITTING = config.FITTING;
 
-    # Getting the neccessary configs
-    config = uni.load_config()
-    FITTING = config["FITTING"];
-
-    # set up the logger
+    # Set up the logger.
     logger = Logger(__name__)
 
     # variables
@@ -97,6 +97,7 @@ class Fitting(QtCore.QObject):
     def currentName(self, name):
         self._currentName = name
 
+
     def load_current_fitting(self, fitting_name:str) -> dict:
         """
         Retrieve the config of the currently selected fitting.
@@ -127,6 +128,6 @@ class Fitting(QtCore.QObject):
 
         # load the config from the file and set the current config
         path = os.path.join(self.FITTING["DIR"], current_fit)
-        fitConfig = uni.load_config(path)
+        fitConfig = ConfigLoader(path)
 
-        self.currentFitting = fitConfig
+        self.currentFitting = fitConfig.config

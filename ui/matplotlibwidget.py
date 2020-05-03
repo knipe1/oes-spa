@@ -11,11 +11,11 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT\
 from matplotlib.figure import Figure
 
 from matplotlib import rc
-from modules.Universal import load_config
+from ConfigLoader import ConfigLoader
 
 
-config = load_config();
-PLOT = config.get("PLOT")
+config = ConfigLoader();
+PLOT = config.PLOT
 
 # set default rc parameter.
 if not PLOT == None:

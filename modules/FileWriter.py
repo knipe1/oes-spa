@@ -12,6 +12,7 @@ Created on Mon Jan 27 11:02:13 2020
 
 # standard libs
 import csv
+from datetime import datetime
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
@@ -19,21 +20,26 @@ from modules.FileFramework import FileFramework
 
 # local modules/libs
 import dialog_messages as dialog
-from modules.Universal import ExportType
+
+# Enums
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
 class FileWriter(FileFramework):
     """File reader for spectral data files """
-    def __init__(self, parent, filename, timestamp):
+
+
+    def __init__(self, filename, timestamp=None):
         FileFramework.__init__(self, filename)
-        # TODO: doublecheck usage of parent...
-        self.parent = parent
 
         # TODO: Errorhandling if directory is cancelled or does not exist
         # self.directory = self.select_directory()
+
+        # (Create and) assign timestamp.
+        if timestamp == None:
+            timestamp = datetime.now()
+            timestamp = timestamp.strftime(self.EXPORT["FORMAT_TIMESTAMP"])
         self.timestamp = timestamp
-
-
 
 
     def write_data(self, data, labels, exportType, additionalInformation = {}):
@@ -48,7 +54,7 @@ class FileWriter(FileFramework):
             Describes the properties of the data.
         additionalInformation : dict, optional
             A dictionary that uses the Key and value as entries. Used for additional characteristic values. The default is {}.
-        exportType : enum ExportType
+        exportType : enum EXPORT_TYPE
             Adding an appendix to the filename according to the spectrum that is exported.
 
         Returns
@@ -73,7 +79,9 @@ class FileWriter(FileFramework):
             # adding labels
             csvWr.writerow(labels)
             # adding marker. Important also for import function
-            if exportType == ExportType.RAW or exportType == ExportType.PROCESSED:
+            if exportType == EXPORT_TYPE.RAW \
+                or exportType == EXPORT_TYPE.PROCESSED:
+
                 csvWr.writerow([self.MARKER["DATA"]])
             # write data
             csvWr.writerows(data)
@@ -99,9 +107,9 @@ class FileWriter(FileFramework):
 
         # get the correct appendix
         appendix = ""
-        if exportType == ExportType.RAW:
+        if exportType == EXPORT_TYPE.RAW:
             appendix = self.EXPORT["RAW_APPENDIX"]
-        elif exportType == ExportType.PROCESSED:
+        elif exportType == EXPORT_TYPE.PROCESSED:
             appendix = self.EXPORT["PROCESSED_APPENDIX"];
 
         return rawFilename+appendix+self.EXPORT["EXP_SUFFIX"];

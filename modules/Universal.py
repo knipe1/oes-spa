@@ -5,81 +5,54 @@ This module is for general purposes and includes various functions
 
 @author: Hauke Wernecke
 """
-# load_config-function
-def load_config(path="./config.yml"):
-    # load the config
-    with open(path, "r", newline='') as ymlfile:
-        config = yaml.load(ymlfile, Loader=yaml.FullLoader)
-    return config
 
 # standard libs
-import yaml
 import re
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
-from enum import Enum, auto
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import dialog_messages as dialog
 
+# Load the configuration for import and batch properties.
+config = ConfigLoader()
+IMPORT = config.IMPORT
+BATCH = config.BATCH
 
-def save_config(conf: dict, path="./config.yml"):
-    # load the config
-    with open(path, "w", newline='') as ymlfile:
-        config = yaml.dump(conf, ymlfile)
-    return config
-
-
-
-# load the configs
-config = load_config()
-IMPORT = config["IMPORT"]
-BATCH = config["BATCH"]
-
-class ExportType(Enum):
-    """
-    class to provide an interace for file properties depending on the export type
-    """
-    RAW = auto()
-    PROCESSED = auto()
-    BATCH = auto()
-
-
-# TODO: Sinnvoll?
-def load_files(directory):
-    return dialog.dialog_openFiles(directory, IMPORT["SUFFIXES"])
-
-def is_valid_filetype(parent, url):
+def is_valid_filetype(url):
         """checks if the given url is valid to load the data"""
+
         isValid = True;
         file = url.toLocalFile();
 
         if not url.isValid():
             isValid = False;
 
-        if not QFileInfo(file).completeSuffix().lower() in IMPORT["VALID_SUFFIX"]:
+        # Validate suffix.
+        completeSuffix = QFileInfo(file).completeSuffix().lower()
+        if not completeSuffix in IMPORT["VALID_SUFFIX"]:
             isValid = False;
-            dialog.critical_unknownSuffix(IMPORT["VALID_SUFFIX"], parent)
 
         return isValid;
 
 
 
-def extract_xy_data(axis, label, separated=False):
-    """extract the x and y data from a axis object and return them together or
-    separated"""
+# def extract_xy_data(axis, label, separated=False):
+#     """extract the x and y data from a axis object and return them together or
+#     separated"""
 
-    data = None;
+#     data = None;
 
-    for line in axis.get_lines():
-        if line.get_label() == label:
-            if separated:
-                data = (line.get_xdata(), line.get_ydata())
-            else:
-                data = line.get_xydata()
-            break
-    return data
+#     for line in axis.get_lines():
+#         if line.get_label() == label:
+#             if separated:
+#                 data = (line.get_xdata(), line.get_ydata())
+#             else:
+#                 data = line.get_xydata()
+#             break
+#     return data
 
 
 def reduce_path(url):

@@ -10,10 +10,11 @@ import sys
 
 # third-party libs
 import emulator as emu
-import threading as thrd
+import threading as THR
 from PyQt5.QtWidgets import QApplication
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 from Logger import Logger
@@ -36,7 +37,7 @@ def main():
     try:
         # window.export_raw()
         window.file_open("./sample files/Asterix1059 1.Spk")
-        # window.export_raw()
+        window.export_raw()
         # window.export_processed()
         # window.file_open("./sample files/Asterix1059 1_raw.csv")
         # window.export_processed()
@@ -46,16 +47,16 @@ def main():
 
     # window.batch.show()
     # # text = "filename"
-    # # arbitrary = thrd.Thread(target=emu.key_arbitrary, args=[text])
+    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
     # # arbitrary.start()
     # # accept the name
-    # enter = thrd.Thread(target=emu.key_accept)
+    # enter = THR.Thread(target=emu.key_accept)
     # enter.start()
     # # # in case of file already exists
-    # yes = thrd.Thread(target=emu.key_alt_j)
+    # yes = THR.Thread(target=emu.key_alt_j)
     # yes.start()
     # window.batch.window.btnSetFilename.click()
-    # selection = thrd.Thread(target=emu.key_select_file, args=[10])
+    # selection = THR.Thread(target=emu.key_select_file, args=[10])
     # selection.start()
     # window.batch.browse_spectra()
     # window.batch.window.cbPeakHeight.click()

@@ -13,16 +13,15 @@ import unittest
 
 # third-party libs
 import emulator as emu
-import threading as thrd
+import threading as THR
 from PyQt5.QtCore import QFileInfo
 
 # local modules/libs
-from modules.Universal import load_files
 from modules.Universal import reduce_path
 from modules.Universal import add_index_to_text
 
 class TestLoadFiles(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
         """
@@ -38,42 +37,42 @@ class TestLoadFiles(unittest.TestCase):
         cls.spkFile_2 = path + "spkfile_2.spk";
         cls.textfile_2 = path + "textfile.docx";
         cls.multSpk = path + '"spkfile_1.Spk" "spkfile_2.spk"';
-        
-        
+
+
     @classmethod
     def tearDownClass(cls):
         pass
-    
-    def setUp(self):        
+
+    def setUp(self):
         pass
     def tearDown(self):
         pass
 
-    def test_loadfiles(self):
-        # Open the dialog and reject it (start thread before open dialog)
-        enter = thrd.Thread(target=emu.key_accept)
-        enter.start()
-        singleSpkFile = load_files(self.spkFile_1)[0];
-        enter = thrd.Thread(target=emu.key_accept)
-        enter.start()
-        singleCsvFile = load_files(self.csvFile_1)[0];
-        enter = thrd.Thread(target=emu.key_accept)
-        enter.start()
-        singleDocxFile = load_files(self.textfile_2)[0];
-        enter = thrd.Thread(target=emu.key_accept)
-        enter.start()
-        multDataFiles = load_files(self.multSpk);
+    # def test_loadfiles(self):
+    #     # Open the dialog and reject it (start thread before open dialog)
+    #     enter = THR.Thread(target=emu.key_accept)
+    #     enter.start()
+    #     singleSpkFile = load_files(self.spkFile_1)[0];
+    #     enter = THR.Thread(target=emu.key_accept)
+    #     enter.start()
+    #     singleCsvFile = load_files(self.csvFile_1)[0];
+    #     enter = THR.Thread(target=emu.key_accept)
+    #     enter.start()
+    #     singleDocxFile = load_files(self.textfile_2)[0];
+    #     enter = THR.Thread(target=emu.key_accept)
+    #     enter.start()
+    #     multDataFiles = load_files(self.multSpk);
 
-        self.assertEqual(singleSpkFile, self.spkFile_1, "Spk-File");
-        self.assertEqual(singleCsvFile, self.csvFile_1, "Csv-File");
-        self.assertEqual(singleDocxFile, self.textfile_2, "Docx-File");
-        self.assertEqual(len(multDataFiles), 2, "Multiple Files");
+    #     self.assertEqual(singleSpkFile, self.spkFile_1, "Spk-File");
+    #     self.assertEqual(singleCsvFile, self.csvFile_1, "Csv-File");
+    #     self.assertEqual(singleDocxFile, self.textfile_2, "Docx-File");
+    #     self.assertEqual(len(multDataFiles), 2, "Multiple Files");
 
-    def test_values(self):
-        with self.assertRaises(TypeError):
-            load_files(12)
-            load_files(["asd", 12])
-            load_files(3.4)
+    # def test_values(self):
+    #     with self.assertRaises(TypeError):
+    #         load_files(12)
+    #         load_files(["asd", 12])
+    #         load_files(3.4)
 
 class TestReducePath(unittest.TestCase):
     def setUp(self):
