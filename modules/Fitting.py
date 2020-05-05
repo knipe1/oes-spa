@@ -56,9 +56,12 @@ class Fitting(QtCore.QObject):
     # variables
     _fittings = {}
 
-    def __init__(self, fittings):
+    # def __init__(self, fittings):
+    #     QtCore.QObject.__init__(self)
+    #     self.fittings = fittings
+    def __init__(self, fitting):
         QtCore.QObject.__init__(self)
-        self.fittings = fittings
+        self.currentFitting = fitting
 
     ### Properties
     @property
@@ -98,36 +101,36 @@ class Fitting(QtCore.QObject):
         self._currentName = name
 
 
-    def load_current_fitting(self, fitting_name:str) -> dict:
-        """
-        Retrieve the config of the currently selected fitting.
+    # def load_current_fitting(self, fitting_name:str) -> dict:
+    #     """
+    #     Retrieve the config of the currently selected fitting.
 
-        Can be connected to the signal of an ui element, e.g.
-        "currentTextChanged".
+    #     Can be connected to the signal of an ui element, e.g.
+    #     "currentTextChanged".
 
-        Parameters
-        ----------
-        fitting_name : str
-            The name of the selected fitting within the ui element.
+    #     Parameters
+    #     ----------
+    #     fitting_name : str
+    #         The name of the selected fitting within the ui element.
 
-        Returns
-        -------
-        fitConfig : dict
-            Contains the config of the selected fitting.
+    #     Returns
+    #     -------
+    #     fitConfig : dict
+    #         Contains the config of the selected fitting.
 
-        """
-        # TODO: another function? if so, use current_fitting as property
-        # and use the other funtion?
-        # TODO: check out the class Peak!
-        # get the selected fitting
-        self.logger.info("load current fitting")
-        for fit, name in self.fittings.items():
-            if name == fitting_name:
-                current_fit = fit
-                break
+    #     """
+    #     # TODO: another function? if so, use current_fitting as property
+    #     # and use the other funtion?
+    #     # TODO: check out the class Peak!
+    #     # get the selected fitting
+    #     self.logger.info("load current fitting")
+    #     for fit, name in self.fittings.items():
+    #         if name == fitting_name:
+    #             current_fit = fit
+    #             break
 
-        # load the config from the file and set the current config
-        path = os.path.join(self.FITTING["DIR"], current_fit)
-        fitConfig = ConfigLoader(path)
+    #     # load the config from the file and set the current config
+    #     path = os.path.join(self.FITTING["DIR"], current_fit)
+    #     fitConfig = ConfigLoader(path)
 
-        self.currentFitting = fitConfig.config
+    #     self.currentFitting = fitConfig.config

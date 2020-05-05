@@ -99,11 +99,12 @@ class FileWriter(FileFramework):
         for suffix in self.IMPORT["VALID_SUFFIX"]:
             rawFilename = rawFilename.replace("."+suffix, "")
 
-        # check whether the user is about to export an exported spectrum
-        if rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0\
-            or rawFilename.rfind(self.EXPORT["PROCESSED_APPENDIX"]) >= 0\
-            or rawFilename.rfind(self.EXPORT["DEF_BATCH_NAME"]) >= 0:
-                return ""
+        # Check whether the user is about to export an exported spectrum.
+        isRawSpectrum = rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0
+        isProccessedSpectrum = rawFilename.rfind(
+            self.EXPORT["PROCESSED_APPENDIX"]) >= 0
+        if isRawSpectrum or isProccessedSpectrum:
+            return ""
 
         # get the correct appendix
         appendix = ""

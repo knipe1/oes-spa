@@ -28,12 +28,13 @@ import os
 from PyQt5.QtCore import pyqtBoundSignal
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-import modules.Universal as uni
 from ui.ui_main_window import Ui_main
+from ConfigLoader import ConfigLoader
+from modules.Fitting import Fitting
 from Logger import Logger
 
-# enums
+# enums and dataclasses
+from modules.BasicSetting import BasicSetting
 from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.CHARACTERISTIC import CHARACTERISTIC
 
@@ -124,12 +125,13 @@ class UIMain(Ui_main):
 
         """
         self.setupUi(parent)
+        self.UI_MAPPING = self.init_mapping()
         self.__post_init__()
 
 
     def __post_init__(self):
-        self.UI_MAPPING = self.init_mapping()
         self.fittings = self.retrieve_fittings()
+        self.connect_select_fitting(self.load_current_fitting)
 
 
     # TODO: ought be immutable
@@ -196,13 +198,11 @@ class UIMain(Ui_main):
         """Interface to connect fun to text changed signal of the dropdown."""
         # TODO: evaluate the pro and cons
         # Pro: ui element can be changed in one position
-        # Pro/Con: ErrorHandling. Should throw an Error if there is no
-        # attribute ddFitting
         # Con: Readability
         # Alternatives:
         # self.ddFitting.currentTextChanged.connect(fun)
         # self.UI_MAPPING.get("fitting").currentTextChanged.connect(fun)
-        uiElement = self.UI_MAPPING.get("fitting")
+        uiElement = self.UI_MAPPING["fitting"]
         uiElement.currentTextChanged.connect(fun)
         # Emit the signal once to trigger the connected methods once.
         uiElement.currentTextChanged.emit(uiElement.currentText())
@@ -294,6 +294,51 @@ class UIMain(Ui_main):
                     fitDict[file] = fitName
 
         return fitDict
+
+    def load_current_fitting(self, fitting_name:str) -> dict:
+        """
+        Retrieve the config of the currently selected fitting.
+
+        Can be connected to the signal of an ui element, e.g.
+        "currentTextChanged".
+
+        Parameters
+        ----------
+        fitting_name : str
+            The name of the selected fitting within the ui element.
+
+        Returns
+        -------
+        fitConfig : dict
+            Contains the config of the selected fitting.
+
+        """
+        # TODO: another function? if so, use current_fitting as property
+        # and use the other funtion?
+        # TODO: check out the class Peak!
+        # get the selected fitting
+        self.logger.info("Load fitting.")
+        for fit, name in self.fittings.items():
+            if name == fitting_name:
+                current_fit = fit
+                break
+
+        # load the config from the file and set the current config
+        path = os.path.join(self.FITTING["DIR"], current_fit)
+        fitConfig = ConfigLoader(path)
+
+        self.currentFitting = fitConfig.config
+
+
+    def get_basic_setting(self)->BasicSetting:
+
+        wavelength = self.get_central_wavelength()
+        grating = self.get_grating()
+        fitting = Fitting(self.currentFitting)
+        setting = BasicSetting(wavelength, grating, fitting)
+
+        return setting;
+
 
     def get_central_wavelength(self)->float:
         """

@@ -63,13 +63,28 @@ class AnalysisWindow(QMainWindow):
     SIG_date = pyqtSignal(str)
     SIG_time= pyqtSignal(str)
 
+    ### Properties
+
+    @property
+    def openFile(self):
+        """openFile getter"""
+        return self._openFile
+
+    @openFile.setter
+    def openFile(self, file:FileReader):
+        """openFile setter: Updating the ui"""
+        self._openFile = file
+        self.set_fileinformation(file)
+
+    ### Methods
+
     def __init__(self, initialShow=True):
         """initialize the parent class ( == QMainWindow.__init__(self)"""
         super(AnalysisWindow, self).__init__()
 
         # Set file and directory
         self.lastdir = self.FILE["DEF_DIR"];
-        self.openFile = None;
+        self._openFile = None;
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
@@ -82,7 +97,7 @@ class AnalysisWindow(QMainWindow):
         # init the fitting and with the retrieved fittings
         # TODO: provide interface? Like get_fittings? No, it is a attribute
         # using the @property-decorator --> to be documented?
-        self.fittings = Fitting(self.window.fittings)
+        # self.fittings = Fitting(self.window.fittings)
 
         self.__post_init__()
 
@@ -106,7 +121,7 @@ class AnalysisWindow(QMainWindow):
         win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
         win.connect_open_file(self.file_open)
-        win.connect_select_fitting(self.fittings.load_current_fitting)
+        win.connect_select_fitting(self.update_results)
         win.connect_change_basic_settings(self.redraw)
         win.connect_fileinformation(self.SIG_filename, self.SIG_date,
                                     self.SIG_time)
@@ -281,6 +296,11 @@ class AnalysisWindow(QMainWindow):
         return 0;
 
 
+    def update_results(self):
+        if self.openFile:
+            self.apply_data(self.openFile.filename, updateSpectra=False)
+
+
     def redraw(self, text:str=""):
         """
         Redraw the plots with the currently opened file.
@@ -337,67 +357,74 @@ class AnalysisWindow(QMainWindow):
 
     ### data analysis
 
-    def apply_data(self, filename):
+    def apply_data(self, filename, updateSpectra=True, updateResults=True):
         """read out a file and extract its information,
         then set header information and draw spectra"""
         # TODO: error handling
-        # Read out the chosen file
-        file = FileReader(filename)
-
-        # Validation.
-        if not file.is_valid_datafile():
-            dialog.critical_unknownFiletype(self)
-            return 1
-
-        # TODO: Why not as tuples? just data = [(x0, y0),(x1, y1),...]
-        xData, yData = file.data
-
-        # Update plots and ui.
-        self.analyze_data(xData, yData)
-        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-        self.set_fileinformation(file)
-
-        # update the currently open file.
-        # TODO: Check openFile as property --> setter method could contain
-        # the update ui function?
-        self.openFile = file;
-        return 0
-
-    def analyze_data(self, xData, yData, updateResults=True):
-        """Analyze data with DataHandler to obtain all parameters for the
-        processed spectrum.
-        """
 
         connect = self.window.connect_results if updateResults else None;
 
-        # Sent the raw data to the DataHandler and get parameters
-        # TODO: function required for getting parameters and errorhandling!
-        # TODO: Is Central wavelength depending on the selected Fitting?
-        specHandler = DataHandler(xData, yData,
-                        self.window.get_central_wavelength(),
-                        self.window.get_grating(),
-                        fittings=self.fittings,
-                        funConnection=connect)
+        # Prepare file.
+        file = FileReader(filename)
 
-        #calculate results
-        # TODO: no validation of results?
-        procX, procY = specHandler.get_processed_data()
-        baseline, avg = specHandler.get_baseline()
-        peakHeight, peakArea = specHandler.get_peak()
-        peakRawHeight, peakPosition = specHandler.get_raw_peak()
+        # Update plots and ui.
+        basicSetting = self.window.get_basic_setting()
+        specHandler = DataHandler(basicSetting,
+                                  funConnection=connect)
+        # Validate results?
+        results = specHandler.analyse_data(file)
 
-        # HACK ------------------------------------------------------
-        # characteristics = {};
-        # characteristics[CHARACTERISTIC.PEAK_AREA] = peakArea
-        # HACK ------------------------------------------------------
+        if results is None:
+            return -1
 
         # Update and the spectra.
-        self.rawSpectrum.update_data(xData, yData)
-        self.rawSpectrum.add_baseline(baseline)
-        self.processedSpectrum.update_data(procX, procY)
+        if updateSpectra:
+            self.rawSpectrum.update_data(*specHandler.data)
+            self.rawSpectrum.add_baseline(specHandler.baseline)
+            self.processedSpectrum.update_data(*specHandler.procData)
 
-        # TODO: return dict with characteristics? return @dataclass?
+            self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+
+        # Update the currently open file.
+        self.openFile = file;
         return 0
+
+    # def analyze_data(self, xData, yData, updateResults=True):
+    #     """Analyze data with DataHandler to obtain all parameters for the
+    #     processed spectrum.
+    #     """
+
+    #     connect = self.window.connect_results if updateResults else None;
+
+    #     # Sent the raw data to the DataHandler and get parameters
+    #     # TODO: function required for getting parameters and errorhandling!
+    #     # TODO: Is Central wavelength depending on the selected Fitting?
+    #     basicSetting = self.window.get_basic_setting()
+
+    #     specHandler = DataHandler(xData, yData, basicSetting.wavelength,
+    #                               basicSetting.grating,
+    #                               fittings=basicSetting.fitting,
+    #                               funConnection=connect)
+
+    #     #calculate results
+    #     # TODO: no validation of results?
+    #     procX, procY = specHandler.get_processed_data()
+    #     baseline, avg = specHandler.get_baseline()
+    #     peakHeight, peakArea = specHandler.get_peak()
+    #     peakRawHeight, peakPosition = specHandler.get_raw_peak()
+
+    #     # HACK ------------------------------------------------------
+    #     # characteristics = {};
+    #     # characteristics[CHARACTERISTIC.PEAK_AREA] = peakArea
+    #     # HACK ------------------------------------------------------
+
+    #     # Update and the spectra.
+    #     self.rawSpectrum.update_data(xData, yData)
+    #     self.rawSpectrum.add_baseline(baseline)
+    #     self.processedSpectrum.update_data(procX, procY)
+
+    #     # TODO: return dict with characteristics? return @dataclass?
+    #     return 0
 
 
 

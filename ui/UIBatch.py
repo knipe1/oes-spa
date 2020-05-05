@@ -32,7 +32,7 @@ class UIBatch(Ui_batch):
         self.listFiles.setModel(self.parent.model)
         # click/valueChanged connections
         self.listFiles.clicked.connect(self.parent.open_indexed_file)
-        self.btnSetFilename.clicked.connect(self.parent.set_filename)
+        self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
         self.btnBrowse.clicked.connect(self.parent.browse_spectra)
         self.btnClear.clicked.connect(self.parent.clear)
         self.btnCalculate.clicked.connect(self.parent.multi_calc)

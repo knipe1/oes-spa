@@ -39,7 +39,7 @@ from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
 # Enums
-from custom_types.CHARACTERISTIC import CHARACTERISTIC
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
 from custom_types.BATCH_CONFIG import BATCH_CONFIG
 
 
@@ -71,7 +71,7 @@ class BatchAnalysis(QDialog):
 
     Methods
     -------
-    set_filename()
+    specify_batchfile()
         Specifies the filename through a dialog.
     browse_spectra()
         Opens a dialog to browse for spectra and updates the filelist.
@@ -81,7 +81,7 @@ class BatchAnalysis(QDialog):
         Checks the config and retrieve the corresponing values from it.
     retrieve_batch_config()
         Gets the config of the analysis as base for further analysis.
-    extract_values_of_dict(dictionary:dict, key:Enum)
+    extract_values_of_config(dictionary:dict, key:Enum)
         Extract the values of the given dictionary with the specifc key.
     open_indexed_file(index)
         Retrieve the data of the selected file of the list.
@@ -160,7 +160,7 @@ class BatchAnalysis(QDialog):
         # is set or if it even useful to implement it like this.
         self.lastdir = parent.lastdir
 
-        # general settings
+        # General settings.
         self.setAcceptDrops(True)
         self.model = QStringListModel()
         # init of window has to be at last, because it connects self.model i.a.
@@ -223,7 +223,7 @@ class BatchAnalysis(QDialog):
 
     ### Methods
 
-    def set_filename(self):
+    def specify_batchfile(self):
         """
         Specifies the filename through a dialog.
 
@@ -238,10 +238,6 @@ class BatchAnalysis(QDialog):
             quit or cancelled.
 
         """
-
-        # TODO: Rename method...
-        # What about: specify_batchfile leading to connection to the batchfile,
-        # and that it is specified somehow
 
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
@@ -272,7 +268,8 @@ class BatchAnalysis(QDialog):
 
     def browse_spectra(self):
         """Opens a dialog to browse for spectra and updates the filelist."""
-        self.update_filelist(dialog.dialog_openFiles(self.lastdir))
+        filelist = dialog.dialog_openFiles(self.lastdir)
+        self.update_filelist(filelist)
 
     # TEST ---------------------------------------------------------------
     def multi_calc(self):
@@ -297,16 +294,15 @@ class BatchAnalysis(QDialog):
         # validate successful export?
 
 
-        # Load the dictionary for processing the data
+        # Load the dictionary for processing the data.
         batchConfig = self.retrieve_batch_config();
 
-        # separate the valid data form skipped files
-        data, skippedFiles = self.retrieve_data(batchConfig)
 
-        # assemble header by extracting all labels of the batch config
-        # TODO: check magic string?
-        header = ["Filename"]
-        header += self.extract_values_of_dict(batchConfig, BATCH_CONFIG.LABEL)
+        # Assemble header by extracting all labels of the config.
+        header = self.assemble_header(batchConfig)
+
+        # Separate the valid data from skipped files.
+        data, skippedFiles = self.retrieve_data(batchConfig)
 
         # export in csv file
         csvWriter = FileWriter(self.batchFile)
@@ -314,6 +310,14 @@ class BatchAnalysis(QDialog):
 
         # prompt the user with information about the skipped files
         dialog.information_BatchAnalysisFinished(skippedFiles)
+
+
+    def assemble_header(self, config):
+        # TODO: check magic string?
+        header = ["Filename"]
+        enumLabels = self.extract_values_of_config(config, BATCH_CONFIG.LABEL)
+        header += [label.value for label in enumLabels]
+        return header
 
 
     def retrieve_data(self, dictionary:dict):
@@ -351,14 +355,17 @@ class BatchAnalysis(QDialog):
 
             # Read out the file
             file = self.files[i]
+            self.openFile = FileReader(file)
 
-            # update the plots if ticked
+            # HACK: If this analysis should run in a thread, it would be easier
+            # to generate a new window and display eventually the rawData
+            # and the peakArea-time-graph in another plot.
+            # Update the plots.
             if self.updatePlots:
                 # HINT: There is a dialog shown when the file contains invalid data.
                 self.parent().apply_data(file)
 
-            self.openFile = FileReader(file)
-            # Skip the file if data is invalid
+            # Skip the file if data is invalid.
             if not self.openFile.is_valid_datafile():
                 skippedFiles.append(file)
                 continue
@@ -367,19 +374,19 @@ class BatchAnalysis(QDialog):
             timestamp = self.openFile.timestamp
 
             # Get characteristic values
-            specHandler = DataHandler(xData, yData,
-                        self.parent().window.get_central_wavelength(),
-                        self.parent().window.get_grating(),
-                        fittings=self.parent().fittings,)
-                        # funConnection=self.parent().window.connect_results)
+            basicSetting = self.parent().window.get_basic_setting()
 
-            _, avg = specHandler.get_baseline()
-            peakHeight, peakArea = specHandler.get_peak()
-            _, peakPosition = specHandler.get_raw_peak()
+            specHandler = DataHandler(basicSetting)
+            results = specHandler.analyse_data(self.openFile)
+            avg = specHandler.avgbase
+            peakHeight = specHandler.peakHeight
+            peakArea = specHandler.peakArea
+            peakPosition = specHandler.peakPosition
 
             # excluding file if no appropiate data given like in processed spectra
             # TODO: Check more exlude conditions like characteristic value
             # below some defined threshold
+            # TODO: validate_results as method of specHandlaer?
             if not peakHeight:
                 skippedFiles.append(file)
                 continue
@@ -388,22 +395,22 @@ class BatchAnalysis(QDialog):
             # If the list of characteristics gets larger, a loop is possible by
             # assigning a dict (works as a reference) to the value, e.g.:
             # peakHeight = {}
-            # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peakHeight
+            # dictionary[CHARAC.PEAK_HEIGHT.value]["value"] = peakHeight
             # peakHeight["numerical value"] = xy
             # TODO: is dict.get() useful here? get allows a default value,
             # and will not raise a KeyError
             # see therefore: https://stackoverflow.com/questions/11041405/why-dict-getkey-instead-of-dictkey
-            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value][BATCH_CONFIG.VALUE.value] = peakHeight
-            dictionary[CHARACTERISTIC.PEAK_AREA.value][BATCH_CONFIG.VALUE.value] = peakArea
-            dictionary[CHARACTERISTIC.BASELINE.value][BATCH_CONFIG.VALUE.value] = avg
+            dictionary[CHARAC.PEAK_HEIGHT][BATCH_CONFIG.VALUE] = peakHeight
+            dictionary[CHARAC.PEAK_AREA][BATCH_CONFIG.VALUE] = peakArea
+            dictionary[CHARAC.BASELINE][BATCH_CONFIG.VALUE] = avg
             # TODO: Check HEADER_INFO is just timestamp?
-            dictionary[CHARACTERISTIC.HEADER_INFO.value][BATCH_CONFIG.VALUE.value] = timestamp
-            dictionary[CHARACTERISTIC.PEAK_POSITION.value][BATCH_CONFIG.VALUE.value] = peakPosition
+            dictionary[CHARAC.HEADER_INFO][BATCH_CONFIG.VALUE] = timestamp
+            dictionary[CHARAC.PEAK_POSITION][BATCH_CONFIG.VALUE] = peakPosition
 
             # assembling the row and appending it to the data
             # TODO: pure file? Not reduced path or indexed?
             row = [file]
-            row += self.extract_values_of_dict(dictionary, BATCH_CONFIG.VALUE)
+            row += self.extract_values_of_config(dictionary, BATCH_CONFIG.VALUE)
             data.append(row)
 
         return data, skippedFiles
@@ -428,22 +435,22 @@ class BatchAnalysis(QDialog):
         """
 
         # TODO: errorhandling
-        # TODO: rename checkboxes?
-        defValue = 0   # should be falsy to skip file by default
+        defValue = 0   # Should be falsy to skip file by default.
         properties = {}
+
         # make sure this is in the correct order that they match to the loop
         # of self.window.BtnParameters.buttons()
-        labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
-                  CHARACTERISTIC.PEAK_AREA.value,
-                  CHARACTERISTIC.BASELINE.value,
-                  CHARACTERISTIC.HEADER_INFO.value,
-                  CHARACTERISTIC.PEAK_POSITION.value,]
+        labels = [CHARAC.PEAK_HEIGHT,
+                  CHARAC.PEAK_AREA,
+                  CHARAC.BASELINE,
+                  CHARAC.HEADER_INFO,
+                  CHARAC.PEAK_POSITION,]
 
-        # retrieve checkboxes and their properties
-        checkboxes = [{BATCH_CONFIG.CHECKBOX.value: cb,
-                       BATCH_CONFIG.NAME.value: cb.objectName(),
-                       BATCH_CONFIG.STATUS.value: cb.isChecked(),
-                       BATCH_CONFIG.VALUE.value: defValue,
+        # Retrieve checkboxes and their properties.
+        checkboxes = [{BATCH_CONFIG.CHECKBOX: cb,
+                       BATCH_CONFIG.NAME: cb.objectName(),
+                       BATCH_CONFIG.STATUS: cb.isChecked(),
+                       BATCH_CONFIG.VALUE: defValue,
                        } for cb in self.window.BtnParameters.buttons()]
 
         # Errorhandling
@@ -451,14 +458,17 @@ class BatchAnalysis(QDialog):
             raise ValueError("""Checkboxes and labels are not fitting!
                              Please check configuration""")
 
-        # Union labels and checkboxes
+        # Union labels and checkboxes.
         for checkbox, label in zip(checkboxes, labels):
-            checkbox.update({BATCH_CONFIG.LABEL.value: label})
-            properties[checkbox[BATCH_CONFIG.LABEL.value]] = checkbox
+            # Add the label-key and the corresponding value to the indiviual
+            # setting.
+            checkbox.update({BATCH_CONFIG.LABEL: label})
+            # Add the individual setting and merge it to the complete setting.
+            properties[checkbox[BATCH_CONFIG.LABEL]] = checkbox
 
         return properties;
 
-    def extract_values_of_dict(self, dictionary:dict, key:Enum):
+    def extract_values_of_config(self, config:dict, key):
         """
         Extract the values of the given dictionary with the specifc key.
 
@@ -479,17 +489,11 @@ class BatchAnalysis(QDialog):
 
         """
 
-        # valid data to be returned
         data = []
 
-        # Check if the given key is of the Enum, cause the dictionary uses
-        # the values of the key.
-        if isinstance (key, Enum):
-            key = key.value
-
-        # append value to list if status of the checkbox is checked
-        for label, item in dictionary.items():
-            if item.get("status"):
+        # Append value if the checkbox is ticked.
+        for _, item in config.items():
+            if item.get(BATCH_CONFIG.STATUS):
                 data.append(item[key])
 
         return data;

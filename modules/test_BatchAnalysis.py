@@ -60,11 +60,11 @@ class TestBatchAnalysis(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_set_filename(self):
+    def test_specify_batchfile(self):
         """
-        Test the method set_filename.
+        Test the method specify_batchfile.
 
-        Prototype: set_filename(self):
+        Prototype: specify_batchfile(self):
 
         Returns
         -------
@@ -86,26 +86,26 @@ class TestBatchAnalysis(unittest.TestCase):
 
 
         """test default"""
-        self.routine_set_filename(defaultFilename)
+        self.routine_specify_batchfile(defaultFilename)
         """test arbitrary name without suffix"""
-        self.routine_set_filename(arbitraryFilename, text)
+        self.routine_specify_batchfile(arbitraryFilename, text)
         """test arbitrary name with suffix"""
-        self.routine_set_filename(arbitraryFilename, text_csv)
+        self.routine_specify_batchfile(arbitraryFilename, text_csv)
         """test cancel"""
         esc = THR.Thread(target=emu.key_reject)
         esc.start()
         # the same filename as before, but empty for the return value
-        self.assertEqual(self.batch.set_filename(), r"", "Filename: Cancel")
+        self.assertEqual(self.batch.specify_batchfile(), r"", "Filename: Cancel")
         self.assertEqual(self.form.foutCSV.text(), arbitraryFilename, "Filename: Cancel but old filename")
 
 
         # """ Test falsy suffixes"""
         # """spk"""
-        self.routine_set_filename(arbitraryFilename, text_spk)
+        self.routine_specify_batchfile(arbitraryFilename, text_spk)
         # """Capital CSV"""
-        self.routine_set_filename(arbitraryFilename, text_CSV)
+        self.routine_specify_batchfile(arbitraryFilename, text_CSV)
         # """txt"""
-        self.routine_set_filename(arbitraryFilename, text_txt)
+        self.routine_specify_batchfile(arbitraryFilename, text_txt)
 
     def test_browse_spectra(self):
         """Browse spectra"""
@@ -127,7 +127,7 @@ class TestBatchAnalysis(unittest.TestCase):
         self.routine_browse_spectra(10, msg="Browse: update files", isUpdate=True)
 
 
-    def routine_set_filename(self, expectedFilename, text=""):
+    def routine_specify_batchfile(self, expectedFilename, text=""):
         #set the name
         if text:
             arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
@@ -138,7 +138,7 @@ class TestBatchAnalysis(unittest.TestCase):
         # in case of file already exists
         yes = THR.Thread(target=emu.key_alt_j)
         yes.start()
-        self.assertEqual(self.batch.set_filename(), expectedFilename, "Filename: issue text is "+text)
+        self.assertEqual(self.batch.specify_batchfile(), expectedFilename, "Filename: issue text is "+text)
         self.assertEqual(self.form.foutCSV.text(), expectedFilename, "Filename: issue text is "+text)
 
     def routine_browse_spectra(self, amount, msg="", clearAfter = True, isUpdate = False):
