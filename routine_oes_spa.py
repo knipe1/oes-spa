@@ -47,10 +47,10 @@ def main():
 
 
     window.batch.show()
-    # # text = "filename"
-    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
-    # # arbitrary.start()
-    # # accept the name
+    # text = "filename"
+    # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
+    # arbitrary.start()
+    # accept the name
     # enter = THR.Thread(target=emu.key_accept)
     # enter.start()
     # # # in case of file already exists

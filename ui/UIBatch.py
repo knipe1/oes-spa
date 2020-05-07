@@ -42,8 +42,6 @@ class UIBatch(Ui_batch):
         self.parent = parent
         self.setupUi(self.parent)
 
-        # Display files as string in a list.
-        self.listFiles.setModel(self.parent.model)
         # Disable option to edit the strings in the file list.
         self.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
@@ -61,25 +59,28 @@ class UIBatch(Ui_batch):
         # Properties
         # self.cbUpdatePlots.stateChanged.connect(self.set_prop_updatePlots)
         # click/valueChanged connections
-        self.listFiles.clicked.connect(self.parent.open_indexed_file)
+        self.listFiles.currentRowChanged.connect(self.parent.open_indexed_file)
         self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
         self.btnBrowse.clicked.connect(self.parent.browse_spectra)
-        self.btnClear.clicked.connect(self.parent.clear)
+        self.btnClear.clicked.connect(self.parent.reset_files)
         self.btnCalculate.clicked.connect(self.parent.multi_calc)
         self.btnSelectAll.clicked.connect(self.set_all)
-        # update the UI whenever a parameter button is toggled/clicked
-        for btn in self.BtnParameters.buttons():
-            btn.toggled.connect(self.parent.update_UI)
+        # Update the UI whenever a parameter button is toggled.
+        self.BtnParameters.buttonToggled.connect(self.parent.enable_analysis)
+        self.foutCSV.textChanged.connect(self.parent.enable_analysis)
+        # self.listFiles.itemSelectionChanged.connect(self.parent.enable_analysis)
 
-
-
-
-    # def set_prop_updatePlots(self, enable):
-    #     """Updates the property of the BatchAnalysis."""
-    #     self.parent.updatePlots = bool(enable)
 
     def get_update_plots(self):
         return self.cbUpdatePlots.isChecked()
+
+    def get_fileselection(self)->int:
+        return self.listFiles.currentRow()
+
+    def set_fileselection(self, index):
+        return self.listFiles.setCurrentRow(index)
+
+
 
     def set_all(self):
         """
@@ -118,5 +119,26 @@ class UIBatch(Ui_batch):
     def connect_set_filename(self, fun):
         """Interface to connect fun to clicked signal of the button."""
         self.btnSetFilename.clicked.connect(fun)
+
+    def update_progressbar(self, percentage:[int, float]):
+        """
+        Convert the percentage and sets the value to the progress bar.
+
+        Parameters
+        ----------
+        percentage : float
+            The percentage.
+
+        Returns
+        -------
+        int
+            The percent calculated and set.
+
+        """
+
+        # TODO: separate ui and logic? Put this method into BatchUI?
+        percent = int(percentage*100);
+        self.barProgress.setValue(percent);
+        return percent;
 
 

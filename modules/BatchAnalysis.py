@@ -22,9 +22,8 @@ Created on Mon Jan 20 10:22:44 2020
 import threading as THR
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
-from PyQt5.QtWidgets import QDialog, QAbstractItemView
-from enum import Enum
+from PyQt5.QtCore import QFileInfo, QModelIndex
+from PyQt5.QtWidgets import QDialog
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
@@ -39,6 +38,7 @@ from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
 # Enums
+from custom_types.FileSet import FileSet
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
 from custom_types.BATCH_CONFIG import BATCH_CONFIG
 
@@ -85,10 +85,8 @@ class BatchAnalysis(QDialog):
         Extract the values of the given dictionary with the specifc key.
     open_indexed_file(index)
         Retrieve the data of the selected file of the list.
-    update_UI()
+    enable_analysis()
         Updates the UI according to the currently seleceted options.
-    display_filenames()
-        Formatting and displaying the filenames of attribute files.
     update_filelist(filelist:list)
         Updates the filelist of the model and refreshes the ui.
     clear()
@@ -106,14 +104,6 @@ class BatchAnalysis(QDialog):
     # set up the logger
     logger = Logger(__name__)
 
-    # properties
-    # TODO: defaults are set afterwards, but here are the definitions of the props...
-    _batchFile = ""
-    # TODO: See property definition below.
-    # _updatePlots = False
-    # updatePlots = False
-
-    files = []
 
     ### Properties
 
@@ -127,20 +117,9 @@ class BatchAnalysis(QDialog):
         """batchFile setter: Updating the ui"""
         self._batchFile = text
         self.window.batchFile = text
-        self.update_UI()
         # self.window.set_batchfile(text)
+        # self.enable_analysis()
 
-    # TODO: Why is updatePlots a property?
-    # @property
-    # def updatePlots(self):
-    #     """updatePlots getter"""
-    #     return self._updatePlots
-
-    # @updatePlots.setter
-    # def updatePlots(self, enable:bool):
-    #     """updatePlots setter: Updating the ui"""
-    #     self._updatePlots = enable
-    #     self.window.cbUpdatePlots.setChecked(enable)
 
 
     def __init__(self, parent):
@@ -159,7 +138,7 @@ class BatchAnalysis(QDialog):
         self.logger.info("Init BatchAnalysis")
 
         # Initialize the parent class ( == QDialog.__init__(self).
-        super(BatchAnalysis, self).__init__(parent)
+        super().__init__(parent)
 
         # TODO: check whether there will be some inconsistency if self.lastdir
         # is set or if it even useful to implement it like this.
@@ -167,18 +146,33 @@ class BatchAnalysis(QDialog):
 
         # General settings.
         self.setAcceptDrops(True)
-        self.model = QStringListModel()
+        # self.model = QStringListModel()
         # init of window has to be at last, because it connects self.model i.a.
         self.window = UIBatch(self)
 
         self.__post_init__()
 
     def __post_init__(self):
-        # self.updatePlots = self.window.get_update_plots()
+        # Set the defaults.
+        self.files = FileSet(listWidget = self.window.listFiles,
+                             updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
 
 
+
     ### Events
+
+
+    # HACK ------------------------------------------------------------
+    def keyPressEvent(self, event):
+        from PyQt5.QtGui import QKeySequence
+        isFocused = self.window.listFiles.hasFocus()
+        isDelete = event.matches(QKeySequence.Delete)
+        if isFocused and isDelete:
+            row = self.window.listFiles.currentRow()
+            self.files.remove(self.files[row])
+    # HACK ------------------------------------------------------------
+
 
     def dragEnterEvent(self, event):
         """
@@ -511,7 +505,6 @@ class BatchAnalysis(QDialog):
         Retrieve the data of the selected file of the list.
 
         Used for applying the data after clicking on the list.
-        Connected to ui.
 
         Parameters
         ----------
@@ -529,12 +522,14 @@ class BatchAnalysis(QDialog):
         # is given by the ListModel (by an click event)
         if isinstance(index, QModelIndex):
             index = index.row()
-        self.parent().apply_data(self.files[index])
+
+        if index >= 0:
+            self.parent().apply_data(self.files[index])
 
 
-    def update_UI(self):
+    def enable_analysis(self):
         """
-        Updates the UI according to the currently seleceted options.
+        Updates the UI according to the currently selected options.
 
         Set Filename, Browse, Clear, and Parameters are always available.
         Availability of Calculate depends on the former elements.
@@ -545,14 +540,9 @@ class BatchAnalysis(QDialog):
             The current status of the button "Calculate" (btnCalculate).
 
         """
-
-        # TODO: rename method? update_UI implicity explaims to update the whole
-        # ui
-
-        # default enable, disable if any check fails
         enable = True;
 
-        # Check for specified batchFile, selected files, and checked parameters
+        # Check for specified batchFile, selected files, and ticked parameters.
         if not self.batchFile:
             enable = False
         if not self.files:
@@ -564,22 +554,6 @@ class BatchAnalysis(QDialog):
         self.window.btnCalculate.setEnabled(enable)
 
         return enable
-
-
-    def display_filenames(self):
-        """
-        Formatting and displaying the filenames of attribute files.
-
-        Returns
-        -------
-        None.
-
-        """
-
-        # Formatting the paths of the files and update the list and the ui.
-        files = uni.add_index_to_text(uni.reduce_path(self.files))
-        self.model.setStringList(files)
-        self.update_UI()
 
 
     def update_filelist(self, filelist:list):
@@ -596,51 +570,21 @@ class BatchAnalysis(QDialog):
         None.
 
         """
+        # # Get the current selection.
+        # selectedIdx = self.window.get_fileselection()
+        # if selectedIdx >= 0:
+        #     filename = self.files[selectedIdx]
 
-        # sort the files in a unique and natural keys/human sort way
-        self.files = list(set().union(self.files, filelist))
-        self.files.sort(key=uni.natural_keys)
+        # Resets also the selection.
+        self.files.update(filelist)
 
-        # update the fileslist and plot one spectra
-        if self.files:
-            isInit = self.model.index(0).row()
-            self.display_filenames();
-            # selects the first one if list was empty before
-            if isInit:
-                self.window.listFiles.setCurrentIndex(self.model.index(0))
-                self.open_indexed_file(0)
+        # # Select the first or previously selected file.
+        # if selectedIdx < 0 :
+        #     self.window.set_fileselection(0)
+        # else:
+        #     self.files.selectRowByFilename(filename)
 
-    def clear(self):
-        """
-        Resets the filelist and clears the displayed files.
 
-        Returns
-        -------
-        None.
-
-        """
-        # TODO: clear plots?
-        # TODO: Or rename method: E.g. reset_files
-        self.files =  []
-        self.display_filenames()
-
-    def update_progressbar(self, percentage:[int, float]):
-        """
-        Convert the percentage and sets the value to the progress bar.
-
-        Parameters
-        ----------
-        percentage : float
-            The percentage.
-
-        Returns
-        -------
-        int
-            The percent calculated and set.
-
-        """
-
-        # TODO: separate ui and logic? Put this method into BatchUI?
-        percent = int(percentage*100);
-        self.window.barProgress.setValue(percent);
-        return percent;
+    def reset_files(self):
+        """Resets the filelist."""
+        self.files.clear()

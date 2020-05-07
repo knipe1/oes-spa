@@ -1,9 +1,10 @@
-Date 05.05.2020 17:57:46
-Filename	Peak height	Peak area	Baseline	Header info	Peak position
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 3.Spk	0.019710255032349598	0.005459440230628482	297.2109776876856	30.11.2018 16:16:30	433.48999999999995
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 4.Spk	0.042711697336434	0.005537314780749653	296.71361013134685	30.11.2018 16:17:31	433.50166666666667
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 5.Spk	0.015088549475379782	0.004567787359415373	297.70171779912454	30.11.2018 16:18:32	433.49583333333334
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 6.Spk	0.025769023562421202	0.0048976663756495785	297.85455262486715	30.11.2018 16:19:32	433.51916666666665
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 7.Spk	0.03408483037759414	0.005822983992942224	297.1440053034182	30.11.2018 16:20:33	433.5075
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 8.Spk	0.024564520542878592	0.004649031942743224	297.7753259153327	30.11.2018 16:21:33	433.49583333333334
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 9.Spk	0.03833694370177732	0.006186645697159309	297.01929258257894	30.11.2018 16:22:34	433.5133333333333
+Date 07.05.2020 14:57:58
+Filename	Peak height	Peak area	Baseline
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 1.Spk	0.01003809908230311	0.004376461089975552	293.50839034786605
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 1_raw.csv	0.01003809908230311	0.004376461089975552	293.50839034786605
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 2.Spk	0.031964139463968914	0.004327717937781635	297.48878488031255
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 3.Spk	0.019710255032349598	0.005459440230628482	297.2109776876856
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 4.Spk	0.042711697336434	0.005537314780749653	296.71361013134685
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 5.Spk	0.015088549475379782	0.004567787359415373	297.70171779912454
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 6.Spk	0.025769023562421202	0.0048976663756495785	297.85455262486715
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Asterix1059 7.Spk	0.03408483037759414	0.005822983992942224	297.1440053034182

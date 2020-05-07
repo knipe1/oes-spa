@@ -29,7 +29,7 @@ class Ui_batch(object):
         self.verticalLayout_4.addLayout(self.layoutCSVFile)
         self.layoutFiles = QtWidgets.QHBoxLayout()
         self.layoutFiles.setObjectName("layoutFiles")
-        self.listFiles = QtWidgets.QListView(batch)
+        self.listFiles = QtWidgets.QListWidget(batch)
         self.listFiles.setObjectName("listFiles")
         self.layoutFiles.addWidget(self.listFiles)
         self.layoutFilesButtons = QtWidgets.QVBoxLayout()

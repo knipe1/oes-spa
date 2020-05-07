@@ -88,6 +88,8 @@ def key_select_file(iterations):
     keyboard.release(Key.down)
     keyboard.press(Key.down)
     keyboard.release(Key.down)
+    keyboard.press(Key.down)
+    keyboard.release(Key.down)
     with keyboard.pressed(Key.shift_l):
         for i in range(iterations):
             keyboard.press(Key.down)
