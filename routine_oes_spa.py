@@ -33,7 +33,7 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
-    # # automatic open and close routine
+    # automatic open and close routine
     try:
         # window.export_raw()
         window.file_open("./sample files/Asterix1059 1.Spk")
