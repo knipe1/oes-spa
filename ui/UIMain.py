@@ -104,7 +104,7 @@ class UIMain(Ui_main):
         self._fittings = fits
         uiElement = self.UI_MAPPING.get("fitting")
 
-        if not uiElement == None:
+        if not uiElement is None:
             uiElement.clear()
             uiElement.addItems(fits.values())
 
@@ -147,6 +147,7 @@ class UIMain(Ui_main):
                        self.lblCharacteristicValue,
                    }
         return mapping
+
 
     def get_results(self):
         results = {CHARACTERISTIC.PEAK_HEIGHT.value:

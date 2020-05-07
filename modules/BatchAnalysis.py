@@ -109,7 +109,9 @@ class BatchAnalysis(QDialog):
     # properties
     # TODO: defaults are set afterwards, but here are the definitions of the props...
     _batchFile = ""
-    _updatePlots = False
+    # TODO: See property definition below.
+    # _updatePlots = False
+    # updatePlots = False
 
     files = []
 
@@ -123,19 +125,22 @@ class BatchAnalysis(QDialog):
     @batchFile.setter
     def batchFile(self, text:str):
         """batchFile setter: Updating the ui"""
-        self.window.foutCSV.setText(text)
         self._batchFile = text
+        self.window.batchFile = text
+        self.update_UI()
+        # self.window.set_batchfile(text)
 
-    @property
-    def updatePlots(self):
-        """updatePlots getter"""
-        return self._updatePlots
+    # TODO: Why is updatePlots a property?
+    # @property
+    # def updatePlots(self):
+    #     """updatePlots getter"""
+    #     return self._updatePlots
 
-    @updatePlots.setter
-    def updatePlots(self, enable:bool):
-        """updatePlots setter: Updating the ui"""
-        self.window.cbUpdatePlots.setChecked(enable)
-        self._updatePlots = enable
+    # @updatePlots.setter
+    # def updatePlots(self, enable:bool):
+    #     """updatePlots setter: Updating the ui"""
+    #     self._updatePlots = enable
+    #     self.window.cbUpdatePlots.setChecked(enable)
 
 
     def __init__(self, parent):
@@ -153,7 +158,7 @@ class BatchAnalysis(QDialog):
 
         self.logger.info("Init BatchAnalysis")
 
-        # initialize the parent class ( == QDialog.__init__(self)
+        # Initialize the parent class ( == QDialog.__init__(self).
         super(BatchAnalysis, self).__init__(parent)
 
         # TODO: check whether there will be some inconsistency if self.lastdir
@@ -165,8 +170,12 @@ class BatchAnalysis(QDialog):
         self.model = QStringListModel()
         # init of window has to be at last, because it connects self.model i.a.
         self.window = UIBatch(self)
-        # Disable option to edit the strings in the file list.
-        self.window.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.__post_init__()
+
+    def __post_init__(self):
+        # self.updatePlots = self.window.get_update_plots()
+        self.batchFile = self.window.batchFile
 
 
     ### Events
@@ -244,7 +253,7 @@ class BatchAnalysis(QDialog):
         filenameInfo = QFileInfo(filename)
         path = filenameInfo.absolutePath() + "/"
 
-        # cancel or quit the dialog
+        # Cancel or quit the dialog.
         if not filename:
             return filename
 
@@ -257,11 +266,8 @@ class BatchAnalysis(QDialog):
 
         # Change interface and preset for further dialogs (lastdir)
         # TODO: Check whether use path here is possible
-        self.lastdir = str(filenameInfo.absolutePath())
+        self.lastdir = filenameInfo.absolutePath()
         self.batchFile = filename
-        # TODO: Check if it is useful to use properties and update the ui
-        # always in the setter methods of the corresponding props
-        self.update_UI()
 
         return filename
 
@@ -357,18 +363,19 @@ class BatchAnalysis(QDialog):
             file = self.files[i]
             self.openFile = FileReader(file)
 
-            # HACK: If this analysis should run in a thread, it would be easier
-            # to generate a new window and display eventually the rawData
-            # and the peakArea-time-graph in another plot.
-            # Update the plots.
-            if self.updatePlots:
-                # HINT: There is a dialog shown when the file contains invalid data.
-                self.parent().apply_data(file)
-
             # Skip the file if data is invalid.
             if not self.openFile.is_valid_datafile():
                 skippedFiles.append(file)
                 continue
+
+            # HACK: If this analysis should run in a thread, it would be easier
+            # to generate a new window and display eventually the rawData
+            # and the peakArea-time-graph in another plot.
+            # Update the plots.
+            if self.window.get_update_plots():
+                # HINT: There is a dialog shown when the file contains invalid data.
+                self.parent().apply_data(file)
+
 
             xData, yData = self.openFile.data
             timestamp = self.openFile.timestamp
@@ -569,10 +576,11 @@ class BatchAnalysis(QDialog):
 
         """
 
-        # formatting the paths of the files and update the list and the ui.
+        # Formatting the paths of the files and update the list and the ui.
         files = uni.add_index_to_text(uni.reduce_path(self.files))
         self.model.setStringList(files)
         self.update_UI()
+
 
     def update_filelist(self, filelist:list):
         """

@@ -10,6 +10,7 @@ Import XY data from different filetypes
 # standard libs
 import csv
 import numpy as np
+from datetime import datetime
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo  # provides system-independent file info
@@ -107,29 +108,27 @@ class FileReader(FileFramework):
         # TODO: issue if file starts with empty line
         DEFAULT_TYPE = np.float64
 
+        # determine the filetype of the file to
+        filetype = self.get_filetype()
+        if filetype == "csv":
+            # csv routine
+            get_header = self.get_exported_header
+            get_data = self.get_csv_data
+        elif filetype == "spk":
+            # spk routine
+            get_header = self.get_exported_header
+            get_data = self.get_spk_data
+        elif filetype == "asc":
+            get_header = self.get_asc_header
+            get_data = self.get_asc_data
+        else:
+            # TODO: LOG as ERROR?
+            print(filetype)
+            return 3
 
         # Get Data from tab separated ascii file
         with open(self.filename, 'r', newline='') as csvFile:
             csvReader = csv.reader(csvFile, dialect=self.dialect)
-
-            # determine the filetype of the file to
-            filetype = self.get_filetype()
-            if filetype == "csv":
-                # csv routine
-                get_header = self.get_exported_header
-                get_data = self.get_csv_data
-            elif filetype == "spk":
-                # spk routine
-                get_header = self.get_exported_header
-                get_data = self.get_spk_data
-            elif filetype == "asc":
-                # asc routine
-                pass
-            else:
-                # TODO: LOG as ERROR?
-                print(filetype)
-                return 1
-
 
             if get_header(csvReader, self.MARKER["HEADER"]):
                 print("FileReader: No valid header")
@@ -169,7 +168,7 @@ class FileReader(FileFramework):
             1: Marker not found in Header
 
         """
-        # set to default to prevent combining properties of different files
+        # Set to default to prevent mixing properties of different files.
         self.date = ""
         self.time = ""
 
@@ -185,6 +184,57 @@ class FileReader(FileFramework):
 
         return 1
 
+    def get_asc_header(self, csvReader, marker):
+        """
+        Iter through the file opened and accessed with the csvReader to find
+        the marker and extract the date and time information to save it to the
+        file object
+
+        Parameters
+        ----------
+        csvReader : csv.reader-object
+            Object with opened csv-file.
+        marker : string
+            marks the date+time row.
+
+        Raises
+        ------
+        TypeError
+            Raises if marker is no string.
+
+        Returns
+        -------
+        int
+            0: Header found and date and time extracted.
+            1: Marker not found in Header
+
+        """
+        # Set to default to prevent mixing properties of different files.
+        self.date = ""
+        self.time = ""
+
+        # check the marker
+        if type(marker) not in [str]:
+            raise TypeError("Marker must be a string");
+
+        # 1. Wrong file format if csvReader reads an empty row.
+
+        for row in csvReader:
+            if marker in row[0]:
+                _, timestamp = row[0].split(":", 1)
+                timestamp = timestamp.strip()
+
+                # Convert the given time string into date and time.
+                # TODO: Format to config-file
+                dateformat = "%a %b %d %H:%M:%S.%f %Y"
+                timestamp = datetime.strptime(timestamp, dateformat)
+                # TODO: Format to config-file
+                self.date = timestamp.strftime("%d.%m.%Y")
+                # TODO: Format to config-file
+                self.time = timestamp.strftime("%H:%M:%S")
+                return 0;
+
+        return 1
 
     # TODO: error handlings
     def get_spk_data(self, csvReader):
@@ -211,6 +261,7 @@ class FileReader(FileFramework):
             data.append([pixel, intensity])
 
         return data;
+
 
     # TODO: error handling
     # TODO: distinguish _raw and _processed?
@@ -240,6 +291,37 @@ class FileReader(FileFramework):
             pixel = float(row[0])
             intensity = float(row[DATA_STRUCTURE["CSV_DATA_COLUMN"]])
             data.append([pixel, intensity])
+
+        return data;
+
+
+    # TODO: error handling
+    def get_asc_data(self, csvReader):
+        """
+        Read out the data of a .asc-file respective to its structure.
+
+        Parameters
+        ----------
+        csvReader : csv.reader-object
+            Reader to iterate through the asc-file.
+
+        Returns
+        -------
+        List of pixel/intensity values
+
+        """
+        data = [];
+
+        # TODO: Fixed to line 39?
+        # TODO: Fixed with 3 blank lines?
+        for i in range(37):
+            csvReader.__next__()
+
+        # Collecting the data.
+        for row in csvReader:
+            wavelength = float(row[0])
+            intensity = float(row[DATA_STRUCTURE["ASC_DATA_COLUMN"]])
+            data.append([wavelength, intensity])
 
         return data;
 

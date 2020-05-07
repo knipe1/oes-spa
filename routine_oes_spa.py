@@ -37,6 +37,7 @@ def main():
     try:
         # window.export_raw()
         window.file_open("./sample files/Asterix1059 1.Spk")
+        window.file_open("./sample files/SIF/testasc.asc")
         # window.export_raw()
         # window.export_processed()
         # window.file_open("./sample files/Asterix1059 1_raw.csv")
@@ -46,24 +47,24 @@ def main():
 
 
     window.batch.show()
-    # text = "filename"
-    # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
-    # arbitrary.start()
-    # accept the name
-    enter = THR.Thread(target=emu.key_accept)
-    enter.start()
-    # # in case of file already exists
-    yes = THR.Thread(target=emu.key_alt_j)
-    yes.start()
-    window.batch.window.btnSetFilename.click()
-    selection = THR.Thread(target=emu.key_select_file, args=[10])
-    selection.start()
-    window.batch.browse_spectra()
-    window.batch.window.cbPeakHeight.click()
-    window.batch.window.cbPeakArea.click()
-    window.batch.window.cbBaseline.click()
-    window.batch.window.btnCalculate.click()
-    window.batch.hide()
+    # # text = "filename"
+    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
+    # # arbitrary.start()
+    # # accept the name
+    # enter = THR.Thread(target=emu.key_accept)
+    # enter.start()
+    # # # in case of file already exists
+    # yes = THR.Thread(target=emu.key_alt_j)
+    # yes.start()
+    # window.batch.window.btnSetFilename.click()
+    # selection = THR.Thread(target=emu.key_select_file, args=[10])
+    # selection.start()
+    # window.batch.browse_spectra()
+    # window.batch.window.cbPeakHeight.click()
+    # window.batch.window.cbPeakArea.click()
+    # window.batch.window.cbBaseline.click()
+    # window.batch.window.btnCalculate.click()
+    # window.batch.hide()
 
     sys.exit(app.exec_())
 

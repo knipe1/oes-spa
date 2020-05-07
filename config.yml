@@ -3,6 +3,7 @@ BATCH:
   SEPARATOR: ':'
   SUFFIX: csv
 DATA_STRUCTURE:
+  ASC_DATA_COLUMN: 1
   CSV_DATA_COLUMN: 1
   SPK_DATA_COLUMN: 3
 DIALECT:
@@ -22,12 +23,14 @@ FILE:
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 IMPORT:
   SUFFIXES:
-  - Data sets (*.spk *.csv)
+  - Data sets (*.spk *.csv *.asc)
   - SpexHex File (*.spk)
   - Exported Raw spectrum (*.csv)
+  - Full information spectrum (*.asc)
   VALID_SCHEME:
   - file
   VALID_SUFFIX:
+  - asc
   - csv
   - spk
   - Spk

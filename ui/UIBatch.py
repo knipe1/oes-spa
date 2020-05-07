@@ -6,6 +6,12 @@ Created on Fri Jan 24 12:00:10 2020
 @author: Hauke Wernecke
 """
 
+# standard libs
+
+# third-party libs
+from PyQt5.QtWidgets import QAbstractItemView
+
+# local modules/libs
 from ui.ui_batch_dialog import Ui_batch
 
 class UIBatch(Ui_batch):
@@ -15,10 +21,36 @@ class UIBatch(Ui_batch):
     is changed"""
 
 
+    ### Properties
+
+    # Interface for the batchfile.
+    # TODO: To be evaluated.
+    @property
+    def batchFile(self):
+        """batchFile getter"""
+        return self.foutCSV.text()
+
+    @batchFile.setter
+    def batchFile(self, filename:str):
+        """batchFile setter"""
+        self.foutCSV.setText(filename)
+
+
+    ### Methods
 
     def __init__(self, parent):
         self.parent = parent
         self.setupUi(self.parent)
+
+        # Display files as string in a list.
+        self.listFiles.setModel(self.parent.model)
+        # Disable option to edit the strings in the file list.
+        self.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.__post_init__()
+
+
+    def __post_init__(self):
         # Setup Events
         self.set_connections()
 
@@ -27,9 +59,7 @@ class UIBatch(Ui_batch):
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
         # Properties
-        self.cbUpdatePlots.stateChanged.connect(self.set_prop_updatePlots)
-        # TODO: what is that one good for?
-        self.listFiles.setModel(self.parent.model)
+        # self.cbUpdatePlots.stateChanged.connect(self.set_prop_updatePlots)
         # click/valueChanged connections
         self.listFiles.clicked.connect(self.parent.open_indexed_file)
         self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
@@ -42,13 +72,51 @@ class UIBatch(Ui_batch):
             btn.toggled.connect(self.parent.update_UI)
 
 
+
+
+    # def set_prop_updatePlots(self, enable):
+    #     """Updates the property of the BatchAnalysis."""
+    #     self.parent.updatePlots = bool(enable)
+
+    def get_update_plots(self):
+        return self.cbUpdatePlots.isChecked()
+
     def set_all(self):
-        """set all buttons in the group, independent if more buttons are
-        added or some are deleted"""
+        """
+        Checks all buttons of the parameter group.
+
+        Set all buttons in the group, independent if more buttons are
+        added or some are deleted.
+        """
+
         for button in self.BtnParameters.buttons():
             button.setChecked(True)
 
-    def set_prop_updatePlots(self, enable):
-        self.parent.updatePlots = enable
+
+    ## Connect methods
+
+    def connect_browse_files(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnBrowse.clicked.connect(fun)
+
+
+    def connect_calculate(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnCalculate.clicked.connect(fun)
+
+
+    def connect_clear(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnClear.clicked.connect(fun)
+
+
+    def connect_select_file(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.listFiles.clicked.connect(fun)
+
+
+    def connect_set_filename(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnSetFilename.clicked.connect(fun)
 
 

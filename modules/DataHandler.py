@@ -198,8 +198,11 @@ class DataHandler(QObject):
     def process_data(self, xData, yData):
 
         # Convert x data into wavelengths.
-        procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
-                                           self.dispersion)
+        if xData[1] - xData[0] == 1:
+            procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
+                                               self.dispersion)
+        else:
+            procXData = xData
 
         # Baseline fitting with peakutils
         # TODO: what is calculated here? @knittel/@reinke
