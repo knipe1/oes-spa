@@ -66,14 +66,14 @@ class AnalysisWindow(QMainWindow):
     ### Properties
 
     @property
-    def openFile(self):
-        """openFile getter"""
-        return self._openFile
+    def currentFile(self):
+        """currentFile getter"""
+        return self._currentFile
 
-    @openFile.setter
-    def openFile(self, file:FileReader):
-        """openFile setter: Updating the ui"""
-        self._openFile = file
+    @currentFile.setter
+    def currentFile(self, file:FileReader):
+        """currentFile setter: Updating the ui"""
+        self._currentFile = file
         self.set_fileinformation(file)
 
     ### Methods
@@ -84,7 +84,7 @@ class AnalysisWindow(QMainWindow):
 
         # Set file and directory
         self.lastdir = self.FILE["DEF_DIR"];
-        self._openFile = None;
+        self._currentFile = None;
         # general settings
         # TODO: maybe false, if BatchAnalysis is open?
         self.setAcceptDrops(True)
@@ -297,15 +297,15 @@ class AnalysisWindow(QMainWindow):
 
 
     def update_results(self):
-        if self.openFile:
-            self.apply_data(self.openFile.filename, updateSpectra=False)
+        if self.currentFile:
+            self.apply_data(self.currentFile.filename, updateSpectra=False)
 
 
     def redraw(self, text:str=""):
         """
         Redraw the plots with the currently opened file.
 
-        Uses self.openFile.filename to get the filename.
+        Uses self.currentFile.filename to get the filename.
 
         Parameters
         ----------
@@ -319,7 +319,7 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_data(self.openFile.filename)
+            self.apply_data(self.currentFile.filename)
             self.logger.info("Redraw triggered by:" + text)
         except:
             self.logger.warning("Redraw Failed")
@@ -332,8 +332,8 @@ class AnalysisWindow(QMainWindow):
         # TODO: self.filename
         # TODO: self.filename = {name: asd, timestamp: sad}
         try:
-            filename = self.openFile.filename
-            timestamp = self.openFile.timestamp
+            filename = self.currentFile.filename
+            timestamp = self.currentFile.timestamp
         except:
             self.logger.error("Could not get filename/fileinformation.")
             filename = None;
@@ -386,7 +386,7 @@ class AnalysisWindow(QMainWindow):
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
         # Update the currently open file.
-        self.openFile = file;
+        self.currentFile = file;
         return 0
 
     # def analyze_data(self, xData, yData, updateResults=True):

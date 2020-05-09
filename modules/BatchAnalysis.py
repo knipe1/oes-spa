@@ -18,6 +18,13 @@ Created on Mon Jan 20 10:22:44 2020
 @author: Hauke Wernecke
 """
 
+# Method Sections:
+    ### Properties
+    ### Events
+    ### Methods/Analysis
+    ### UI-interactions
+    ### Interaction with the FileSet self.files
+
 # standard libs
 import threading as THR
 
@@ -88,7 +95,7 @@ class BatchAnalysis(QDialog):
     enable_analysis()
         Updates the UI according to the currently seleceted options.
     update_filelist(filelist:list)
-        Updates the filelist of the model and refreshes the ui.
+        Updates the filelist and refreshes the ui.
     clear()
         Resets the filelist and clears the displayed files.
     update_progressbar(percentage:[int, float])
@@ -152,6 +159,7 @@ class BatchAnalysis(QDialog):
 
         self.__post_init__()
 
+
     def __post_init__(self):
         # Set the defaults.
         self.files = FileSet(listWidget = self.window.listFiles,
@@ -161,6 +169,7 @@ class BatchAnalysis(QDialog):
 
 
     ### Events
+    ### UI-interactions
 
 
     # HACK ------------------------------------------------------------
@@ -183,17 +192,6 @@ class BatchAnalysis(QDialog):
 
         # Accept event, validation takes place in dropEvent-handler.
         event.accept();
-
-
-        # TEST -----------------------------------------------------------
-        # HINT: doublecheck: No usage, due to validation in dropEvent.
-        # # Get the urls and check whether at least one file is among them.
-        # urls = event.mimeData().urls();
-        # for url in urls:
-        #     # TODO: Doublecheck if this is a magic string?!
-        #     if url.scheme() == "file":
-        #         event.accept()
-        # TEST -----------------------------------------------------------
 
 
     def dropEvent(self, event):
@@ -220,56 +218,11 @@ class BatchAnalysis(QDialog):
             if uni.is_valid_filetype(url):
                 valid_urls.append(url.toLocalFile())
 
-        # updates the filelist with the valid urls and updates the ui
+        # Updates the filelist with the valid urls.
         self.update_filelist(valid_urls)
 
 
-    ### Methods
-
-    def specify_batchfile(self):
-        """
-        Specifies the filename through a dialog.
-
-        Determines the batchfile, updates the lastdir-prop, updates the ui.
-        NO setter function.
-        Linked to ui button.
-
-        Returns
-        -------
-        filename : str
-            The filename selected by the user. Empty string if dialog was
-            quit or cancelled.
-
-        """
-
-        # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
-        filenameInfo = QFileInfo(filename)
-        path = filenameInfo.absolutePath() + "/"
-
-        # Cancel or quit the dialog.
-        if not filename:
-            return filename
-
-        # Validate the suffix
-        # TODO: Show information about the modification?
-        if not filenameInfo.completeSuffix() == self.BATCH["SUFFIX"]:
-            fileCompleteName = filenameInfo.baseName() + "." \
-                + self.BATCH["SUFFIX"]
-            filename = path + fileCompleteName
-
-        # Change interface and preset for further dialogs (lastdir)
-        # TODO: Check whether use path here is possible
-        self.lastdir = filenameInfo.absolutePath()
-        self.batchFile = filename
-
-        return filename
-
-
-    def browse_spectra(self):
-        """Opens a dialog to browse for spectra and updates the filelist."""
-        filelist = dialog.dialog_openFiles(self.lastdir)
-        self.update_filelist(filelist)
+    ### Methods/Analysis
 
     # TEST ---------------------------------------------------------------
     def multi_calc(self):
@@ -351,14 +304,14 @@ class BatchAnalysis(QDialog):
         #
         for i in range(amount):
             # Update process bar
-            self.update_progressbar((i+1)/amount)
+            self.window.update_progressbar((i+1)/amount)
 
             # Read out the file
             file = self.files[i]
-            self.openFile = FileReader(file)
+            self.currentFile = FileReader(file)
 
             # Skip the file if data is invalid.
-            if not self.openFile.is_valid_datafile():
+            if not self.currentFile.is_valid_datafile():
                 skippedFiles.append(file)
                 continue
 
@@ -371,14 +324,14 @@ class BatchAnalysis(QDialog):
                 self.parent().apply_data(file)
 
 
-            xData, yData = self.openFile.data
-            timestamp = self.openFile.timestamp
+            xData, yData = self.currentFile.data
+            timestamp = self.currentFile.timestamp
 
             # Get characteristic values
             basicSetting = self.parent().window.get_basic_setting()
 
             specHandler = DataHandler(basicSetting)
-            results = specHandler.analyse_data(self.openFile)
+            results = specHandler.analyse_data(self.currentFile)
             avg = specHandler.avgbase
             peakHeight = specHandler.peakHeight
             peakArea = specHandler.peakArea
@@ -469,6 +422,7 @@ class BatchAnalysis(QDialog):
 
         return properties;
 
+
     def extract_values_of_config(self, config:dict, key):
         """
         Extract the values of the given dictionary with the specifc key.
@@ -500,31 +454,53 @@ class BatchAnalysis(QDialog):
         return data;
 
 
-    def open_indexed_file(self, index):
+    ### UI-interactions
+
+
+    def specify_batchfile(self):
         """
-        Retrieve the data of the selected file of the list.
+        Specifies the filename through a dialog.
 
-        Used for applying the data after clicking on the list.
-
-        Parameters
-        ----------
-        index : QModelIndex or int
-            Transmitted by the list. Or manually.
+        Determines the batchfile, updates the lastdir-prop, updates the ui.
+        NO setter function.
+        Linked to ui button.
 
         Returns
         -------
-        None.
+        filename : str
+            The filename selected by the user. Empty string if dialog was
+            quit or cancelled.
 
         """
 
-        # TODO: Errorhandling?
-        # Distinguish given index by numerical value (from another method) or
-        # is given by the ListModel (by an click event)
-        if isinstance(index, QModelIndex):
-            index = index.row()
+        # Retrieve the filename and the corresponding info
+        filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
+        filenameInfo = QFileInfo(filename)
+        path = filenameInfo.absolutePath() + "/"
 
-        if index >= 0:
-            self.parent().apply_data(self.files[index])
+        # Cancel or quit the dialog.
+        if not filename:
+            return filename
+
+        # Validate the suffix
+        # TODO: Show information about the modification?
+        if not filenameInfo.completeSuffix() == self.BATCH["SUFFIX"]:
+            fileCompleteName = filenameInfo.baseName() + "." \
+                + self.BATCH["SUFFIX"]
+            filename = path + fileCompleteName
+
+        # Change interface and preset for further dialogs (lastdir)
+        # TODO: Check whether use path here is possible
+        self.lastdir = filenameInfo.absolutePath()
+        self.batchFile = filename
+
+        return filename
+
+
+    def browse_spectra(self):
+        """Opens a dialog to browse for spectra and updates the filelist."""
+        filelist = dialog.dialog_openFiles(self.lastdir)
+        self.update_filelist(filelist)
 
 
     def enable_analysis(self):
@@ -556,9 +532,40 @@ class BatchAnalysis(QDialog):
         return enable
 
 
+    def open_indexed_file(self, index):
+        """
+        Retrieve the data of the selected file of the list.
+
+        Used for applying the data after clicking on the list.
+
+        Parameters
+        ----------
+        index : QModelIndex or int
+            Transmitted by the list. Or manually.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # TODO: Errorhandling?
+        # Distinguish given index by numerical value (from another method) or
+        # is given by the ListModel (by an click event)
+        if isinstance(index, QModelIndex):
+            index = index.row()
+
+        if index >= 0:
+            self.parent().apply_data(self.files[index])
+
+
+
+    ### Interaction with the FileSet self.files.
+
+
     def update_filelist(self, filelist:list):
         """
-        Updates the filelist of the model and refreshes the ui.
+        Updates the filelist and refreshes the ui.
 
         Parameters
         ----------
@@ -570,19 +577,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        # # Get the current selection.
-        # selectedIdx = self.window.get_fileselection()
-        # if selectedIdx >= 0:
-        #     filename = self.files[selectedIdx]
-
-        # Resets also the selection.
         self.files.update(filelist)
-
-        # # Select the first or previously selected file.
-        # if selectedIdx < 0 :
-        #     self.window.set_fileselection(0)
-        # else:
-        #     self.files.selectRowByFilename(filename)
 
 
     def reset_files(self):

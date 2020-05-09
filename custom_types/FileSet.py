@@ -64,14 +64,6 @@ class FileSet(set):
         return list.__getitem__(files, i)
 
 
-    def selectRowByFilename(self, filename):
-        """Gets the i-th item of the sorted list."""
-        files = self.to_list()
-        i = files.index(filename)
-        if self.has_listWidget():
-            self.listWidget.setCurrentRow(i)
-
-
     def clear(self):
         """Clears the set AND updates the ui."""
         super().clear()
@@ -80,14 +72,28 @@ class FileSet(set):
 
     def update(self, s):
         """Updates the set AND updates the ui."""
+
+        # Get the current selection.
+        if self.has_listWidget():
+            selectedIdx = self.listWidget.currentRow()
+            if selectedIdx >= 0:
+                filename = self[selectedIdx]
+
+        # Updates the set as usual and refresh ui.
         super().update(s)
         self.update_ui()
 
+        # Select the first or previously selected file.
+        if (not selectedIdx is None) and selectedIdx < 0 :
+            self.listWidget.setCurrentRow(0)
+        else:
+            self.selectRowByFilename(filename)
 
     def remove(self, t):
         """Removes an item AND updates the ui."""
         super().remove(t)
         self.update_ui()
+
 
     def to_list(self, naturalSort=True, indexed=False):
         """Convert the set to a sorted/indexed list."""
@@ -104,23 +110,19 @@ class FileSet(set):
         if self.has_listWidget():
             files = self.to_list(indexed=True)
 
-            # Get the current selection.
-            selectedIdx = self.listWidget.currentRow()
-            if selectedIdx >= 0:
-                filename = self[selectedIdx]
-
             self.listWidget.clear()
             self.listWidget.addItems(files)
 
-
-            # Select the first or previously selected file.
-            if selectedIdx < 0 :
-                self.listWidget.setCurrentRow(0)
-            else:
-                self.selectRowByFilename(filename)
-
         if self.updateOnChange:
             self.updateOnChange()
+
+
+    def selectRowByFilename(self, filename):
+        """Gets the i-th item of the sorted list."""
+        files = self.to_list()
+        i = files.index(filename)
+        if self.has_listWidget():
+            self.listWidget.setCurrentRow(i)
 
 
     def has_listWidget(self):
