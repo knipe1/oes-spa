@@ -247,15 +247,19 @@ class BatchAnalysis(QDialog):
         # validate successful export?
 
 
+        # Get characteristic values.
+        basicSetting = self.parent().window.get_basic_setting()
+        characteristicName = basicSetting.fitting.currentPeak.name
+
         # Load the dictionary for processing the data.
         batchConfig = self.retrieve_batch_config();
 
 
         # Assemble header by extracting all labels of the config.
-        header = self.assemble_header(batchConfig)
+        header = self.assemble_header(batchConfig, valueName=characteristicName)
 
         # Separate the valid data from skipped files.
-        data, skippedFiles = self.retrieve_data(batchConfig)
+        data, skippedFiles = self.retrieve_data(batchConfig, basicSetting)
 
         # export in csv file
         csvWriter = FileWriter(self.batchFile)
@@ -265,15 +269,23 @@ class BatchAnalysis(QDialog):
         dialog.information_BatchAnalysisFinished(skippedFiles)
 
 
-    def assemble_header(self, config):
+    def assemble_header(self, config, valueName=""):
         # TODO: check magic string?
         header = ["Filename"]
         enumLabels = self.extract_values_of_config(config, BATCH_CONFIG.LABEL)
         header += [label.value for label in enumLabels]
+
+        # HACK?
+        # Replace 'Characteristic value' with proper name
+        hasCharacteristicValue = header.count(CHARAC.CHARACTERISTIC_VALUE.value)
+        if hasCharacteristicValue:
+            idx = header.index(CHARAC.CHARACTERISTIC_VALUE.value)
+            header[idx] = valueName
+
         return header
 
 
-    def retrieve_data(self, dictionary:dict):
+    def retrieve_data(self, dictionary:dict, basicSetting):
         """
         Checks the config and retrieve the corresponing values from it.
 
@@ -327,15 +339,13 @@ class BatchAnalysis(QDialog):
             xData, yData = self.currentFile.data
             timestamp = self.currentFile.timestamp
 
-            # Get characteristic values
-            basicSetting = self.parent().window.get_basic_setting()
-
             specHandler = DataHandler(basicSetting)
             results = specHandler.analyse_data(self.currentFile)
             avg = specHandler.avgbase
             peakHeight = specHandler.peakHeight
             peakArea = specHandler.peakArea
             peakPosition = specHandler.peakPosition
+            characteristicValue = specHandler.characteristicValue
 
             # excluding file if no appropiate data given like in processed spectra
             # TODO: Check more exlude conditions like characteristic value
@@ -360,6 +370,7 @@ class BatchAnalysis(QDialog):
             # TODO: Check HEADER_INFO is just timestamp?
             dictionary[CHARAC.HEADER_INFO][BATCH_CONFIG.VALUE] = timestamp
             dictionary[CHARAC.PEAK_POSITION][BATCH_CONFIG.VALUE] = peakPosition
+            dictionary[CHARAC.CHARACTERISTIC_VALUE][BATCH_CONFIG.VALUE] = characteristicValue
 
             # assembling the row and appending it to the data
             # TODO: pure file? Not reduced path or indexed?
@@ -397,6 +408,7 @@ class BatchAnalysis(QDialog):
         labels = [CHARAC.PEAK_HEIGHT,
                   CHARAC.PEAK_AREA,
                   CHARAC.BASELINE,
+                  CHARAC.CHARACTERISTIC_VALUE,
                   CHARAC.HEADER_INFO,
                   CHARAC.PEAK_POSITION,]
 

@@ -36,6 +36,7 @@ def main():
     # automatic open and close routine
     try:
         # window.export_raw()
+        window.window.ddFitting.setCurrentIndex(3)
         window.file_open("./sample files/Asterix1059 1.Spk")
         window.file_open("./sample files/SIF/testasc.asc")
         # window.export_raw()
@@ -63,8 +64,9 @@ def main():
     window.batch.window.cbPeakHeight.click()
     window.batch.window.cbPeakArea.click()
     window.batch.window.cbBaseline.click()
+    window.batch.window.cbCharacteristicValue.click()
     window.batch.window.btnCalculate.click()
-    window.batch.hide()
+    # window.batch.hide()
 
     sys.exit(app.exec_())
 

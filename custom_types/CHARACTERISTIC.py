@@ -17,4 +17,5 @@ class CHARACTERISTIC(Enum):
     BASELINE = "Baseline"
     PEAK_POSITION = "Peak position"
     HEADER_INFO = "Header info"
+    CHARACTERISTIC_VALUE = "Characteristic value"
 
