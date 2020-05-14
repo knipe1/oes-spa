@@ -349,6 +349,8 @@ class BatchAnalysis(QDialog):
 
             xData, yData = self.currentFile.data
             timestamp = self.currentFile.timestamp
+            # timestamp = datetime.strptime(timestamp,
+            #                               self.EXPORT["FORMAT_TIMESTAMP"])
 
             specHandler = DataHandler(basicSetting)
             results = specHandler.analyse_data(self.currentFile)
@@ -391,9 +393,7 @@ class BatchAnalysis(QDialog):
 
             #### HACK ####################################################
             yyyData.append(peakArea)
-
-            time = datetime.strptime(timestamp, self.EXPORT["FORMAT_TIMESTAMP"])
-            xxxData.append(time)
+            xxxData.append(timestamp)
 
             # time_0 = xxxData[0]
 

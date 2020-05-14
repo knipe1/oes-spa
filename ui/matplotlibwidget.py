@@ -21,9 +21,10 @@ PLOT = config.PLOT
 if not PLOT == None:
     rc('lines', linewidth=PLOT.get("DEF_LINEWIDTH"),
        color=PLOT.get("DEF_AXIS_COLOR"))
-    # config param?
+    # TODO: config param?
     rc('font', size=9)
-
+    # TODO: config param?
+    # Formats the axis if data are dates.
     rc("date.autoformatter", minute="%H:%M")
 
 

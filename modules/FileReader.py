@@ -33,7 +33,8 @@ class FileReader(FileFramework):
     @property
     def timestamp(self):
         """timestamp getter"""
-        return self.date + " " + self.time
+        strTime = self.date + " " + self.time
+        return datetime.strptime(strTime, self.EXPORT["FORMAT_TIMESTAMP"])
 
     @property
     def data(self):
