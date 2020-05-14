@@ -317,12 +317,10 @@ class BatchAnalysis(QDialog):
 
 
         #### HACK ####################################################
-        from datetime import datetime
         concentrationSpectrum = Spectrum(self.window.mplConcentration, EXPORT_TYPE.BATCH)
         xxxData = []
         yyyData = []
-        difference = []
-        # self.window.mplConcentration.axes.clear()
+        # difference = []
         #### HACK ####################################################
 
         for i in range(amount):
@@ -349,8 +347,6 @@ class BatchAnalysis(QDialog):
 
             xData, yData = self.currentFile.data
             timestamp = self.currentFile.timestamp
-            # timestamp = datetime.strptime(timestamp,
-            #                               self.EXPORT["FORMAT_TIMESTAMP"])
 
             specHandler = DataHandler(basicSetting)
             results = specHandler.analyse_data(self.currentFile)
@@ -391,19 +387,20 @@ class BatchAnalysis(QDialog):
             row += self.extract_values_of_config(dictionary, BATCH_CONFIG.VALUE)
             data.append(row)
 
-            #### HACK ####################################################
+            #### HACK Area-time-graph #####################################
             yyyData.append(peakArea)
-            xxxData.append(timestamp)
+            # xxxData.append(timestamp)
 
-            # time_0 = xxxData[0]
+            if not len(xxxData):
+                time_0 = timestamp
 
             # TODO: Change to minutes? hours?
-            # difference.append((time - time_0).seconds)
-            concentrationSpectrum.update_data(xxxData, yyyData)
+            xxxData.append((timestamp - time_0).seconds / 3600)
             # concentrationSpectrum.update_data(difference, yyyData)
+            concentrationSpectrum.update_data(xxxData, yyyData)
             concentrationSpectrum.init_plot()
             concentrationSpectrum.update_plot()
-        #### HACK ####################################################
+            #### HACK ####################################################
 
         return data, skippedFiles
 

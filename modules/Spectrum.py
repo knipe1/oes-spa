@@ -78,6 +78,9 @@ class Spectrum():
         elif exportType == EXPORT_TYPE.PROCESSED:
             labels = {"xLabel":cls.PLOT["PROCESSED_X_LABEL"],
                       "yLabel":cls.PLOT["PROCESSED_Y_LABEL"]}
+        elif exportType == EXPORT_TYPE.BATCH:
+            labels = {"xLabel":cls.PLOT["BATCH_X_LABEL"],
+                      "yLabel":cls.PLOT["BATCH_Y_LABEL"]}
         return labels
 
 
@@ -91,6 +94,9 @@ class Spectrum():
         elif exportType == EXPORT_TYPE.PROCESSED:
             markup = {"color": cls.PLOT["PROCESSED_DATA_COLOR"],
                       "label": cls.PLOT["PROCESSED_DATA_LABEL"]}
+        elif exportType == EXPORT_TYPE.BATCH:
+            markup = {"color": cls.PLOT["BATCH_DATA_COLOR"],
+                      "label": cls.PLOT["BATCH_DATA_LABEL"]}
         elif exportType == cls.BASELINE:
             markup = {"color": cls.PLOT["RAW_BASELINE_COLOR"],
                       "linestyle": cls.PLOT["RAW_BASELINE_STYLE"],

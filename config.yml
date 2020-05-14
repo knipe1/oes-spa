@@ -44,6 +44,10 @@ PLOT:
   PROCESSED_DATA_COLOR: r
   PROCESSED_X_LABEL: Wavelength / nm
   PROCESSED_Y_LABEL: Intensity / a.u.
+  BATCH_DATA_LABEL: Peak Area
+  BATCH_DATA_COLOR: k
+  BATCH_X_LABEL: Time / h
+  BATCH_Y_LABEL: Peak area / a.u.
   RAW_BASELINE_LABEL: Baseline
   RAW_BASELINE_COLOR: b
   RAW_BASELINE_STYLE: "--"
