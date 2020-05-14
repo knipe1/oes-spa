@@ -24,6 +24,8 @@ if not PLOT == None:
     # config param?
     rc('font', size=9)
 
+    rc("date.autoformatter", minute="%H:%M")
+
 
 class MplCanvas(Canvas):
     def __init__(self, parent=None, width=2, height=2, dpi=100):

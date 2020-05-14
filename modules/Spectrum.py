@@ -129,11 +129,6 @@ class Spectrum():
     def init_plot(self):
         """Inits the plots in the ui element regarding e.g. labels."""
 
-        if self.exportType == EXPORT_TYPE.BATCH:
-            import matplotlib.dates as mdates
-            self.ui.axes.xaxis_date()
-            self.ui.axes.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-
         axes = self.ui.axes
         labels = self.labels
 
@@ -149,11 +144,6 @@ class Spectrum():
     def update_plot(self):
         """Updates the plots in the ui element."""
         # TODO: errorhandling
-
-        if self.exportType == EXPORT_TYPE.BATCH:
-            import matplotlib.dates as mdates
-            self.ui.axes.xaxis_date()
-            self.ui.axes.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
         axes = self.ui.axes
 

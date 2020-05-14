@@ -58,7 +58,7 @@ def main():
     yes = THR.Thread(target=emu.key_alt_j)
     yes.start()
     window.batch.window.btnSetFilename.click()
-    selection = THR.Thread(target=emu.key_select_file, args=[10])
+    selection = THR.Thread(target=emu.key_select_file, args=[50])
     selection.start()
     window.batch.lastdir = window.batch.lastdir+"/Obel276"
     window.batch.browse_spectra()

@@ -283,27 +283,30 @@ class AnalysisWindow(QMainWindow):
 
         #### HACK ####################################################
 
-    def update_plot(self, spectrum):
-        """Updates the ui using the element and data of the given spectrum."""
-        # TODO: errorhandling
-        spec = spectrum
-        axes = spectrum.ui.axes
+    # def update_plot(self, spectrum):
+    #     """Updates the ui using the element and data of the given spectrum."""
+    #     # TODO: errorhandling
+    #     spec = spectrum
+    #     axes = spectrum.ui.axes
 
-        # Plot the data and eventually a baseline.
-        axes.plot(spec.xData, spec.yData, **spec.markup);
-        if len(spec.baseline):
-            axes.plot(spec.xData, spec.baseline, **spec.baselineMarkup);
+    #     # Plot the data and eventually a baseline.
+    #     axes.plot(spec.xData, spec.yData, **spec.markup);
+    #     if len(spec.baseline):
+    #         axes.plot(spec.xData, spec.baseline, **spec.baselineMarkup);
 
-        # Zoom to specific area.
-        axes.update_layout(xLimit=(spec.xData[0], spec.xData[-1]));
+    #     # Zoom to specific area.
+    #     axes.update_layout(xLimit=(spec.xData[0], spec.xData[-1]));
 
-        spec.ui.draw();
-        return 0;
+    #     spec.ui.draw();
+    #     return 0;
 
 
     def update_results(self):
-        if self.currentFile:
+        try:
             self.apply_data(self.currentFile.filename, updateSpectra=False)
+        except AttributeError as err:
+            self.logger.error("Currently no file selected to update results.")
+            self.logger.error(err)
 
 
     def redraw(self, text:str=""):
