@@ -58,7 +58,8 @@ class AnalysisWindow(QMainWindow):
     logger = Logger(__name__)
 
 
-    # qt-signals
+    ## qt-signals
+    # fileinformation
     SIG_filename = pyqtSignal(str)
     SIG_date = pyqtSignal(str)
     SIG_time= pyqtSignal(str)
@@ -257,51 +258,18 @@ class AnalysisWindow(QMainWindow):
     def draw_spectra(self, *spectra):
         """Init and plot the given spectra."""
 
-        for spectrum in spectra:
-            # TODO: Duck typing --> Check try-except with corresponding Error
-            if isinstance(spectrum, Spectrum):
-        #### HACK ####################################################
+        try:
+            for spectrum in spectra:
                 spectrum.init_plot();
                 spectrum.update_plot();
-                # self.init_plot(spectrum);
-                # self.update_plot(spectrum);
+        except:
+            self.logger.error("Could not draw spectra. Missing valid spectra.")
+
         return 0
 
 
-    # def init_plot(self, spectrum):
-
-    #     axes = spectrum.ui.axes
-    #     labels = spectrum.labels
-
-    #     # Reset plot.
-    #     axes.clear();
-    #     # Add a coordinate origin with default markup.
-    #     axes.axhline()
-    #     axes.axvline()
-    #     # Update the labels of the plot.
-    #     axes.update_layout(**labels)
-
-        #### HACK ####################################################
-
-    # def update_plot(self, spectrum):
-    #     """Updates the ui using the element and data of the given spectrum."""
-    #     # TODO: errorhandling
-    #     spec = spectrum
-    #     axes = spectrum.ui.axes
-
-    #     # Plot the data and eventually a baseline.
-    #     axes.plot(spec.xData, spec.yData, **spec.markup);
-    #     if len(spec.baseline):
-    #         axes.plot(spec.xData, spec.baseline, **spec.baselineMarkup);
-
-    #     # Zoom to specific area.
-    #     axes.update_layout(xLimit=(spec.xData[0], spec.xData[-1]));
-
-    #     spec.ui.draw();
-    #     return 0;
-
-
     def update_results(self):
+        """Updates the result section of the ui with the current file."""
         try:
             self.apply_data(self.currentFile.filename, updateSpectra=False)
         except AttributeError as err:
@@ -396,44 +364,3 @@ class AnalysisWindow(QMainWindow):
         # Update the currently open file.
         self.currentFile = file;
         return 0
-
-    # def analyze_data(self, xData, yData, updateResults=True):
-    #     """Analyze data with DataHandler to obtain all parameters for the
-    #     processed spectrum.
-    #     """
-
-    #     connect = self.window.connect_results if updateResults else None;
-
-    #     # Sent the raw data to the DataHandler and get parameters
-    #     # TODO: function required for getting parameters and errorhandling!
-    #     # TODO: Is Central wavelength depending on the selected Fitting?
-    #     basicSetting = self.window.get_basic_setting()
-
-    #     specHandler = DataHandler(xData, yData, basicSetting.wavelength,
-    #                               basicSetting.grating,
-    #                               fittings=basicSetting.fitting,
-    #                               funConnection=connect)
-
-    #     #calculate results
-    #     # TODO: no validation of results?
-    #     procX, procY = specHandler.get_processed_data()
-    #     baseline, avg = specHandler.get_baseline()
-    #     peakHeight, peakArea = specHandler.get_peak()
-    #     peakRawHeight, peakPosition = specHandler.get_raw_peak()
-
-    #     # HACK ------------------------------------------------------
-    #     # characteristics = {};
-    #     # characteristics[CHARACTERISTIC.PEAK_AREA] = peakArea
-    #     # HACK ------------------------------------------------------
-
-    #     # Update and the spectra.
-    #     self.rawSpectrum.update_data(xData, yData)
-    #     self.rawSpectrum.add_baseline(baseline)
-    #     self.processedSpectrum.update_data(procX, procY)
-
-    #     # TODO: return dict with characteristics? return @dataclass?
-    #     return 0
-
-
-
-
