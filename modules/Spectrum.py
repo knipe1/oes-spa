@@ -128,8 +128,14 @@ class Spectrum():
         """Updates the data of the spectrum."""
         # TODO: option: add validation here.
         # E.g. equal length or use numpy array here?
-        self.xData = np.array(xData)
-        self.yData = np.array(yData)
+
+        # Append a single value or create a new array.
+        if isinstance(xData, (int, float)):
+            self.xData = np.append(self.xData, xData)
+            self.yData = np.append(self.yData, yData)
+        else:
+            self.xData = np.array(xData)
+            self.yData = np.array(yData)
 
 
     def init_plot(self):

@@ -320,7 +320,6 @@ class BatchAnalysis(QDialog):
         concentrationSpectrum = Spectrum(self.window.mplConcentration, EXPORT_TYPE.BATCH)
         xxxData = []
         yyyData = []
-        # difference = []
         #### HACK ####################################################
 
         for i in range(amount):
@@ -388,16 +387,18 @@ class BatchAnalysis(QDialog):
             data.append(row)
 
             #### HACK Area-time-graph #####################################
-            yyyData.append(peakArea)
-            # xxxData.append(timestamp)
 
-            if not len(xxxData):
-                time_0 = timestamp
+            # Get the reference time once and then always the difference.
+            if not i:
+                refTime = timestamp
+            # Convert to hours. See also configuration of the plot.
+            diffTime = (timestamp - refTime).seconds / 3600
 
-            # TODO: Change to minutes? hours?
-            xxxData.append((timestamp - time_0).seconds / 3600)
-            # concentrationSpectrum.update_data(difference, yyyData)
-            concentrationSpectrum.update_data(xxxData, yyyData)
+            # yyyData.append(peakArea)
+            # xxxData.append(diffTime)
+
+            # concentrationSpectrum.update_data(xxxData, yyyData)
+            concentrationSpectrum.update_data(diffTime, peakArea)
             concentrationSpectrum.init_plot()
             concentrationSpectrum.update_plot()
             #### HACK ####################################################
