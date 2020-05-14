@@ -63,9 +63,10 @@ def main():
     window.batch.browse_spectra()
     window.batch.window.cbPeakHeight.click()
     window.batch.window.cbPeakArea.click()
-    window.batch.window.cbBaseline.click()
+    window.batch.window.cbHead.click()
     window.batch.window.cbCharacteristicValue.click()
     window.batch.window.btnCalculate.click()
+    # window.batch.window.mplConcentration.hide()
     # window.batch.hide()
 
     sys.exit(app.exec_())

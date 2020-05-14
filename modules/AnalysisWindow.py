@@ -258,25 +258,30 @@ class AnalysisWindow(QMainWindow):
         """Init and plot the given spectra."""
 
         for spectrum in spectra:
+            # TODO: Duck typing --> Check try-except with corresponding Error
             if isinstance(spectrum, Spectrum):
-                self.init_plot(spectrum);
-                self.update_plot(spectrum);
+        #### HACK ####################################################
+                spectrum.init_plot();
+                spectrum.update_plot();
+                # self.init_plot(spectrum);
+                # self.update_plot(spectrum);
         return 0
 
 
-    def init_plot(self, spectrum):
+    # def init_plot(self, spectrum):
 
-        axes = spectrum.ui.axes
-        labels = spectrum.labels
+    #     axes = spectrum.ui.axes
+    #     labels = spectrum.labels
 
-        # Reset plot.
-        axes.clear();
-        # Add a coordinate origin with default markup.
-        axes.axhline()
-        axes.axvline()
-        # Update the labels of the plot.
-        axes.update_layout(**labels)
+    #     # Reset plot.
+    #     axes.clear();
+    #     # Add a coordinate origin with default markup.
+    #     axes.axhline()
+    #     axes.axvline()
+    #     # Update the labels of the plot.
+    #     axes.update_layout(**labels)
 
+        #### HACK ####################################################
 
     def update_plot(self, spectrum):
         """Updates the ui using the element and data of the given spectrum."""

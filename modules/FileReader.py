@@ -136,7 +136,7 @@ class FileReader(FileFramework):
 
             data = get_data(csvReader)
             if not len(data):
-                print("FileReader: No valid data")
+                print("FileReader: No valid data in ", self.filename)
                 return 2
 
         data = np.array(data, dtype=DEFAULT_TYPE)

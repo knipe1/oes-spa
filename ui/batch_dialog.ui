@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>451</height>
+    <width>605</width>
+    <height>850</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,73 +17,50 @@
    <iconset>
     <normaloff>afm.jpeg</normaloff>afm.jpeg</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
-   <item>
-    <layout class="QHBoxLayout" name="layoutCSVFile">
-     <item>
-      <widget class="QLineEdit" name="foutCSV">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnSetFilename">
-       <property name="text">
-        <string>&amp;Set Filename</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" rowspan="3">
+    <widget class="QListWidget" name="listFiles"/>
    </item>
-   <item>
-    <layout class="QHBoxLayout" name="layoutFiles">
-     <item>
-      <widget class="QListWidget" name="listFiles"/>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="layoutFilesButtons">
-       <item>
-        <widget class="QPushButton" name="btnBrowse">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>&amp;Browse Files</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnClear">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Clear</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">BtnFileaction</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <spacer name="spacerFiles">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-    </layout>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="btnBrowse">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>&amp;Browse Files</string>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="btnClear">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Clear</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">BtnFileaction</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <spacer name="spacerFiles">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>255</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0" colspan="2">
     <widget class="QGroupBox" name="boxParameter">
      <property name="enabled">
       <bool>true</bool>
@@ -185,7 +162,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="5" column="0" colspan="2">
     <layout class="QHBoxLayout" name="layoutProcess">
      <item>
       <widget class="QProgressBar" name="barProgress">
@@ -219,8 +196,62 @@
      </item>
     </layout>
    </item>
+   <item row="6" column="0" colspan="2">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="MatplotlibWidget" name="mplConcentration" native="true">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>311</width>
+         <height>330</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>9999</width>
+         <height>9999</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="layoutCSVFile">
+     <item>
+      <widget class="QLineEdit" name="foutCSV">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSetFilename">
+       <property name="text">
+        <string>&amp;Set Filename</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MatplotlibWidget</class>
+   <extends>QWidget</extends>
+   <header>ui.matplotlibwidget</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>btnSetFilename</tabstop>
   <tabstop>btnBrowse</tabstop>
@@ -234,12 +265,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="BtnFileaction">
+  <buttongroup name="BtnParameters">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="BtnParameters">
+  <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>

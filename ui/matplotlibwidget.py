@@ -26,15 +26,18 @@ if not PLOT == None:
 
 
 class MplCanvas(Canvas):
-    def __init__(self, parent=None, title=None, xLabel='X', yLabel='Y',
-                 xlim=None, ylim=None, width=2, height=2, dpi=100):
+    def __init__(self, parent=None, width=2, height=2, dpi=100):
         # set up a figure
         figure = Figure(figsize=(width, height), dpi=dpi)
         self.axes = figure.add_subplot(1, 1, 1)
         Canvas.__init__(self, figure)
 
-        # set title and label
-        self.update_layout(title=title, xLabel=xLabel, yLabel=yLabel)
+        # Enable methods to both axes and ui element.
+        try:
+            self.axes.update_layout = parent.update_layout
+        except AttributeError as err:
+            print(err)
+
 
         # TODO: neccessary?
         # self.setParent(parent)
@@ -47,6 +50,17 @@ class MplCanvas(Canvas):
 
         # Improves the layout and look of the plots.
         self.figure.set_tight_layout(True)
+
+
+class MatplotlibWidget(QWidget):
+    def __init__(self, parent=None):
+        # init the inherited class.
+        QWidget.__init__(self, parent)
+        # Using a vertical layout: toolbar below graph.
+        self.vbl = QVBoxLayout()
+        self.add_canvas(self.vbl)
+        self.add_toolbar(self.vbl)
+        self.setLayout(self.vbl)
 
 
     def update_layout(self, title=None, xLabel=None, yLabel=None, xLimit=None,
@@ -66,21 +80,6 @@ class MplCanvas(Canvas):
             axes.set_ylim(*yLimit)
 
 
-class MatplotlibWidget(QWidget):
-    def __init__(self, parent=None):
-        # init the inherited class.
-        QWidget.__init__(self, parent)
-        # using a vertical layout: toolbar below graph.
-        self.vbl = QVBoxLayout()
-        self.add_canvas(self.vbl)
-        self.add_toolbar(self.vbl)
-        self.setLayout(self.vbl)
-
-        # Enable the update-method also for axes instances
-        if self.canvas:
-            self.axes.update_layout = self.canvas.update_layout
-
-
     def draw(self):
         # update the plot and redraw it immediately
         self.axes.legend();
@@ -88,14 +87,14 @@ class MatplotlibWidget(QWidget):
         self.canvas.flush_events()
 
 
-
     def add_canvas(self, layout, **kwargs):
         # set up the canvas object (with no parameter).
         # A canvas is a container holding several drawing elements(like axis,
         # lines, shapes, ...)
-        self.canvas = MplCanvas(**kwargs)
+        self.canvas = MplCanvas(parent=self, **kwargs)
         self.axes = self.canvas.axes
         layout.addWidget(self.canvas)
+
 
     def add_toolbar(self, layout):
         # set up a toolbar

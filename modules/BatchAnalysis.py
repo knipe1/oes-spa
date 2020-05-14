@@ -26,6 +26,7 @@ Created on Mon Jan 20 10:22:44 2020
     ### Interaction with the FileSet self.files
 
 # standard libs
+import numpy as np
 import threading as THR
 
 # third-party libs
@@ -37,14 +38,15 @@ from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 import dialog_messages as dialog
 from Logger import Logger
+from modules.Spectrum import Spectrum
 from ui.UIBatch import UIBatch
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
 # Enums
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.FileSet import FileSet
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
 from custom_types.BATCH_CONFIG import BATCH_CONFIG
@@ -313,7 +315,16 @@ class BatchAnalysis(QDialog):
         skippedFiles = []
         amount = len(self.files)
 
-        #
+
+        #### HACK ####################################################
+        from datetime import datetime
+        concentrationSpectrum = Spectrum(self.window.mplConcentration, EXPORT_TYPE.BATCH)
+        xxxData = []
+        yyyData = []
+        difference = []
+        # self.window.mplConcentration.axes.clear()
+        #### HACK ####################################################
+
         for i in range(amount):
             # Update process bar
             self.window.update_progressbar((i+1)/amount)
@@ -377,6 +388,20 @@ class BatchAnalysis(QDialog):
             row = [file]
             row += self.extract_values_of_config(dictionary, BATCH_CONFIG.VALUE)
             data.append(row)
+
+            #### HACK ####################################################
+            yyyData.append(peakArea)
+
+            time = datetime.strptime(timestamp, self.EXPORT["FORMAT_TIMESTAMP"])
+            xxxData.append(time)
+
+            time_0 = xxxData[0]
+
+            difference.append((time - time_0).minute)
+            concentrationSpectrum.update_data(difference, yyyData)
+            concentrationSpectrum.init_plot()
+            concentrationSpectrum.update_plot()
+        #### HACK ####################################################
 
         return data, skippedFiles
 
@@ -595,3 +620,9 @@ class BatchAnalysis(QDialog):
     def reset_files(self):
         """Resets the filelist."""
         self.files.clear()
+
+
+
+
+##############################################################################
+# HACK TEST AREA
