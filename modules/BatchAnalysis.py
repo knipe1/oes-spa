@@ -395,10 +395,12 @@ class BatchAnalysis(QDialog):
             time = datetime.strptime(timestamp, self.EXPORT["FORMAT_TIMESTAMP"])
             xxxData.append(time)
 
-            time_0 = xxxData[0]
+            # time_0 = xxxData[0]
 
-            difference.append((time - time_0).minute)
-            concentrationSpectrum.update_data(difference, yyyData)
+            # TODO: Change to minutes? hours?
+            # difference.append((time - time_0).seconds)
+            concentrationSpectrum.update_data(xxxData, yyyData)
+            # concentrationSpectrum.update_data(difference, yyyData)
             concentrationSpectrum.init_plot()
             concentrationSpectrum.update_plot()
         #### HACK ####################################################

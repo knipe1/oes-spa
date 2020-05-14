@@ -60,6 +60,7 @@ def main():
     window.batch.window.btnSetFilename.click()
     selection = THR.Thread(target=emu.key_select_file, args=[10])
     selection.start()
+    window.batch.lastdir = window.batch.lastdir+"/Obel276"
     window.batch.browse_spectra()
     window.batch.window.cbPeakHeight.click()
     window.batch.window.cbPeakArea.click()

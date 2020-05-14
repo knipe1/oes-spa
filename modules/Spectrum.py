@@ -9,6 +9,7 @@ Created on Sat Apr 25 2020
 """
 
 # standard libs
+import numpy as np
 
 # third-party libs
 
@@ -62,6 +63,10 @@ class Spectrum():
     logger = Logger(__name__)
 
     BASELINE = "baseline"
+
+    @property
+    def data(self):
+        return (self.xData, self.yData)
 
     @classmethod
     def get_labels(cls, exportType):
@@ -117,12 +122,17 @@ class Spectrum():
         """Updates the data of the spectrum."""
         # TODO: option: add validation here.
         # E.g. equal length or use numpy array here?
-        self.xData = xData
-        self.yData = yData
+        self.xData = np.array(xData)
+        self.yData = np.array(yData)
 
 
     def init_plot(self):
         """Inits the plots in the ui element regarding e.g. labels."""
+
+        if self.exportType == EXPORT_TYPE.BATCH:
+            import matplotlib.dates as mdates
+            self.ui.axes.xaxis_date()
+            self.ui.axes.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
         axes = self.ui.axes
         labels = self.labels
@@ -139,6 +149,12 @@ class Spectrum():
     def update_plot(self):
         """Updates the plots in the ui element."""
         # TODO: errorhandling
+
+        if self.exportType == EXPORT_TYPE.BATCH:
+            import matplotlib.dates as mdates
+            self.ui.axes.xaxis_date()
+            self.ui.axes.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+
         axes = self.ui.axes
 
         # Plot the data and eventually a baseline.
