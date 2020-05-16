@@ -20,8 +20,9 @@ PLOT = config.PLOT
 
 # set default rc parameter.
 if not PLOT == None:
-    mpl.rc('lines', linewidth=PLOT.get("DEF_LINEWIDTH"),
-       color=PLOT.get("DEF_AXIS_COLOR"))
+    mpl.rc('lines',
+           linewidth=PLOT.get("DEF_LINEWIDTH"),
+           color=PLOT.get("DEF_AXIS_COLOR"))
     # TODO: config param?
     mpl.rc('font', size=9)
     # TODO: config param?
@@ -38,7 +39,7 @@ class MplCanvas(Canvas):
 
         # Enable methods to both axes and ui element.
         try:
-            self.axes.update_layout = parent.update_layout
+            self.axes.update_layout = self.update_layout
         except AttributeError as err:
             print(err)
 
@@ -53,16 +54,6 @@ class MplCanvas(Canvas):
 
         # Improves the layout and look of the plots.
         self.figure.set_tight_layout(True)
-
-
-class MatplotlibWidget(QWidget):
-    def __init__(self, parent):
-        super(MatplotlibWidget, self).__init__()
-        # Using a vertical layout: toolbar below graph.
-        self.vbl = QVBoxLayout()
-        self.add_canvas(self.vbl)
-        self.add_toolbar(self.vbl)
-        self.setLayout(self.vbl)
 
 
     def update_layout(self, title=None, xLabel=None, yLabel=None, xLimit=None,
@@ -83,6 +74,18 @@ class MatplotlibWidget(QWidget):
             axes.set_xlim(*xLimit)
         if not yLimit == None:
             axes.set_ylim(*yLimit)
+
+
+
+class MatplotlibWidget(QWidget):
+    def __init__(self, parent):
+        super(MatplotlibWidget, self).__init__()
+
+        # Using a vertical layout: toolbar below graph.
+        self.vbl = QVBoxLayout()
+        self.add_canvas(self.vbl)
+        self.add_toolbar(self.vbl)
+        self.setLayout(self.vbl)
 
 
     def draw(self):

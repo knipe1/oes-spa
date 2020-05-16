@@ -116,5 +116,12 @@ class FileWriter(FileFramework):
         return rawFilename+appendix+self.EXPORT["EXP_SUFFIX"];
 
     def build_head(self):
-        return " ".join([self.MARKER["HEADER"], self.timestamp])
+        timestamp = self.timestamp
+        try:
+            timestamp = datetime.strftime(timestamp,
+                                          self.EXPORT["FORMAT_TIMESTAMP"])
+        except TypeError:
+            # TODO: Implement logger?
+            print("Timestamp is no date object.")
+        return " ".join([self.MARKER["HEADER"], timestamp])
 

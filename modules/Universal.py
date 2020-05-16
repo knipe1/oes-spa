@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This module is for general purposes and includes various functions
+This module is for general purposes and includes various functions.
 
 @author: Hauke Wernecke
 """
@@ -38,21 +38,31 @@ def is_valid_filetype(url):
         return isValid;
 
 
+def convert_to_hours(timedifference):
+    """
+    Converts the difference of datetimes (timedelta-object) into hours.
 
-# def extract_xy_data(axis, label, separated=False):
-#     """extract the x and y data from a axis object and return them together or
-#     separated"""
+    Parameters
+    ----------
+    timedifference : timedelta
+        The difference between to datetimes.
 
-#     data = None;
+    Returns
+    -------
+    hours : float
+        The converted difference in hours.
 
-#     for line in axis.get_lines():
-#         if line.get_label() == label:
-#             if separated:
-#                 data = (line.get_xdata(), line.get_ydata())
-#             else:
-#                 data = line.get_xydata()
-#             break
-#     return data
+    """
+
+    hours = 0.0
+    try:
+        hours += timedifference.seconds / 3600
+        hours += timedifference.days * 24
+    except AttributeError:
+        # TODO: implement logger?
+        print("Could not convert {} into hours.".format(timedifference))
+
+    return hours
 
 
 def reduce_path(url):
@@ -135,6 +145,7 @@ def find_second_last(text, pattern):
         index = text.rfind(pattern, 0, text.rfind(pattern))
     return index
 
+
 def add_index_to_text(texts):
     """
     Adding the index of a list item in front of the item.
@@ -165,32 +176,17 @@ def add_index_to_text(texts):
             for idx, text in enumerate(texts)]
 
 
-def tryint(s):
-    """
-    Tries to convert s into a int.
-    Used for human sort corresponding to the natural_keys function.
-
-    Parameters
-    ----------
-    s : string
-        String that tried to convert into integer
-
-    Returns
-    -------
-    string or int
-        int expression of s or s itself.
-
-    """
-    try:
-        return int(s)
-    except ValueError:
-        return s
-
 def natural_keys(text):
     """
     alist.sort(key=natural_keys) sorts in human order.
     https://nedbatchelder.com/blog/200712/human_sorting.html
     """
+    def tryint(s):
+        try:
+            return int(s)
+        except ValueError:
+            return s
+
     # r'(\d+)' matches any digit number (# indicates one or more matches)
     # splitting a list of all non-numerical and numerical pattern
     return [ tryint(c) for c in re.split(r'(\d+)', text) ]

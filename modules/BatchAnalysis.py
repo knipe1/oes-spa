@@ -23,7 +23,7 @@ Created on Mon Jan 20 10:22:44 2020
     ### Events
     ### Methods/Analysis
     ### UI-interactions
-    ### Interaction with the FileSet self.files
+    ### Interaction with the FileSet self._files
 
 # standard libs
 import numpy as np
@@ -164,7 +164,7 @@ class BatchAnalysis(QDialog):
 
     def __post_init__(self):
         # Set the defaults.
-        self.files = FileSet(listWidget = self.window.listFiles,
+        self._files = FileSet(listWidget = self.window.listFiles,
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
 
@@ -181,7 +181,11 @@ class BatchAnalysis(QDialog):
         isDelete = event.matches(QKeySequence.Delete)
         if isFocused and isDelete:
             row = self.window.listFiles.currentRow()
-            self.files.remove(self.files[row])
+            self._files.remove(self._files[row])
+
+        isCancel = event.matches(QKeySequence.Cancel)
+        if isCancel:
+            self.cancelByEsc = True
     # HACK ------------------------------------------------------------
 
 
@@ -273,6 +277,7 @@ class BatchAnalysis(QDialog):
 
     def assemble_header(self, config, valueName=""):
         # TODO: check magic string?
+        # TODO: Check for an extra config entry to add the "Filename" dynamically
         header = ["Filename"]
         enumLabels = self.extract_values_of_config(config, BATCH_CONFIG.LABEL)
         header += [label.value for label in enumLabels]
@@ -313,21 +318,25 @@ class BatchAnalysis(QDialog):
         # the format, e.g. other csv files
         data = []
         skippedFiles = []
-        amount = len(self.files)
+        files = self._files.to_list()
+
+        amount = len(files)
+        self.cancelByEsc = False
 
 
         #### HACK ####################################################
         concentrationSpectrum = Spectrum(self.window.mplConcentration, EXPORT_TYPE.BATCH)
-        xxxData = []
-        yyyData = []
         #### HACK ####################################################
 
         for i in range(amount):
+            if self.cancelByEsc:
+                break
+
             # Update process bar
             self.window.update_progressbar((i+1)/amount)
 
-            # Read out the file
-            file = self.files[i]
+            # Read out the filename and the data.
+            file = files[i]
             self.currentFile = FileReader(file)
 
             # Skip the file if data is invalid.
@@ -335,18 +344,7 @@ class BatchAnalysis(QDialog):
                 skippedFiles.append(file)
                 continue
 
-            # HACK: If this analysis should run in a thread, it would be easier
-            # to generate a new window and display eventually the rawData
-            # and the peakArea-time-graph in another plot.
-            # Update the plots.
-            if self.window.get_update_plots():
-                # HINT: There is a dialog shown when the file contains invalid data.
-                self.parent().apply_data(file)
-
-
-            xData, yData = self.currentFile.data
-            timestamp = self.currentFile.timestamp
-
+            # Get the data.
             specHandler = DataHandler(basicSetting)
             results = specHandler.analyse_data(self.currentFile)
             avg = specHandler.avgbase
@@ -354,37 +352,47 @@ class BatchAnalysis(QDialog):
             peakArea = specHandler.peakArea
             peakPosition = specHandler.peakPosition
             characteristicValue = specHandler.characteristicValue
+            timestamp = self.currentFile.timestamp
 
             # excluding file if no appropiate data given like in processed spectra
             # TODO: Check more exlude conditions like characteristic value
             # below some defined threshold
-            # TODO: validate_results as method of specHandlaer?
+            # TODO: validate_results as method of specHandlaer? Would also omit
+            # the assignemts above!?
             if not peakHeight:
                 skippedFiles.append(file)
                 continue
 
-            # link values to dicts
+            # Link values to dicts.
             # If the list of characteristics gets larger, a loop is possible by
             # assigning a dict (works as a reference) to the value, e.g.:
-            # peakHeight = {}
-            # dictionary[CHARAC.PEAK_HEIGHT.value]["value"] = peakHeight
-            # peakHeight["numerical value"] = xy
-            # TODO: is dict.get() useful here? get allows a default value,
-            # and will not raise a KeyError
-            # see therefore: https://stackoverflow.com/questions/11041405/why-dict-getkey-instead-of-dictkey
-            dictionary[CHARAC.PEAK_HEIGHT][BATCH_CONFIG.VALUE] = peakHeight
-            dictionary[CHARAC.PEAK_AREA][BATCH_CONFIG.VALUE] = peakArea
-            dictionary[CHARAC.BASELINE][BATCH_CONFIG.VALUE] = avg
+            #   peakHeight = {}
+            #   dictionary[CHARAC.PEAK_HEIGHT]["value"] = peakHeight
+            #   peakHeight["numerical value"] = xy
+            valueKey = BATCH_CONFIG.VALUE
+            dictionary[CHARAC.BASELINE][valueKey] = avg
+            dictionary[CHARAC.CHARACTERISTIC_VALUE][valueKey] = \
+                characteristicValue
+            dictionary[CHARAC.PEAK_AREA][valueKey] = peakArea
+            dictionary[CHARAC.PEAK_HEIGHT][valueKey] = peakHeight
+            dictionary[CHARAC.PEAK_POSITION][valueKey] = peakPosition
             # TODO: Check HEADER_INFO is just timestamp?
-            dictionary[CHARAC.HEADER_INFO][BATCH_CONFIG.VALUE] = timestamp
-            dictionary[CHARAC.PEAK_POSITION][BATCH_CONFIG.VALUE] = peakPosition
-            dictionary[CHARAC.CHARACTERISTIC_VALUE][BATCH_CONFIG.VALUE] = characteristicValue
+            dictionary[CHARAC.HEADER_INFO][valueKey] = timestamp
 
             # assembling the row and appending it to the data
-            # TODO: pure file? Not reduced path or indexed?
+            # TODO: pure file? Not reduced path nor indexed?
             row = [file]
-            row += self.extract_values_of_config(dictionary, BATCH_CONFIG.VALUE)
+            row += self.extract_values_of_config(dictionary, valueKey)
             data.append(row)
+
+
+            # HACK: If this analysis should run in a thread, it would be easier
+            # to generate a new window and display eventually the rawData
+            # and the peakArea-time-graph in another plot.
+            # Update the plots.
+            if self.window.get_update_plots():
+                self.parent().apply_data(file)
+
 
             #### HACK Area-time-graph #####################################
 
@@ -392,15 +400,12 @@ class BatchAnalysis(QDialog):
             if not i:
                 refTime = timestamp
             # Convert to hours. See also configuration of the plot.
-            diffTime = (timestamp - refTime).seconds / 3600
+            diffTime = uni.convert_to_hours(timestamp - refTime)
 
-            # yyyData.append(peakArea)
-            # xxxData.append(diffTime)
-
-            # concentrationSpectrum.update_data(xxxData, yyyData)
             concentrationSpectrum.update_data(diffTime, peakArea)
             concentrationSpectrum.init_plot()
             concentrationSpectrum.update_plot()
+
             #### HACK ####################################################
 
         return data, skippedFiles
@@ -499,7 +504,6 @@ class BatchAnalysis(QDialog):
         Specifies the filename through a dialog.
 
         Determines the batchfile, updates the lastdir-prop, updates the ui.
-        NO setter function.
         Linked to ui button.
 
         Returns
@@ -558,7 +562,7 @@ class BatchAnalysis(QDialog):
         # Check for specified batchFile, selected files, and ticked parameters.
         if not self.batchFile:
             enable = False
-        if not self.files:
+        if not self._files:
             enable = False
         if not any([btn.isChecked() for btn in self.window.BtnParameters.buttons()]):
             enable = False
@@ -593,16 +597,18 @@ class BatchAnalysis(QDialog):
             index = index.row()
 
         if index >= 0:
-            self.parent().apply_data(self.files[index])
+            self.parent().apply_data(self._files[index])
 
 
 
-    ### Interaction with the FileSet self.files.
+    ### Interaction with the FileSet self._files.
 
 
     def update_filelist(self, filelist:list):
         """
         Updates the filelist and refreshes the ui.
+
+        Provides the interface for other modules.
 
         Parameters
         ----------
@@ -614,12 +620,12 @@ class BatchAnalysis(QDialog):
         None.
 
         """
-        self.files.update(filelist)
+        self._files.update(filelist)
 
 
     def reset_files(self):
         """Resets the filelist."""
-        self.files.clear()
+        self._files.clear()
 
 
 

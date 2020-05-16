@@ -161,8 +161,10 @@ class Spectrum():
 
         # Plot the data and eventually a baseline.
         axes.plot(self.xData, self.yData, **self.markup);
-        if len(self.baseline):
+        try:
             axes.plot(self.xData, self.baseline, **self.baselineMarkup);
+        except:
+            self.logger.warning("Could not plot baseline.")
 
         # Zoom to specific area.
         axes.update_layout(xLimit=(self.xData[0], self.xData[-1]));

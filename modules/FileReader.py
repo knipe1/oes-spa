@@ -140,7 +140,7 @@ class FileReader(FileFramework):
                 print("FileReader: No valid data in ", self.filename)
                 return 2
 
-        data = np.array(data, dtype=DEFAULT_TYPE)
+        data = np.array(data)
         self.xData, self.yData = data[:, 0], data[:, 1]
         return 0
 
@@ -281,17 +281,37 @@ class FileReader(FileFramework):
 
         """
         data = [];
+        isBatch = False;
+        columnXData = 0
+        columnYData = DATA_STRUCTURE["CSV_DATA_COLUMN"]
 
         # iterating until the marker was found
         for row in csvReader:
             if self.MARKER["DATA"] in row[0]:
                 break;
+        # HACK - Get data of batch file. #####################################
+            if "Filename" in row[0]:
+                isBatch = True
+                break
+
+        if isBatch:
+            # get the column of PEAK AREA
+            from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
+            columnYData = row.index(CHARAC.PEAK_AREA.value)
+            columnXData = row.index(CHARAC.HEADER_INFO.value)
+        # HACK ###############################################################
 
         # collecting the data
         for row in csvReader:
-            pixel = float(row[0])
-            intensity = float(row[DATA_STRUCTURE["CSV_DATA_COLUMN"]])
-            data.append([pixel, intensity])
+            try:
+                pixel = float(row[columnXData])
+                intensity = float(row[columnYData])
+                data.append([pixel, intensity])
+            except ValueError:
+                timestamp = datetime.strptime(row[columnXData],
+                                              "%Y-%m-%d %H:%M:%S")
+                peakArea = float(row[columnYData])
+                data.append([timestamp, peakArea])
 
         return data;
 
