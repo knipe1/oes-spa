@@ -39,7 +39,6 @@ class UIBatch(Ui_batch):
 
 
     ### Methods
-
     def __init__(self, parent):
         self.parent = parent
         self.setupUi(self.parent)
@@ -74,7 +73,7 @@ class UIBatch(Ui_batch):
 
 
     def get_update_plots(self):
-        return self.cbUpdatePlots.isChecked()
+        return self.radSpectra.isChecked()
 
     def get_fileselection(self)->int:
         return self.listFiles.currentRow()
@@ -108,6 +107,11 @@ class UIBatch(Ui_batch):
         self.btnCalculate.clicked.connect(fun)
 
 
+    def connect_cancel(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnCancel.clicked.connect(fun)
+
+
     def connect_clear(self, fun):
         """Interface to connect fun to clicked signal of the button."""
         self.btnClear.clicked.connect(fun)
@@ -121,6 +125,7 @@ class UIBatch(Ui_batch):
     def connect_set_filename(self, fun):
         """Interface to connect fun to clicked signal of the button."""
         self.btnSetFilename.clicked.connect(fun)
+
 
     def update_progressbar(self, percentage:[int, float]):
         """

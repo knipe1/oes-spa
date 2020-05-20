@@ -86,12 +86,12 @@ class BatchAnalysis(QDialog):
         Opens a dialog to browse for spectra and updates the filelist.
     multi_calc()
         Analyses the files and export the chracteristic values.
-    retrieve_data(dictionary:dict)
+    retrieve_data(config:dict)
         Checks the config and retrieve the corresponing values from it.
     retrieve_batch_config()
         Gets the config of the analysis as base for further analysis.
-    extract_values_of_config(dictionary:dict, key:Enum)
-        Extract the values of the given dictionary with the specifc key.
+    extract_values_of_config(config:dict, key:Enum)
+        Extract the values of the given config with the specifc key.
     open_indexed_file(index)
         Retrieve the data of the selected file of the list.
     enable_analysis()
@@ -168,7 +168,12 @@ class BatchAnalysis(QDialog):
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
 
+    # HACK: ABort the calculation
+    #     self.window.connect_cancel(self.set_cancel)
 
+
+    # def set_cancel(self):
+    #     self.cancelByEsc = True
 
     ### Events
     ### UI-interactions
@@ -257,7 +262,7 @@ class BatchAnalysis(QDialog):
         basicSetting = self.parent().window.get_basic_setting()
         characteristicName = basicSetting.fitting.currentPeak.name
 
-        # Load the dictionary for processing the data.
+        # Load the config for processing the data.
         batchConfig = self.retrieve_batch_config();
 
 
@@ -282,17 +287,17 @@ class BatchAnalysis(QDialog):
         enumLabels = self.extract_values_of_config(config, BATCH_CONFIG.LABEL)
         header += [label.value for label in enumLabels]
 
-        # HACK?
-        # Replace 'Characteristic value' with proper name
-        hasCharacteristicValue = header.count(CHARAC.CHARACTERISTIC_VALUE.value)
-        if hasCharacteristicValue:
+        # Replace 'Characteristic value' with proper name.
+        try:
             idx = header.index(CHARAC.CHARACTERISTIC_VALUE.value)
             header[idx] = valueName
+        except ValueError:
+            self.logger.warning("No export of characteristic values.")
 
         return header
 
 
-    def retrieve_data(self, dictionary:dict, basicSetting):
+    def retrieve_data(self, config:dict, basicSetting):
         """
         Checks the config and retrieve the corresponing values from it.
 
@@ -301,7 +306,7 @@ class BatchAnalysis(QDialog):
 
         Parameters
         ----------
-        dictionary : dict
+        config : dict
             The dict of the configuration.
 
         Returns
@@ -367,22 +372,22 @@ class BatchAnalysis(QDialog):
             # If the list of characteristics gets larger, a loop is possible by
             # assigning a dict (works as a reference) to the value, e.g.:
             #   peakHeight = {}
-            #   dictionary[CHARAC.PEAK_HEIGHT]["value"] = peakHeight
+            #   config[CHARAC.PEAK_HEIGHT]["value"] = peakHeight
             #   peakHeight["numerical value"] = xy
             valueKey = BATCH_CONFIG.VALUE
-            dictionary[CHARAC.BASELINE][valueKey] = avg
-            dictionary[CHARAC.CHARACTERISTIC_VALUE][valueKey] = \
+            config[CHARAC.BASELINE][valueKey] = avg
+            config[CHARAC.CHARACTERISTIC_VALUE][valueKey] = \
                 characteristicValue
-            dictionary[CHARAC.PEAK_AREA][valueKey] = peakArea
-            dictionary[CHARAC.PEAK_HEIGHT][valueKey] = peakHeight
-            dictionary[CHARAC.PEAK_POSITION][valueKey] = peakPosition
+            config[CHARAC.PEAK_AREA][valueKey] = peakArea
+            config[CHARAC.PEAK_HEIGHT][valueKey] = peakHeight
+            config[CHARAC.PEAK_POSITION][valueKey] = peakPosition
             # TODO: Check HEADER_INFO is just timestamp?
-            dictionary[CHARAC.HEADER_INFO][valueKey] = timestamp
+            config[CHARAC.HEADER_INFO][valueKey] = timestamp
 
             # assembling the row and appending it to the data
             # TODO: pure file? Not reduced path nor indexed?
             row = [file]
-            row += self.extract_values_of_config(dictionary, valueKey)
+            row += self.extract_values_of_config(config, valueKey)
             data.append(row)
 
 
@@ -415,7 +420,7 @@ class BatchAnalysis(QDialog):
         """
         Gets the config of the analysis as base for further analysis.
 
-        Provides the config in a dictionary to loop through in other methods.
+        Provides the config in a dict to loop through in other methods.
 
         Raises
         ------
@@ -467,22 +472,22 @@ class BatchAnalysis(QDialog):
 
     def extract_values_of_config(self, config:dict, key):
         """
-        Extract the values of the given dictionary with the specifc key.
+        Extract the values of the given config with the specifc key.
 
-        If the dictionary contains a key, value pair with {"status": True}.
+        If the config contains a key, value pair with {"status": True}.
 
         Parameters
         ----------
-        dictionary : dict
+        config : dict
             A dict that must contain the given key and the key "status".
         key : string
-            Key to retrieve the specific value of all items of the dictionary.
+            Key to retrieve the specific value of all items of the config.
 
         Returns
         -------
         list
             Contains all items of the specific key. Empty if "status"-key does
-            not exist in dictionary.
+            not exist in config.
 
         """
 
