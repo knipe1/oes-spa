@@ -18,107 +18,23 @@
     <normaloff>afm.jpeg</normaloff>afm.jpeg</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0" colspan="2">
-    <widget class="QGroupBox" name="boxParameter">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>110</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Parameters</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <layout class="QVBoxLayout" name="layoutParam1">
-        <item>
-         <widget class="QCheckBox" name="cbPeakHeight">
-          <property name="text">
-           <string>Peak height</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">BtnParameters</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbPeakArea">
-          <property name="text">
-           <string>Peak area</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">BtnParameters</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbBaseline">
-          <property name="text">
-           <string>Baseline</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">BtnParameters</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbCharacteristicValue">
-          <property name="text">
-           <string>Characteristic Value</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">BtnParameters</string>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="layoutParam2">
-        <item>
-         <widget class="QCheckBox" name="cbHead">
-          <property name="text">
-           <string>Header info</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">BtnParameters</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbPeakPos">
-          <property name="text">
-           <string>Peak Position</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">BtnParameters</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnSelectAll">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>2</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Select All</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
+   <item row="0" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="layoutCSVFile">
+     <item>
+      <widget class="QLineEdit" name="foutCSV">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSetFilename">
+       <property name="text">
+        <string>&amp;Set Filename</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="1" column="0" rowspan="3">
     <widget class="QListWidget" name="listFiles"/>
@@ -146,7 +62,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="pushButton">
@@ -198,7 +114,7 @@
      </property>
     </spacer>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <layout class="QHBoxLayout" name="layoutProcess">
      <item>
       <widget class="QProgressBar" name="barProgress">
@@ -265,24 +181,6 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="layoutCSVFile">
-     <item>
-      <widget class="QLineEdit" name="foutCSV">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnSetFilename">
-       <property name="text">
-        <string>&amp;Set Filename</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -295,9 +193,6 @@
  <tabstops>
   <tabstop>btnSetFilename</tabstop>
   <tabstop>btnBrowse</tabstop>
-  <tabstop>cbPeakHeight</tabstop>
-  <tabstop>cbBaseline</tabstop>
-  <tabstop>cbHead</tabstop>
   <tabstop>foutCSV</tabstop>
   <tabstop>listFiles</tabstop>
   <tabstop>btnClear</tabstop>

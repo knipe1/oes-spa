@@ -284,8 +284,7 @@ class BatchAnalysis(QDialog):
         # TODO: check magic string?
         # TODO: Check for an extra config entry to add the "Filename" dynamically
         header = ["Filename"]
-        enumLabels = self.extract_values_of_config(config, BATCH_CONFIG.LABEL)
-        header += [label.value for label in enumLabels]
+        header += [label.value for label in config.keys()]
 
         # Replace 'Characteristic value' with proper name.
         try:
@@ -359,35 +358,28 @@ class BatchAnalysis(QDialog):
             characteristicValue = specHandler.characteristicValue
             timestamp = self.currentFile.timestamp
 
-            # excluding file if no appropiate data given like in processed spectra
+            # excluding file if no appropiate data given like in processed
+            # spectra.
             # TODO: Check more exlude conditions like characteristic value
-            # below some defined threshold
+            # below some defined threshold.
             # TODO: validate_results as method of specHandlaer? Would also omit
             # the assignemts above!?
             if not peakHeight:
                 skippedFiles.append(file)
                 continue
 
-            # Link values to dicts.
-            # If the list of characteristics gets larger, a loop is possible by
-            # assigning a dict (works as a reference) to the value, e.g.:
-            #   peakHeight = {}
-            #   config[CHARAC.PEAK_HEIGHT]["value"] = peakHeight
-            #   peakHeight["numerical value"] = xy
-            valueKey = BATCH_CONFIG.VALUE
-            config[CHARAC.BASELINE][valueKey] = avg
-            config[CHARAC.CHARACTERISTIC_VALUE][valueKey] = \
-                characteristicValue
-            config[CHARAC.PEAK_AREA][valueKey] = peakArea
-            config[CHARAC.PEAK_HEIGHT][valueKey] = peakHeight
-            config[CHARAC.PEAK_POSITION][valueKey] = peakPosition
+            config[CHARAC.BASELINE] = avg
+            config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
+            config[CHARAC.PEAK_AREA] = peakArea
+            config[CHARAC.PEAK_HEIGHT] = peakHeight
+            config[CHARAC.PEAK_POSITION] = peakPosition
             # TODO: Check HEADER_INFO is just timestamp?
-            config[CHARAC.HEADER_INFO][valueKey] = timestamp
+            config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
 
             # assembling the row and appending it to the data
             # TODO: pure file? Not reduced path nor indexed?
             row = [file]
-            row += self.extract_values_of_config(config, valueKey)
+            row += [value for value in config.values()]
             data.append(row)
 
 
@@ -418,56 +410,24 @@ class BatchAnalysis(QDialog):
 
     def retrieve_batch_config(self):
         """
-        Gets the config of the analysis as base for further analysis.
+        Gets the plain config for analysis.
 
         Provides the config in a dict to loop through in other methods.
 
-        Raises
-        ------
-        ValueError
-            Raises when the config is not acceptable.
-
         Returns
         -------
-        properties: dict
-            Includes the ui elements and the matching labels.
+        config: dict
+            Containts the CHARACTERISTIC enum as dict with default values.
 
         """
 
-        # TODO: errorhandling
-        defValue = 0   # Should be falsy to skip file by default.
-        properties = {}
-
-        # make sure this is in the correct order that they match to the loop
-        # of self.window.BtnParameters.buttons()
-        labels = [CHARAC.PEAK_HEIGHT,
-                  CHARAC.PEAK_AREA,
-                  CHARAC.BASELINE,
-                  CHARAC.CHARACTERISTIC_VALUE,
-                  CHARAC.HEADER_INFO,
-                  CHARAC.PEAK_POSITION,]
-
-        # Retrieve checkboxes and their properties.
-        checkboxes = [{BATCH_CONFIG.CHECKBOX: cb,
-                       BATCH_CONFIG.NAME: cb.objectName(),
-                       BATCH_CONFIG.STATUS: cb.isChecked(),
-                       BATCH_CONFIG.VALUE: defValue,
-                       } for cb in self.window.BtnParameters.buttons()]
-
-        # Errorhandling
-        if len(checkboxes) != len(labels):
-            raise ValueError("""Checkboxes and labels are not fitting!
-                             Please check configuration""")
-
-        # Union labels and checkboxes.
-        for checkbox, label in zip(checkboxes, labels):
-            # Add the label-key and the corresponding value to the indiviual
-            # setting.
-            checkbox.update({BATCH_CONFIG.LABEL: label})
-            # Add the individual setting and merge it to the complete setting.
-            properties[checkbox[BATCH_CONFIG.LABEL]] = checkbox
-
-        return properties;
+        config = {CHARAC.PEAK_HEIGHT: None,
+                  CHARAC.PEAK_AREA: None,
+                  CHARAC.BASELINE: None,
+                  CHARAC.CHARACTERISTIC_VALUE: None,
+                  CHARAC.HEADER_INFO: None,
+                  CHARAC.PEAK_POSITION: None,}
+        return config
 
 
     def extract_values_of_config(self, config:dict, key):
@@ -568,8 +528,6 @@ class BatchAnalysis(QDialog):
         if not self.batchFile:
             enable = False
         if not self._files:
-            enable = False
-        if not any([btn.isChecked() for btn in self.window.BtnParameters.buttons()]):
             enable = False
 
         # TODO: use a porperty to separate the ui from the logic?

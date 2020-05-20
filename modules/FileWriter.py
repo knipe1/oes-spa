@@ -20,6 +20,7 @@ from modules.FileFramework import FileFramework
 
 # local modules/libs
 import dialog_messages as dialog
+import modules.Universal as uni
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
@@ -38,7 +39,7 @@ class FileWriter(FileFramework):
         # (Create and) assign timestamp.
         if timestamp == None:
             timestamp = datetime.now()
-            timestamp = timestamp.strftime(self.EXPORT["FORMAT_TIMESTAMP"])
+            timestamp = uni.timestamp_to_string(timestamp)
         self.timestamp = timestamp
 
 
@@ -118,8 +119,7 @@ class FileWriter(FileFramework):
     def build_head(self):
         timestamp = self.timestamp
         try:
-            timestamp = datetime.strftime(timestamp,
-                                          self.EXPORT["FORMAT_TIMESTAMP"])
+            timestamp = uni.timestamp_to_string(timestamp)
         except TypeError:
             # TODO: Implement logger?
             print("Timestamp is no date object.")

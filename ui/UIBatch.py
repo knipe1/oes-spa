@@ -58,16 +58,12 @@ class UIBatch(Ui_batch):
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
         # Properties
-        # self.cbUpdatePlots.stateChanged.connect(self.set_prop_updatePlots)
         # click/valueChanged connections
         self.listFiles.currentRowChanged.connect(self.parent.open_indexed_file)
         self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
         self.btnBrowse.clicked.connect(self.parent.browse_spectra)
         self.btnClear.clicked.connect(self.parent.reset_files)
         self.btnCalculate.clicked.connect(self.parent.multi_calc)
-        self.btnSelectAll.clicked.connect(self.set_all)
-        # Update the UI whenever a parameter button is toggled.
-        self.BtnParameters.buttonToggled.connect(self.parent.enable_analysis)
         self.foutCSV.textChanged.connect(self.parent.enable_analysis)
         # self.listFiles.itemSelectionChanged.connect(self.parent.enable_analysis)
 
@@ -80,19 +76,6 @@ class UIBatch(Ui_batch):
 
     def set_fileselection(self, index):
         return self.listFiles.setCurrentRow(index)
-
-
-
-    def set_all(self):
-        """
-        Checks all buttons of the parameter group.
-
-        Set all buttons in the group, independent if more buttons are
-        added or some are deleted.
-        """
-
-        for button in self.BtnParameters.buttons():
-            button.setChecked(True)
 
 
     ## Connect methods

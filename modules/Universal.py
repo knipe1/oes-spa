@@ -8,6 +8,7 @@ This module is for general purposes and includes various functions.
 
 # standard libs
 import re
+from datetime import datetime
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
@@ -18,8 +19,9 @@ import dialog_messages as dialog
 
 # Load the configuration for import and batch properties.
 config = ConfigLoader()
-IMPORT = config.IMPORT
 BATCH = config.BATCH
+EXPORT = config.EXPORT
+IMPORT = config.IMPORT
 
 def is_valid_filetype(url):
         """checks if the given url is valid to load the data"""
@@ -64,6 +66,9 @@ def convert_to_hours(timedifference):
 
     return hours
 
+def timestamp_to_string(timestamp):
+    timestampString = datetime.strftime(timestamp, EXPORT["FORMAT_TIMESTAMP"])
+    return timestampString
 
 def reduce_path(url):
     """
