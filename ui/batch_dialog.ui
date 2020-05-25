@@ -10,6 +10,15 @@
     <height>850</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Batch Analysis</string>
   </property>
@@ -35,84 +44,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="1" column="0" rowspan="3">
-    <widget class="QListWidget" name="listFiles"/>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="btnClear">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Clear</string>
-     </property>
-     <attribute name="buttonGroup">
-      <string notr="true">BtnFileaction</string>
-     </attribute>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="btnBrowse">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>&amp;Browse Files</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>Import Concentration</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="MatplotlibWidget" name="mplConcentration" native="true">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>311</width>
-         <height>330</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>9999</width>
-         <height>9999</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="3" column="1">
-    <spacer name="spacerFiles">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>255</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item row="4" column="0" colspan="2">
     <layout class="QHBoxLayout" name="layoutProcess">
@@ -181,6 +112,117 @@
      </item>
     </layout>
    </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QGroupBox" name="boxConcentration">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>310</width>
+       <height>330</height>
+      </size>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QPushButton" name="btnImport">
+        <property name="text">
+         <string>Import Concentration</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="MatplotlibWidget" name="mplConcentration" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>370</width>
+          <height>330</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>800</width>
+          <height>800</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="3">
+    <widget class="QListWidget" name="listFiles">
+     <property name="maximumSize">
+      <size>
+       <width>800</width>
+       <height>500</height>
+      </size>
+     </property>
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="btnClear">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Clear</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">BtnFileaction</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="btnBrowse">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>&amp;Browse Files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <spacer name="spacerFiles">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>255</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -200,16 +242,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="RadProcess"/>
-  <buttongroup name="BtnParameters">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="RadProcess"/>
  </buttongroups>
 </ui>

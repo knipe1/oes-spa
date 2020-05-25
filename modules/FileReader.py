@@ -107,7 +107,6 @@ class FileReader(FileFramework):
         # TODO: issue if file has no header
         # TODO: issue if there were no data
         # TODO: issue if file starts with empty line
-        DEFAULT_TYPE = np.float64
 
         # determine the filetype of the file to
         filetype = self.get_filetype()
@@ -309,7 +308,7 @@ class FileReader(FileFramework):
                 data.append([pixel, intensity])
             except ValueError:
                 timestamp = datetime.strptime(row[columnXData],
-                                              "%Y-%m-%d %H:%M:%S")
+                                              self.EXPORT["FORMAT_TIMESTAMP"])
                 peakArea = float(row[columnYData])
                 data.append([timestamp, peakArea])
 

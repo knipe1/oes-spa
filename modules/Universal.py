@@ -66,9 +66,20 @@ def convert_to_hours(timedifference):
 
     return hours
 
+
 def timestamp_to_string(timestamp):
     timestampString = datetime.strftime(timestamp, EXPORT["FORMAT_TIMESTAMP"])
     return timestampString
+
+def add_suffix(filename, suffix):
+    fileInfo = QFileInfo(filename)
+    path = fileInfo.absolutePath() + "/"
+
+    if not fileInfo.completeSuffix() == suffix:
+            filenameWithSuffix = fileInfo.baseName() + "." + suffix
+            filename = path + filenameWithSuffix
+
+    return filename, path
 
 def reduce_path(url):
     """

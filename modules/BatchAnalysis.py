@@ -27,7 +27,6 @@ Created on Mon Jan 20 10:22:44 2020
 
 # standard libs
 import numpy as np
-import threading as THR
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo, QModelIndex
@@ -110,7 +109,7 @@ class BatchAnalysis(QDialog):
     BATCH = config.BATCH;
     EXPORT = config.EXPORT;
 
-    # set up the logger
+    # Set up the logger.
     logger = Logger(__name__)
 
 
@@ -126,8 +125,17 @@ class BatchAnalysis(QDialog):
         """batchFile setter: Updating the ui"""
         self._batchFile = text
         self.window.batchFile = text
-        # self.window.set_batchfile(text)
-        # self.enable_analysis()
+
+
+    @property
+    def lastdir(self):
+        """lastdir getter"""
+        return self.parent().lastdir
+
+    @lastdir.setter
+    def lastdir(self, path:str):
+        """lastdir setter: Updating the parent"""
+        self.parent().lastdir = path
 
 
 
@@ -149,14 +157,7 @@ class BatchAnalysis(QDialog):
         # Initialize the parent class ( == QDialog.__init__(self).
         super().__init__(parent)
 
-        # TODO: check whether there will be some inconsistency if self.lastdir
-        # is set or if it even useful to implement it like this.
-        self.lastdir = parent.lastdir
-
-        # General settings.
-        self.setAcceptDrops(True)
-        # self.model = QStringListModel()
-        # init of window has to be at last, because it connects self.model i.a.
+        # Set up ui.
         self.window = UIBatch(self)
 
         self.__post_init__()
@@ -169,11 +170,11 @@ class BatchAnalysis(QDialog):
         self.batchFile = self.window.batchFile
 
     # HACK: ABort the calculation
-    #     self.window.connect_cancel(self.set_cancel)
+        self.window.connect_cancel(self.set_cancel)
 
 
-    # def set_cancel(self):
-    #     self.cancelByEsc = True
+    def set_cancel(self):
+        self.cancelByEsc = True
 
     ### Events
     ### UI-interactions
@@ -190,7 +191,7 @@ class BatchAnalysis(QDialog):
 
         isCancel = event.matches(QKeySequence.Cancel)
         if isCancel:
-            self.cancelByEsc = True
+            self.set_cancel()
     # HACK ------------------------------------------------------------
 
 
@@ -221,13 +222,13 @@ class BatchAnalysis(QDialog):
         """
 
         # Set up a list to append valid files.
-        valid_urls = []
+        valid_urls = set()
 
         # Get the urls and check their validity.
         urls = event.mimeData().urls();
         for url in urls:
             if uni.is_valid_filetype(url):
-                valid_urls.append(url.toLocalFile())
+                valid_urls.add(url.toLocalFile())
 
         # Updates the filelist with the valid urls.
         self.update_filelist(valid_urls)
@@ -235,104 +236,27 @@ class BatchAnalysis(QDialog):
 
     ### Methods/Analysis
 
-    # TEST ---------------------------------------------------------------
-    def multi_calc(self):
-        # test = THR.Thread(target=self.multi_calc_thread)
-        # test.start()
-        self.multi_calc_thread()
-    # TEST ---------------------------------------------------------------
+    def analyze(self):
 
-    def multi_calc_thread(self):
-        """
-        Analyses the files and export the chracteristic values.
-
-        Returns
-        -------
-        None.
-
-        """
-
-        # TODO: any kind of errorhandling?
-        # Wrong format for the timestamp?
-        # cannot found batchfile? If empty for example?
-        # validate successful export?
-
-
+        # Reset the properties to have clean setup.
+        self.cancelByEsc = False
+        self.concentrationSpectrum = Spectrum(
+                self.window.mplConcentration, EXPORT_TYPE.BATCH)
+        # Get the modus.
+        isUpdatePlot = self.window.get_update_plots()
+        isPlotConcentration = self.window.get_plot_concentration()
+        isExportBatch = self.window.get_export_batch()
         # Get characteristic values.
         basicSetting = self.parent().window.get_basic_setting()
-        characteristicName = basicSetting.fitting.currentPeak.name
 
-        # Load the config for processing the data.
-        batchConfig = self.retrieve_batch_config();
-
-
-        # Assemble header by extracting all labels of the config.
-        header = self.assemble_header(batchConfig, valueName=characteristicName)
-
-        # Separate the valid data from skipped files.
-        data, skippedFiles = self.retrieve_data(batchConfig, basicSetting)
-
-        # export in csv file
-        csvWriter = FileWriter(self.batchFile)
-        csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
-
-        # prompt the user with information about the skipped files
-        dialog.information_BatchAnalysisFinished(skippedFiles)
-
-
-    def assemble_header(self, config, valueName=""):
-        # TODO: check magic string?
-        # TODO: Check for an extra config entry to add the "Filename" dynamically
-        header = ["Filename"]
-        header += [label.value for label in config.keys()]
-
-        # Replace 'Characteristic value' with proper name.
-        try:
-            idx = header.index(CHARAC.CHARACTERISTIC_VALUE.value)
-            header[idx] = valueName
-        except ValueError:
-            self.logger.warning("No export of characteristic values.")
-
-        return header
-
-
-    def retrieve_data(self, config:dict, basicSetting):
-        """
-        Checks the config and retrieve the corresponing values from it.
-
-        Loops through the files and get the data. Optional it will also update
-        the plots.
-
-        Parameters
-        ----------
-        config : dict
-            The dict of the configuration.
-
-        Returns
-        -------
-        data : list of lists
-            Contains the data of the files in a matrix.
-        skippedFiles : list
-            Including filenames of the skipped files due to invalid data.
-
-        """
-        # TODO: errorhandling
-
-        # lists for data of valid files and the skipped files due not fitting
-        # the format, e.g. other csv files
         data = []
         skippedFiles = []
         files = self._files.to_list()
-
         amount = len(files)
-        self.cancelByEsc = False
-
-
-        #### HACK ####################################################
-        concentrationSpectrum = Spectrum(self.window.mplConcentration, EXPORT_TYPE.BATCH)
-        #### HACK ####################################################
 
         for i in range(amount):
+            # HACK: Works only if event queue is flushed, like when redrawing
+            # a plot. But do not work during "just" exporting.
             if self.cancelByEsc:
                 break
 
@@ -342,11 +266,6 @@ class BatchAnalysis(QDialog):
             # Read out the filename and the data.
             file = files[i]
             self.currentFile = FileReader(file)
-
-            # Skip the file if data is invalid.
-            if not self.currentFile.is_valid_datafile():
-                skippedFiles.append(file)
-                continue
 
             # Get the data.
             specHandler = DataHandler(basicSetting)
@@ -368,44 +287,263 @@ class BatchAnalysis(QDialog):
                 skippedFiles.append(file)
                 continue
 
-            config[CHARAC.BASELINE] = avg
-            config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
-            config[CHARAC.PEAK_AREA] = peakArea
-            config[CHARAC.PEAK_HEIGHT] = peakHeight
-            config[CHARAC.PEAK_POSITION] = peakPosition
-            # TODO: Check HEADER_INFO is just timestamp?
-            config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+            if isExportBatch:
+                config = self.retrieve_batch_config()
+                config[CHARAC.BASELINE] = avg
+                config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
+                config[CHARAC.PEAK_AREA] = peakArea
+                config[CHARAC.PEAK_HEIGHT] = peakHeight
+                config[CHARAC.PEAK_POSITION] = peakPosition
+                # TODO: Check HEADER_INFO is just timestamp?
+                config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
 
-            # assembling the row and appending it to the data
-            # TODO: pure file? Not reduced path nor indexed?
-            row = [file]
-            row += [value for value in config.values()]
-            data.append(row)
-
-
-            # HACK: If this analysis should run in a thread, it would be easier
-            # to generate a new window and display eventually the rawData
-            # and the peakArea-time-graph in another plot.
-            # Update the plots.
-            if self.window.get_update_plots():
+                data.append(self.assemble_row(file, config))
+            elif isUpdatePlot:
                 self.parent().apply_data(file)
+            elif isPlotConcentration:
+                # TODO: currently just peakArea, no dropdown.
+                data = (timestamp, peakArea)
+                self.import_batch(data)
+
+        if isExportBatch:
+            characteristicName = basicSetting.fitting.currentPeak.name
+            self.export_batch(data, peakName=characteristicName)
+
+        # Prompt the user with information about the skipped files.
+        dialog.information_BatchAnalysisFinished(skippedFiles)
 
 
-            #### HACK Area-time-graph #####################################
+    def plot_concentration(self, timestamp, value):
+        # TODO: To be tested.
+        # Get the timediff of the spectrum in h.
+        diffTime = self.get_timediff_H(self.concentrationSpectrum,
+                                          timestamp)
 
-            # Get the reference time once and then always the difference.
-            if not i:
-                refTime = timestamp
-            # Convert to hours. See also configuration of the plot.
-            diffTime = uni.convert_to_hours(timestamp - refTime)
+        self.concentrationSpectrum.update_data(diffTime, value)
+        self.concentrationSpectrum.init_plot()
+        self.concentrationSpectrum.update_plot()
 
-            concentrationSpectrum.update_data(diffTime, peakArea)
-            concentrationSpectrum.init_plot()
-            concentrationSpectrum.update_plot()
 
-            #### HACK ####################################################
+    def get_timediff_H(self, spectrum, timestamp):
+        try:
+            refTime = spectrum.referenceTime
+        except:
+            refTime = timestamp
+            spectrum.referenceTime = refTime
 
-        return data, skippedFiles
+
+        diffTime = uni.convert_to_hours(timestamp - refTime)
+
+        return diffTime
+
+    def import_batch(self, data=None):
+
+
+        try:
+            timestamp, values = data
+
+            diffTimes = self.get_timediff_H(self.concentrationSpectrum,
+                                              timestamp)
+
+        except:
+            diffTimes = []
+
+            self.concentrationSpectrum = Spectrum(
+                    self.window.mplConcentration, EXPORT_TYPE.BATCH)
+
+            filelist = dialog.dialog_openFiles(self.lastdir)
+            file = filelist[0]
+            self.currentFile = FileReader(file)
+
+
+            data = self.currentFile.data
+
+            timestamps, values = data
+
+            for timestamp in timestamps:
+                diffTime = self.get_timediff_H(self.concentrationSpectrum,
+                                                  timestamp)
+                diffTimes.append(diffTime)
+
+        self.concentrationSpectrum.update_data(diffTimes, values)
+        self.concentrationSpectrum.init_plot()
+        self.concentrationSpectrum.update_plot()
+
+
+    def export_batch(self, data, peakName=None):
+
+        # Assemble header with the name of the characteristic value.
+        header = self.assemble_header(valueName=peakName)
+
+        # Export in csv file.
+        csvWriter = FileWriter(self.batchFile)
+        csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
+
+    # def multi_calc(self):
+    #     """
+    #     Analyses the files and export the charcteristic values.
+
+    #     Returns
+    #     -------
+    #     None.
+
+    #     """
+
+    #     # TODO: any kind of errorhandling?
+    #     # Wrong format for the timestamp?
+    #     # cannot found batchfile? If empty for example?
+    #     # validate successful export?
+
+
+    #     # Get characteristic values.
+    #     basicSetting = self.parent().window.get_basic_setting()
+    #     characteristicName = basicSetting.fitting.currentPeak.name
+
+    #     # HINT: EXPORT
+    #     # Assemble header with the name of the characteristic value.
+    #     header = self.assemble_header(valueName=characteristicName)
+
+    #     # Separate the valid data from skipped files.
+    #     data, skippedFiles = self.retrieve_data(basicSetting)
+
+    #     # HINT: EXPORT
+    #     # Export in csv file.
+    #     csvWriter = FileWriter(self.batchFile)
+    #     csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
+
+    #     # prompt the user with information about the skipped files
+    #     dialog.information_BatchAnalysisFinished(skippedFiles)
+
+
+    def assemble_header(self, valueName=""):
+        # TODO: check magic string?
+        # TODO: Check for an extra config entry to add the "Filename" dynamically
+        config = self.retrieve_batch_config()
+
+        header = ["Filename"]
+        header += [label.value for label in config.keys()]
+
+        # Replace 'Characteristic value' with proper name.
+        try:
+            idx = header.index(CHARAC.CHARACTERISTIC_VALUE.value)
+            header[idx] = valueName
+        except ValueError:
+            self.logger.warning("No export of characteristic values.")
+
+        return header
+
+
+    def assemble_row(self, filename, config):
+        # TODO: pure file? Not reduced path nor indexed?
+        row = [filename]
+        row += [value for value in config.values()]
+        return row
+
+
+    # def retrieve_data(self, basicSetting):
+    #     """
+    #     Checks the config and retrieve the corresponing values from it.
+
+    #     Loops through the files and get the data. Optional it will also update
+    #     the plots.
+
+    #     Parameters
+    #     ----------
+    #     config : dict
+    #         The dict of the configuration.
+
+    #     Returns
+    #     -------
+    #     data : list of lists
+    #         Contains the data of the files in a matrix.
+    #     skippedFiles : list
+    #         Including filenames of the skipped files due to invalid data.
+
+    #     """
+    #     # TODO: errorhandling
+
+    #     # lists for data of valid files and the skipped files due not fitting
+    #     # the format, e.g. other csv files
+    #     self.cancelByEsc = False
+
+    #     data = []
+    #     skippedFiles = []
+    #     files = self._files.to_list()
+    #     config = self.retrieve_batch_config()
+    #     amount = len(files)
+
+    #     for i in range(amount):
+    #         if self.cancelByEsc:
+    #             break
+
+    #         # Update process bar
+    #         self.window.update_progressbar((i+1)/amount)
+
+    #         # Read out the filename and the data.
+    #         file = files[i]
+    #         self.currentFile = FileReader(file)
+
+    #         # Skip the file if data is invalid.
+    #         if not self.currentFile.is_valid_datafile():
+    #             skippedFiles.append(file)
+    #             continue
+
+    #         # Get the data.
+    #         specHandler = DataHandler(basicSetting)
+    #         results = specHandler.analyse_data(self.currentFile)
+    #         avg = specHandler.avgbase
+    #         peakHeight = specHandler.peakHeight
+    #         peakArea = specHandler.peakArea
+    #         peakPosition = specHandler.peakPosition
+    #         characteristicValue = specHandler.characteristicValue
+    #         timestamp = self.currentFile.timestamp
+
+    #         # excluding file if no appropiate data given like in processed
+    #         # spectra.
+    #         # TODO: Check more exlude conditions like characteristic value
+    #         # below some defined threshold.
+    #         # TODO: validate_results as method of specHandlaer? Would also omit
+    #         # the assignemts above!?
+    #         if not peakHeight:
+    #             skippedFiles.append(file)
+    #             continue
+
+    #         config[CHARAC.BASELINE] = avg
+    #         config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
+    #         config[CHARAC.PEAK_AREA] = peakArea
+    #         config[CHARAC.PEAK_HEIGHT] = peakHeight
+    #         config[CHARAC.PEAK_POSITION] = peakPosition
+    #         # TODO: Check HEADER_INFO is just timestamp?
+    #         config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+
+    #         # assembling the row and appending it to the data
+    #         # TODO: pure file? Not reduced path nor indexed?
+    #         row = [file]
+    #         row += [value for value in config.values()]
+    #         data.append(row)
+
+
+    #         # HACK: If this analysis should run in a thread, it would be easier
+    #         # to generate a new window and display eventually the rawData
+    #         # and the peakArea-time-graph in another plot.
+    #         # Update the plots.
+    #         if self.window.get_update_plots():
+    #             self.parent().apply_data(file)
+    #         # Update the concentration plot.
+    #         elif self.window.get_plot_concentration():
+    #             # Get the reference time once and then always the difference.
+    #             if not i:
+    #                 concentrationSpectrum = Spectrum(
+    #                     self.window.mplConcentration, EXPORT_TYPE.BATCH)
+    #                 refTime = timestamp
+    #             # Convert to hours. See also configuration of the plot.
+    #             diffTime = uni.convert_to_hours(timestamp - refTime)
+
+    #             concentrationSpectrum.update_data(diffTime, peakArea)
+    #             concentrationSpectrum.init_plot()
+    #             concentrationSpectrum.update_plot()
+
+    #     return data, skippedFiles
 
 
     def retrieve_batch_config(self):
@@ -430,35 +568,35 @@ class BatchAnalysis(QDialog):
         return config
 
 
-    def extract_values_of_config(self, config:dict, key):
-        """
-        Extract the values of the given config with the specifc key.
+    # def extract_values_of_config(self, config:dict, key):
+    #     """
+    #     Extract the values of the given config with the specifc key.
 
-        If the config contains a key, value pair with {"status": True}.
+    #     If the config contains a key, value pair with {"status": True}.
 
-        Parameters
-        ----------
-        config : dict
-            A dict that must contain the given key and the key "status".
-        key : string
-            Key to retrieve the specific value of all items of the config.
+    #     Parameters
+    #     ----------
+    #     config : dict
+    #         A dict that must contain the given key and the key "status".
+    #     key : string
+    #         Key to retrieve the specific value of all items of the config.
 
-        Returns
-        -------
-        list
-            Contains all items of the specific key. Empty if "status"-key does
-            not exist in config.
+    #     Returns
+    #     -------
+    #     list
+    #         Contains all items of the specific key. Empty if "status"-key does
+    #         not exist in config.
 
-        """
+    #     """
 
-        data = []
+    #     data = []
 
-        # Append value if the checkbox is ticked.
-        for _, item in config.items():
-            if item.get(BATCH_CONFIG.STATUS):
-                data.append(item[key])
+    #     # Append value if the checkbox is ticked.
+    #     for _, item in config.items():
+    #         if item.get(BATCH_CONFIG.STATUS):
+    #             data.append(item[key])
 
-        return data;
+    #     return data;
 
 
     ### UI-interactions
@@ -474,30 +612,23 @@ class BatchAnalysis(QDialog):
         Returns
         -------
         filename : str
-            The filename selected by the user. Empty string if dialog was
-            quit or cancelled.
+            The filename selected by the user.
+            None if dialog was quit or cancelled.
 
         """
 
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
-        filenameInfo = QFileInfo(filename)
-        path = filenameInfo.absolutePath() + "/"
 
         # Cancel or quit the dialog.
         if not filename:
-            return filename
+            return None
 
-        # Validate the suffix
-        # TODO: Show information about the modification?
-        if not filenameInfo.completeSuffix() == self.BATCH["SUFFIX"]:
-            fileCompleteName = filenameInfo.baseName() + "." \
-                + self.BATCH["SUFFIX"]
-            filename = path + fileCompleteName
+        # TODO: validation in add_suffix? Use try-except then.
+        filename, path = uni.add_suffix(filename, self.BATCH["SUFFIX"])
 
         # Change interface and preset for further dialogs (lastdir)
-        # TODO: Check whether use path here is possible
-        self.lastdir = filenameInfo.absolutePath()
+        self.lastdir = path
         self.batchFile = filename
 
         return filename
@@ -530,8 +661,7 @@ class BatchAnalysis(QDialog):
         if not self._files:
             enable = False
 
-        # TODO: use a porperty to separate the ui from the logic?
-        self.window.btnCalculate.setEnabled(enable)
+        self.window.enable_analysis(enable)
 
         return enable
 
@@ -545,7 +675,7 @@ class BatchAnalysis(QDialog):
         Parameters
         ----------
         index : QModelIndex or int
-            Transmitted by the list. Or manually.
+            Transmitted by the list. Or programmatically.
 
         Returns
         -------
@@ -556,11 +686,15 @@ class BatchAnalysis(QDialog):
         # TODO: Errorhandling?
         # Distinguish given index by numerical value (from another method) or
         # is given by the ListModel (by an click event)
-        if isinstance(index, QModelIndex):
+        try:
             index = index.row()
+        except AttributeError:
+            print("Open indexed file called programmatically")
 
-        if index >= 0:
+        try:
             self.parent().apply_data(self._files[index])
+        except IndexError:
+            print("Invlaid index. Could not open file of index " + str(index))
 
 
 

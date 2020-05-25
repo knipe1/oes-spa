@@ -63,13 +63,23 @@ class UIBatch(Ui_batch):
         self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
         self.btnBrowse.clicked.connect(self.parent.browse_spectra)
         self.btnClear.clicked.connect(self.parent.reset_files)
-        self.btnCalculate.clicked.connect(self.parent.multi_calc)
+        self.btnCalculate.clicked.connect(self.parent.analyze)
         self.foutCSV.textChanged.connect(self.parent.enable_analysis)
+        self.btnImport.clicked.connect(self.parent.import_batch)
         # self.listFiles.itemSelectionChanged.connect(self.parent.enable_analysis)
 
 
     def get_update_plots(self):
         return self.radSpectra.isChecked()
+
+
+    def get_plot_concentration(self):
+        return self.radConcentration.isChecked()
+
+
+    def get_export_batch(self):
+        return self.radExport.isChecked()
+
 
     def get_fileselection(self)->int:
         return self.listFiles.currentRow()
@@ -77,6 +87,8 @@ class UIBatch(Ui_batch):
     def set_fileselection(self, index):
         return self.listFiles.setCurrentRow(index)
 
+    def enable_analysis(self, enable):
+        self.btnCalculate.setEnabled(enable)
 
     ## Connect methods
 

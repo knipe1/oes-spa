@@ -80,8 +80,9 @@ class MplCanvas(Canvas):
 class MatplotlibWidget(QWidget):
     def __init__(self, parent):
         super(MatplotlibWidget, self).__init__()
-
-        # Using a vertical layout: toolbar below graph.
+        # Using a vertical test1: toolbar below test1.
+        # Using a vertical layout: toolbar below graphz.
+        # Using a vertical test2: toolbar below test2.
         self.vbl = QVBoxLayout()
         self.add_canvas(self.vbl)
         self.add_toolbar(self.vbl)
@@ -106,6 +107,7 @@ class MatplotlibWidget(QWidget):
 
     def add_toolbar(self, layout):
         """Add a toolbar to the layout."""
-        # set up a toolbar
+        # Set up a toolbar.
         mplToolbar = NavigationToolbar(self.canvas, self)
         layout.addWidget(mplToolbar)
+
