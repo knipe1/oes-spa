@@ -92,7 +92,9 @@ class FileSet(set):
     def remove(self, t):
         """Removes an item AND updates the ui."""
         super().remove(t)
+        idx = self.listWidget.currentRow()
         self.update_ui()
+        self.listWidget.setCurrentRow(idx-1)
 
 
     def to_list(self, naturalSort=True, indexed=False):

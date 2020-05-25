@@ -29,8 +29,9 @@ Created on Mon Jan 20 10:22:44 2020
 import numpy as np
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, QModelIndex
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
@@ -169,30 +170,30 @@ class BatchAnalysis(QDialog):
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
 
-    # HACK: ABort the calculation
-        self.window.connect_cancel(self.set_cancel)
-
-
-    def set_cancel(self):
-        self.cancelByEsc = True
 
     ### Events
     ### UI-interactions
 
 
-    # HACK ------------------------------------------------------------
     def keyPressEvent(self, event):
-        from PyQt5.QtGui import QKeySequence
-        isFocused = self.window.listFiles.hasFocus()
-        isDelete = event.matches(QKeySequence.Delete)
+        """
+        Key handling.
+
+        Regarding deletions, cancellations,...
+        """
+
+        isFocused = self.window.focussed_filelist()
+        isDelete = event.matches(QKeys.Delete)
+        isCancel = event.matches(QKeys.Cancel)
+
+        # Remove currently selected file.
         if isFocused and isDelete:
             row = self.window.listFiles.currentRow()
             self._files.remove(self._files[row])
 
-        isCancel = event.matches(QKeySequence.Cancel)
+        # Cancel current analysis
         if isCancel:
             self.set_cancel()
-    # HACK ------------------------------------------------------------
 
 
     def dragEnterEvent(self, event):
@@ -255,8 +256,9 @@ class BatchAnalysis(QDialog):
         amount = len(files)
 
         for i in range(amount):
-            # HACK: Works only if event queue is flushed, like when redrawing
-            # a plot. But do not work during "just" exporting.
+
+            # Be responsive and process events to enable cancelation.
+            QApplication.processEvents()
             if self.cancelByEsc:
                 break
 
@@ -379,41 +381,6 @@ class BatchAnalysis(QDialog):
         csvWriter = FileWriter(self.batchFile)
         csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
 
-    # def multi_calc(self):
-    #     """
-    #     Analyses the files and export the charcteristic values.
-
-    #     Returns
-    #     -------
-    #     None.
-
-    #     """
-
-    #     # TODO: any kind of errorhandling?
-    #     # Wrong format for the timestamp?
-    #     # cannot found batchfile? If empty for example?
-    #     # validate successful export?
-
-
-    #     # Get characteristic values.
-    #     basicSetting = self.parent().window.get_basic_setting()
-    #     characteristicName = basicSetting.fitting.currentPeak.name
-
-    #     # HINT: EXPORT
-    #     # Assemble header with the name of the characteristic value.
-    #     header = self.assemble_header(valueName=characteristicName)
-
-    #     # Separate the valid data from skipped files.
-    #     data, skippedFiles = self.retrieve_data(basicSetting)
-
-    #     # HINT: EXPORT
-    #     # Export in csv file.
-    #     csvWriter = FileWriter(self.batchFile)
-    #     csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
-
-    #     # prompt the user with information about the skipped files
-    #     dialog.information_BatchAnalysisFinished(skippedFiles)
-
 
     def assemble_header(self, valueName=""):
         # TODO: check magic string?
@@ -438,112 +405,6 @@ class BatchAnalysis(QDialog):
         row = [filename]
         row += [value for value in config.values()]
         return row
-
-
-    # def retrieve_data(self, basicSetting):
-    #     """
-    #     Checks the config and retrieve the corresponing values from it.
-
-    #     Loops through the files and get the data. Optional it will also update
-    #     the plots.
-
-    #     Parameters
-    #     ----------
-    #     config : dict
-    #         The dict of the configuration.
-
-    #     Returns
-    #     -------
-    #     data : list of lists
-    #         Contains the data of the files in a matrix.
-    #     skippedFiles : list
-    #         Including filenames of the skipped files due to invalid data.
-
-    #     """
-    #     # TODO: errorhandling
-
-    #     # lists for data of valid files and the skipped files due not fitting
-    #     # the format, e.g. other csv files
-    #     self.cancelByEsc = False
-
-    #     data = []
-    #     skippedFiles = []
-    #     files = self._files.to_list()
-    #     config = self.retrieve_batch_config()
-    #     amount = len(files)
-
-    #     for i in range(amount):
-    #         if self.cancelByEsc:
-    #             break
-
-    #         # Update process bar
-    #         self.window.update_progressbar((i+1)/amount)
-
-    #         # Read out the filename and the data.
-    #         file = files[i]
-    #         self.currentFile = FileReader(file)
-
-    #         # Skip the file if data is invalid.
-    #         if not self.currentFile.is_valid_datafile():
-    #             skippedFiles.append(file)
-    #             continue
-
-    #         # Get the data.
-    #         specHandler = DataHandler(basicSetting)
-    #         results = specHandler.analyse_data(self.currentFile)
-    #         avg = specHandler.avgbase
-    #         peakHeight = specHandler.peakHeight
-    #         peakArea = specHandler.peakArea
-    #         peakPosition = specHandler.peakPosition
-    #         characteristicValue = specHandler.characteristicValue
-    #         timestamp = self.currentFile.timestamp
-
-    #         # excluding file if no appropiate data given like in processed
-    #         # spectra.
-    #         # TODO: Check more exlude conditions like characteristic value
-    #         # below some defined threshold.
-    #         # TODO: validate_results as method of specHandlaer? Would also omit
-    #         # the assignemts above!?
-    #         if not peakHeight:
-    #             skippedFiles.append(file)
-    #             continue
-
-    #         config[CHARAC.BASELINE] = avg
-    #         config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
-    #         config[CHARAC.PEAK_AREA] = peakArea
-    #         config[CHARAC.PEAK_HEIGHT] = peakHeight
-    #         config[CHARAC.PEAK_POSITION] = peakPosition
-    #         # TODO: Check HEADER_INFO is just timestamp?
-    #         config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
-
-    #         # assembling the row and appending it to the data
-    #         # TODO: pure file? Not reduced path nor indexed?
-    #         row = [file]
-    #         row += [value for value in config.values()]
-    #         data.append(row)
-
-
-    #         # HACK: If this analysis should run in a thread, it would be easier
-    #         # to generate a new window and display eventually the rawData
-    #         # and the peakArea-time-graph in another plot.
-    #         # Update the plots.
-    #         if self.window.get_update_plots():
-    #             self.parent().apply_data(file)
-    #         # Update the concentration plot.
-    #         elif self.window.get_plot_concentration():
-    #             # Get the reference time once and then always the difference.
-    #             if not i:
-    #                 concentrationSpectrum = Spectrum(
-    #                     self.window.mplConcentration, EXPORT_TYPE.BATCH)
-    #                 refTime = timestamp
-    #             # Convert to hours. See also configuration of the plot.
-    #             diffTime = uni.convert_to_hours(timestamp - refTime)
-
-    #             concentrationSpectrum.update_data(diffTime, peakArea)
-    #             concentrationSpectrum.init_plot()
-    #             concentrationSpectrum.update_plot()
-
-    #     return data, skippedFiles
 
 
     def retrieve_batch_config(self):
@@ -638,6 +499,13 @@ class BatchAnalysis(QDialog):
         """Opens a dialog to browse for spectra and updates the filelist."""
         filelist = dialog.dialog_openFiles(self.lastdir)
         self.update_filelist(filelist)
+        try:
+            url = filelist[0]
+            path = QFileInfo(url).path()
+            self.lastdir = path
+        except:
+            print(filelist)
+            self.logger.info("Browse Spectra: Could not update directory.")
 
 
     def enable_analysis(self):
@@ -694,7 +562,7 @@ class BatchAnalysis(QDialog):
         try:
             self.parent().apply_data(self._files[index])
         except IndexError:
-            print("Invlaid index. Could not open file of index " + str(index))
+            print("Invlaid index. Could not open file of index ", index)
 
 
 
@@ -725,7 +593,6 @@ class BatchAnalysis(QDialog):
         self._files.clear()
 
 
-
-
-##############################################################################
-# HACK TEST AREA
+    def set_cancel(self):
+        """Demands a cancellation. Processed in corresponing methods."""
+        self.cancelByEsc = True

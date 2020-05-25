@@ -59,13 +59,14 @@ class UIBatch(Ui_batch):
         something is clicked/..."""
         # Properties
         # click/valueChanged connections
-        self.listFiles.currentRowChanged.connect(self.parent.open_indexed_file)
+        # self.listFiles.currentRowChanged.connect(self.parent.open_indexed_file)
         self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
         self.btnBrowse.clicked.connect(self.parent.browse_spectra)
         self.btnClear.clicked.connect(self.parent.reset_files)
         self.btnCalculate.clicked.connect(self.parent.analyze)
         self.foutCSV.textChanged.connect(self.parent.enable_analysis)
         self.btnImport.clicked.connect(self.parent.import_batch)
+        self.connect_cancel(self.parent.set_cancel)
         # self.listFiles.itemSelectionChanged.connect(self.parent.enable_analysis)
 
 
@@ -85,10 +86,15 @@ class UIBatch(Ui_batch):
         return self.listFiles.currentRow()
 
     def set_fileselection(self, index):
-        return self.listFiles.setCurrentRow(index)
+        self.listFiles.setCurrentRow(index)
+
+    def focussed_filelist(self):
+        return self.listFiles.hasFocus()
+
 
     def enable_analysis(self, enable):
         self.btnCalculate.setEnabled(enable)
+
 
     ## Connect methods
 
