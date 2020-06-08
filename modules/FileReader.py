@@ -288,6 +288,8 @@ class FileReader(FileFramework):
         for row in csvReader:
             if self.MARKER["DATA"] in row[0]:
                 break;
+
+
         # HACK - Get data of batch file. #####################################
             if "Filename" in row[0]:
                 isBatch = True

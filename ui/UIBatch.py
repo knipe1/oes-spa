@@ -11,6 +11,7 @@ Created on Fri Jan 24 12:00:10 2020
 # standard libs
 
 # third-party libs
+from PyQt5.QtCore import QCoreApplication      # To flush event pipeline.
 from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
@@ -144,9 +145,11 @@ class UIBatch(Ui_batch):
 
         """
 
-        # TODO: separate ui and logic? Put this method into BatchUI?
+        # Flush event pipeline to enable event-based cancellation.
+        QCoreApplication.processEvents()
         percent = int(percentage*100);
         self.barProgress.setValue(percent);
+
         return percent;
 
 

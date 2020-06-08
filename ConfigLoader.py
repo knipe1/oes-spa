@@ -80,6 +80,17 @@ class ConfigLoader():
         return self.config["PLOT"]
 
 
+    # Set indiviual props to update them properly.
+    @property
+    def logFile(self):
+        """batchFile getter"""
+        return self.FILE["LOG_FILE"]
+
+    @logFile.setter
+    def logFile(self, logfile):
+        self.config["FILE"]["LOG_FILE"] = logfile
+
+
     ### Methods
 
     def __init__(self, path:str = "./config.yml"):
@@ -94,8 +105,7 @@ class ConfigLoader():
         return config
 
 
-    def save_config(self, conf: dict):
+    def save_config(self):
         """"Save a config to a yml file."""
         with open(self.path, "w", newline='') as ymlFile:
-            config = yaml.dump(conf, ymlFile)
-        return config
+            yaml.dump(self.config, ymlFile)

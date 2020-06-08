@@ -354,6 +354,7 @@ class BatchAnalysis(QDialog):
                     self.window.mplConcentration, EXPORT_TYPE.BATCH)
 
             filelist = dialog.dialog_openFiles(self.lastdir)
+            # TODO: Issue if cancelled
             file = filelist[0]
             self.currentFile = FileReader(file)
 

@@ -164,17 +164,17 @@ def dialog_LogFileNotFound(parent=None):
 
     # Select a new log file.
     caption = "Please select a log.file";
-    filename, _ = QFileDialog.getOpenFileName(parent = parent,
-                                              caption = caption,
-                                              directory = defaultDirectory,);
+    filename, _ = QFileDialog.getSaveFileUrl(parent = parent,
+                                             caption = caption,
+                                             directory = defaultDirectory,);
 
     # Get the new or a default filename.
-    filename = filename if filename else defaultDirectory
+    filename = filename.toLocalFile() if filename else defaultDirectory
 
     # Getting the current config and change the LOG_FILE property.
     config = ConfigLoader()
-    config.FILE["LOG_FILE"] = filename
-    config.save_config(config)
+    config.logFile = filename
+    config.save_config()
 
     return filename
 

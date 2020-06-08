@@ -98,12 +98,9 @@ class Logger():
     """
 
     # Load the configuration for filesystem properties.
-    config = ConfigLoader()
-    FILE = config.FILE
 
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    filename = FILE["LOG_FILE"]
     mode = "w"
 
     def __init__(self, name: str):
@@ -120,6 +117,9 @@ class Logger():
         None.
 
         """
+        config = ConfigLoader()
+        FILE = config.FILE
+        self.filename = FILE.get("LOG_FILE")
 
         # Setting up the logger with the default configuration.
         self.logger = logging.getLogger(name)   # get or create the logger
@@ -136,12 +136,13 @@ class Logger():
         try:
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
-        except FileNotFoundError:
-            filename = dialog_LogFileNotFound()
-            # set the default log.file
+        except (FileNotFoundError, IsADirectoryError, TypeError) as err:
+            # Request a new location of the logfile.
+            dialogFile = dialog_LogFileNotFound()
+            # Use the URL. Default if cancelled.
+            filename = dialogFile if dialogFile else self.defaultLogfile
             fhandler = logging.FileHandler(filename = filename,
                                            mode = self.mode)
-            print(name)
 
         fhandler.setLevel(self.level)
 

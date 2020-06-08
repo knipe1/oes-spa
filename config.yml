@@ -21,6 +21,9 @@ FILE:
   DEF_DIR: ./sample files
   DEF_FILE: ''
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
+FITTING:
+  DIR: ./fittings/
+  FILE_PATTERN: fitting.yml
 IMPORT:
   SUFFIXES:
   - Data sets (*.spk *.csv *.asc)
@@ -38,23 +41,20 @@ MARKER:
   DATA: Data
   HEADER: Date
 PLOT:
-  DEF_AXIS_COLOR: '0.2'
-  DEF_LINEWIDTH: 0.8
-  PROCESSED_DATA_LABEL: Processed Spectrum
-  PROCESSED_DATA_COLOR: r
-  PROCESSED_X_LABEL: Wavelength / nm
-  PROCESSED_Y_LABEL: Intensity / a.u.
-  BATCH_DATA_LABEL: Peak Area
   BATCH_DATA_COLOR: k
+  BATCH_DATA_LABEL: Peak Area
   BATCH_X_LABEL: Time / h
   BATCH_Y_LABEL: Peak area / a.u.
-  RAW_BASELINE_LABEL: Baseline
+  DEF_AXIS_COLOR: '0.2'
+  DEF_LINEWIDTH: 0.8
+  PROCESSED_DATA_COLOR: r
+  PROCESSED_DATA_LABEL: Processed Spectrum
+  PROCESSED_X_LABEL: Wavelength / nm
+  PROCESSED_Y_LABEL: Intensity / a.u.
   RAW_BASELINE_COLOR: b
-  RAW_BASELINE_STYLE: "--"
-  RAW_DATA_LABEL: Raw Spectrum
+  RAW_BASELINE_LABEL: Baseline
+  RAW_BASELINE_STYLE: --
   RAW_DATA_COLOR: r
+  RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
-FITTING:
-    FILE_PATTERN: "fitting.yml"
-    DIR: "./fittings/"
