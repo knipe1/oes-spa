@@ -3,38 +3,21 @@
 NAME: "Example Fitting"
 # 1-n Peaks:
 PEAKS:
-    # list of peaks
-    -
-    # TODO: maybe adding an index?
-        # label indicate the naming of the peak. Might be useful in extracting information
-        label: "BH Peak"
-        # central wavelength of the peak
-        wavelength: 433
-        # limits of integration for that peak
-        lower_limit: 432
-        upper_limit:  434
-        # minimum value to evaluate the ?peak area? as peak
-        # should fail for already processed data?
-        # 1-n reference peaks to which the characteristic value (BH Peak) is related and therefore the BH value is calculated due to this relation
-        reference:
-            -
-                wavelength: 455
-                lower_limit: 454
-                upper_limit:  456
-                minimum: 1
-    -
-        # another example for a second example peak
-        label: "CN Peak"
-        wavelength: 580
-        lower_limit: 578.5
-        upper_limit:  58.2
-        minimum: 1
-        reference:
-            -
-                wavelength: 133
-                lower_limit: 132
-                upper_limit:  134
-            -
-                wavelength: 665.3
-                lower_limit: 664.1
-                upper_limit:  666.4
+    # name indicates the naming of the peak. Might be useful in extracting information.
+    name: "BH Peak"
+    # central wavelength of the peak
+    centralWavelength: 433.5
+    # limits of integration for that peak
+    lowerLimit: 433.4
+    upperLimit:  433.7
+    # normalizationFactor may be used to fit a specific concentration
+    # to the value of 1 (characteristic Value)
+    normalizationFactor: 4550
+    reference:
+        # central wavelength of the reference peak
+        centralWavelength: 434.4
+    # limits of integration for that reference peak
+        lowerLimit: 434.3
+        upperLimit:  434.6
+        # Minimum to use the peak. Peak height is used for evaluation.
+        minimum: 0.00002
