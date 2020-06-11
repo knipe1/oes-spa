@@ -241,11 +241,11 @@ class BatchAnalysis(QDialog):
 
         # Reset the properties to have clean setup.
         self.cancelByEsc = False
-        self.concentrationSpectrum = Spectrum(
-                self.window.mplConcentration, EXPORT_TYPE.BATCH)
+        self.traceSpectrum = Spectrum(
+                self.window.mplTrace, EXPORT_TYPE.BATCH)
         # Get the modus.
         isUpdatePlot = self.window.get_update_plots()
-        isPlotConcentration = self.window.get_plot_concentration()
+        isPlotTrace = self.window.get_plot_trace()
         isExportBatch = self.window.get_export_batch()
         # Get characteristic values.
         basicSetting = self.parent().window.get_basic_setting()
@@ -302,7 +302,7 @@ class BatchAnalysis(QDialog):
                 data.append(self.assemble_row(file, config))
             elif isUpdatePlot:
                 self.parent().apply_data(file)
-            elif isPlotConcentration:
+            elif isPlotTrace:
                 # TODO: currently just peakArea, no dropdown.
                 data = (timestamp, peakArea)
                 self.import_batch(data)
@@ -315,15 +315,15 @@ class BatchAnalysis(QDialog):
         dialog.information_BatchAnalysisFinished(skippedFiles)
 
 
-    def plot_concentration(self, timestamp, value):
+    def plot_trace(self, timestamp, value):
         # TODO: To be tested.
         # Get the timediff of the spectrum in h.
-        diffTime = self.get_timediff_H(self.concentrationSpectrum,
+        diffTime = self.get_timediff_H(self.traceSpectrum,
                                           timestamp)
 
-        self.concentrationSpectrum.update_data(diffTime, value)
-        self.concentrationSpectrum.init_plot()
-        self.concentrationSpectrum.update_plot()
+        self.traceSpectrum.update_data(diffTime, value)
+        self.traceSpectrum.init_plot()
+        self.traceSpectrum.update_plot()
 
 
     def get_timediff_H(self, spectrum, timestamp):
@@ -344,14 +344,14 @@ class BatchAnalysis(QDialog):
         try:
             timestamp, values = data
 
-            diffTimes = self.get_timediff_H(self.concentrationSpectrum,
+            diffTimes = self.get_timediff_H(self.traceSpectrum,
                                               timestamp)
 
         except:
             diffTimes = []
 
-            self.concentrationSpectrum = Spectrum(
-                    self.window.mplConcentration, EXPORT_TYPE.BATCH)
+            self.traceSpectrum = Spectrum(
+                    self.window.mplTrace, EXPORT_TYPE.BATCH)
 
             filelist = dialog.dialog_openFiles(self.lastdir)
             # TODO: Issue if cancelled
@@ -364,13 +364,13 @@ class BatchAnalysis(QDialog):
             timestamps, values = data
 
             for timestamp in timestamps:
-                diffTime = self.get_timediff_H(self.concentrationSpectrum,
+                diffTime = self.get_timediff_H(self.traceSpectrum,
                                                   timestamp)
                 diffTimes.append(diffTime)
 
-        self.concentrationSpectrum.update_data(diffTimes, values)
-        self.concentrationSpectrum.init_plot()
-        self.concentrationSpectrum.update_plot()
+        self.traceSpectrum.update_data(diffTimes, values)
+        self.traceSpectrum.init_plot()
+        self.traceSpectrum.update_plot()
 
 
     def export_batch(self, data, peakName=None):

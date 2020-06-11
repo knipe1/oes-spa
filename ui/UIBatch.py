@@ -75,8 +75,8 @@ class UIBatch(Ui_batch):
         return self.radSpectra.isChecked()
 
 
-    def get_plot_concentration(self):
-        return self.radConcentration.isChecked()
+    def get_plot_trace(self):
+        return self.radTrace.isChecked()
 
 
     def get_export_batch(self):

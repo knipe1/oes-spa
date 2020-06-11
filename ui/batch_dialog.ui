@@ -55,9 +55,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radConcentration">
+      <widget class="QRadioButton" name="radTrace">
        <property name="text">
-        <string>Plot Concentration</string>
+        <string>Plot Trace</string>
        </property>
        <attribute name="buttonGroup">
         <string notr="true">RadProcess</string>
@@ -113,7 +113,7 @@
     </layout>
    </item>
    <item row="5" column="0" colspan="2">
-    <widget class="QGroupBox" name="boxConcentration">
+    <widget class="QGroupBox" name="boxTrace">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -130,12 +130,12 @@
       <item>
        <widget class="QPushButton" name="btnImport">
         <property name="text">
-         <string>Import Concentration</string>
+         <string>Import Trace</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="MatplotlibWidget" name="mplConcentration" native="true">
+       <widget class="MatplotlibWidget" name="mplTrace" native="true">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -242,11 +242,11 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="RadProcess"/>
   <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="RadProcess"/>
  </buttongroups>
 </ui>
