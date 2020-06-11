@@ -22,7 +22,8 @@ from PyQt5 import QtCore
 from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from Logger import Logger
-from modules.Peak import Peak
+from custom_types.Peak import Peak
+from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
 
@@ -56,12 +57,15 @@ class Fitting(QtCore.QObject):
     # variables
     _fittings = {}
 
-    # def __init__(self, fittings):
-    #     QtCore.QObject.__init__(self)
-    #     self.fittings = fittings
+
     def __init__(self, fitting):
         QtCore.QObject.__init__(self)
         self.currentFitting = fitting
+
+    def __repr__(self):
+        info = {}
+        info["currentFitting"] = self.currentFitting
+        return self.__module__ + ":\n" + str(info)
 
     ### Properties
     @property
@@ -81,7 +85,7 @@ class Fitting(QtCore.QObject):
 
     @currentPeak.setter
     def currentPeak(self, peak):
-        self.currentReference = Peak(**peak.reference)
+        self.currentReference = ReferencePeak(**peak.reference)
         self._currentPeak = peak
 
     @property

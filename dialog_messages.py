@@ -149,8 +149,18 @@ def information_ExportFinished(filename, parent=None):
 def information_ExportAborted(parent=None):
     # TODO docstring
     title = "Export failed!";
-    text = f"""Export failed. Possible issues: No data found. Invalid file,
-    could not export raw or processed spectra.""";
+    text = "Export failed. Possible issues: No data found. Invalid file, "\
+    "could not export raw or processed spectra.";
+    QMessageBox.information(parent, title, text);
+
+
+def information_NormalizationFactor(parent=None):
+    # TODO docstring
+    title = "No Normalization Factor defined!";
+    text = "In the currently selected Fitting is no normalization factor of "\
+    "the peak defined. Please find an example in the example_fitting.yml. The"\
+    " normalization factor is maps the area-relation to a characteristic "\
+    "value, which may be used to determine the concentration.";
     QMessageBox.information(parent, title, text);
 
 

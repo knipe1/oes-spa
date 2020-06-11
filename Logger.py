@@ -129,8 +129,6 @@ class Logger():
         while len(self.logger.handlers):
             self.logger.removeHandler(self.logger.handlers[0])
 
-
-
         # config a file handler
         # TODO: Adjust according to issue #17!
         try:
@@ -141,7 +139,8 @@ class Logger():
             dialogFile = dialog_LogFileNotFound()
             # Use the URL. Default if cancelled.
             filename = dialogFile if dialogFile else self.defaultLogfile
-            fhandler = logging.FileHandler(filename = filename,
+            self.filename = filename
+            fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
 
         fhandler.setLevel(self.level)
@@ -152,6 +151,13 @@ class Logger():
 
         # the handler can now log messages
         self.logger.addHandler(fhandler)
+
+    def __repr__(self):
+        info = {}
+        info["level"] = self.level
+        info["format"] = self.format
+        info["filename"] = self.filename
+        return self.__module__ + ":\n" + str(info)
 
     def debug(self, msg: str, extra=None):
         """

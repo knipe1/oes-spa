@@ -110,6 +110,12 @@ class AnalysisWindow(QMainWindow):
         self.set_connections()
         self.init_spectra()
 
+    def __repr__(self):
+        info = {}
+        info["currentFile"] = self.currentFile
+        info["lastdir"] = self.lastdir
+        return self.__module__ + ":\n" + str(info)
+
     def init_spectra(self):
         self.rawSpectrum = Spectrum(self.window.get_raw_plot(),
                                     EXPORT_TYPE.RAW)

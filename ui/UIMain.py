@@ -34,7 +34,7 @@ from modules.Fitting import Fitting
 from Logger import Logger
 
 # enums and dataclasses
-from modules.BasicSetting import BasicSetting
+from custom_types.BasicSetting import BasicSetting
 from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.CHARACTERISTIC import CHARACTERISTIC
 

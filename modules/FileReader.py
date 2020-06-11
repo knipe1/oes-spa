@@ -55,8 +55,19 @@ class FileReader(FileFramework):
 
         self.__post_init__()
 
+
     def __post_init__(self):
         self.read_file()
+
+
+    def __repr__(self):
+        info = {}
+        info["Header"] = self.header
+        info["Timestamp"] = self.timestamp
+        info["data length"] = "X:{}, Y:{}".format(len(self.data[0]),
+                                                  len(self.data[1]))
+        return self.__module__ + ":\n" + str(info)
+
 
     def is_valid_datafile(self) -> bool:
         """

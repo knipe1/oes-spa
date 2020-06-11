@@ -133,28 +133,18 @@ class DataHandler(QObject):
             self.signals = self.init_signals()
             kwargs["funConnection"](self.signals)
 
-
-        # self.__post_init__()
-
-    # def __init__(self, xData, yData, cWL, grating, fittings,
-    #              funConnection=None):
-    #     super(DataHandler, self).__init__()
-    #     # TODO: properties to ensure the correct type?
-    #     self.xData = xData
-    #     self.yData = yData
-    #     self.cWL = cWL
-    #     # TODO: MAGIC NUMBER, what is 14?
-    #     self.dispersion = 14/grating
-    #     self.fittings = fittings
-
-    #     if funConnection:
-    #         self.signals = self.init_signals()
-    #         funConnection(self.signals)
-
-    #     self.__post_init__()
-
     def __post_init__(self):
         self.analyse_data()
+
+
+    def __repr__(self):
+        info = {}
+        info["Peak Height"] = self.peakHeight
+        info["Peak Area"] = self.peakArea
+        info["Peak Position"] = self.peakPosition
+        info["Baseline"] = self.avgbase
+        info["Characteristic"] = self.characteristicValue
+        return self.__module__ + ":\n" + str(info)
 
 
     def init_signals(self):

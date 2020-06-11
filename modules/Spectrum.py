@@ -118,6 +118,17 @@ class Spectrum():
         self.markup = self.get_markup(exportType)
         self.add_baseline(baseline)
 
+    def __repr__(self):
+        info = {}
+        info["ui"] = self.ui
+        info["exportType"] = self.exportType
+        info["labels"] = self.labels
+        info["markup"] = self.markup
+        info["has BAseline"] = len(self.baseline) > 0
+        info["data length"] = "X:{}, Y:{}".format(len(self.xData[0]),
+                                                  len(self.data[1]))
+        return self.__module__ + ":\n" + str(info)
+
     def add_baseline(self, baseline):
         """Adding the baseline of a spectrum as property (to plot)."""
         self.baseline = baseline;

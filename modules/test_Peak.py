@@ -15,8 +15,8 @@ import emulator as emu
 import threading as THR
 
 # local modules/libs
-from modules.Peak import Peak
-from modules.ReferencePeak import ReferencePeak
+from custom_types.Peak import Peak
+from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
 

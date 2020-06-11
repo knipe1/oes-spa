@@ -42,6 +42,12 @@ class FileWriter(FileFramework):
             timestamp = uni.timestamp_to_string(timestamp)
         self.timestamp = timestamp
 
+    def __repr__(self):
+        info = {}
+        info["filename"] = self.filename
+        info["Timestamp"] = self.timestamp
+        return self.__module__ + ":\n" + str(info)
+
 
     def write_data(self, data, labels, exportType, additionalInformation = {}):
         """

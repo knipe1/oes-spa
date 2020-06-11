@@ -170,6 +170,13 @@ class BatchAnalysis(QDialog):
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
 
+    def __repr__(self):
+        info = {}
+        info["batchfile"] = self.batchFile
+        info["files"] = self._files
+        info["lastdir"] = self.lastdir
+        return self.__module__ + ":\n" + str(info)
+
 
     ### Events
     ### UI-interactions
@@ -428,37 +435,6 @@ class BatchAnalysis(QDialog):
                   CHARAC.HEADER_INFO: None,
                   CHARAC.PEAK_POSITION: None,}
         return config
-
-
-    # def extract_values_of_config(self, config:dict, key):
-    #     """
-    #     Extract the values of the given config with the specifc key.
-
-    #     If the config contains a key, value pair with {"status": True}.
-
-    #     Parameters
-    #     ----------
-    #     config : dict
-    #         A dict that must contain the given key and the key "status".
-    #     key : string
-    #         Key to retrieve the specific value of all items of the config.
-
-    #     Returns
-    #     -------
-    #     list
-    #         Contains all items of the specific key. Empty if "status"-key does
-    #         not exist in config.
-
-    #     """
-
-    #     data = []
-
-    #     # Append value if the checkbox is ticked.
-    #     for _, item in config.items():
-    #         if item.get(BATCH_CONFIG.STATUS):
-    #             data.append(item[key])
-
-    #     return data;
 
 
     ### UI-interactions
