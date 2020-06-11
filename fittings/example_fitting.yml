@@ -8,8 +8,8 @@ PEAKS:
     # central wavelength of the peak
     centralWavelength: 433.5
     # limits of integration for that peak
-    lowerLimit: 433.4
-    upperLimit:  433.7
+    shiftDown: .2
+    shiftUp:  .2
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
     normalizationFactor: 4550
@@ -17,7 +17,7 @@ PEAKS:
         # central wavelength of the reference peak
         centralWavelength: 434.4
     # limits of integration for that reference peak
-        lowerLimit: 434.3
-        upperLimit:  434.6
+        shiftDown: .2
+        shiftUp:  .2
         # Minimum to use the peak. Peak height is used for evaluation.
         minimum: 0.00002

@@ -38,52 +38,52 @@ class TestModule(unittest.TestCase):
     def test_valid_init_ReferencePeak(self):
         # def values
         cWl = 334.5
-        upperLimit = 450
-        lowerLimit = 200
+        shiftUp = .2
+        shiftDown = .2
         minimum = 0.2
         # first init with def. minimum
-        refPeak = ReferencePeak(cWl, upperLimit, lowerLimit)
+        refPeak = ReferencePeak(cWl, shiftUp, shiftDown)
         self.assertTrue(isinstance(refPeak, ReferencePeak))
         # sec init with explicit minimum
-        refPeak = ReferencePeak(cWl, upperLimit, lowerLimit, minimum)
+        refPeak = ReferencePeak(cWl, shiftUp, shiftDown, minimum)
         self.assertTrue(isinstance(refPeak, ReferencePeak))
         # ensure correct assignment
         self.assertEqual(refPeak.centralWavelength, cWl)
-        self.assertEqual(refPeak.upperLimit, upperLimit)
-        self.assertEqual(refPeak.lowerLimit, lowerLimit)
+        self.assertEqual(refPeak.shiftUp, shiftUp)
+        self.assertEqual(refPeak.shiftDown, shiftDown)
         self.assertEqual(refPeak.minimum, minimum)
 
     def test_invalid_init_ReferencePeak(self):
         # def values
         cWl = 334.5
-        upperLimit = 450
-        lowerLimit = 200
+        shiftUp = .2
+        shiftDown = .2
         InvalidUpperLimit = 2
         InvalidLowerLimit = 500
 
         with self.assertRaises(ValueError):
-            ReferencePeak(cWl, upperLimit, lowerLimit)
-            ReferencePeak(cWl, InvalidUpperLimit, lowerLimit)
-            ReferencePeak(cWl, upperLimit, InvalidLowerLimit)
+            ReferencePeak(cWl, shiftUp, shiftDown)
+            ReferencePeak(cWl, InvalidUpperLimit, shiftDown)
+            ReferencePeak(cWl, shiftUp, InvalidLowerLimit)
             ReferencePeak(cWl, InvalidUpperLimit, InvalidLowerLimit)
 
     def test_valid_init_Peak(self):
         # def values
         name = "CN-Value"
         cWl = 334.5
-        upperLimit = 450
-        lowerLimit = 200
+        shiftUp = .2
+        shiftDown = .2
         # first init with def. name
-        peak = Peak(cWl, upperLimit, lowerLimit)
+        peak = Peak(cWl, shiftUp, shiftDown)
         self.assertIsInstance(peak, Peak)
         self.assertIsInstance(peak, Peak)
 
         # second init with explicit name
-        peak = Peak(cWl, upperLimit, lowerLimit, name = name)
+        peak = Peak(cWl, shiftUp, shiftDown, name = name)
         # ensure correct assignment
         self.assertEqual(peak.centralWavelength, cWl)
-        self.assertEqual(peak.upperLimit, upperLimit)
-        self.assertEqual(peak.lowerLimit, lowerLimit)
+        self.assertEqual(peak.shiftUp, shiftUp)
+        self.assertEqual(peak.shiftDown, shiftDown)
         self.assertEqual(peak.name, name)
 
 
@@ -92,14 +92,14 @@ class TestModule(unittest.TestCase):
         # def values
         name = "CN-Value"
         cWl = 334.5
-        upperLimit = 450
-        lowerLimit = 200
+        shiftUp = .2
+        shiftDown = .2
         # init
-        refPeak = ReferencePeak(cWl, upperLimit, lowerLimit)
-        peak = Peak(cWl, upperLimit, lowerLimit, name = name)
+        refPeak = ReferencePeak(cWl, shiftUp, shiftDown)
+        peak = Peak(cWl, shiftUp, shiftDown, name = name)
 
         peak.addReference(refPeak)      # added
-        peak.addReference(upperLimit)   # not added
+        peak.addReference(shiftUp)   # not added
 
         for ref in peak.reference:
             self.assertIsInstance(ref, ReferencePeak)

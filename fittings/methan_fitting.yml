@@ -2,10 +2,10 @@ NAME: "Nitrogen Peak Fitting"
 PEAKS:
     name: "CN Peak"
     centralWavelength: 388.3
-    lowerLimit: 388.2
-    upperLimit:  388.37
+    shiftDown: .4
+    shiftUp:  .2
     reference:
         centralWavelength: 388.86
-        lowerLimit: 388.86
-        upperLimit:  388.95
+        shiftDown: .3
+        shiftUp:  .3
         minimum: 0.01

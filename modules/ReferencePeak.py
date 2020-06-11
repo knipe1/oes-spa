@@ -26,9 +26,9 @@ class ReferencePeak:
     ----------
     centralWavelength: float
         The wavelength of the peak.
-    upperLimit: float
+    shiftUp: float
         The upper limit of the peak regarding the integration.
-    lowerLimit: float
+    shiftDown: float
         The lower limit of the peak regarding the integration.
     minimum: float = 0.0
         The minimum value(height?/area?) the peak needs to be valid.
@@ -38,15 +38,16 @@ class ReferencePeak:
     -------
     """
     centralWavelength: float
-    upperLimit: float
-    lowerLimit: float
+    shiftUp: float
+    shiftDown: float
     minimum: float = 0.0;           # minimum for a valid Peak
 
     def __validate(self):
-        if not self.upperLimit >= self.centralWavelength:
+        if not self.shiftUp >= self.centralWavelength:
             raise ValueError("Upper limit has to be greater than central wavelength")
-        if not self.lowerLimit <= self.centralWavelength:
+        if not self.shiftDown <= self.centralWavelength:
             raise ValueError("Lower limit has to be smaller than central wavelength")
 
     def __post_init__(self):
-        self.__validate()
+        pass
+        # self.__validate()

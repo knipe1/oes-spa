@@ -284,66 +284,6 @@ class DataHandler(QObject):
         return characteristicValue
 
 
-    # def peak_fitting(self, xData:list, yData:list, wl:float)->(float, float,
-    #                                                            float):
-    #     """
-    #     Peak fit at given wavelength.
-
-    #     Searching the given data for peaks and find the closest peak to the
-    #     wavelength (just closest, due to discrete values). Integrates the peak.
-
-    #     Parameters
-    #     ----------
-    #     xData : list
-    #         Contains the wavelengths of the spectra.
-    #     yData : list
-    #         Contains the intensities of the spectra.
-    #     wl : float
-    #         The central wavelength of the peak.
-
-    #     Returns
-    #     -------
-    #     (yPeak:float, peakArea:float, xPeak:float)
-    #         yPeak: The intensity of the peak, aka peak height.
-    #         peakArea: The area of the peak.
-    #         xPeak: The wavelength of the peak.
-
-    #     """
-    #     THRESHOLD = 0.01
-    #     MIN_DISTANCE = 2
-
-    #     # TODO: MAGIC NUMBER. From Fitting.
-    #     # Get the indexes of the peaks from the data.
-    #     # Function with rough approximation.
-    #     i_p = pkus.indexes(yData, thres=THRESHOLD, min_dist=MIN_DISTANCE)
-
-    #     # getting the index of the peak which is closest to the wavelength
-    #     idxPeak = i_p[np.abs(xData[i_p]-wl).argmin()]
-    #     xPeak = xData[idxPeak]
-    #     yPeak = yData[idxPeak]
-    #     self.rawPeak = (xPeak, self.yData[idxPeak])
-
-    #     # check: MAGIC NUMBER
-    #     # TODO: from boron_fitting.conf?
-    #     idxBorderRight = np.abs(xData - xPeak-0.1).argmin()
-    #     idxBorderLeft = np.abs(xData - xPeak+0.2).argmin()
-
-    #     # getting all wavelength(x) and the intensities(y)
-    #     peakAreaX = xData[idxBorderLeft:idxBorderRight]
-    #     peakAreaY = yData[idxBorderLeft:idxBorderRight]
-
-    #     # Integrate along the given axis using the composite trapezoidal rule.
-    #     peakArea = np.trapz(peakAreaY, peakAreaX)
-
-    #     # Peak not found
-    #     if not wl-1 < xPeak < wl+1:
-    #         xPeak = 0
-    #         yPeak = 0
-    #         peakArea = 0
-
-    #     return yPeak, peakArea, xPeak
-
-    ### prototype
     def calculate_peak(self, peak, procXData:list, procYData:list)->(float,
                                                                      float,
                                                                      float):
@@ -386,8 +326,10 @@ class DataHandler(QObject):
         # self.rawPeak = (xPeak, self.yData[idxPeak])
 
         # get the borders for integration
-        idxBorderRight = np.abs(procXData - peak.upperLimit).argmin()
-        idxBorderLeft = np.abs(procXData - peak.lowerLimit).argmin()
+        lowerLimit = peak.centralWavelength - peak.shiftDown
+        upperLimit = peak.centralWavelength + peak.shiftUp
+        idxBorderRight = np.abs(procXData - upperLimit).argmin()
+        idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
 
 
         # getting all wavelength(x) and the intensities(y)
