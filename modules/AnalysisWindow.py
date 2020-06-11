@@ -367,6 +367,12 @@ class AnalysisWindow(QMainWindow):
 
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
+        ## HACK
+        # x = results[-1]
+        # y = [0, 0]
+        # self.processedSpectrum.ui.axes.plot(x, y, linewidth=12)
+        ##
+
         # Update the currently open file.
         self.currentFile = file;
         return 0

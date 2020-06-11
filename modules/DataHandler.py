@@ -227,12 +227,17 @@ class DataHandler(QObject):
         # Find Peak and obtain height, area, and position
         peakHeight, peakArea, peakPosition = self.calculate_peak(
             fitting.currentPeak, *procData)
+        # HACK
+        # peakHeight, peakArea, peakPosition, limit = self.calculate_peak(
+            # fitting.currentPeak, *procData)
         # TODO: Evaluate!
         try:
             characteristicValue = self.calculate_characteristic_value(
                 fitting.currentPeak, fitting.currentReference, *procData)
         except:
-            characteristicValue = None
+            # This is also displayed in the text field.
+            # TODO: May be also be exported? Issue?
+            characteristicValue = "No reference defined."
 
         # Assign data to instance.
         self.data = data
@@ -246,6 +251,9 @@ class DataHandler(QObject):
 
         return (data, procData, baseline, avgbase, peakHeight, peakArea, \
             peakPosition, characteristicValue)
+        # HACK
+        # return (data, procData, baseline, avgbase, peakHeight, peakArea, \
+        #     peakPosition, characteristicValue, limit)
 
 
     def calculate_characteristic_value(self, peak, reference, procX, procY):
@@ -260,12 +268,16 @@ class DataHandler(QObject):
         # Calculate characteristics of the peak
         # peakHeight, peakArea, peakPosition = self.calculate_peak(peak, procX,
         #                                                         procY)
+        # HACK
+        # _, peakArea, _, _ = self.calculate_peak(peak, procX, procY)
         _, peakArea, _ = self.calculate_peak(peak, procX, procY)
 
         # Calculate characteristics of the reference peak
         # refHeight, refArea, refPosition = self.calculate_peak(reference,
         #                                                      procX,
         #                                                      procY)
+        # HACK
+        # refHeight, _, _, _ = self.calculate_peak(reference, procX, procY)
         refHeight, _, _= self.calculate_peak(reference, procX, procY)
 
         # TODO: validation?!
@@ -279,7 +291,8 @@ class DataHandler(QObject):
 
     def calculate_peak(self, peak, procXData:list, procYData:list)->(float,
                                                                      float,
-                                                                     float):
+                                                                     float,
+                                                                     list):
         """
         Peak fit at given wavelength.
 
@@ -321,6 +334,8 @@ class DataHandler(QObject):
         # get the borders for integration
         lowerLimit = peak.centralWavelength - peak.shiftDown
         upperLimit = peak.centralWavelength + peak.shiftUp
+        # HACK
+        # limit = [lowerLimit, upperLimit]
         idxBorderRight = np.abs(procXData - upperLimit).argmin()
         idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
 
@@ -332,12 +347,13 @@ class DataHandler(QObject):
         # Integrate along the given axis using the composite trapezoidal rule.
         peakArea = np.trapz(peakAreaY, peakAreaX)
 
-
         # validation
         if yPeak <= peak.minimum:
             return 0, 0, 0
         # TODO: further validation?!?
 
+        # HACK
+        # return yPeak, peakArea, xPeak, limit
         return yPeak, peakArea, xPeak
 
 
