@@ -298,21 +298,34 @@ class FileReader(FileFramework):
         if isBatch:
             # get the column of PEAK AREA
             from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
-            columnYData = row.index(CHARAC.PEAK_AREA.value)
-            columnXData = row.index(CHARAC.HEADER_INFO.value)
+            try:
+                columnYData = row.index(CHARAC.PEAK_AREA.value)
+                columnXData = row.index(CHARAC.HEADER_INFO.value)
+            except ValueError:
+                # May be an issue if one opens the csv file and save it again,
+                # that the values are in one line.
+                row = row[0].split(",")
+                columnYData = row.index(CHARAC.PEAK_AREA.value)
+                columnXData = row.index(CHARAC.HEADER_INFO.value)
         # HACK ###############################################################
 
         # collecting the data
         for row in csvReader:
             try:
-                pixel = float(row[columnXData])
-                intensity = float(row[columnYData])
-                data.append([pixel, intensity])
-            except ValueError:
+                row[columnXData]
+            except IndexError:
+                # see above as the ValueError in upper try-except.
+                row = row[0].split(",")
+
+            if isBatch:
                 timestamp = datetime.strptime(row[columnXData],
                                               self.EXPORT["FORMAT_TIMESTAMP"])
                 peakArea = float(row[columnYData])
                 data.append([timestamp, peakArea])
+            else:
+                pixel = float(row[columnXData])
+                intensity = float(row[columnYData])
+                data.append([pixel, intensity])
 
         return data;
 

@@ -257,20 +257,29 @@ class DataHandler(QObject):
 
     def calculate_characteristic_value(self, peak, reference, procX, procY):
 
-        characteristicValue = 0
+        # Default is None to distuinguish issues during the analysis and just
+        # no peak.
+        characteristicValue = None
+
+        # TODO: Doublecheck Area/Height?
+        # Therefore adjust _ for non-used variables
 
         # Calculate characteristics of the peak
-        peakHeight, peakArea, peakPosition = self.calculate_peak(peak, procX,
-                                                                procY)
+        # peakHeight, peakArea, peakPosition = self.calculate_peak(peak, procX,
+        #                                                         procY)
+        _, peakArea, _ = self.calculate_peak(peak, procX, procY)
 
         # Calculate characteristics of the reference peak
-        refHeight, refArea, refPosition = self.calculate_peak(reference,
-                                                             procX,
-                                                             procY)
+        # refHeight, refArea, refPosition = self.calculate_peak(reference,
+        #                                                      procX,
+        #                                                      procY)
+        refHeight, _, _= self.calculate_peak(reference, procX, procY)
 
         # TODO: validation?!
+        # HINT: refHeight most times has a value unequal 0, therefore is
+        # most often true.
         if refHeight:
-           characteristicValue= peakArea / refHeight * peak.normalizationFactor
+            characteristicValue = peakArea / refHeight * peak.normalizationFactor
 
         return characteristicValue
 
