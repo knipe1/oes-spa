@@ -85,7 +85,11 @@ class Fitting(QtCore.QObject):
 
     @currentPeak.setter
     def currentPeak(self, peak):
-        self.currentReference = ReferencePeak(**peak.reference)
+        try:
+            self.currentReference = ReferencePeak(**peak.reference)
+        except TypeError:
+            self.logger.warning("No reference peak defined.")
+
         self._currentPeak = peak
 
     @property

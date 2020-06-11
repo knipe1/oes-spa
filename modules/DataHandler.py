@@ -228,8 +228,11 @@ class DataHandler(QObject):
         peakHeight, peakArea, peakPosition = self.calculate_peak(
             fitting.currentPeak, *procData)
         # TODO: Evaluate!
-        characteristicValue = self.calculate_characteristic_value(
-            fitting.currentPeak, fitting.currentReference, *procData)
+        try:
+            characteristicValue = self.calculate_characteristic_value(
+                fitting.currentPeak, fitting.currentReference, *procData)
+        except:
+            characteristicValue = None
 
         # Assign data to instance.
         self.data = data

@@ -12,6 +12,7 @@ PEAKS:
     shiftUp:  .2
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
+    normalizationFactor: 100
     reference:
         # central wavelength of the reference peak
         centralWavelength: 434.4
