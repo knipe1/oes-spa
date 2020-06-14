@@ -361,18 +361,29 @@ class AnalysisWindow(QMainWindow):
 
         # Update and the spectra.
         if updateSpectra:
-            self.rawSpectrum.update_data(*specHandler.data)
+
+            rawIntegration, procIntegration = \
+                self.get_integration_area(specHandler)
+
+            self.rawSpectrum.update_data(*specHandler.data, *rawIntegration)
             self.rawSpectrum.add_baseline(specHandler.baseline)
-            self.processedSpectrum.update_data(*specHandler.procData)
+            self.processedSpectrum.update_data(*specHandler.procData,
+                                               *procIntegration)
 
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-
-        ## HACK
-        # x = results[-1]
-        # y = [0, 0]
-        # self.processedSpectrum.ui.axes.plot(x, y, linewidth=12)
-        ##
 
         # Update the currently open file.
         self.currentFile = file;
         return 0
+
+    ### unsorted
+    def get_integration_area(self, dataHandler):
+        rawIntegration = []
+        procIntegration = []
+        for intArea in dataHandler.integration:
+            if intArea.spectrumType == EXPORT_TYPE.RAW:
+                rawIntegration.append(intArea)
+            else:
+                procIntegration.append(intArea)
+
+        return rawIntegration, procIntegration

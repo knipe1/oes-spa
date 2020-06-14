@@ -12,6 +12,7 @@ Created on Sat Apr 25 2020
 import numpy as np
 
 # third-party libs
+import matplotlib.collections as collections
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
@@ -19,6 +20,7 @@ from Logger import Logger
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class Spectrum():
     """
@@ -135,7 +137,7 @@ class Spectrum():
         if len(baseline):
             self.baselineMarkup = self.get_markup(self.BASELINE)
 
-    def update_data(self, xData, yData):
+    def update_data(self, xData, yData, *args):
         """Updates the data of the spectrum."""
         # TODO: option: add validation here.
         # E.g. equal length or use numpy array here?
@@ -147,6 +149,10 @@ class Spectrum():
         else:
             self.xData = np.array(xData)
             self.yData = np.array(yData)
+
+        # Add integration areas.
+        # Note: It will be reset anyways. No init, so no update possible.
+        self.intAreas = args
 
 
     def init_plot(self):
@@ -169,6 +175,8 @@ class Spectrum():
         # TODO: errorhandling
 
         axes = self.ui.axes
+        int_peak_color = self.PLOT["INT_PEAK_COLOR"]
+        int_ref_color = self.PLOT["INT_REF_COLOR"]
 
         # Plot the data and eventually a baseline.
         axes.plot(self.xData, self.yData, **self.markup);
@@ -179,5 +187,9 @@ class Spectrum():
 
         # Zoom to specific area.
         axes.update_layout(xLimit=(self.xData[0], self.xData[-1]));
+
+        for intArea in self.intAreas:
+            col = int_peak_color if intArea.peakType == CHC.TYPE_PEAK else int_ref_color
+            self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
 
         self.ui.draw()

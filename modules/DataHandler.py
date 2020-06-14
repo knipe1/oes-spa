@@ -25,6 +25,8 @@ from modules.FileWriter import FileWriter
 # enums
 from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from custom_types.Integration import Integration
 
 
 class DataHandler(QObject):
@@ -220,19 +222,16 @@ class DataHandler(QObject):
             return None
 
         data = self.extract_data(file)
+        self.data = data
         procData, baseline, avgbase = self.process_data(*data)
 
         fitting = self.basicSetting.fitting
 
         # Find Peak and obtain height, area, and position
-        peakHeight, peakArea, peakPosition = self.calculate_peak(
-            fitting.currentPeak, *procData)
-        # HACK
-        # peakHeight, peakArea, peakPosition, limit = self.calculate_peak(
-            # fitting.currentPeak, *procData)
+        peakChcs = self.calculate_peak(fitting.currentPeak, *procData)
         # TODO: Evaluate!
         try:
-            characteristicValue = self.calculate_characteristic_value(
+            characteristicValue, intAreas = self.calculate_characteristic_value(
                 fitting.currentPeak, fitting.currentReference, *procData)
         except:
             # This is also displayed in the text field.
@@ -244,16 +243,17 @@ class DataHandler(QObject):
         self.procData = procData
         self.baseline = baseline
         self.avgbase = avgbase
-        self.peakHeight = peakHeight
-        self.peakArea = peakArea
-        self.peakPosition = peakPosition
+        self.peakHeight = peakChcs[CHC.PEAK_HEIGHT]
+        self.peakArea = peakChcs[CHC.PEAK_AREA]
+        self.peakPosition = peakChcs[CHC.PEAK_POSITION]
         self.characteristicValue = characteristicValue
 
-        return (data, procData, baseline, avgbase, peakHeight, peakArea, \
-            peakPosition, characteristicValue)
-        # HACK
-        # return (data, procData, baseline, avgbase, peakHeight, peakArea, \
-        #     peakPosition, characteristicValue, limit)
+        self.integration = []
+        self.integration.extend(intAreas)
+        self.integration.append(peakChcs[CHC.INTEGRATION_PXL])
+        self.integration.append(peakChcs[CHC.INTEGRATION_WL])
+
+        return 0
 
 
     def calculate_characteristic_value(self, peak, reference, procX, procY):
@@ -261,24 +261,23 @@ class DataHandler(QObject):
         # Default is None to distuinguish issues during the analysis and just
         # no peak.
         characteristicValue = None
+        intAreas = []
 
         # TODO: Doublecheck Area/Height?
-        # Therefore adjust _ for non-used variables
 
         # Calculate characteristics of the peak
-        # peakHeight, peakArea, peakPosition = self.calculate_peak(peak, procX,
-        #                                                         procY)
-        # HACK
-        # _, peakArea, _, _ = self.calculate_peak(peak, procX, procY)
-        _, peakArea, _ = self.calculate_peak(peak, procX, procY)
+        peakChcs = self.calculate_peak(peak, procX, procY)
+        peakArea = peakChcs[CHC.PEAK_AREA]
+        intAreas.append(peakChcs[CHC.INTEGRATION_PXL])
+        intAreas.append(peakChcs[CHC.INTEGRATION_WL])
 
         # Calculate characteristics of the reference peak
-        # refHeight, refArea, refPosition = self.calculate_peak(reference,
-        #                                                      procX,
-        #                                                      procY)
-        # HACK
-        # refHeight, _, _, _ = self.calculate_peak(reference, procX, procY)
-        refHeight, _, _= self.calculate_peak(reference, procX, procY)
+        refChcs = self.calculate_peak(reference, procX, procY)
+        refHeight = refChcs[CHC.PEAK_HEIGHT]
+        refChcs[CHC.INTEGRATION_PXL].peakType = CHC.TYPE_REFERENCE
+        refChcs[CHC.INTEGRATION_WL].peakType = CHC.TYPE_REFERENCE
+        intAreas.append(refChcs[CHC.INTEGRATION_PXL])
+        intAreas.append(refChcs[CHC.INTEGRATION_WL])
 
         # TODO: validation?!
         # HINT: refHeight most times has a value unequal 0, therefore is
@@ -286,13 +285,10 @@ class DataHandler(QObject):
         if refHeight:
             characteristicValue = peakArea / refHeight * peak.normalizationFactor
 
-        return characteristicValue
+        return characteristicValue, intAreas
 
 
-    def calculate_peak(self, peak, procXData:list, procYData:list)->(float,
-                                                                     float,
-                                                                     float,
-                                                                     list):
+    def calculate_peak(self, peak, procXData:list, procYData:list)->(dict):
         """
         Peak fit at given wavelength.
 
@@ -319,6 +315,8 @@ class DataHandler(QObject):
         THRESHOLD = 0.01
         MIN_DISTANCE = 2
 
+        results = {}
+
         # Get the indexes of the peaks from the data.
         # Function with rough approximation.
         idxPeaksApprox = pkus.indexes(procYData, thres=THRESHOLD,
@@ -334,41 +332,32 @@ class DataHandler(QObject):
         # get the borders for integration
         lowerLimit = peak.centralWavelength - peak.shiftDown
         upperLimit = peak.centralWavelength + peak.shiftUp
-        # HACK
-        # limit = [lowerLimit, upperLimit]
         idxBorderRight = np.abs(procXData - upperLimit).argmin()
         idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
+        idxInt = range(idxBorderLeft, idxBorderRight+1)
 
 
         # getting all wavelength(x) and the intensities(y)
-        peakAreaX = procXData[idxBorderLeft:idxBorderRight]
-        peakAreaY = procYData[idxBorderLeft:idxBorderRight]
+        peakAreaX = procXData[idxInt]
+        peakAreaY = procYData[idxInt]
+        integrationPlx = Integration(self.data[0][idxInt],
+                                     self.data[1][idxInt])
+
+        integrationWl = Integration(peakAreaX, peakAreaY,
+                                    spectrumType=EXPORT_TYPE.PROCESSED)
 
         # Integrate along the given axis using the composite trapezoidal rule.
         peakArea = np.trapz(peakAreaY, peakAreaX)
 
         # validation
         if yPeak <= peak.minimum:
-            return 0, 0, 0
+            yPeak, xPeak, peakArea = 0, 0, 0
         # TODO: further validation?!?
 
-        # HACK
-        # return yPeak, peakArea, xPeak, limit
-        return yPeak, peakArea, xPeak
+        results[CHC.PEAK_HEIGHT] = yPeak
+        results[CHC.PEAK_POSITION] = xPeak
+        results[CHC.PEAK_AREA] = peakArea
+        results[CHC.INTEGRATION_PXL] = integrationPlx
+        results[CHC.INTEGRATION_WL] = integrationWl
 
-
-    # def get_processed_data(self):
-    #     """Returns processed data """
-    #     return self.procX, self.procY
-
-    # def get_baseline(self):
-    #     """Returns processed data """
-    #     return self.baseline, self.avgbase
-
-    # def get_peak(self):
-    #     """Returns peak data """
-    #     return self.peakHeight, self.peakArea
-
-    # def get_raw_peak(self):
-    #     """Returns raw  fitting position and peak intensity"""
-    #     return self.rawPeak
+        return results

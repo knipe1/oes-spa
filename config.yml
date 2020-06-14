@@ -58,3 +58,5 @@ PLOT:
   RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
+  INT_PEAK_COLOR: g
+  INT_REF_COLOR: b
