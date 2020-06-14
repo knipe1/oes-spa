@@ -19,6 +19,9 @@ from PyQt5.QtCore import QFileInfo  # provides system-independent file info
 from ConfigLoader import ConfigLoader
 from modules.FileFramework import FileFramework
 
+# enums
+from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
+
 
 # Load the configuration for extracting data of a data structure.
 config = ConfigLoader()
@@ -50,6 +53,7 @@ class FileReader(FileFramework):
         FileFramework.__init__(self, filename)
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
+        self.parameter = {}
         self.date = ""
         self.time = ""
 
@@ -357,11 +361,28 @@ class FileReader(FileFramework):
 
         """
         data = [];
+        parameter = {}
 
         # TODO: Fixed to line 39?
         # TODO: Fixed with 3 blank lines?
-        for i in range(37):
-            csvReader.__next__()
+        for ii in range(37):
+            row = csvReader.__next__()
+            # Temperature (C)
+            if ii == 1:
+                _, temperature = asc_separate_parameter(row)
+                parameter[ASC.TEMP] = temperature
+            # Exposure Time (secs)
+            elif ii == 6:
+                _, exposureTime = asc_separate_parameter(row)
+                parameter[ASC.EX_TIME] = exposureTime
+            # Wavelength (nm)
+            elif ii == 26:
+                _, wavelength = asc_separate_parameter(row)
+                parameter[ASC.WL] = wavelength
+            # Grating Groove Density (l/mm)
+            elif ii == 27:
+                _, grating = asc_separate_parameter(row)
+                parameter[ASC.GRAT] = grating
 
         # Collecting the data.
         for row in csvReader:
@@ -369,6 +390,12 @@ class FileReader(FileFramework):
             intensity = float(row[DATA_STRUCTURE["ASC_DATA_COLUMN"]])
             data.append([wavelength, intensity])
 
+        self.parameter = parameter
         return data;
 
 
+# module-level functions
+def asc_separate_parameter(row):
+    description, value = row[0].split(":", 1)
+    value = value.strip()
+    return description, value

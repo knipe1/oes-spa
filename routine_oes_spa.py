@@ -40,8 +40,8 @@ def main():
     try:
         # window.export_raw()
         #window.window.ddFitting.setCurrentIndex(3)
-        window.file_open("./sample files/Asterix1059 1.Spk")
-        # window.file_open("./sample files/SIF/testasc.asc")
+        # window.file_open("./sample files/Asterix1059 1.Spk")
+        window.file_open("./sample files/SIF/testasc.asc")
         # window.file_open("./sample files/_batch.csv")
         # window.export_raw()
         # window.export_processed()

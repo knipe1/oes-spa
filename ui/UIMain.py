@@ -91,6 +91,27 @@ class UIMain(Ui_main):
     ### properties
 
     @property
+    def wavelength(self)->float:
+        """Get the converted wavelength or None."""
+        # TODO: try/except vs throw an error?
+        # try: no exception and the program can still run
+        # error: is it an error, if the ui element is not found -> prob. yes
+        # error: if something invalid is written? -> prompt
+        wavelength = None
+        try:
+            wavelength = self.tinCentralWavelength.text()
+            wavelength = float(wavelength)
+        except:
+            self.logger.error("Could not get valid value for wavelength!")
+        return wavelength
+
+    @wavelength.setter
+    def wavelength(self, wl):
+        """Sets the given wavelenght wl to the ui-element."""
+        self.tinCentralWavelength.setText(wl)
+
+
+    @property
     def fittings(self)->dict:
         """fittings getter"""
         return self._fittings
@@ -333,35 +354,11 @@ class UIMain(Ui_main):
 
     def get_basic_setting(self)->BasicSetting:
 
-        wavelength = self.get_central_wavelength()
         grating = self.get_grating()
         fitting = Fitting(self.currentFitting)
-        setting = BasicSetting(wavelength, grating, fitting)
+        setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;
-
-
-    def get_central_wavelength(self)->float:
-        """
-        Gets the value of the ui element.
-
-        Returns
-        -------
-        wavelength: float
-            The current text of the input ui element.
-
-        """
-        # TODO: try/except vs throw an error?
-        # try: no exception and the program can still run
-        # error: is it an error, if the ui element is not found -> prob. yes
-        # error: if something invalid is written? -> prompt
-        wavelength = None
-        try:
-            wavelength = self.tinCentralWavelength.text()
-            wavelength = float(wavelength)
-        except:
-            self.logger.error("Could not get valid value for wavelength!")
-        return wavelength
 
 
     def get_grating(self)->int:
@@ -374,7 +371,7 @@ class UIMain(Ui_main):
             The current text of the input ui element.
 
         """
-        # TODO: see above. compare get_central_wavelength
+        # TODO: see above. compare self.wavelength
         grating = None
         try:
             grating = self.ddGrating.currentText()

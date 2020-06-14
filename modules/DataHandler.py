@@ -25,6 +25,7 @@ from modules.FileWriter import FileWriter
 # enums
 from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.Integration import Integration
 
@@ -129,7 +130,13 @@ class DataHandler(QObject):
 
         self.basicSetting = basicSetting
         # TODO: Calculation of dispersion. How to distinguish asc, spk, csv file?
-        self.dispersion = 14/basicSetting.grating
+        parameter = kwargs.get("parameter")
+        try:
+            # 12.04391 -> delta wl
+            self.dispersion = 12.04391 / parameter[ASC.GRAT]
+        except:
+            # 12.042204 -> analysed with asc-data: used instead of 14
+            self.dispersion = 12.042204 / basicSetting.grating
 
         if kwargs.get("funConnection"):
             self.signals = self.init_signals()
@@ -165,10 +172,15 @@ class DataHandler(QObject):
     def assign_wavelength(xData, cWL, dispersion):
         """Assigns wavelength to the recorded Pixels """
 
-        center = len(xData)/2
-        start = cWL - center*dispersion
-        # Convert the data from pixels to wavelength and shift it.
-        shiftedData = xData*dispersion + start
+        center = xData[len(xData) // 2 - 1] # offset of python lists.
+        # TODO: implicit pixels?!
+        if  xData[1] - xData[0] == 1:
+            start = cWL - center*dispersion
+            # Convert the data from pixels to wavelength and shift it.
+            shiftedData = xData*dispersion + start
+        else:
+            shift = cWL - center
+            shiftedData = xData + shift
 
         return shiftedData
 
@@ -190,11 +202,13 @@ class DataHandler(QObject):
     def process_data(self, xData, yData):
 
         # Convert x data into wavelengths.
-        if xData[1] - xData[0] == 1:
-            procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
+        procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
                                                self.dispersion)
-        else:
-            procXData = xData
+        # if xData[1] - xData[0] == 1:
+        #     procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
+        #                                        self.dispersion)
+        # else:
+        #     procXData = xData
 
         # Baseline fitting with peakutils
         # TODO: what is calculated here? @knittel/@reinke
@@ -249,7 +263,11 @@ class DataHandler(QObject):
         self.characteristicValue = characteristicValue
 
         self.integration = []
-        self.integration.extend(intAreas)
+        try:
+            self.integration.extend(intAreas)
+        except UnboundLocalError:
+            self.logger.warning("""No characteristic value calculated.
+                                Therefore no integration areas found.""")
         self.integration.append(peakChcs[CHC.INTEGRATION_PXL])
         self.integration.append(peakChcs[CHC.INTEGRATION_WL])
 

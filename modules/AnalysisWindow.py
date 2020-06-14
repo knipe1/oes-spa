@@ -24,7 +24,8 @@ from ui.UIMain import UIMain
 from Logger import Logger
 
 # enums
-from custom_types.CHARACTERISTIC import CHARACTERISTIC
+from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
@@ -74,8 +75,13 @@ class AnalysisWindow(QMainWindow):
     @currentFile.setter
     def currentFile(self, file:FileReader):
         """currentFile setter: Updating the ui"""
+        try:
+            self.set_fileinformation(file)
+            if self._currentFile.header != file.header:
+                self.window.wavelength = file.parameter[ASC.WL]
+        except:
+            self.logger.info("Reloaded/Redrawn file.")
         self._currentFile = file
-        self.set_fileinformation(file)
 
     ### Methods
 
@@ -337,6 +343,7 @@ class AnalysisWindow(QMainWindow):
         self.SIG_date.emit(date)
         self.SIG_time.emit(time)
 
+
     ### data analysis
 
     def apply_data(self, filename, updateSpectra=True, updateResults=True):
@@ -352,7 +359,8 @@ class AnalysisWindow(QMainWindow):
         # Update plots and ui.
         basicSetting = self.window.get_basic_setting()
         specHandler = DataHandler(basicSetting,
-                                  funConnection=connect)
+                                  funConnection=connect,
+                                  parameter=file.parameter)
         # Validate results?
         results = specHandler.analyse_data(file)
 
