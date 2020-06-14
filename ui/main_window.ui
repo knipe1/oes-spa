@@ -23,7 +23,7 @@
   <property name="minimumSize">
    <size>
     <width>540</width>
-    <height>850</height>
+    <height>830</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -52,7 +52,7 @@
       <x>9</x>
       <y>9</y>
       <width>1041</width>
-      <height>791</height>
+      <height>820</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="layoutGeneral">
@@ -394,6 +394,49 @@
            <widget class="QLineEdit" name="toutTime">
             <property name="readOnly">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="boxAddInformation">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>183</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>183</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Additional Information</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QListWidget" name="listInformation">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>183</width>
+              <height>100</height>
+             </size>
             </property>
            </widget>
           </item>

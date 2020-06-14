@@ -77,9 +77,18 @@ class AnalysisWindow(QMainWindow):
         """currentFile setter: Updating the ui"""
         try:
             self.set_fileinformation(file)
+
+            # Set additional information (like from asc-file)
+            self.window.clear_information()
+            for key, value in file.parameter.items():
+                if not isinstance(key, ASC):
+                    entry = key + ": " + value
+                    self.window.add_information(entry)
+
+            # Set Wavelength if provided and a freshly loaded file.
             if self._currentFile.header != file.header:
                 self.window.wavelength = file.parameter[ASC.WL]
-        except:
+        except AttributeError:
             self.logger.info("Reloaded/Redrawn file.")
         self._currentFile = file
 

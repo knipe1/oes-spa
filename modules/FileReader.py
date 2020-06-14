@@ -369,19 +369,21 @@ class FileReader(FileFramework):
             row = csvReader.__next__()
             # Temperature (C)
             if ii == 1:
-                _, temperature = asc_separate_parameter(row)
-                parameter[ASC.TEMP] = temperature
+                name, temperature = asc_separate_parameter(row)
+                parameter[name] = temperature
             # Exposure Time (secs)
             elif ii == 6:
-                _, exposureTime = asc_separate_parameter(row)
-                parameter[ASC.EX_TIME] = exposureTime
+                name, exposureTime = asc_separate_parameter(row)
+                parameter[name] = exposureTime
             # Wavelength (nm)
             elif ii == 26:
-                _, wavelength = asc_separate_parameter(row)
+                name, wavelength = asc_separate_parameter(row)
+                parameter[name] = wavelength
                 parameter[ASC.WL] = wavelength
             # Grating Groove Density (l/mm)
             elif ii == 27:
-                _, grating = asc_separate_parameter(row)
+                name, grating = asc_separate_parameter(row)
+                parameter[name] = grating
                 parameter[ASC.GRAT] = grating
 
         # Collecting the data.

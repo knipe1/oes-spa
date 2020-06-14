@@ -352,6 +352,13 @@ class UIMain(Ui_main):
         self.currentFitting = fitConfig.config
 
 
+    def add_information(self, entry:str):
+        self.listInformation.addItem(entry)
+
+    def clear_information(self):
+        self.listInformation.clear()
+
+
     def get_basic_setting(self)->BasicSetting:
 
         grating = self.get_grating()
