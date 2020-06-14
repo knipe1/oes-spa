@@ -5,15 +5,19 @@
 Single and batch analysis of OES spectra
 """
 
+# TODO: Write new issues from feature requests
+# TODO: conclude some issues, to doublecheck that it can be closed.
+
 # standard libs
 import sys
 
 # third-party libs
 import emulator as emu
-import threading as thrd
+import threading as THR
 from PyQt5.QtWidgets import QApplication
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 from Logger import Logger
@@ -32,10 +36,13 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
-    # # automatic open and close routine
+    # automatic open and close routine
     try:
         # window.export_raw()
+        #window.window.ddFitting.setCurrentIndex(3)
         window.file_open("./sample files/Asterix1059 1.Spk")
+        # window.file_open("./sample files/SIF/testasc.asc")
+        # window.file_open("./sample files/_batch.csv")
         # window.export_raw()
         # window.export_processed()
         # window.file_open("./sample files/Asterix1059 1_raw.csv")
@@ -45,22 +52,24 @@ def main():
 
 
     # window.batch.show()
+
     # # text = "filename"
-    # # arbitrary = thrd.Thread(target=emu.key_arbitrary, args=[text])
+    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
     # # arbitrary.start()
     # # accept the name
-    # enter = thrd.Thread(target=emu.key_accept)
+
+    # enter = THR.Thread(target=emu.key_accept)
     # enter.start()
-    # # # in case of file already exists
-    # yes = thrd.Thread(target=emu.key_alt_j)
+
+    # # in case of file already exists
+    # yes = THR.Thread(target=emu.key_alt_j)
     # yes.start()
+
     # window.batch.window.btnSetFilename.click()
-    # selection = thrd.Thread(target=emu.key_select_file, args=[10])
+    # selection = THR.Thread(target=emu.key_select_file, args=[20])
     # selection.start()
+    # window.lastdir = window.lastdir+"/Obel276"
     # window.batch.browse_spectra()
-    # window.batch.window.cbPeakHeight.click()
-    # window.batch.window.cbPeakArea.click()
-    # window.batch.window.cbBaseline.click()
     # window.batch.window.btnCalculate.click()
     # window.batch.hide()
 

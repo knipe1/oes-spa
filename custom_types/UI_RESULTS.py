@@ -7,7 +7,6 @@ Created on Mon Apr 20 14:11:16 2020
 """
 
 
-
 # standard libs
 from enum import Enum, auto
 

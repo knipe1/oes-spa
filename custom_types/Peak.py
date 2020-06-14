@@ -14,15 +14,19 @@ from typing import List
 # third-party libs
 
 # local modules/libs
-from modules.ReferencePeak import ReferencePeak
+from custom_types.ReferencePeak import ReferencePeak
+from dialog_messages import information_NormalizationFactor
 
 @dataclass(frozen=True)
 class Peak(ReferencePeak):
     name: str = "";
-    normalizationFactor: float = 0.0;
+    normalizationFactor: float = 1.0;
     reference: List[ReferencePeak] = field(default_factory=list);
 
     def add_reference(self, reference: ReferencePeak):
         if isinstance(reference, ReferencePeak):
             self.reference.append(reference)
 
+    def __post_init__(self):
+        if self.normalizationFactor == 1.0:
+            information_NormalizationFactor()

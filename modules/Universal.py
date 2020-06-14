@@ -1,86 +1,85 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This module is for general purposes and includes various functions
+This module is for general purposes and includes various functions.
 
 @author: Hauke Wernecke
 """
-# load_config-function
-def load_config(path="./config.yml"):
-    # load the config
-    with open(path, "r", newline='') as ymlfile:
-        config = yaml.load(ymlfile, Loader=yaml.FullLoader)
-    return config
 
 # standard libs
-import yaml
 import re
+from datetime import datetime
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
-from enum import Enum, auto
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import dialog_messages as dialog
 
+# Load the configuration for import and batch properties.
+config = ConfigLoader()
+BATCH = config.BATCH
+EXPORT = config.EXPORT
+IMPORT = config.IMPORT
 
-def save_config(conf: dict, path="./config.yml"):
-    # load the config
-    with open(path, "w", newline='') as ymlfile:
-        config = yaml.dump(conf, ymlfile)
-    return config
-
-
-
-# load the configs
-config = load_config()
-IMPORT = config["IMPORT"]
-BATCH = config["BATCH"]
-
-class ExportType(Enum):
-    """
-    class to provide an interace for file properties depending on the export type
-    """
-    RAW = auto()
-    PROCESSED = auto()
-    BATCH = auto()
-
-
-# TODO: Sinnvoll?
-def load_files(directory):
-    return dialog.dialog_openFiles(directory, IMPORT["SUFFIXES"])
-
-def is_valid_filetype(parent, url):
+def is_valid_filetype(url):
         """checks if the given url is valid to load the data"""
+
         isValid = True;
         file = url.toLocalFile();
 
         if not url.isValid():
             isValid = False;
 
-        if not QFileInfo(file).completeSuffix().lower() in IMPORT["VALID_SUFFIX"]:
+        # Validate suffix.
+        completeSuffix = QFileInfo(file).completeSuffix().lower()
+        if not completeSuffix in IMPORT["VALID_SUFFIX"]:
             isValid = False;
-            dialog.critical_unknownSuffix(IMPORT["VALID_SUFFIX"], parent)
 
         return isValid;
 
 
+def convert_to_hours(timedifference):
+    """
+    Converts the difference of datetimes (timedelta-object) into hours.
 
-def extract_xy_data(axis, label, separated=False):
-    """extract the x and y data from a axis object and return them together or
-    separated"""
+    Parameters
+    ----------
+    timedifference : timedelta
+        The difference between to datetimes.
 
-    data = None;
+    Returns
+    -------
+    hours : float
+        The converted difference in hours.
 
-    for line in axis.get_lines():
-        if line.get_label() == label:
-            if separated:
-                data = (line.get_xdata(), line.get_ydata())
-            else:
-                data = line.get_xydata()
-            break
-    return data
+    """
 
+    hours = 0.0
+    try:
+        hours += timedifference.seconds / 3600
+        hours += timedifference.days * 24
+    except AttributeError:
+        # TODO: implement logger?
+        print("Could not convert {} into hours.".format(timedifference))
+
+    return hours
+
+
+def timestamp_to_string(timestamp):
+    timestampString = datetime.strftime(timestamp, EXPORT["FORMAT_TIMESTAMP"])
+    return timestampString
+
+def add_suffix(filename, suffix):
+    fileInfo = QFileInfo(filename)
+    path = fileInfo.absolutePath() + "/"
+
+    if not fileInfo.completeSuffix() == suffix:
+            filenameWithSuffix = fileInfo.baseName() + "." + suffix
+            filename = path + filenameWithSuffix
+
+    return filename, path
 
 def reduce_path(url):
     """
@@ -162,6 +161,7 @@ def find_second_last(text, pattern):
         index = text.rfind(pattern, 0, text.rfind(pattern))
     return index
 
+
 def add_index_to_text(texts):
     """
     Adding the index of a list item in front of the item.
@@ -192,32 +192,17 @@ def add_index_to_text(texts):
             for idx, text in enumerate(texts)]
 
 
-def tryint(s):
-    """
-    Tries to convert s into a int.
-    Used for human sort corresponding to the natural_keys function.
-
-    Parameters
-    ----------
-    s : string
-        String that tried to convert into integer
-
-    Returns
-    -------
-    string or int
-        int expression of s or s itself.
-
-    """
-    try:
-        return int(s)
-    except ValueError:
-        return s
-
 def natural_keys(text):
     """
     alist.sort(key=natural_keys) sorts in human order.
     https://nedbatchelder.com/blog/200712/human_sorting.html
     """
+    def tryint(s):
+        try:
+            return int(s)
+        except ValueError:
+            return s
+
     # r'(\d+)' matches any digit number (# indicates one or more matches)
     # splitting a list of all non-numerical and numerical pattern
     return [ tryint(c) for c in re.split(r'(\d+)', text) ]

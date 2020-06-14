@@ -15,7 +15,7 @@ import unittest
 from Logger import Logger
 
 class TestLoadFiles(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
         """
@@ -23,13 +23,13 @@ class TestLoadFiles(unittest.TestCase):
         """
         # prequerities
         cls.logger = Logger(__name__)
-        
-        
+
+
     @classmethod
     def tearDownClass(cls):
         pass
-    
-    def setUp(self):        
+
+    def setUp(self):
         pass
     def tearDown(self):
         pass
@@ -37,10 +37,10 @@ class TestLoadFiles(unittest.TestCase):
     def test_init(self):
         """Checking whether an object was instaciated"""
         self.assertTrue(self.logger, "no instance of logger found!")
-        
+
         """Checking whether the default settings are ok"""
         self.assertEqual(self.logger.logger.getEffectiveLevel(), 10, "Default logging level (DEBUG)")
-        
+
 
     def test_messages(self):
         # testing the module and its behaviour
@@ -49,6 +49,16 @@ class TestLoadFiles(unittest.TestCase):
         self.logger.warning("Warnung")
         self.logger.error("Error Nachricht")
         self.logger.critical("Kritische Nachricht")
+
+    def test_filename(self):
+        # set LOG_FILE in config.yml to arbitraryFilename
+        arbitraryFilename = "arbitraryFilename"
+
+        # Checks whether the filename was loaded correctly.
+        self.assertEqual(self.logger.filename, arbitraryFilename,
+                         "Arbitrary filename from config")
+
+
 
 
 if __name__ == '__main__':

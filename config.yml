@@ -3,6 +3,7 @@ BATCH:
   SEPARATOR: ':'
   SUFFIX: csv
 DATA_STRUCTURE:
+  ASC_DATA_COLUMN: 1
   CSV_DATA_COLUMN: 1
   SPK_DATA_COLUMN: 3
 DIALECT:
@@ -20,14 +21,19 @@ FILE:
   DEF_DIR: ./sample files
   DEF_FILE: ''
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
+FITTING:
+  DIR: ./fittings/
+  FILE_PATTERN: fitting.yml
 IMPORT:
   SUFFIXES:
-  - Data sets (*.spk *.csv)
+  - Data sets (*.spk *.csv *.asc)
   - SpexHex File (*.spk)
   - Exported Raw spectrum (*.csv)
+  - Full information spectrum (*.asc)
   VALID_SCHEME:
   - file
   VALID_SUFFIX:
+  - asc
   - csv
   - spk
   - Spk
@@ -35,19 +41,22 @@ MARKER:
   DATA: Data
   HEADER: Date
 PLOT:
+  BATCH_DATA_COLOR: k
+  BATCH_DATA_LABEL: Peak Area
+  BATCH_X_LABEL: Time / h
+  BATCH_Y_LABEL: Peak area / a.u.
   DEF_AXIS_COLOR: '0.2'
-  DEF_LINEWIDTH: 0.5
-  PROCESSED_DATA_LABEL: Processed Spectrum
+  DEF_LINEWIDTH: 0.8
   PROCESSED_DATA_COLOR: r
+  PROCESSED_DATA_LABEL: Processed Spectrum
   PROCESSED_X_LABEL: Wavelength / nm
   PROCESSED_Y_LABEL: Intensity / a.u.
-  RAW_BASELINE_LABEL: Baseline
   RAW_BASELINE_COLOR: b
-  RAW_BASELINE_STYLE: "--"
-  RAW_DATA_LABEL: Raw Spectrum
+  RAW_BASELINE_LABEL: Baseline
+  RAW_BASELINE_STYLE: --
   RAW_DATA_COLOR: r
+  RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
-FITTING:
-    FILE_PATTERN: "fitting.yml"
-    DIR: "./fittings/"
+  INT_PEAK_COLOR: g
+  INT_REF_COLOR: b

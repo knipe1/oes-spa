@@ -13,16 +13,18 @@ defines the configurations
 import csv
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 
 
 class FileFramework:
-    # load config
-    config = uni.load_config()
-    EXPORT = config["EXPORT"]
-    IMPORT = config["IMPORT"]
-    MARKER = config["MARKER"]
-    DIALECT = config["DIALECT"]
+
+    # Load the configuration for import, export and further properties.
+    config = ConfigLoader()
+    EXPORT = config.EXPORT
+    IMPORT = config.IMPORT
+    MARKER = config.MARKER
+    DIALECT = config.DIALECT
 
     def __init__(self, filename):
         self.filename = filename

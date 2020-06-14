@@ -18,26 +18,37 @@ Created on Mon Jan 20 10:22:44 2020
 @author: Hauke Wernecke
 """
 
+# Method Sections:
+    ### Properties
+    ### Events
+    ### Methods/Analysis
+    ### UI-interactions
+    ### Interaction with the FileSet self._files
+
+# standard libs
+import numpy as np
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, QStringListModel, QModelIndex
-from PyQt5.QtWidgets import QDialog, QAbstractItemView
-from datetime import datetime
-from enum import Enum
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
+from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 import dialog_messages as dialog
 from Logger import Logger
+from modules.Spectrum import Spectrum
 from ui.UIBatch import UIBatch
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
-from modules.Universal import ExportType
 
 
 # Enums
-from custom_types.CHARACTERISTIC import CHARACTERISTIC
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.FileSet import FileSet
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
 from custom_types.BATCH_CONFIG import BATCH_CONFIG
 
 
@@ -69,26 +80,24 @@ class BatchAnalysis(QDialog):
 
     Methods
     -------
-    set_filename()
+    specify_batchfile()
         Specifies the filename through a dialog.
     browse_spectra()
         Opens a dialog to browse for spectra and updates the filelist.
     multi_calc()
         Analyses the files and export the chracteristic values.
-    retrieve_data(dictionary:dict)
+    retrieve_data(config:dict)
         Checks the config and retrieve the corresponing values from it.
     retrieve_batch_config()
         Gets the config of the analysis as base for further analysis.
-    extract_values_of_dict(dictionary:dict, key:Enum)
-        Extract the values of the given dictionary with the specifc key.
+    extract_values_of_config(config:dict, key:Enum)
+        Extract the values of the given config with the specifc key.
     open_indexed_file(index)
         Retrieve the data of the selected file of the list.
-    update_UI()
+    enable_analysis()
         Updates the UI according to the currently seleceted options.
-    display_filenames()
-        Formatting and displaying the filenames of attribute files.
     update_filelist(filelist:list)
-        Updates the filelist of the model and refreshes the ui.
+        Updates the filelist and refreshes the ui.
     clear()
         Resets the filelist and clears the displayed files.
     update_progressbar(percentage:[int, float])
@@ -96,20 +105,39 @@ class BatchAnalysis(QDialog):
 
     """
 
-    # Getting the neccessary configs
-    config = uni.load_config()
-    BATCH = config["BATCH"];
-    EXPORT = config["EXPORT"];
+    # Load the configuration for batch analysis and export.
+    config = ConfigLoader()
+    BATCH = config.BATCH;
+    EXPORT = config.EXPORT;
 
-    # set up the logger
+    # Set up the logger.
     logger = Logger(__name__)
 
-    # properties
-    # TODO: defaults are set afterwards, but here are the definitions of the props...
-    _batchfile = ""
-    _updatePlots = False
 
-    files = []
+    ### Properties
+
+    @property
+    def batchFile(self):
+        """batchFile getter"""
+        return self._batchFile
+
+    @batchFile.setter
+    def batchFile(self, text:str):
+        """batchFile setter: Updating the ui"""
+        self._batchFile = text
+        self.window.batchFile = text
+
+
+    @property
+    def lastdir(self):
+        """lastdir getter"""
+        return self.parent().lastdir
+
+    @lastdir.setter
+    def lastdir(self, path:str):
+        """lastdir setter: Updating the parent"""
+        self.parent().lastdir = path
+
 
 
     def __init__(self, parent):
@@ -127,77 +155,63 @@ class BatchAnalysis(QDialog):
 
         self.logger.info("Init BatchAnalysis")
 
-        # initialize the parent class ( == QDialog.__init__(self)
-        super(BatchAnalysis, self).__init__(parent)
+        # Initialize the parent class ( == QDialog.__init__(self).
+        super().__init__(parent)
 
-        # TODO: check whether there will be some inconsistency if self.lastdir
-        # is set or if it even useful to implement it like this.
-        self.lastdir = parent.lastdir
-
-        # general settings
-        self.setAcceptDrops(True)
-        self.model = QStringListModel()
-        # init of window has to be at last, because it connects self.model i.a.
+        # Set up ui.
         self.window = UIBatch(self)
-        # disable option to edit the strings in the file list.
-        self.window.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.__post_init__()
 
 
-    ### Properties
+    def __post_init__(self):
+        # Set the defaults.
+        self._files = FileSet(listWidget = self.window.listFiles,
+                             updateOnChange = self.enable_analysis)
+        self.batchFile = self.window.batchFile
 
-    @property
-    def batchFile(self):
-        """batchFile getter"""
-        return self._batchFile
-
-    @batchFile.setter
-    def batchFile(self, text:str):
-        """batchFile setter
-
-        Updating the ui
-        """
-        self.window.foutCSV.setText(text)
-        self._batchFile = text
-
-    @property
-    def updatePlots(self):
-        """updatePlots getter"""
-        return self._updatePlots
-
-    @updatePlots.setter
-    def updatePlots(self, enable:bool):
-        """updatePlots setter
-
-        Updating the ui
-        """
-        self.window.cbUpdatePlots.setChecked(enable)
-        self._updatePlots = enable
+    def __repr__(self):
+        info = {}
+        info["batchfile"] = self.batchFile
+        info["files"] = self._files
+        info["lastdir"] = self.lastdir
+        return self.__module__ + ":\n" + str(info)
 
 
     ### Events
+    ### UI-interactions
+
+
+    def keyPressEvent(self, event):
+        """
+        Key handling.
+
+        Regarding deletions, cancellations,...
+        """
+
+        isFocused = self.window.focussed_filelist()
+        isDelete = event.matches(QKeys.Delete)
+        isCancel = event.matches(QKeys.Cancel)
+
+        # Remove currently selected file.
+        if isFocused and isDelete:
+            row = self.window.listFiles.currentRow()
+            self._files.remove(self._files[row])
+
+        # Cancel current analysis
+        if isCancel:
+            self.set_cancel()
+
 
     def dragEnterEvent(self, event):
         """
         Drag file over window event.
-        Is accepted if at least one file is dragged.
 
-        Parameters
-        ----------
-        event : event
-            The event itself.
-
-        Returns
-        -------
-        None.
-
+        Always accepted, validation takes place in dropEvent-handler.
         """
 
-        # get the urls and check whether a file is among them
-        urls = event.mimeData().urls();
-        for url in urls:
-            # TODO: Doublecheck if this is a magic string?!
-            if url.scheme() == "file":
-                event.accept()
+        # Accept event, validation takes place in dropEvent-handler.
+        event.accept();
 
 
     def dropEvent(self, event):
@@ -215,321 +229,265 @@ class BatchAnalysis(QDialog):
 
         """
 
-        # Set up a list to append to valid files later
-        valid_urls = []
+        # Set up a list to append valid files.
+        valid_urls = set()
 
-        # Get the urls and check their validity. Append to list if so.
+        # Get the urls and check their validity.
         urls = event.mimeData().urls();
         for url in urls:
-            if uni.is_valid_filetype(self, url):
-                valid_urls.append(url.toLocalFile())
+            if uni.is_valid_filetype(url):
+                valid_urls.add(url.toLocalFile())
 
-        # updates the filelist with the valid urls and updates the ui
+        # Updates the filelist with the valid urls.
         self.update_filelist(valid_urls)
 
 
-    ### Methods
+    ### Methods/Analysis
 
-    def set_filename(self):
+    def analyze(self):
+
+        # Reset the properties to have clean setup.
+        self.cancelByEsc = False
+        self.traceSpectrum = Spectrum(
+                self.window.mplTrace, EXPORT_TYPE.BATCH)
+        # Get the modus.
+        isUpdatePlot = self.window.get_update_plots()
+        isPlotTrace = self.window.get_plot_trace()
+        isExportBatch = self.window.get_export_batch()
+        # Get characteristic values.
+        basicSetting = self.parent().window.get_basic_setting()
+
+        data = []
+        skippedFiles = []
+        files = self._files.to_list()
+        amount = len(files)
+
+        for i in range(amount):
+
+            # Be responsive and process events to enable cancelation.
+            QApplication.processEvents()
+            if self.cancelByEsc:
+                break
+
+            # Update process bar
+            self.window.update_progressbar((i+1)/amount)
+
+            # Read out the filename and the data.
+            file = files[i]
+            self.currentFile = FileReader(file)
+
+            # Get the data.
+            specHandler = DataHandler(basicSetting)
+            results = specHandler.analyse_data(self.currentFile)
+            avg = specHandler.avgbase
+            peakHeight = specHandler.peakHeight
+            peakArea = specHandler.peakArea
+            peakPosition = specHandler.peakPosition
+            characteristicValue = specHandler.characteristicValue
+            timestamp = self.currentFile.timestamp
+
+            # excluding file if no appropiate data given like in processed
+            # spectra.
+            # TODO: Check more exlude conditions like characteristic value
+            # below some defined threshold.
+            # TODO: validate_results as method of specHandlaer? Would also omit
+            # the assignemts above!?
+            if not peakHeight:
+                skippedFiles.append(file)
+                continue
+
+            if isExportBatch:
+                config = self.retrieve_batch_config()
+                config[CHARAC.BASELINE] = avg
+                config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
+                config[CHARAC.PEAK_AREA] = peakArea
+                config[CHARAC.PEAK_HEIGHT] = peakHeight
+                config[CHARAC.PEAK_POSITION] = peakPosition
+                # TODO: Check HEADER_INFO is just timestamp?
+                config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+
+                data.append(self.assemble_row(file, config))
+            elif isUpdatePlot:
+                self.parent().apply_data(file)
+            elif isPlotTrace:
+                # TODO: currently just peakArea, no dropdown.
+                data = (timestamp, peakArea)
+                self.import_batch(data)
+
+        if isExportBatch:
+            characteristicName = basicSetting.fitting.currentPeak.name
+            self.export_batch(data, peakName=characteristicName)
+
+        # Prompt the user with information about the skipped files.
+        dialog.information_BatchAnalysisFinished(skippedFiles)
+
+
+    def plot_trace(self, timestamp, value):
+        # TODO: To be tested.
+        # Get the timediff of the spectrum in h.
+        diffTime = self.get_timediff_H(self.traceSpectrum,
+                                          timestamp)
+
+        self.traceSpectrum.update_data(diffTime, value)
+        self.traceSpectrum.init_plot()
+        self.traceSpectrum.update_plot()
+
+
+    def get_timediff_H(self, spectrum, timestamp):
+        try:
+            refTime = spectrum.referenceTime
+        except:
+            refTime = timestamp
+            spectrum.referenceTime = refTime
+
+
+        diffTime = uni.convert_to_hours(timestamp - refTime)
+
+        return diffTime
+
+    def import_batch(self, data=None):
+
+
+        try:
+            timestamp, values = data
+
+            diffTimes = self.get_timediff_H(self.traceSpectrum,
+                                              timestamp)
+
+        except:
+            diffTimes = []
+
+            self.traceSpectrum = Spectrum(
+                    self.window.mplTrace, EXPORT_TYPE.BATCH)
+
+            filelist = dialog.dialog_openFiles(self.lastdir)
+            # TODO: Issue if cancelled
+            file = filelist[0]
+            self.currentFile = FileReader(file)
+
+
+            data = self.currentFile.data
+
+            timestamps, values = data
+
+            for timestamp in timestamps:
+                diffTime = self.get_timediff_H(self.traceSpectrum,
+                                                  timestamp)
+                diffTimes.append(diffTime)
+
+        self.traceSpectrum.update_data(diffTimes, values)
+        self.traceSpectrum.init_plot()
+        self.traceSpectrum.update_plot()
+
+
+    def export_batch(self, data, peakName=None):
+
+        # Assemble header with the name of the characteristic value.
+        header = self.assemble_header(valueName=peakName)
+
+        # Export in csv file.
+        csvWriter = FileWriter(self.batchFile)
+        csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
+
+
+    def assemble_header(self, valueName=""):
+        # TODO: check magic string?
+        # TODO: Check for an extra config entry to add the "Filename" dynamically
+        config = self.retrieve_batch_config()
+
+        header = ["Filename"]
+        header += [label.value for label in config.keys()]
+
+        # Replace 'Characteristic value' with proper name.
+        try:
+            idx = header.index(CHARAC.CHARACTERISTIC_VALUE.value)
+            header[idx] = valueName
+        except ValueError:
+            self.logger.warning("No export of characteristic values.")
+
+        return header
+
+
+    def assemble_row(self, filename, config):
+        # TODO: pure file? Not reduced path nor indexed?
+        row = [filename]
+        row += [value for value in config.values()]
+        return row
+
+
+    def retrieve_batch_config(self):
+        """
+        Gets the plain config for analysis.
+
+        Provides the config in a dict to loop through in other methods.
+
+        Returns
+        -------
+        config: dict
+            Containts the CHARACTERISTIC enum as dict with default values.
+
+        """
+
+        config = {CHARAC.PEAK_HEIGHT: None,
+                  CHARAC.PEAK_AREA: None,
+                  CHARAC.BASELINE: None,
+                  CHARAC.CHARACTERISTIC_VALUE: None,
+                  CHARAC.HEADER_INFO: None,
+                  CHARAC.PEAK_POSITION: None,}
+        return config
+
+
+    ### UI-interactions
+
+
+    def specify_batchfile(self):
         """
         Specifies the filename through a dialog.
 
         Determines the batchfile, updates the lastdir-prop, updates the ui.
-        NO setter function.
         Linked to ui button.
 
         Returns
         -------
         filename : str
-            The filename selected by the user. Empty string if dialog was
-            quit or cancelled.
+            The filename selected by the user.
+            None if dialog was quit or cancelled.
 
         """
 
-        # TODO: Rename method...
-        # What about: specify_batchfile leading to connection to the batchfile,
-        # and that it is specified somehow
-
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
-        filenameInfo = QFileInfo(filename)
-        path = filenameInfo.absolutePath() + "/"
 
-        # cancel or quit the dialog
+        # Cancel or quit the dialog.
         if not filename:
-            return filename
+            return None
 
-        # Validate the suffix
-        # TODO: Show information about the modification?
-        if not filenameInfo.completeSuffix() == self.BATCH["SUFFIX"]:
-            fileCompleteName = filenameInfo.baseName() + "." \
-                + self.BATCH["SUFFIX"]
-            filename = path + fileCompleteName
+        # TODO: validation in add_suffix? Use try-except then.
+        filename, path = uni.add_suffix(filename, self.BATCH["SUFFIX"])
 
         # Change interface and preset for further dialogs (lastdir)
-        # TODO: Check whether use path here is possible
-        self.lastdir = str(filenameInfo.absolutePath())
+        self.lastdir = path
         self.batchFile = filename
-        # TODO: Check if it is useful to use properties and update the ui
-        # always in the setter methods of the corresponding props
-        self.update_UI()
 
         return filename
 
 
     def browse_spectra(self):
         """Opens a dialog to browse for spectra and updates the filelist."""
-        self.update_filelist(uni.load_files(self.lastdir))
+        filelist = dialog.dialog_openFiles(self.lastdir)
+        self.update_filelist(filelist)
+        try:
+            url = filelist[0]
+            path = QFileInfo(url).path()
+            self.lastdir = path
+        except:
+            print(filelist)
+            self.logger.info("Browse Spectra: Could not update directory.")
 
 
-    def multi_calc(self):
+    def enable_analysis(self):
         """
-        Analyses the files and export the chracteristic values.
-
-        Returns
-        -------
-        None.
-
-        """
-
-        # TODO: any kind of errorhandling?
-        # Wrong format for the timestamp?
-        # cannot found batchfile? If empty for example?
-        # validate successful export?
-
-
-        # Load the dictionary for processing the data
-        # TODO: Rename checkboxes...
-        checkboxes = self.retrieve_batch_config();
-
-        # separate the valid data form skipped files
-        data, skippedFiles = self.retrieve_data(checkboxes)
-
-        # create and format timestamp
-        timestamp = datetime.now()
-        timestamp = timestamp.strftime(self.EXPORT["FORMAT_TIMESTAMP"])
-
-        # assemble header by extracting all labels of the batch config
-        # TODO: check magic string?
-        header = ["Filename"]
-        header += self.extract_values_of_dict(checkboxes, BATCH_CONFIG.LABEL)
-
-        # export in csv file
-        csvWriter = FileWriter(self, self.batchFile, timestamp)
-        csvWriter.write_data(data, header, ExportType.BATCH)
-
-        # prompt the user with information about the skipped files
-        dialog.information_BatchAnalysisFinished(skippedFiles, self)
-
-
-    def retrieve_data(self, dictionary:dict):
-        """
-        Checks the config and retrieve the corresponing values from it.
-
-        Loops through the files and get the data. Optional it will also update
-        the plots.
-
-        Parameters
-        ----------
-        dictionary : dict
-            The dict of the configuration.
-
-        Returns
-        -------
-        data : list of lists
-            Contains the data of the files in a matrix.
-        skippedFiles : list
-            Including filenames of the skipped files due to invalid data.
-
-        """
-        # TODO: errorhandling
-
-        # lists for data of valid files and the skipped files due not fitting
-        # the format, e.g. other csv files
-        data = []
-        skippedFiles = []
-        amount = len(self.files)
-
-        #
-        for i in range(amount):
-            # Update process bar
-            self.update_progressbar((i+1)/amount)
-
-            # Read out the file
-            file = self.files[i]
-
-            # update the plots if ticked
-            if self.updatePlots:
-                self.parent().apply_data(file)
-
-            self.openFile = FileReader(file)
-            data_x, data_y = self.openFile.get_values()
-            # TODO: .get_timestamp?
-            time, date = self.openFile.get_head()
-
-            # Skip the file if data is invalid
-            if not (time and date and data_x.size and data_y.size):
-                skippedFiles.append(file)
-                continue
-
-            # Get characteristic values
-            # TODO: separate the ui and the logic...
-            spec_proc = DataHandler(data_x, data_y,
-                        self.parent().window.get_central_wavelength(),
-                        self.parent().window.get_grating(),
-                        fittings=self.parent().fittings,)
-                        # funConnection=self.parent().window.connect_results)
-
-            _, avg = spec_proc.get_baseline()
-            peak_height, peak_area = spec_proc.get_peak()
-            _, peak_position = spec_proc.get_peak_raw()
-
-            # excluding file if no appropiate data given like in processed spectra
-            # TODO: Check more exlude conditions like characteristic value
-            # below some defined threshold
-            if not peak_height:
-                skippedFiles.append(file)
-                continue
-
-            # link values to dicts
-            # If the list of characteristics gets larger, a loop is possible by
-            # assigning a dict (works as a reference) to the value, e.g.:
-            # peak_height = {}
-            # dictionary[CHARACTERISTIC.PEAK_HEIGHT.value]["value"] = peak_height
-            # peak_height["numerical value"] = xy
-            # TODO: is dict.get() useful here? get allows a default value,
-            # and will not raise a KeyError
-            # see therefore: https://stackoverflow.com/questions/11041405/why-dict-getkey-instead-of-dictkey
-            dictionary[CHARACTERISTIC.PEAK_HEIGHT.value][BATCH_CONFIG.VALUE.value] = peak_height
-            dictionary[CHARACTERISTIC.PEAK_AREA.value][BATCH_CONFIG.VALUE.value] = peak_area
-            dictionary[CHARACTERISTIC.BASELINE.value][BATCH_CONFIG.VALUE.value] = avg
-            dictionary[CHARACTERISTIC.HEADER_INFO.value][BATCH_CONFIG.VALUE.value] = date + " " + time
-            dictionary[CHARACTERISTIC.PEAK_POSITION.value][BATCH_CONFIG.VALUE.value] = peak_position
-
-            # assembling the row and appending it to the data
-            # TODO: pure file? Not reduced path or indexed?
-            row = [file]
-            row += self.extract_values_of_dict(dictionary, BATCH_CONFIG.VALUE)
-            data.append(row)
-
-        return data, skippedFiles
-
-
-    def retrieve_batch_config(self):
-        """
-        Gets the config of the analysis as base for further analysis.
-
-        Provides the config in a dictionary to loop through in other methods.
-
-        Raises
-        ------
-        ValueError
-            Raises when the config is not acceptable.
-
-        Returns
-        -------
-        properties: dict
-            Includes the ui elements and the matching labels.
-
-        """
-
-        # TODO: errorhandling
-        # TODO: rename checkboxes?
-        defValue = 0   # should be falsy to skip file by default
-        properties = {}
-        # make sure this is in the correct order that they match to the loop
-        # of self.window.BtnParameters.buttons()
-        labels = [CHARACTERISTIC.PEAK_HEIGHT.value,
-                  CHARACTERISTIC.PEAK_AREA.value,
-                  CHARACTERISTIC.BASELINE.value,
-                  CHARACTERISTIC.HEADER_INFO.value,
-                  CHARACTERISTIC.PEAK_POSITION.value,]
-
-        # retrieve checkboxes and their properties
-        checkboxes = [{BATCH_CONFIG.CHECKBOX.value: cb,
-                       BATCH_CONFIG.NAME.value: cb.objectName(),
-                       BATCH_CONFIG.STATUS.value: cb.isChecked(),
-                       BATCH_CONFIG.VALUE.value: defValue,
-                       } for cb in self.window.BtnParameters.buttons()]
-
-        # Errorhandling
-        if len(checkboxes) != len(labels):
-            raise ValueError("""Checkboxes and labels are not fitting!
-                             Please check configuration""")
-
-        # Union labels and checkboxes
-        for checkbox, label in zip(checkboxes, labels):
-            checkbox.update({BATCH_CONFIG.LABEL.value: label})
-            properties[checkbox[BATCH_CONFIG.LABEL.value]] = checkbox
-
-        return properties;
-
-    def extract_values_of_dict(self, dictionary:dict, key:Enum):
-        """
-        Extract the values of the given dictionary with the specifc key.
-
-        If the dictionary contains a key, value pair with {"status": True}.
-
-        Parameters
-        ----------
-        dictionary : dict
-            A dict that must contain the given key and the key "status".
-        key : string
-            Key to retrieve the specific value of all items of the dictionary.
-
-        Returns
-        -------
-        list
-            Contains all items of the specific key. Empty if "status"-key does
-            not exist in dictionary.
-
-        """
-
-        # valid data to be returned
-        data = []
-
-        # Check if the given key is of the Enum, cause the dictionary uses
-        # the values of the key.
-        if isinstance (key, Enum):
-            key = key.value
-
-        # append value to list if status of the checkbox is checked
-        for label, item in dictionary.items():
-            if item.get("status"):
-                data.append(item[key])
-
-        return data;
-
-
-    def open_indexed_file(self, index):
-        """
-        Retrieve the data of the selected file of the list.
-
-        Used for applying the data after clicking on the list.
-        Connected to ui.
-
-        Parameters
-        ----------
-        index : QModelIndex or int
-            Transmitted by the list. Or manually.
-
-        Returns
-        -------
-        None.
-
-        """
-
-        # TODO: Errorhandling?
-        # Distinguish given index by numerical value (from another method) or
-        # is given by the ListModel (by an click event)
-        if isinstance(index, QModelIndex):
-            index = index.row()
-        self.parent().file_open(self.files[index])
-
-
-    def update_UI(self):
-        """
-        Updates the UI according to the currently seleceted options.
+        Updates the UI according to the currently selected options.
 
         Set Filename, Browse, Clear, and Parameters are always available.
         Availability of Calculate depends on the former elements.
@@ -540,30 +498,29 @@ class BatchAnalysis(QDialog):
             The current status of the button "Calculate" (btnCalculate).
 
         """
-
-        # TODO: rename method? update_UI implicity explaims to update the whole
-        # ui
-
-        # default enable, disable if any check fails
         enable = True;
 
-        # Check for specified batchFile, selected files, and checked parameters
+        # Check for specified batchFile, selected files, and ticked parameters.
         if not self.batchFile:
             enable = False
-        if not self.files:
-            enable = False
-        if not any([btn.isChecked() for btn in self.window.BtnParameters.buttons()]):
+        if not self._files:
             enable = False
 
-        # TODO: use a porperty to separate the ui from the logic?
-        self.window.btnCalculate.setEnabled(enable)
+        self.window.enable_analysis(enable)
 
         return enable
 
 
-    def display_filenames(self):
+    def open_indexed_file(self, index):
         """
-        Formatting and displaying the filenames of attribute files.
+        Retrieve the data of the selected file of the list.
+
+        Used for applying the data after clicking on the list.
+
+        Parameters
+        ----------
+        index : QModelIndex or int
+            Transmitted by the list. Or programmatically.
 
         Returns
         -------
@@ -571,14 +528,29 @@ class BatchAnalysis(QDialog):
 
         """
 
-        # formatting the paths of the files and update the list and the ui.
-        files = uni.add_index_to_text(uni.reduce_path(self.files))
-        self.model.setStringList(files)
-        self.update_UI()
+        # TODO: Errorhandling?
+        # Distinguish given index by numerical value (from another method) or
+        # is given by the ListModel (by an click event)
+        try:
+            index = index.row()
+        except AttributeError:
+            print("Open indexed file called programmatically")
+
+        try:
+            self.parent().apply_data(self._files[index])
+        except IndexError:
+            print("Invlaid index. Could not open file of index ", index)
+
+
+
+    ### Interaction with the FileSet self._files.
+
 
     def update_filelist(self, filelist:list):
         """
-        Updates the filelist of the model and refreshes the ui.
+        Updates the filelist and refreshes the ui.
+
+        Provides the interface for other modules.
 
         Parameters
         ----------
@@ -590,51 +562,14 @@ class BatchAnalysis(QDialog):
         None.
 
         """
+        self._files.update(filelist)
 
-        # sort the files in a unique and natural keys/human sort way
-        self.files = list(set().union(self.files, filelist))
-        self.files.sort(key=uni.natural_keys)
 
-        # update the fileslist and plot one spectra
-        if self.files:
-            isInit = self.model.index(0).row()
-            self.display_filenames();
-            # selects the first one if list was empty before
-            if isInit:
-                self.window.listFiles.setCurrentIndex(self.model.index(0))
-                self.open_indexed_file(0)
+    def reset_files(self):
+        """Resets the filelist."""
+        self._files.clear()
 
-    def clear(self):
-        """
-        Resets the filelist and clears the displayed files.
 
-        Returns
-        -------
-        None.
-
-        """
-        # TODO: clear plots?
-        # TODO: Or rename method: E.g. reset_files
-        self.files =  []
-        self.display_filenames()
-
-    def update_progressbar(self, percentage:[int, float]):
-        """
-        Convert the percentage and sets the value to the progress bar.
-
-        Parameters
-        ----------
-        percentage : float
-            The percentage.
-
-        Returns
-        -------
-        int
-            The percent calculated and set.
-
-        """
-
-        # TODO: separate ui and logic? Put this method into BatchUI?
-        percent = int(percentage*100);
-        self.window.barProgress.setValue(percent);
-        return percent;
+    def set_cancel(self):
+        """Demands a cancellation. Processed in corresponing methods."""
+        self.cancelByEsc = True

@@ -1,68 +1,113 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# third-party libs
-from PyQt5.QtWidgets import QSizePolicy, QWidget, QVBoxLayout
-from PyQt5.QtCore import QSize
+# standard libs
+import matplotlib.pyplot as mpl
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT\
                                             as NavigationToolbar
-from matplotlib.figure import Figure
 
-from matplotlib import rcParams, use, pyplot
-rcParams['font.size'] = 9
+# third-party libs
+from PyQt5.QtWidgets import QSizePolicy, QWidget, QVBoxLayout
+from PyQt5.QtCore import QSize
+
+# local modules/libs
+from ConfigLoader import ConfigLoader
+
+config = ConfigLoader();
+PLOT = config.PLOT
+
+# set default rc parameter.
+if not PLOT == None:
+    mpl.rc('lines',
+           linewidth=PLOT.get("DEF_LINEWIDTH"),
+           color=PLOT.get("DEF_AXIS_COLOR"))
+    # TODO: config param?
+    mpl.rc('font', size=9)
+    # TODO: config param?
+    # Formats the axis if data are dates.
+    mpl.rc("date.autoformatter", minute="%H:%M")
 
 
 class MplCanvas(Canvas):
-    def __init__(self, parent=None, title=' ', xlabel='x', ylabel='y',
-                 xlim=None, ylim=None, xscale='linear', yscale='linear',
-                 width=2, height=2, dpi=100):
-        self.figure = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.figure.add_subplot(1, 1, 1)
-        # set title and label
-        self.axes.set_title(title)
-        self.axes.set_xlabel(xlabel)
-        self.axes.set_ylabel(ylabel)
-        # scaling of the axes
-        if xscale is not None:
-            self.axes.set_xscale(xscale)
-        if yscale is not None:
-            self.axes.set_yscale(yscale)
-        # limits of the axes
-        if xlim is not None:
-            self.axes.set_xlim(*xlim)
-        if ylim is not None:
-            self.axes.set_ylim(*ylim)
+    def __init__(self, parent=None, width=2, height=2, dpi=100):
+        # Init a figure before init super, because figure is a arg of super.
+        figure = mpl.Figure(figsize=(width, height), dpi=dpi)
+        self.axes = figure.add_subplot(1, 1, 1)
+        super(MplCanvas, self).__init__(figure)
 
-        Canvas.__init__(self, self.figure)
-        self.setParent(parent)
-        Canvas.setSizePolicy(self, QSizePolicy.Expanding,
-                             QSizePolicy.Expanding)
-        Canvas.updateGeometry(self)
+        # Enable methods to both axes and ui element.
+        try:
+            self.axes.update_layout = self.update_layout
+        except AttributeError as err:
+            print(err)
+
+        # TODO: neccessary?
+        # self.setParent(parent)
+        # TODO: neccessary?
+        # docs: https://doc.qt.io/qt-5/qsizepolicy.html
+        # Canvas.setSizePolicy(self, QSizePolicy.Expanding,
+        #                      QSizePolicy.Expanding)
+        # TODO: neccessary?
+        # Canvas.updateGeometry(self)
+
+        # Improves the layout and look of the plots.
         self.figure.set_tight_layout(True)
 
-    def sizeHint(self):
-        width, height = self.get_width_height()
-        return QSize(width, height)
 
-    def minimumSizeHint(self):
-        return QSize(10, 10)
+    def update_layout(self, title=None, xLabel=None, yLabel=None, xLimit=None,
+                      yLimit=None):
+        """Updates the general layout with (optional) properties."""
+
+        axes = self.axes;
+
+        if not title == None:
+            axes.set_title(title)
+
+        if not xLabel == None:
+            axes.set_xlabel(xLabel)
+        if not yLabel == None:
+            axes.set_ylabel(yLabel)
+
+        if not xLimit == None:
+            axes.set_xlim(*xLimit)
+        if not yLimit == None:
+            axes.set_ylim(*yLimit)
+
 
 
 class MatplotlibWidget(QWidget):
-    def __init__(self, parent=None, title=' ', xlabel='x', ylabel='y',
-                 xlim=None, ylim=None, xscale='linear', yscale='linear',
-                 width=2, height=2, dpi=100):
-        QWidget.__init__(self, parent)
-        self.canvas = MplCanvas()
-        self.axes = self.canvas.axes
-        self.mpl_toolbar = NavigationToolbar(self.canvas, self)
+    def __init__(self, parent):
+        super(MatplotlibWidget, self).__init__()
+        # Using a vertical test1: toolbar below test1.
+        # Using a vertical layout: toolbar below graphz.
+        # Using a vertical test2: toolbar below test2.
         self.vbl = QVBoxLayout()
-        self.vbl.addWidget(self.canvas)
-        self.vbl.addWidget(self.mpl_toolbar)
+        self.add_canvas(self.vbl)
+        self.add_toolbar(self.vbl)
         self.setLayout(self.vbl)
 
+
     def draw(self):
+        """Draw the plot immediately."""
+        self.axes.legend();
         self.canvas.draw()
         self.canvas.flush_events()
+
+
+    def add_canvas(self, layout, **kwargs):
+        """Add a Canvas container to the layout."""
+        # A canvas is a container holding several drawing elements(like axis,
+        # lines, shapes, ...)
+        self.canvas = MplCanvas(parent=self, **kwargs)
+        self.axes = self.canvas.axes
+        layout.addWidget(self.canvas)
+
+
+    def add_toolbar(self, layout):
+        """Add a toolbar to the layout."""
+        # Set up a toolbar.
+        mplToolbar = NavigationToolbar(self.canvas, self)
+        layout.addWidget(mplToolbar)
+

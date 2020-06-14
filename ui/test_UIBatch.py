@@ -12,7 +12,7 @@ import unittest
 
 # third-party libs
 import emulator as emu
-import threading as thrd
+import threading as THR
 from PyQt5.QtTest import QTest
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
@@ -22,8 +22,8 @@ from modules.AnalysisWindow import AnalysisWindow
 
 
 class TestUIBatch(unittest.TestCase):
-    
-    
+
+
     @classmethod
     def setUp(self):
         """
@@ -38,15 +38,15 @@ class TestUIBatch(unittest.TestCase):
         # # variables
         self.batch = self.window.batch
         self.form = self.window.batch.window
-        
-        
+
+
     @classmethod
     def tearDown(self):
         # close the window if something raises an error
         self.batch.close()
         self.window.close()
-        
-    
+
+
 
     def test_availability(self):
         """
@@ -92,28 +92,28 @@ class TestUIBatch(unittest.TestCase):
         #file list
         self.assertEqual(self.form.parent.model.stringList(), [])
         self.assertEqual(self.form.foutCSV.text(), "")
-        
+
     def test_propUpdatePlots_default(self):
         """Testing the default values of property and ui"""
         checkbox = self.form.cbUpdatePlots.isChecked()
-        prop = self.batch.updatePlots 
+        prop = self.batch.updatePlots
         self.assertEqual(checkbox, prop)
-    
+
     def test_propUpdatePlots_setUI(self):
         """setting the UI and then testing if they are equal"""
         self.form.cbUpdatePlots.setChecked(True)
         # self.form.cbUpdatePlots.click()
         checkbox = self.form.cbUpdatePlots.isChecked()
-        prop = self.batch.updatePlots 
+        prop = self.batch.updatePlots
         self.assertEqual(checkbox, prop)
-        
+
     def test_propUpdatePlots_setProp(self):
         """setting the UI and then testing if they are equal"""
         self.batch.updatePlots = True
         checkbox = self.form.cbUpdatePlots.isChecked()
-        prop = self.batch.updatePlots 
+        prop = self.batch.updatePlots
         self.assertEqual(checkbox, prop)
-        
+
 
 
     def test_setAll(self):
@@ -147,7 +147,7 @@ class TestUIBatch(unittest.TestCase):
         # checks if the form is visible
         # self.assertTrue(self.form.isVisible())
         #preset the reject and accept threads
-        esc = thrd.Thread(target=emu.key_reject)
+        esc = THR.Thread(target=emu.key_reject)
         # Open the dialog and reject it (start thread before open dialog)
         esc.start()
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
@@ -165,11 +165,11 @@ class TestUIBatch(unittest.TestCase):
 
         """
         #preset the accept thread
-        enter = thrd.Thread(target=emu.key_accept)
+        enter = THR.Thread(target=emu.key_accept)
         # Open the dialog and accept it (start thread before open dialog)
         enter.start()
         # confirm override if file already exists
-        yes = thrd.Thread(target=emu.key_alt_j)
+        yes = THR.Thread(target=emu.key_alt_j)
         yes.start()
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
         # TODO: Check if a file is actually selected or batch.csv (preserved name) is acutally saved?

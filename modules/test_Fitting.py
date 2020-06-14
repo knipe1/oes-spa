@@ -9,7 +9,7 @@ Created on Thu Apr  9 11:17:15 2020
 """
 
 # standard libs
-import unittest 
+import unittest
 
 # third-party libs
 
@@ -22,22 +22,22 @@ class TestFitting(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pass
-    
+
     @classmethod
     def tearDownClass(cls):
-        pass    
-        
+        pass
+
     def setUp(self):
         self.fitting = Fitting()
-            
+
     def tearDown(self):
         pass
-    
+
     def test_retrieve_fittings(self):
         """
         Test the method retrieve_fittings.
 
-        Prototype: set_filename(self):
+        Prototype: specify_batchfile(self):
 
         Returns
         -------
@@ -46,7 +46,7 @@ class TestFitting(unittest.TestCase):
         """
         fittings = self.fitting.retrieve_fittings()
         self.assertEqual(len(fittings), 1, "More files in directory")
-        self.assertTrue('boron_fitting.yml' in fittings)      
+        self.assertTrue('boron_fitting.yml' in fittings)
 
 if __name__ == '__main__':
     unittest.main()

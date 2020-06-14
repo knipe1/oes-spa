@@ -6,6 +6,15 @@ Created on Fri Jan 24 12:00:10 2020
 @author: Hauke Wernecke
 """
 
+# TODO: get_defaults?
+
+# standard libs
+
+# third-party libs
+from PyQt5.QtCore import QCoreApplication      # To flush event pipeline.
+from PyQt5.QtWidgets import QAbstractItemView
+
+# local modules/libs
 from ui.ui_batch_dialog import Ui_batch
 
 class UIBatch(Ui_batch):
@@ -15,10 +24,33 @@ class UIBatch(Ui_batch):
     is changed"""
 
 
+    ### Properties
 
+    # Interface for the batchfile.
+    # TODO: To be evaluated.
+    @property
+    def batchFile(self):
+        """batchFile getter"""
+        return self.foutCSV.text()
+
+    @batchFile.setter
+    def batchFile(self, filename:str):
+        """batchFile setter"""
+        self.foutCSV.setText(filename)
+
+
+    ### Methods
     def __init__(self, parent):
         self.parent = parent
         self.setupUi(self.parent)
+
+        # Disable option to edit the strings in the file list.
+        self.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.__post_init__()
+
+
+    def __post_init__(self):
         # Setup Events
         self.set_connections()
 
@@ -27,28 +59,97 @@ class UIBatch(Ui_batch):
         """set the connections (functions/methods which are executed when
         something is clicked/..."""
         # Properties
-        self.cbUpdatePlots.stateChanged.connect(self.set_prop_updatePlots)
-        # TODO: what is that one good for?
-        self.listFiles.setModel(self.parent.model)
         # click/valueChanged connections
-        self.listFiles.clicked.connect(self.parent.open_indexed_file)
-        self.btnSetFilename.clicked.connect(self.parent.set_filename)
+        # self.listFiles.currentRowChanged.connect(self.parent.open_indexed_file)
+        self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
         self.btnBrowse.clicked.connect(self.parent.browse_spectra)
-        self.btnClear.clicked.connect(self.parent.clear)
-        self.btnCalculate.clicked.connect(self.parent.multi_calc)
-        self.btnSelectAll.clicked.connect(self.set_all)
-        # update the UI whenever a parameter button is toggled/clicked
-        for btn in self.BtnParameters.buttons():
-            btn.toggled.connect(self.parent.update_UI)
+        self.btnClear.clicked.connect(self.parent.reset_files)
+        self.btnCalculate.clicked.connect(self.parent.analyze)
+        self.foutCSV.textChanged.connect(self.parent.enable_analysis)
+        self.btnImport.clicked.connect(self.parent.import_batch)
+        self.connect_cancel(self.parent.set_cancel)
+        # self.listFiles.itemSelectionChanged.connect(self.parent.enable_analysis)
 
 
-    def set_all(self):
-        """set all buttons in the group, independent if more buttons are
-        added or some are deleted"""
-        for button in self.BtnParameters.buttons():
-            button.setChecked(True)
+    def get_update_plots(self):
+        return self.radSpectra.isChecked()
 
-    def set_prop_updatePlots(self, enable):
-        self.parent.updatePlots = enable
+
+    def get_plot_trace(self):
+        return self.radTrace.isChecked()
+
+
+    def get_export_batch(self):
+        return self.radExport.isChecked()
+
+
+    def get_fileselection(self)->int:
+        return self.listFiles.currentRow()
+
+    def set_fileselection(self, index):
+        self.listFiles.setCurrentRow(index)
+
+    def focussed_filelist(self):
+        return self.listFiles.hasFocus()
+
+
+    def enable_analysis(self, enable):
+        self.btnCalculate.setEnabled(enable)
+
+
+    ## Connect methods
+
+    def connect_browse_files(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnBrowse.clicked.connect(fun)
+
+
+    def connect_calculate(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnCalculate.clicked.connect(fun)
+
+
+    def connect_cancel(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnCancel.clicked.connect(fun)
+
+
+    def connect_clear(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnClear.clicked.connect(fun)
+
+
+    def connect_select_file(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.listFiles.clicked.connect(fun)
+
+
+    def connect_set_filename(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnSetFilename.clicked.connect(fun)
+
+
+    def update_progressbar(self, percentage:[int, float]):
+        """
+        Convert the percentage and sets the value to the progress bar.
+
+        Parameters
+        ----------
+        percentage : float
+            The percentage.
+
+        Returns
+        -------
+        int
+            The percent calculated and set.
+
+        """
+
+        # Flush event pipeline to enable event-based cancellation.
+        QCoreApplication.processEvents()
+        percent = int(percentage*100);
+        self.barProgress.setValue(percent);
+
+        return percent;
 
 

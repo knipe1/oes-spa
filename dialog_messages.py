@@ -22,14 +22,14 @@ Created on Tue Feb 18 10:10:29 2020
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 # local modules/libs
-import modules.Universal as uni
+from ConfigLoader import ConfigLoader
 
 
-config = uni.load_config()
-# save properties
-EXPORT = config["EXPORT"];
-# filesystem properties
-FILE = config["FILE"];
+# Load the configuration for import, export and filesystem properties.
+config = ConfigLoader()
+EXPORT = config.EXPORT;
+IMPORT = config.IMPORT;
+FILE = config.FILE;
 
 
 
@@ -53,7 +53,7 @@ def critical_unknownFiletype(parent=None):
 
 
 
-def critical_unknownSuffix(suffixes, parent=None):
+def critical_unknownSuffix(suffixes=IMPORT["VALID_SUFFIX"], parent=None):
     """
     Displays an error message if the file cannot be opened due to a wrong suffix. It will also display the valid suffixes.
 
@@ -96,7 +96,8 @@ def warning_fileSelection(parent=None):
     QMessageBox.warning(parent, title, text);
 
 
-def dialog_openFiles(directory, allowedSuffixes, parent=None):
+def dialog_openFiles(directory, allowedSuffixes=IMPORT["SUFFIXES"],
+                     parent=None):
     """
     Opens a native dialog to open one or multiple files.
 
@@ -106,6 +107,7 @@ def dialog_openFiles(directory, allowedSuffixes, parent=None):
         Path of the default directory.
     allowedSuffixes : List of strings
         Will be set as a filter to display only files with the matched suffixes.
+        The default is configured in IMPORT["SUFFIXES"].
     parent : TQMainWindow (also other windows/widgets possible)
         The window is given to place the messagebox on the screen. The default is None.
 
@@ -147,32 +149,42 @@ def information_ExportFinished(filename, parent=None):
 def information_ExportAborted(parent=None):
     # TODO docstring
     title = "Export failed!";
-    text = f"""Export failed. Possible issues: No data found. Invalid file,
-    could not export raw or processed spectra.""";
+    text = "Export failed. Possible issues: No data found. Invalid file, "\
+    "could not export raw or processed spectra.";
+    QMessageBox.information(parent, title, text);
+
+
+def information_NormalizationFactor(parent=None):
+    # TODO docstring
+    title = "No Normalization Factor defined!";
+    text = "In the currently selected Fitting is no normalization factor of "\
+    "the peak defined. Please find an example in the example_fitting.yml. The"\
+    " normalization factor is maps the area-relation to a characteristic "\
+    "value, which may be used to determine the concentration.";
     QMessageBox.information(parent, title, text);
 
 
 def dialog_LogFileNotFound(parent=None):
     # TODO docstring
     defaultDirectory = "./debug.log"
-    # Prompt the user
+    # Prompt the user.
     title = "Log file could not be found";
     text = """Please select a new default path for your config file.""";
     QMessageBox.information(parent, title, text);
 
-    # select a new log file
+    # Select a new log file.
     caption = "Please select a log.file";
-    filename, _ = QFileDialog.getOpenFileName(parent = parent,
-                                              caption = caption,
-                                              directory = defaultDirectory,);
+    filename, _ = QFileDialog.getSaveFileUrl(parent = parent,
+                                             caption = caption,
+                                             directory = defaultDirectory,);
 
-    # get the new or a default filename
-    filename = filename if filename else defaultDirectory
+    # Get the new or a default filename.
+    filename = filename.toLocalFile() if filename else defaultDirectory
 
-    # getting the current config and change the LOG_FILE property
-    config = uni.load_config()
-    config["FILE"]["LOG_FILE"] = filename
-    uni.save_config(config)
+    # Getting the current config and change the LOG_FILE property.
+    config = ConfigLoader()
+    config.logFile = filename
+    config.save_config()
 
     return filename
 

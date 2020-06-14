@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Still a lot of untested code. 
+Still a lot of untested code.
 If errors occur, extend this file to test the issue.
 
 Created on Wed Mar 18 18:28:42 2020
@@ -13,23 +13,23 @@ Testing the class BatchAnalysis
 
 # third-party imports
 import sys
-import unittest 
-import threading as thrd
+import unittest
+import threading as THR
 
 # imports
 import emulator as emu
 
-# third-party classes 
+# third-party classes
 from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QApplication
 
-# classes 
+# classes
 from modules.AnalysisWindow import AnalysisWindow
 
 
 
 class TestBatchAnalysis(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
         """
@@ -44,7 +44,7 @@ class TestBatchAnalysis(unittest.TestCase):
         # # variables
         cls.batch = cls.window.batch
         cls.form = cls.window.batch.window
-        
+
     @classmethod
     def tearDownClass(cls):
         # close the window if something raises an error
@@ -52,19 +52,19 @@ class TestBatchAnalysis(unittest.TestCase):
         cls.window.close()
         # Hint: Do not use cls.app.quit() here, because it will result in some side effects for other tests...
 
-        
-        
+
+
     def setUp(self):
         pass
-            
+
     def tearDown(self):
         pass
 
-    def test_set_filename(self):
+    def test_specify_batchfile(self):
         """
-        Test the method set_filename.
+        Test the method specify_batchfile.
 
-        Prototype: set_filename(self):
+        Prototype: specify_batchfile(self):
 
         Returns
         -------
@@ -86,31 +86,31 @@ class TestBatchAnalysis(unittest.TestCase):
 
 
         """test default"""
-        self.routine_set_filename(defaultFilename)
+        self.routine_specify_batchfile(defaultFilename)
         """test arbitrary name without suffix"""
-        self.routine_set_filename(arbitraryFilename, text)
+        self.routine_specify_batchfile(arbitraryFilename, text)
         """test arbitrary name with suffix"""
-        self.routine_set_filename(arbitraryFilename, text_csv)
+        self.routine_specify_batchfile(arbitraryFilename, text_csv)
         """test cancel"""
-        esc = thrd.Thread(target=emu.key_reject)
+        esc = THR.Thread(target=emu.key_reject)
         esc.start()
         # the same filename as before, but empty for the return value
-        self.assertEqual(self.batch.set_filename(), r"", "Filename: Cancel")
+        self.assertEqual(self.batch.specify_batchfile(), r"", "Filename: Cancel")
         self.assertEqual(self.form.foutCSV.text(), arbitraryFilename, "Filename: Cancel but old filename")
 
 
         # """ Test falsy suffixes"""
         # """spk"""
-        self.routine_set_filename(arbitraryFilename, text_spk)
+        self.routine_specify_batchfile(arbitraryFilename, text_spk)
         # """Capital CSV"""
-        self.routine_set_filename(arbitraryFilename, text_CSV)
+        self.routine_specify_batchfile(arbitraryFilename, text_CSV)
         # """txt"""
-        self.routine_set_filename(arbitraryFilename, text_txt)
+        self.routine_specify_batchfile(arbitraryFilename, text_txt)
 
     def test_browse_spectra(self):
         """Browse spectra"""
         """Cancel selection"""
-        esc = thrd.Thread(target=emu.key_reject)
+        esc = THR.Thread(target=emu.key_reject)
         esc.start()
         amount_before = self.batch.model.stringList()
         self.batch.browse_spectra()
@@ -127,18 +127,18 @@ class TestBatchAnalysis(unittest.TestCase):
         self.routine_browse_spectra(10, msg="Browse: update files", isUpdate=True)
 
 
-    def routine_set_filename(self, expectedFilename, text=""):
+    def routine_specify_batchfile(self, expectedFilename, text=""):
         #set the name
         if text:
-            arbitrary = thrd.Thread(target=emu.key_arbitrary, args=[text])
+            arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
             arbitrary.start()
         # accept the name
-        enter = thrd.Thread(target=emu.key_accept)
+        enter = THR.Thread(target=emu.key_accept)
         enter.start()
         # in case of file already exists
-        yes = thrd.Thread(target=emu.key_alt_j)
+        yes = THR.Thread(target=emu.key_alt_j)
         yes.start()
-        self.assertEqual(self.batch.set_filename(), expectedFilename, "Filename: issue text is "+text)
+        self.assertEqual(self.batch.specify_batchfile(), expectedFilename, "Filename: issue text is "+text)
         self.assertEqual(self.form.foutCSV.text(), expectedFilename, "Filename: issue text is "+text)
 
     def routine_browse_spectra(self, amount, msg="", clearAfter = True, isUpdate = False):
@@ -147,7 +147,7 @@ class TestBatchAnalysis(unittest.TestCase):
             amount = amount // 2;
         amount_before = len(self.batch.model.stringList())
         # open and selecting the files
-        test = thrd.Thread(target=emu.key_select_file, args=[amount])
+        test = THR.Thread(target=emu.key_select_file, args=[amount])
         test.start()
         self.batch.browse_spectra()
         amount_after = len(self.batch.model.stringList())
