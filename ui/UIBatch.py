@@ -47,30 +47,8 @@ class UIBatch(Ui_batch):
         # Disable option to edit the strings in the file list.
         self.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
-        self.__post_init__()
 
-
-    def __post_init__(self):
-        # Setup Events
-        self.set_connections()
-
-
-    def set_connections(self):
-        """set the connections (functions/methods which are executed when
-        something is clicked/..."""
-        # Properties
-        # click/valueChanged connections
-        # self.listFiles.currentRowChanged.connect(self.parent.open_indexed_file)
-        self.btnSetFilename.clicked.connect(self.parent.specify_batchfile)
-        self.btnBrowse.clicked.connect(self.parent.browse_spectra)
-        self.btnClear.clicked.connect(self.parent.reset_files)
-        self.btnCalculate.clicked.connect(self.parent.analyze)
-        self.foutCSV.textChanged.connect(self.parent.enable_analysis)
-        self.btnImport.clicked.connect(self.parent.import_batch)
-        self.connect_cancel(self.parent.set_cancel)
-        # self.listFiles.itemSelectionChanged.connect(self.parent.enable_analysis)
-
-
+    # TODO: use properties here?
     def get_update_plots(self):
         return self.radSpectra.isChecked()
 
@@ -114,9 +92,19 @@ class UIBatch(Ui_batch):
         self.btnCancel.clicked.connect(fun)
 
 
+    def connect_change_csvfile(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.foutCSV.textChanged.connect(fun)
+
+
     def connect_clear(self, fun):
         """Interface to connect fun to clicked signal of the button."""
         self.btnClear.clicked.connect(fun)
+
+
+    def connect_import_batch(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnImport.clicked.connect(fun)
 
 
     def connect_select_file(self, fun):
@@ -127,6 +115,7 @@ class UIBatch(Ui_batch):
     def connect_set_filename(self, fun):
         """Interface to connect fun to clicked signal of the button."""
         self.btnSetFilename.clicked.connect(fun)
+
 
 
     def update_progressbar(self, percentage:[int, float]):

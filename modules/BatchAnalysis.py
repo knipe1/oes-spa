@@ -169,7 +169,8 @@ class BatchAnalysis(QDialog):
         self._files = FileSet(listWidget = self.window.listFiles,
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
-        self.window.connect_select_file(self.open_indexed_file)
+
+        self.set_connections()
 
     def __repr__(self):
         info = {}
@@ -177,6 +178,17 @@ class BatchAnalysis(QDialog):
         info["files"] = self._files
         info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
+
+    def set_connections(self):
+        self.window.connect_browse_files(self.browse_spectra)
+        self.window.connect_calculate(self.analyze)
+        self.window.connect_cancel(self.set_cancel)
+        self.window.connect_change_csvfile(self.enable_analysis)
+        self.window.connect_clear(self.reset_files)
+        self.window.connect_import_batch(self.import_batch)
+        self.window.connect_select_file(self.open_indexed_file)
+        self.window.connect_set_filename(self.specify_batchfile)
+
 
 
     ### Events
