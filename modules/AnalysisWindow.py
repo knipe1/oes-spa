@@ -90,6 +90,8 @@ class AnalysisWindow(QMainWindow):
                 self.window.wavelength = file.parameter[ASC.WL]
         except AttributeError:
             self.logger.info("Reloaded/Redrawn file.")
+        except KeyError:
+            self.logger.info("No Wavelength provided by: " + file.filename)
         self._currentFile = file
 
     ### Methods
@@ -225,7 +227,9 @@ class AnalysisWindow(QMainWindow):
 
         # Handling if just one file was selected or filename was given.
         if filename != "":
-            self.lastdir = QFileInfo(filename).absolutePath()
+            fileInfo = QFileInfo(filename)
+            self.lastdir = fileInfo.absolutePath()
+            filename = fileInfo.absoluteFilePath()
             self.apply_data(filename)
 
 

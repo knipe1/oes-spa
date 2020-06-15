@@ -169,6 +169,7 @@ class BatchAnalysis(QDialog):
         self._files = FileSet(listWidget = self.window.listFiles,
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
+        self.window.connect_select_file(self.open_indexed_file)
 
     def __repr__(self):
         info = {}
