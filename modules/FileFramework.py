@@ -15,6 +15,7 @@ import csv
 # local modules/libs
 from ConfigLoader import ConfigLoader
 import modules.Universal as uni
+from Logger import Logger
 
 
 class FileFramework:
@@ -25,6 +26,9 @@ class FileFramework:
     IMPORT = config.IMPORT
     MARKER = config.MARKER
     DIALECT = config.DIALECT
+
+    # set up the logger
+    logger = Logger(__name__)
 
     def __init__(self, filename):
         self.filename = filename

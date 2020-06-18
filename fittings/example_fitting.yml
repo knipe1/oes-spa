@@ -16,7 +16,7 @@ PEAKS:
     reference:
         # central wavelength of the reference peak
         centralWavelength: 434.5
-    # limits of integration for that reference peak
+        # limits of integration for that reference peak
         shiftDown: .3
         shiftUp:  .4
         # Minimum to use the peak. Peak height is used for evaluation.

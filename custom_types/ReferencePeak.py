@@ -41,13 +41,17 @@ class ReferencePeak:
     shiftUp: float
     shiftDown: float
     minimum: float = 0.0;           # minimum for a valid Peak
-
-    def __validate(self):
-        if not self.shiftUp >= self.centralWavelength:
-            raise ValueError("Upper limit has to be greater than central wavelength")
-        if not self.shiftDown <= self.centralWavelength:
-            raise ValueError("Lower limit has to be smaller than central wavelength")
+    isValid: bool = True
 
     def __post_init__(self):
-        pass
-        # self.__validate()
+        self.__validate__()
+
+    def __validate__(self):
+        if not self.centralWavelength >= 0:
+            self.isValid = False
+        elif not self.shiftUp >= 0:
+            self.isValid = False
+        elif not self.shiftDown >= 0:
+            self.isValid = False
+        elif not self.minimum >= 0:
+            self.isValid = False

@@ -55,7 +55,8 @@ def critical_unknownFiletype(parent=None):
 
 def critical_unknownSuffix(suffixes=IMPORT["VALID_SUFFIX"], parent=None):
     """
-    Displays an error message if the file cannot be opened due to a wrong suffix. It will also display the valid suffixes.
+    Displays an error message if the file cannot be opened due to a wrong suffix.
+    It will also display the valid suffixes.
 
     Parameters
     ----------

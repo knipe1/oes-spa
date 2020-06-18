@@ -21,6 +21,7 @@ from modules.FileFramework import FileFramework
 
 # enums
 from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 
 # Load the configuration for extracting data of a data structure.
@@ -301,27 +302,26 @@ class FileReader(FileFramework):
 
         # iterating until the marker was found
         for row in csvReader:
-            if self.MARKER["DATA"] in row[0]:
+            cell = row[0]
+
+            if self.MARKER["DATA"] in cell:
                 break;
-
-
         # HACK - Get data of batch file. #####################################
-            if "Filename" in row[0]:
+            elif "Filename" in row[0]:
                 isBatch = True
                 break
 
         if isBatch:
             # get the column of PEAK AREA
-            from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
             try:
-                columnYData = row.index(CHARAC.PEAK_AREA.value)
-                columnXData = row.index(CHARAC.HEADER_INFO.value)
+                columnYData = row.index(CHC.PEAK_AREA.value)
+                columnXData = row.index(CHC.HEADER_INFO.value)
             except ValueError:
                 # May be an issue if one opens the csv file and save it again,
                 # that the values are in one line.
                 row = row[0].split(",")
-                columnYData = row.index(CHARAC.PEAK_AREA.value)
-                columnXData = row.index(CHARAC.HEADER_INFO.value)
+                columnYData = row.index(CHC.PEAK_AREA.value)
+                columnXData = row.index(CHC.HEADER_INFO.value)
         # HACK ###############################################################
 
         # collecting the data
@@ -367,24 +367,19 @@ class FileReader(FileFramework):
         # TODO: Fixed with 3 blank lines?
         for ii in range(37):
             row = csvReader.__next__()
-            # Temperature (C)
-            if ii == 1:
-                name, temperature = asc_separate_parameter(row)
-                parameter[name] = temperature
-            # Exposure Time (secs)
-            elif ii == 6:
-                name, exposureTime = asc_separate_parameter(row)
-                parameter[name] = exposureTime
+            try:
+                name, value = asc_separate_parameter(row)
+                parameter[name] = value
+            except IndexError:
+                self.logger.info("Could not split row: {}".format(row))
+
+            # Get specific values for further analysis
             # Wavelength (nm)
-            elif ii == 26:
-                name, wavelength = asc_separate_parameter(row)
-                parameter[name] = wavelength
-                parameter[ASC.WL] = wavelength
+            if ii == 26:
+                parameter[ASC.WL] = value
             # Grating Groove Density (l/mm)
             elif ii == 27:
-                name, grating = asc_separate_parameter(row)
-                parameter[name] = grating
-                parameter[ASC.GRAT] = grating
+                parameter[ASC.GRAT] = value
 
         # Collecting the data.
         for row in csvReader:

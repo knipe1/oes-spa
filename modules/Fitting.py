@@ -16,7 +16,6 @@ Created on Thu Apr  9 10:51:31 2020
 import os
 
 # third-party libs
-from PyQt5 import QtCore
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
@@ -27,7 +26,7 @@ from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
 
-class Fitting(QtCore.QObject):
+class Fitting():
     """
     # TODO: docstring
     Interface for properties of the current active fitting.
@@ -42,8 +41,6 @@ class Fitting(QtCore.QObject):
 
     Methods
     -------
-    load_current_fitting(fitting_name:str) -> dict:
-        Retrieve the config of the currently selected fitting.
 
     """
 
@@ -59,13 +56,45 @@ class Fitting(QtCore.QObject):
 
 
     def __init__(self, fitting):
-        QtCore.QObject.__init__(self)
         self.currentFitting = fitting
+        self.__post_init__()
+
+
+    def __post_init__(self):
+        self.__validate__()
+
 
     def __repr__(self):
         info = {}
         info["currentFitting"] = self.currentFitting
         return self.__module__ + ":\n" + str(info)
+
+    def __validate__(self):
+        try:
+            self.currentFitting["NAME"]
+        except KeyError as err:
+            key = err.args[0]
+            self.logger.error("KeyError: {} not found in currently selected "\
+                              "fitting.".format(key))
+            print("KeyError: {} not found in currently selected "\
+                              "fitting.".format(key))
+
+        try:
+            if not self.currentPeak.isValid:
+                self.logger.error("Invalid Peak")
+                print("Invalid Peak")
+        except AttributeError:
+            self.logger.error("No peak found.")
+            print("No peak found.")
+
+        try:
+            if self.currentReference and not self.currentReference.isValid:
+                self.logger.error("Invalid reference peak.")
+                print("Invalid reference peak.")
+        except AttributeError:
+            self.logger.warning("No reference peak found.")
+            print("No reference peak found.")
+
 
     ### Properties
     @property
@@ -75,8 +104,13 @@ class Fitting(QtCore.QObject):
 
     @currentFitting.setter
     def currentFitting(self, fitting):
-        self.currentPeak = Peak(**fitting.get("PEAKS"))
-        self.currentName = fitting.get("NAME")
+        try:
+            self.currentPeak = Peak(**fitting.get("PEAKS"))
+        except TypeError:
+            self.logger.error("Error: Fitting has an error!")
+            print("Error: Fitting has an error!")
+
+        self.currentName = fitting.get("NAME", "No name defined!")
         self._currentFitting = fitting
 
     @property
@@ -107,38 +141,3 @@ class Fitting(QtCore.QObject):
     @currentName.setter
     def currentName(self, name):
         self._currentName = name
-
-
-    # def load_current_fitting(self, fitting_name:str) -> dict:
-    #     """
-    #     Retrieve the config of the currently selected fitting.
-
-    #     Can be connected to the signal of an ui element, e.g.
-    #     "currentTextChanged".
-
-    #     Parameters
-    #     ----------
-    #     fitting_name : str
-    #         The name of the selected fitting within the ui element.
-
-    #     Returns
-    #     -------
-    #     fitConfig : dict
-    #         Contains the config of the selected fitting.
-
-    #     """
-    #     # TODO: another function? if so, use current_fitting as property
-    #     # and use the other funtion?
-    #     # TODO: check out the class Peak!
-    #     # get the selected fitting
-    #     self.logger.info("load current fitting")
-    #     for fit, name in self.fittings.items():
-    #         if name == fitting_name:
-    #             current_fit = fit
-    #             break
-
-    #     # load the config from the file and set the current config
-    #     path = os.path.join(self.FITTING["DIR"], current_fit)
-    #     fitConfig = ConfigLoader(path)
-
-    #     self.currentFitting = fitConfig.config

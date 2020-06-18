@@ -18,7 +18,6 @@ from modules.BatchAnalysis import BatchAnalysis
 from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
-from modules.Fitting import Fitting
 from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
 from Logger import Logger
@@ -115,7 +114,6 @@ class AnalysisWindow(QMainWindow):
         # init the fitting and with the retrieved fittings
         # TODO: provide interface? Like get_fittings? No, it is a attribute
         # using the @property-decorator --> to be documented?
-        # self.fittings = Fitting(self.window.fittings)
 
         self.__post_init__()
 

@@ -111,8 +111,8 @@ class DataHandler(QObject):
         """avgbase setter"""
         self._characteristicValue = value
         self.SIG_characteristicValue.emit(str(self.characteristicValue))
-        self.SIG_characteristicName.emit(self.basicSetting.fitting\
-                                         .currentPeak.name)
+        chcName = self.basicSetting.fitting.currentPeak.name or "No name defined!"
+        self.SIG_characteristicName.emit(chcName)
 
 
 

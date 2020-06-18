@@ -1,4 +1,4 @@
-NAME: "Boron Peak Fitting"
+#NAME: "Boron Peak Fitting"
 PEAKS:
     name: "BH Peak"
     centralWavelength: 433.5

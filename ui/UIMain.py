@@ -312,8 +312,8 @@ class UIMain(Ui_main):
                     path = os.path.join(self.FITTING["DIR"], file)
 
                     fitConfig = ConfigLoader(path)
-                    fitName = fitConfig.config.get("NAME")
-                    fitDict[file] = fitName
+                    fit = Fitting(fitConfig.config)
+                    fitDict[file] = fit.currentName
 
         return fitDict
 
@@ -349,11 +349,12 @@ class UIMain(Ui_main):
         path = os.path.join(self.FITTING["DIR"], current_fit)
         fitConfig = ConfigLoader(path)
 
-        self.currentFitting = fitConfig.config
+        self.currentFitting = Fitting(fitConfig.config)
 
 
     def add_information(self, entry:str):
         self.listInformation.addItem(entry)
+
 
     def clear_information(self):
         self.listInformation.clear()
@@ -362,7 +363,7 @@ class UIMain(Ui_main):
     def get_basic_setting(self)->BasicSetting:
 
         grating = self.get_grating()
-        fitting = Fitting(self.currentFitting)
+        fitting = self.currentFitting
         setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;

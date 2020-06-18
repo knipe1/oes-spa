@@ -30,3 +30,10 @@ class Peak(ReferencePeak):
     def __post_init__(self):
         if self.normalizationFactor == 1.0:
             information_NormalizationFactor()
+
+        self.__validate__()
+
+    def __validate__(self):
+        if not self.normalizationFactor >= 0:
+            self.isValid = False
+
