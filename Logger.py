@@ -138,7 +138,7 @@ class Logger():
             # Request a new location of the logfile.
             dialogFile = dialog_LogFileNotFound()
             # Use the URL. Default if cancelled.
-            filename = dialogFile if dialogFile else self.defaultLogfile
+            filename = dialogFile
             self.filename = filename
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)

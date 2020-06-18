@@ -300,6 +300,7 @@ class DataHandler(QObject):
         # TODO: validation?!
         # HINT: refHeight most times has a value unequal 0, therefore is
         # most often true.
+        # TODO: Magic default value?
         if refHeight:
             characteristicValue = peakArea / refHeight * peak.normalizationFactor
 

@@ -167,7 +167,7 @@ def information_NormalizationFactor(parent=None):
 
 def dialog_LogFileNotFound(parent=None):
     # TODO docstring
-    defaultDirectory = "./debug.log"
+    defaultDirectory = "../debug.log"
     # Prompt the user.
     title = "Log file could not be found";
     text = """Please select a new default path for your config file.""";

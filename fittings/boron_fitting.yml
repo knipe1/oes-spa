@@ -4,7 +4,7 @@ PEAKS:
     centralWavelength: 433.5
     shiftDown: .2
     shiftUp:  .2
-    normalizationFactor: 4550
+    #normalizationFactor: 1
     reference:
         centralWavelength: 434.4
         shiftDown: .2

@@ -17,10 +17,17 @@ from typing import List
 from custom_types.ReferencePeak import ReferencePeak
 from dialog_messages import information_NormalizationFactor
 
+
+def set_factor():
+    """If no value provided, prompt the user and set the default."""
+    default = 1.0
+    information_NormalizationFactor()
+    return default
+
 @dataclass(frozen=True)
 class Peak(ReferencePeak):
     name: str = "";
-    normalizationFactor: float = 1.0;
+    normalizationFactor: float = field(default_factory=set_factor);
     reference: List[ReferencePeak] = field(default_factory=list);
 
     def add_reference(self, reference: ReferencePeak):
@@ -28,9 +35,6 @@ class Peak(ReferencePeak):
             self.reference.append(reference)
 
     def __post_init__(self):
-        if self.normalizationFactor == 1.0:
-            information_NormalizationFactor()
-
         self.__validate__()
 
     def __validate__(self):
