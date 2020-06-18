@@ -15,12 +15,9 @@ from PyQt5.QtCore import QObject, pyqtSignal
 import peakutils as pkus
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
 from Logger import Logger
 import dialog_messages as dialog
-from modules.Spectrum import Spectrum
 from modules.FileReader import FileReader
-from modules.FileWriter import FileWriter
 
 # enums
 from custom_types.UI_RESULTS import UI_RESULTS
@@ -300,7 +297,6 @@ class DataHandler(QObject):
         # TODO: validation?!
         # HINT: refHeight most times has a value unequal 0, therefore is
         # most often true.
-        # TODO: Magic default value?
         if refHeight:
             characteristicValue = peakArea / refHeight * peak.normalizationFactor
 
@@ -331,22 +327,16 @@ class DataHandler(QObject):
             xPeak: The wavelength of the peak.
 
         """
-        THRESHOLD = 0.01
-        MIN_DISTANCE = 2
+        # THRESHOLD = 0.01
+        # MIN_DISTANCE = 2
 
         results = {}
 
-        # Get the indexes of the peaks from the data.
-        # Function with rough approximation.
-        idxPeaksApprox = pkus.indexes(procYData, thres=THRESHOLD,
-                                 min_dist=MIN_DISTANCE)
+        # # Get the indexes of the peaks from the data.
+        # # Function with rough approximation.
+        # idxPeaksApprox = pkus.indexes(procYData, thres=THRESHOLD,
+        #                          min_dist=MIN_DISTANCE)
 
-        # getting the index of the peak which is closest to the wavelength
-        diffWavelength = np.abs(procXData[idxPeaksApprox]-peak.centralWavelength)
-        idxPeak = idxPeaksApprox[diffWavelength.argmin()]
-        xPeak = procXData[idxPeak]
-        yPeak = procYData[idxPeak]
-        # self.rawPeak = (xPeak, self.yData[idxPeak])
 
         # get the borders for integration
         lowerLimit = peak.centralWavelength - peak.shiftDown
@@ -354,6 +344,11 @@ class DataHandler(QObject):
         idxBorderRight = np.abs(procXData - upperLimit).argmin()
         idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
         idxInt = range(idxBorderLeft, idxBorderRight+1)
+
+        # Get the highest Peak in the integration area.
+        idxPeak = procYData[idxInt].argmax() + idxBorderLeft
+        xPeak = procXData[idxPeak]
+        yPeak = procYData[idxPeak]
 
 
         # getting all wavelength(x) and the intensities(y)

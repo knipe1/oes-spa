@@ -1,10 +1,10 @@
-#NAME: "Boron Peak Fitting"
+NAME: "Boron Peak Fitting"
 PEAKS:
     name: "BH Peak"
     centralWavelength: 433.5
     shiftDown: .2
     shiftUp:  .2
-    #normalizationFactor: 1
+    normalizationFactor: 1
     reference:
         centralWavelength: 434.4
         shiftDown: .2
