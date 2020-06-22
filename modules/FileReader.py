@@ -45,6 +45,12 @@ class FileReader(FileFramework):
         """data getter"""
         return (self.xData, self.yData)
 
+    @data.setter
+    def data(self, xyData):
+        """Sets x and y data."""
+        self.xData = xyData[0]
+        self.yData = xyData[1]
+
     @property
     def header(self):
         """header getter"""
@@ -155,8 +161,7 @@ class FileReader(FileFramework):
                 print("FileReader: No valid data in ", self.filename)
                 return 2
 
-        data = np.array(data)
-        self.xData, self.yData = data[:, 0], data[:, 1]
+        self.data = np.array(data)
         return 0
 
     def get_exported_header(self, csvReader, marker):

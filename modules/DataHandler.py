@@ -33,28 +33,21 @@ class DataHandler(QObject):
     This class provides several methods for analysing raw spectral data. And
     calculates characteristic values using fittings.
 
-    DataHandler(xdata, ydata):
+    DataHandler(basicSetting, **kwargs):
     Parameters:
     -----------
-        xdata: numpy.array
-            pixel on the detector array
-        ydata: numpy.array
-            Intensity
-        cwl: float
-            Central Wavelength
-        grating: int
-            used grating
+        basicSetting:
+            The selected setting. Includes information regarding the analysis.
+        **kwargs:
+            parameter:
+                Information about wavelength, dispersion,... often provided by
+                an .asc-file.
+            funConnection:
+                Function handler to connect qtSignals to ui slots.
      """
 
     # set up the logger
     logger = Logger(__name__)
-
-    # TODO: neccesary?
-    # properties
-    _peakHeight = 0;
-    _peakArea = 0;
-    _baseline = 0;
-    _characteristicValue = 0;
 
     # Qt-signals.
     SIG_peakHeight = pyqtSignal(str)
@@ -68,7 +61,7 @@ class DataHandler(QObject):
     @property
     def peakHeight(self) -> float:
         """peakHeight getter"""
-        return self._peakHeight
+        return self._peakHeight or 0.0
 
     @peakHeight.setter
     def peakHeight(self, height:float):
@@ -78,8 +71,8 @@ class DataHandler(QObject):
 
     @property
     def peakArea(self) -> float:
-        """peakArea getter"""
-        return self._peakArea
+        """peakArea getter with def. value"""
+        return self._peakArea or 0.0
 
     @peakArea.setter
     def peakArea(self, area:float):
@@ -90,7 +83,7 @@ class DataHandler(QObject):
     @property
     def avgbase(self) -> float:
         """avgbase getter"""
-        return self._avgbase
+        return self._avgbase or 0.0
 
     @avgbase.setter
     def avgbase(self, base:float):
@@ -101,7 +94,7 @@ class DataHandler(QObject):
     @property
     def characteristicValue(self) -> float:
         """avgbase getter"""
-        return self._characteristicValue
+        return self._characteristicValue or 0.0
 
     @characteristicValue.setter
     def characteristicValue(self, value:float):
@@ -112,20 +105,37 @@ class DataHandler(QObject):
         self.SIG_characteristicName.emit(chcName)
 
 
+    @property
+    def data(self) -> tuple:
+        """Raw x and y data."""
+        return self.xData, self.yData
+
+    @data.setter
+    def data(self, xyData:tuple):
+        """Raw x and y data."""
+        self.xData = xyData[0]
+        self.yData = xyData[1]
+
+
+    @property
+    def procData(self) -> tuple:
+        """Raw x and y processed data."""
+        return self.procXData, self.procYData
+
+    @procData.setter
+    def procData(self, procXYData:tuple):
+        """Raw x and y processed data."""
+        self.procXData = procXYData[0]
+        self.procYData = procXYData[1]
+
+
 
     def __init__(self, basicSetting, **kwargs):
-        # TODO: optional update Plots
-        # TODO: display graph -> use spectrum here?
-        # TODO: export Characteristics
 
         super(DataHandler, self).__init__()
 
-        # Convert optional str to list to ensure handling with lists.
-        # if isinstance(filelist, str):
-        #     filelist = [filelist]
-        # self.filelist = filelist;
-
         self.basicSetting = basicSetting
+
         # TODO: Calculation of dispersion. How to distinguish asc, spk, csv file?
         parameter = kwargs.get("parameter")
         try:
@@ -138,9 +148,6 @@ class DataHandler(QObject):
         if kwargs.get("funConnection"):
             self.signals = self.init_signals()
             kwargs["funConnection"](self.signals)
-
-    def __post_init__(self):
-        self.analyse_data()
 
 
     def __repr__(self):
@@ -165,59 +172,63 @@ class DataHandler(QObject):
         return mapping
 
 
-    @staticmethod
-    def assign_wavelength(xData, cWL, dispersion):
+    def assign_wavelength(self):
         """Assigns wavelength to the recorded Pixels """
 
-        center = xData[len(xData) // 2 - 1] # offset of python lists.
-        # TODO: implicit pixels?!
+        xData = self.xData
+        cWL = self.basicSetting.wavelength
+        dispersion = self.dispersion
+
+        # Center of the xData. Used for shifting the data.
+        center = xData[len(xData) // 2 - 1]     # offset of python lists.
+
+        # TODO: implicit pixels?! @knittel/@reinke
+        # The difference is 1 if pixels are recorded. Data with a smaller
+        # difference contain wavelength data.
         if  xData[1] - xData[0] == 1:
+            # Convert the data from pixels to wavelength. The wl difference
+            # between two data points is defined by the dispersion.
             start = cWL - center*dispersion
-            # Convert the data from pixels to wavelength and shift it.
             shiftedData = xData*dispersion + start
         else:
+            # Allows to set a new wl even if defined in file. Or for exported
+            # spectra.
             shift = cWL - center
             shiftedData = xData + shift
 
         return shiftedData
 
 
-    @staticmethod
-    def extract_data(file:FileReader):
+    def process_data(self):
+        """
+        Convert raw data and assign to wavelength with baseline information.
 
-        # TODO: error handling
-        xData, yData = None, None
+        Sets self.procData.
+        Sets self.baseline.
+        Sets self.avgbase.
 
-        # Validation.
-        if file.is_valid_datafile():
-            # TODO: Why not as tuples? just data = [(x0, y0),(x1, y1),...]
-            xData, yData = file.data
+        Returns
+        -------
+        None. Assigns the extracted information to instance.
 
-        return (xData, yData)
+        """
 
+        # Convert x data into wavelengths or just shift it.
+        procXData = self.assign_wavelength()
 
-    def process_data(self, xData, yData):
-
-        # Convert x data into wavelengths.
-        procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
-                                               self.dispersion)
-        # if xData[1] - xData[0] == 1:
-        #     procXData = self.assign_wavelength(xData, self.basicSetting.wavelength,
-        #                                        self.dispersion)
-        # else:
-        #     procXData = xData
-
-        # Baseline fitting with peakutils
+        # Baseline fitting with peakutils.
         # TODO: what is calculated here? @knittel/@reinke
-        # docs: https://peakutils.readthedocs.io/en/latest/reference.html
-        baseline = pkus.baseline(yData)
+        # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
+        baseline = pkus.baseline(self.yData)
         avgbase = np.mean(baseline)
 
-        # shifting y data and normalization to average baseline intensity
-        procYData = yData - baseline
+        # Shifting y data and normalization to average baseline intensity.
+        procYData = self.yData - baseline
         procYData = procYData / avgbase
 
-        return (procXData, procYData), baseline, avgbase
+        self.procData = (procXData, procYData)
+        self.baseline = baseline
+        self.avgbase = avgbase
 
 
     def analyse_data(self, file:FileReader):
@@ -232,28 +243,24 @@ class DataHandler(QObject):
             dialog.critical_unknownFiletype()
             return None
 
-        data = self.extract_data(file)
-        self.data = data
-        procData, baseline, avgbase = self.process_data(*data)
+
+        self.data = file.data
+        self.process_data()
 
         fitting = self.basicSetting.fitting
 
         # Find Peak and obtain height, area, and position
-        peakChcs = self.calculate_peak(fitting.currentPeak, *procData)
+        peakChcs = self.calculate_peak(fitting.currentPeak)
         # TODO: Evaluate!
         try:
             characteristicValue, intAreas = self.calculate_characteristic_value(
-                fitting.currentPeak, fitting.currentReference, *procData)
+                fitting.currentPeak, fitting.currentReference)
         except:
             # This is also displayed in the text field.
             # TODO: May be also be exported? Issue?
             characteristicValue = "No reference defined."
 
         # Assign data to instance.
-        self.data = data
-        self.procData = procData
-        self.baseline = baseline
-        self.avgbase = avgbase
         self.peakHeight = peakChcs[CHC.PEAK_HEIGHT]
         self.peakArea = peakChcs[CHC.PEAK_AREA]
         self.peakPosition = peakChcs[CHC.PEAK_POSITION]
@@ -271,23 +278,24 @@ class DataHandler(QObject):
         return 0
 
 
-    def calculate_characteristic_value(self, peak, reference, procX, procY):
+    def calculate_characteristic_value(self, peak, reference):
 
         # Default is None to distuinguish issues during the analysis and just
         # no peak.
         characteristicValue = None
         intAreas = []
+        procX, procY = self.procData
 
         # TODO: Doublecheck Area/Height?
 
         # Calculate characteristics of the peak
-        peakChcs = self.calculate_peak(peak, procX, procY)
+        peakChcs = self.calculate_peak(peak)
         peakArea = peakChcs[CHC.PEAK_AREA]
         intAreas.append(peakChcs[CHC.INTEGRATION_PXL])
         intAreas.append(peakChcs[CHC.INTEGRATION_WL])
 
         # Calculate characteristics of the reference peak
-        refChcs = self.calculate_peak(reference, procX, procY)
+        refChcs = self.calculate_peak(reference)
         refHeight = refChcs[CHC.PEAK_HEIGHT]
         refChcs[CHC.INTEGRATION_PXL].peakType = CHC.TYPE_REFERENCE
         refChcs[CHC.INTEGRATION_WL].peakType = CHC.TYPE_REFERENCE
@@ -303,7 +311,7 @@ class DataHandler(QObject):
         return characteristicValue, intAreas
 
 
-    def calculate_peak(self, peak, procXData:list, procYData:list)->(dict):
+    def calculate_peak(self, peak)->(dict):
         """
         Peak fit at given wavelength.
 
@@ -331,6 +339,7 @@ class DataHandler(QObject):
         # MIN_DISTANCE = 2
 
         results = {}
+        procXData, procYData = self.procData
 
         # # Get the indexes of the peaks from the data.
         # # Function with rough approximation.
