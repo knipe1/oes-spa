@@ -51,7 +51,7 @@ def main():
         pass
 
 
-    window.batch.show()
+    # window.batch.show()
 
     # # text = "filename"
     # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])

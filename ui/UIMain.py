@@ -147,6 +147,8 @@ class UIMain(Ui_main):
 
         self.setupUi(parent)
         self.UI_MAPPING = self.init_mapping()
+
+
         self.__post_init__()
 
 
@@ -358,6 +360,14 @@ class UIMain(Ui_main):
 
     def clear_information(self):
         self.listInformation.clear()
+
+
+    def show_diff_wavelength(self, show:bool):
+        uiElement = self.lblDiffWavelength
+        if show:
+            uiElement.show()
+        else:
+            uiElement.hide()
 
 
     def get_basic_setting(self)->BasicSetting:

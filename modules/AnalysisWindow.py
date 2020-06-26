@@ -369,6 +369,18 @@ class AnalysisWindow(QMainWindow):
 
         # Update plots and ui.
         basicSetting = self.window.get_basic_setting()
+
+        # Check for differences in entered WL and stored WL
+        try:
+            showDiffWL = False
+            if float(file.parameter[ASC.WL]) != basicSetting.wavelength:
+                showDiffWL = True
+        except:
+            pass
+        finally:
+            self.window.show_diff_wavelength(showDiffWL)
+
+
         specHandler = DataHandler(basicSetting,
                                   funConnection=connect,
                                   parameter=file.parameter)
