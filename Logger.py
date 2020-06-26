@@ -134,7 +134,7 @@ class Logger():
         try:
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
-        except (FileNotFoundError, IsADirectoryError, TypeError) as err:
+        except (FileNotFoundError, IsADirectoryError, TypeError):
             # Request a new location of the logfile.
             dialogFile = dialog_LogFileNotFound()
             # Use the URL. Default if cancelled.

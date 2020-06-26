@@ -46,9 +46,6 @@ class DataHandler(QObject):
                 Function handler to connect qtSignals to ui slots.
      """
 
-    # set up the logger
-    logger = Logger(__name__)
-
     # Qt-signals.
     SIG_peakHeight = pyqtSignal(str)
     SIG_peakArea = pyqtSignal(str)
@@ -133,6 +130,9 @@ class DataHandler(QObject):
     def __init__(self, basicSetting, **kwargs):
 
         super(DataHandler, self).__init__()
+
+        # set up the logger
+        self.logger = Logger(__name__)
 
         self.basicSetting = basicSetting
 

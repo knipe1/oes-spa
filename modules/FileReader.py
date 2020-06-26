@@ -48,8 +48,8 @@ class FileReader(FileFramework):
     @data.setter
     def data(self, xyData):
         """Sets x and y data."""
-        self.xData = xyData[0]
-        self.yData = xyData[1]
+        self.xData = xyData[:, 0]
+        self.yData = xyData[:, 1]
 
     @property
     def header(self):

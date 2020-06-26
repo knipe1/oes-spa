@@ -61,9 +61,6 @@ class Spectrum():
     config = ConfigLoader()
     PLOT = config.PLOT;
 
-    # set up the logger
-    logger = Logger(__name__)
-
     BASELINE = "baseline"
 
     @property
@@ -107,6 +104,8 @@ class Spectrum():
 
 
     def __init__(self, uiElement, exportType, xData=[], yData=[], baseline=[]):
+        # set up the logger
+        self.logger = Logger(__name__)
 
         # TODO: validation of uiElement? Or: Remove validation of exportType?
         # Depending on the implementation, it will run in an error.

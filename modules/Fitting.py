@@ -48,14 +48,14 @@ class Fitting():
     config = ConfigLoader()
     FITTING = config.FITTING;
 
-    # Set up the logger.
-    logger = Logger(__name__)
-
     # variables
     _fittings = {}
 
 
     def __init__(self, fitting):
+        # set up the logger
+        self.logger = Logger(__name__)
+
         self.currentFitting = fitting
         self.__post_init__()
 

@@ -81,9 +81,6 @@ class UIMain(Ui_main):
         Connect given signals to corresponding ui elements.
     """
 
-    # set up the logger
-    logger = Logger(__name__)
-
     # Load the configuration for fitting properties.
     config = ConfigLoader()
     FITTING = config.FITTING;
@@ -145,6 +142,9 @@ class UIMain(Ui_main):
         None.
 
         """
+        # set up the logger
+        self.logger = Logger(__name__)
+
         self.setupUi(parent)
         self.UI_MAPPING = self.init_mapping()
         self.__post_init__()

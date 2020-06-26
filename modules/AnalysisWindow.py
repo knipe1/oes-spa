@@ -54,10 +54,6 @@ class AnalysisWindow(QMainWindow):
     FILE = config.FILE
     IMPORT = config.IMPORT
 
-    # set up the logger
-    logger = Logger(__name__)
-
-
     ## qt-signals
     # fileinformation
     SIG_filename = pyqtSignal(str)
@@ -114,6 +110,10 @@ class AnalysisWindow(QMainWindow):
         # init the fitting and with the retrieved fittings
         # TODO: provide interface? Like get_fittings? No, it is a attribute
         # using the @property-decorator --> to be documented?
+
+        # set up the logger
+        # After setting up the ui?!
+        self.logger = Logger(__name__)
 
         self.__post_init__()
 

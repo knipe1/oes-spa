@@ -27,10 +27,10 @@ class FileFramework:
     MARKER = config.MARKER
     DIALECT = config.DIALECT
 
-    # set up the logger
-    logger = Logger(__name__)
-
     def __init__(self, filename):
+        # set up the logger
+        self.logger = Logger(__name__)
+
         self.filename = filename
 
         csv.register_dialect(self.DIALECT["name"],

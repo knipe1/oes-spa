@@ -110,9 +110,6 @@ class BatchAnalysis(QDialog):
     BATCH = config.BATCH;
     EXPORT = config.EXPORT;
 
-    # Set up the logger.
-    logger = Logger(__name__)
-
 
     ### Properties
 
@@ -153,13 +150,15 @@ class BatchAnalysis(QDialog):
 
         """
 
-        self.logger.info("Init BatchAnalysis")
-
         # Initialize the parent class ( == QDialog.__init__(self).
         super().__init__(parent)
 
         # Set up ui.
         self.window = UIBatch(self)
+
+        # set up the logger
+        self.logger = Logger(__name__)
+        self.logger.info("Init BatchAnalysis")
 
         self.__post_init__()
 
