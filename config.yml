@@ -20,7 +20,7 @@ EXPORT:
 FILE:
   DEF_DIR: ./sample files
   DEF_FILE: ''
-  LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/debug.log
+  LOG_FILE: ../debug.log
 FITTING:
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
