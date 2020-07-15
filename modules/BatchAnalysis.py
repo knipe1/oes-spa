@@ -381,6 +381,9 @@ class BatchAnalysis(QDialog):
             if not takeCurrentBatchfile:
                 file = dialog.dialog_openFiles(self.lastdir, singleFile=True)
                 self.currentFile = FileReader(file, columnValue=columnValue)
+                # Change interface and preset for further dialogs (lastdir)
+                path = QFileInfo(file).path()
+                self.lastdir = path
             else:
                 # Reload the data with new characteristica.
                 self.currentFile = FileReader(self.window.batchFile,
