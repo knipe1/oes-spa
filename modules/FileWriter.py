@@ -86,9 +86,7 @@ class FileWriter(FileFramework):
             # adding labels
             csvWr.writerow(labels)
             # adding marker. Important also for import function
-            if exportType == EXPORT_TYPE.RAW \
-                or exportType == EXPORT_TYPE.PROCESSED:
-
+            if exportType in (EXPORT_TYPE.RAW, EXPORT_TYPE.PROCESSED):
                 csvWr.writerow([self.MARKER["DATA"]])
             # write data
             csvWr.writerows(data)

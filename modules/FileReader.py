@@ -11,6 +11,7 @@ Import XY data from different filetypes
 import csv
 import numpy as np
 from datetime import datetime
+import fnmatch
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo  # provides system-independent file info
@@ -56,7 +57,7 @@ class FileReader(FileFramework):
         """header getter"""
         return (self.filename, self.date, self.time)
 
-    def __init__(self, filename):
+    def __init__(self, filename, **kwargs):
         FileFramework.__init__(self, filename)
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
@@ -64,11 +65,11 @@ class FileReader(FileFramework):
         self.date = ""
         self.time = ""
 
-        self.__post_init__()
+        self.__post_init__(**kwargs)
 
 
-    def __post_init__(self):
-        self.read_file()
+    def __post_init__(self, **kwargs):
+        self.read_file(**kwargs)
 
 
     def __repr__(self):
@@ -123,7 +124,7 @@ class FileReader(FileFramework):
 
         return fileinfo
 
-    def read_file(self):
+    def read_file(self, **kwargs):
         """Readout given file"""
         # TODO: config? parentclass?
         # TODO: issue if file has no header
@@ -156,7 +157,7 @@ class FileReader(FileFramework):
                 print("FileReader: No valid header")
                 return 1
 
-            data = get_data(csvReader)
+            data = get_data(csvReader, **kwargs)
             if not len(data):
                 print("FileReader: No valid data in ", self.filename)
                 return 2
@@ -286,7 +287,7 @@ class FileReader(FileFramework):
 
     # TODO: error handling
     # TODO: distinguish _raw and _processed?
-    def get_csv_data(self, csvReader):
+    def get_csv_data(self, csvReader, **kwargs):
         """
         Read out the data of a .csv-file respective to its structure.
 
@@ -312,20 +313,24 @@ class FileReader(FileFramework):
             if self.MARKER["DATA"] in cell:
                 break;
         # HACK - Get data of batch file. #####################################
-            elif "Filename" in row[0]:
+            elif "Filename" in cell:
                 isBatch = True
                 break
 
         if isBatch:
-            # get the column of PEAK AREA
+            # get the column with respect to the header
             try:
-                columnYData = row.index(CHC.PEAK_AREA.value)
+                defaultColumnValue = CHC.PEAK_AREA.value
+                columnValue = kwargs.get("columnValue", defaultColumnValue)
+                # Filter allows to search for characteristic value, because
+                # the specific name of that peak is added to the static value.
+                columnYData = row.index(fnmatch.filter(row, columnValue+"*")[0])
                 columnXData = row.index(CHC.HEADER_INFO.value)
             except ValueError:
                 # May be an issue if one opens the csv file and save it again,
                 # that the values are in one line.
                 row = row[0].split(",")
-                columnYData = row.index(CHC.PEAK_AREA.value)
+                columnYData = row.index(columnValue)
                 columnXData = row.index(CHC.HEADER_INFO.value)
         # HACK ###############################################################
 
@@ -340,8 +345,8 @@ class FileReader(FileFramework):
             if isBatch:
                 timestamp = datetime.strptime(row[columnXData],
                                               self.EXPORT["FORMAT_TIMESTAMP"])
-                peakArea = float(row[columnYData])
-                data.append([timestamp, peakArea])
+                traceData = float(row[columnYData])
+                data.append([timestamp, traceData])
             else:
                 pixel = float(row[columnXData])
                 intensity = float(row[columnYData])

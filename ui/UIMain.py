@@ -36,7 +36,7 @@ from Logger import Logger
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
 from custom_types.UI_RESULTS import UI_RESULTS
-from custom_types.CHARACTERISTIC import CHARACTERISTIC
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class UIMain(Ui_main):
     """
@@ -120,11 +120,12 @@ class UIMain(Ui_main):
         Updating the ui
         """
         self._fittings = fits
-        uiElement = self.UI_MAPPING.get("fitting")
-
-        if not uiElement is None:
+        try:
+            uiElement = self.UI_MAPPING["fitting"]
             uiElement.clear()
             uiElement.addItems(fits.values())
+        except:
+            pass
 
     ### methods
 
@@ -173,14 +174,14 @@ class UIMain(Ui_main):
 
 
     def get_results(self):
-        results = {CHARACTERISTIC.PEAK_HEIGHT.value:
+        results = {CHC.PEAK_HEIGHT.value:
                        self.toutPeakHeight.text(),
-                   CHARACTERISTIC.PEAK_AREA.value:
+                   CHC.PEAK_AREA.value:
                        self.toutPeakArea.text(),
-                   CHARACTERISTIC.BASELINE.value:
+                   CHC.BASELINE.value:
                        self.toutBaseline.text(),
                    self.lblCharacteristicValue.text():
-                       self.toutCharacteristicValue.text(),
+                       self.toutCHCValue.text(),
                    }
         return results
 

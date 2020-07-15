@@ -90,39 +90,29 @@ def reduce_path(url):
     url : str or list of strings
         The url/path that should be reduced.
 
-    Raises
-    ------
-    TypeError
-        If no string is given.
-
     Returns
     -------
-    TYPE
-        origin url if no or merely one directory is found.
-        Otherwise the fundtion return the filename and one directory
+    yield (opt. directory/) + filename as string
 
     """
     # TODO: delimiter for windows? or cross platforms?
     # Not in config? Due to static property?
     delimiter = "/";
 
-    if type(url) == str:
-        index = find_second_last(url, delimiter)
-        if index < 0:
-            return url
+    # Converting string url to list to enabel funtion for strings and lists.
+    if isinstance(url, str):
+        url = [url]
 
-        return url[index:]
-
-    if all([type(path) == str for path in url]):
-        reducedUrl = [];
+    try:
         for path in url:
             index = find_second_last(path, delimiter)
             if index < 0:
-                reducedUrl.append(path)
-            reducedUrl.append(path[index:])
-        return reducedUrl;
+                text = path
+            text = path[index:]
+            yield text
+    except:
+        print("HELP: Some unknown error occured!!!")
 
-    raise TypeError("url(s) must be a path (string)")
 
 
 def find_second_last(text, pattern):
@@ -171,25 +161,18 @@ def add_index_to_text(texts):
     ----------
     texts : list of strings
 
-    Raises
-    ------
-    TypeError
-        Raises if no list is given or not all items in the list are strings.
-
     Returns
     -------
-    list
-        return a list with modified elements.
+    yield: the text with the index prior
 
     """
-    if type(texts) != list:
-        raise TypeError("texts must be a list")
-    if all([type(text) != str for text in texts]) and texts:
-        raise TypeError("text must be a string")
-
-    return [format(idx, BATCH["INDEX_FORMAT"]) +
-            BATCH["SEPARATOR"] + text
-            for idx, text in enumerate(texts)]
+    try:
+        sep = BATCH["SEPARATOR"]
+        for idx, text in enumerate(texts):
+            index = format(idx, BATCH["INDEX_FORMAT"])
+            yield index + sep + text
+    except:
+        print("HELP: Some unknown error occured!!!")
 
 
 def natural_keys(text):

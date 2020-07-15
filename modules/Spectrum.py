@@ -79,6 +79,7 @@ class Spectrum():
                       "yLabel":cls.PLOT["PROCESSED_Y_LABEL"]}
         elif exportType == EXPORT_TYPE.BATCH:
             labels = {"xLabel":cls.PLOT["BATCH_X_LABEL"],
+                      # TODO: Adjust here the y label according to #50
                       "yLabel":cls.PLOT["BATCH_Y_LABEL"]}
         return labels
 
@@ -95,6 +96,7 @@ class Spectrum():
                       "label": cls.PLOT["PROCESSED_DATA_LABEL"]}
         elif exportType == EXPORT_TYPE.BATCH:
             markup = {"color": cls.PLOT["BATCH_DATA_COLOR"],
+                      # TODO: Adjust here the y label according to #50
                       "label": cls.PLOT["BATCH_DATA_LABEL"]}
         elif exportType == cls.BASELINE:
             markup = {"color": cls.PLOT["RAW_BASELINE_COLOR"],
@@ -130,11 +132,13 @@ class Spectrum():
                                                   len(self.data[1]))
         return self.__module__ + ":\n" + str(info)
 
+
     def add_baseline(self, baseline):
         """Adding the baseline of a spectrum as property (to plot)."""
         self.baseline = baseline;
         if len(baseline):
             self.baselineMarkup = self.get_markup(self.BASELINE)
+
 
     def update_data(self, xData, yData, *args):
         """Updates the data of the spectrum."""
@@ -152,6 +156,11 @@ class Spectrum():
         # Add integration areas.
         # Note: It will be reset anyways. No init, so no update possible.
         self.intAreas = args
+
+    def set_y_label(self, label):
+        arbitraryUnit = " / a. u."
+        self.labels["yLabel"] = label + arbitraryUnit
+        self.markup["label"] = label
 
 
     def init_plot(self):

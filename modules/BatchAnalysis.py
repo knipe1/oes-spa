@@ -48,7 +48,7 @@ from modules.DataHandler import DataHandler
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.FileSet import FileSet
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHARAC
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.BATCH_CONFIG import BATCH_CONFIG
 
 
@@ -178,6 +178,7 @@ class BatchAnalysis(QDialog):
         info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
+
     def set_connections(self):
         self.window.connect_browse_files(self.browse_spectra)
         self.window.connect_calculate(self.analyze)
@@ -187,6 +188,7 @@ class BatchAnalysis(QDialog):
         self.window.connect_import_batch(self.import_batch)
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_set_filename(self.specify_batchfile)
+        self.window.connect_change_trace(self.import_batch)
 
 
 
@@ -260,12 +262,12 @@ class BatchAnalysis(QDialog):
 
         # Reset the properties to have clean setup.
         self.cancelByEsc = False
-        self.traceSpectrum = Spectrum(
-                self.window.mplTrace, EXPORT_TYPE.BATCH)
+        self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
         # Get the modus.
         isUpdatePlot = self.window.get_update_plots()
         isPlotTrace = self.window.get_plot_trace()
-        isExportBatch = self.window.get_export_batch()
+        # Export even if plot trace is selected (First export then import+plot)
+        isExportBatch = self.window.get_export_batch() or isPlotTrace
         # Get characteristic values.
         basicSetting = self.parent().window.get_basic_setting()
 
@@ -290,7 +292,7 @@ class BatchAnalysis(QDialog):
 
             # Get the data.
             specHandler = DataHandler(basicSetting)
-            results = specHandler.analyse_data(self.currentFile)
+            specHandler.analyse_data(self.currentFile)
             avg = specHandler.avgbase
             peakHeight = specHandler.peakHeight
             peakArea = specHandler.peakArea
@@ -310,25 +312,31 @@ class BatchAnalysis(QDialog):
 
             if isExportBatch:
                 config = self.retrieve_batch_config()
-                config[CHARAC.BASELINE] = avg
-                config[CHARAC.CHARACTERISTIC_VALUE] = characteristicValue
-                config[CHARAC.PEAK_AREA] = peakArea
-                config[CHARAC.PEAK_HEIGHT] = peakHeight
-                config[CHARAC.PEAK_POSITION] = peakPosition
+                config[CHC.BASELINE] = avg
+                config[CHC.CHARACTERISTIC_VALUE] = characteristicValue
+                config[CHC.PEAK_AREA] = peakArea
+                config[CHC.PEAK_HEIGHT] = peakHeight
+                config[CHC.PEAK_POSITION] = peakPosition
                 # TODO: Check HEADER_INFO is just timestamp?
-                config[CHARAC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+                config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
 
                 data.append(self.assemble_row(file, config))
             elif isUpdatePlot:
                 self.parent().apply_data(file)
-            elif isPlotTrace:
-                # TODO: currently just peakArea, no dropdown.
-                data = (timestamp, peakArea)
-                self.import_batch(data)
+            # elif isPlotTrace:
+            #     # TODO: #50 currently just peakArea, no dropdown.
+            #     # TODO: Check here the selection and assign proper value to it.
+            #     traceValue = peakArea
+            #     data = (timestamp, traceValue)
 
         if isExportBatch:
             characteristicName = basicSetting.fitting.currentPeak.name
-            self.export_batch(data, peakName=characteristicName)
+            peakName = CHC.CHARACTERISTIC_VALUE.value + " ({})".format(characteristicName)
+            self.export_batch(data, peakName=peakName)
+
+        if isPlotTrace:
+            self.import_batch(takeCurrentBatchfile=True)
+
 
         # Prompt the user with information about the skipped files.
         dialog.information_BatchAnalysisFinished(skippedFiles)
@@ -345,6 +353,7 @@ class BatchAnalysis(QDialog):
         self.traceSpectrum.update_plot()
 
 
+    # TODO: Do not uses self --> can be static or out of the class
     def get_timediff_H(self, spectrum, timestamp):
         try:
             refTime = spectrum.referenceTime
@@ -352,44 +361,59 @@ class BatchAnalysis(QDialog):
             refTime = timestamp
             spectrum.referenceTime = refTime
 
-
         diffTime = uni.convert_to_hours(timestamp - refTime)
 
         return diffTime
 
-    def import_batch(self, data=None):
 
+    def import_batch(self, takeCurrentBatchfile=False):
+        # TODO: Issue if cancelled
+        # TODO: Issue if comboBox change and no valid batchfile is provided
+
+        # Define the specific value which shall be plotted.
+        columnValue = self.window.currentTrace
+
+        # TODO: Check if init is necessary here!
+        self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
+
+        # Select the file from which the data shall be imported.
+        try:
+            if not takeCurrentBatchfile:
+                file = dialog.dialog_openFiles(self.lastdir, singleFile=True)
+                self.currentFile = FileReader(file, columnValue=columnValue)
+            else:
+                # Reload the data with new characteristica.
+                self.currentFile = FileReader(self.window.batchFile,
+                                              columnValue=columnValue)
+        except:
+            # Could not get a file.
+            self.logger.error("Import Batch: Could not get a file.")
+            return -10
+
+        # Retrieve data.
+        try:
+            timestamps, values = self.currentFile.data
+            diffTimes = np.zeros((len(timestamps,)))
+
+            for idx, timestamp in enumerate(timestamps):
+                diffTime = self.get_timediff_H(self.traceSpectrum, timestamp)
+                diffTimes[idx] = diffTime
+        except:
+            # Could not retrieve valid data.
+            self.logger.error("Import Batch: Could not retrieve valid data.")
+            return -20
 
         try:
-            timestamp, values = data
-
-            diffTimes = self.get_timediff_H(self.traceSpectrum,
-                                              timestamp)
-
+            self.traceSpectrum.update_data(diffTimes, values)
+            self.traceSpectrum.set_y_label(columnValue)
+            self.traceSpectrum.init_plot()
+            self.traceSpectrum.update_plot()
         except:
-            diffTimes = []
+            # Could not retrieve valid data.
+            self.logger.error("Import Batch: Could not plot data.")
+            return -30
 
-            self.traceSpectrum = Spectrum(
-                    self.window.mplTrace, EXPORT_TYPE.BATCH)
-
-            filelist = dialog.dialog_openFiles(self.lastdir)
-            # TODO: Issue if cancelled
-            file = filelist[0]
-            self.currentFile = FileReader(file)
-
-
-            data = self.currentFile.data
-
-            timestamps, values = data
-
-            for timestamp in timestamps:
-                diffTime = self.get_timediff_H(self.traceSpectrum,
-                                                  timestamp)
-                diffTimes.append(diffTime)
-
-        self.traceSpectrum.update_data(diffTimes, values)
-        self.traceSpectrum.init_plot()
-        self.traceSpectrum.update_plot()
+        return 0
 
 
     def export_batch(self, data, peakName=None):
@@ -412,7 +436,7 @@ class BatchAnalysis(QDialog):
 
         # Replace 'Characteristic value' with proper name.
         try:
-            idx = header.index(CHARAC.CHARACTERISTIC_VALUE.value)
+            idx = header.index(CHC.CHARACTERISTIC_VALUE.value)
             header[idx] = valueName
         except ValueError:
             self.logger.warning("No export of characteristic values.")
@@ -440,12 +464,12 @@ class BatchAnalysis(QDialog):
 
         """
 
-        config = {CHARAC.PEAK_HEIGHT: None,
-                  CHARAC.PEAK_AREA: None,
-                  CHARAC.BASELINE: None,
-                  CHARAC.CHARACTERISTIC_VALUE: None,
-                  CHARAC.HEADER_INFO: None,
-                  CHARAC.PEAK_POSITION: None,}
+        config = {CHC.PEAK_HEIGHT: None,
+                  CHC.PEAK_AREA: None,
+                  CHC.BASELINE: None,
+                  CHC.CHARACTERISTIC_VALUE: None,
+                  CHC.HEADER_INFO: None,
+                  CHC.PEAK_POSITION: None,}
         return config
 
 

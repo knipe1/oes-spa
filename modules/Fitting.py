@@ -106,7 +106,11 @@ class Fitting():
     def currentFitting(self, fitting):
         try:
             self.currentPeak = Peak(**fitting.get("PEAKS"))
-        except TypeError:
+        except TypeError as err:
+            # In case of PEAKS is not defined:
+            # TypeError: type object argument after ** must be a mapping, not NoneType
+            # In case of centralWavelngth/.. is not defined:
+            # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
             self.logger.error("Error: Fitting has an error!")
             print("Error: Fitting has an error!")
 

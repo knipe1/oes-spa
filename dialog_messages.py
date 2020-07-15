@@ -98,7 +98,7 @@ def warning_fileSelection(parent=None):
 
 
 def dialog_openFiles(directory, allowedSuffixes=IMPORT["SUFFIXES"],
-                     parent=None):
+                     singleFile=False, parent=None):
     """
     Opens a native dialog to open one or multiple files.
 
@@ -128,10 +128,14 @@ def dialog_openFiles(directory, allowedSuffixes=IMPORT["SUFFIXES"],
 
     if type(directory) not in [str]:
         raise TypeError("Directory must be a path (string)");
-    filenames, _ = QFileDialog.getOpenFileNames(parent = parent,
-                                                caption = caption,
-                                                directory = directory,
-                                                filter = filter, );
+
+
+    parameter = {"parent": parent, "caption": caption, "directory": directory,
+                 "filter": filter, }
+    if singleFile:
+        filenames, _ = QFileDialog.getOpenFileName(**parameter);
+    else:
+        filenames, _ = QFileDialog.getOpenFileNames(**parameter);
     return filenames;
 
 def information_BatchAnalysisFinished(skippedFiles, parent=None):

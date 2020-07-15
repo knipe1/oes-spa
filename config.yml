@@ -42,9 +42,9 @@ MARKER:
   HEADER: Date
 PLOT:
   BATCH_DATA_COLOR: k
-  BATCH_DATA_LABEL: Peak Area
+  BATCH_DATA_LABEL: Characteristic
   BATCH_X_LABEL: Time / h
-  BATCH_Y_LABEL: Peak area / a.u.
+  BATCH_Y_LABEL: Characteristic / a.u.
   DEF_AXIS_COLOR: '0.2'
   DEF_LINEWIDTH: 0.8
   INT_PEAK_COLOR: g
