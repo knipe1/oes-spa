@@ -25,12 +25,12 @@ from modules.Spectrum import Spectrum
 
 
 # set up the logger
-logger = Logger(__name__)
+# logger = Logger(__name__)
 
 def main():
     """Main program """
 
-    logger.debug("Start routine")
+    # logger.debug("Start routine")
 
     # Setup GUI
     app = QApplication(sys.argv)

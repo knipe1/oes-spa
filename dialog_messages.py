@@ -184,7 +184,8 @@ def dialog_LogFileNotFound(parent=None):
                                              directory = defaultDirectory,);
 
     # Get the new or a default filename.
-    filename = filename.toLocalFile() if filename else defaultDirectory
+    localFilename = filename.toLocalFile()
+    filename = localFilename if localFilename else defaultDirectory
 
     # Getting the current config and change the LOG_FILE property.
     config = ConfigLoader()
