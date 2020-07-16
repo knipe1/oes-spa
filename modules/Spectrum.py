@@ -12,7 +12,6 @@ Created on Sat Apr 25 2020
 import numpy as np
 
 # third-party libs
-import matplotlib.collections as collections
 
 # local modules/libs
 from ConfigLoader import ConfigLoader

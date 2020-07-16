@@ -27,6 +27,7 @@ Created on Mon Jan 20 10:22:44 2020
 
 # standard libs
 import numpy as np
+from datetime import datetime
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
@@ -317,7 +318,7 @@ class BatchAnalysis(QDialog):
                 config[CHC.PEAK_AREA] = peakArea
                 config[CHC.PEAK_HEIGHT] = peakHeight
                 config[CHC.PEAK_POSITION] = peakPosition
-                # TODO: Check HEADER_INFO is just timestamp?
+                # Convert to string for proper presentation.
                 config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
 
                 data.append(self.assemble_row(file, config))
@@ -342,17 +343,6 @@ class BatchAnalysis(QDialog):
         dialog.information_BatchAnalysisFinished(skippedFiles)
 
 
-    def plot_trace(self, timestamp, value):
-        # TODO: To be tested.
-        # Get the timediff of the spectrum in h.
-        diffTime = self.get_timediff_H(self.traceSpectrum,
-                                          timestamp)
-
-        self.traceSpectrum.update_data(diffTime, value)
-        self.traceSpectrum.init_plot()
-        self.traceSpectrum.update_plot()
-
-
     # TODO: Do not uses self --> can be static or out of the class
     def get_timediff_H(self, spectrum, timestamp):
         try:
@@ -367,8 +357,6 @@ class BatchAnalysis(QDialog):
 
 
     def import_batch(self, takeCurrentBatchfile=False):
-        # TODO: Issue if cancelled
-        # TODO: Issue if comboBox change and no valid batchfile is provided
 
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTrace
@@ -395,10 +383,13 @@ class BatchAnalysis(QDialog):
 
         # Retrieve data.
         try:
+            # TODO: Check sorting of 2D arrays make sense here.
             timestamps, values = self.currentFile.data
             diffTimes = np.zeros((len(timestamps,)))
 
             for idx, timestamp in enumerate(timestamps):
+                timestamp = datetime.strptime(timestamp,
+                                              self.EXPORT["FORMAT_TIMESTAMP"])
                 diffTime = self.get_timediff_H(self.traceSpectrum, timestamp)
                 diffTimes[idx] = diffTime
         except:
@@ -406,6 +397,7 @@ class BatchAnalysis(QDialog):
             self.logger.error("Import Batch: Could not retrieve valid data.")
             return -20
 
+        # Plot the trace.
         try:
             self.traceSpectrum.update_data(diffTimes, values)
             self.traceSpectrum.set_y_label(columnValue)

@@ -281,6 +281,7 @@ class UIMain(Ui_main):
                 # except maybe? Or just check and log it?
                 signal.connect(uiElement.setText)
 
+
     def connect_fileinformation(self, sigFilename, sigDate, sigTime):
         # TODO: docstring, also add to class methods
         sigFilename.connect(self.toutFilename.setText)
@@ -379,7 +380,7 @@ class UIMain(Ui_main):
 
         return setting;
 
-
+    # TODO: @property
     def get_grating(self)->int:
         """
         Gets the value of the ui element.

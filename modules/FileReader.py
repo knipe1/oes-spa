@@ -342,15 +342,21 @@ class FileReader(FileFramework):
                 # see above as the ValueError in upper try-except.
                 row = row[0].split(",")
 
-            if isBatch:
-                timestamp = datetime.strptime(row[columnXData],
+            # HACK ###########################
+            try:
+                xData = datetime.strptime(row[columnXData],
                                               self.EXPORT["FORMAT_TIMESTAMP"])
-                traceData = float(row[columnYData])
-                data.append([timestamp, traceData])
-            else:
-                pixel = float(row[columnXData])
-                intensity = float(row[columnYData])
-                data.append([pixel, intensity])
+            except:
+                xData = float(row[columnXData])
+            # if isBatch:
+            #     xData = datetime.strptime(row[columnXData],
+            #                                   self.EXPORT["FORMAT_TIMESTAMP"])
+            # else:
+            #     xData = float(row[columnXData])
+            # HACK ###########################
+            # TODO: Check isBatch once. Then for all rows...
+            yData = float(row[columnYData])
+            data.append([xData, yData])
 
         return data;
 

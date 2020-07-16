@@ -24,7 +24,6 @@ from Logger import Logger
 
 # enums
 from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 

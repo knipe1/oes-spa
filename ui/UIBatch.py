@@ -113,8 +113,10 @@ class UIBatch(Ui_batch):
     def get_fileselection(self)->int:
         return self.listFiles.currentRow()
 
+
     def set_fileselection(self, index):
         self.listFiles.setCurrentRow(index)
+
 
     def focussed_filelist(self):
         return self.listFiles.hasFocus()
@@ -171,7 +173,7 @@ class UIBatch(Ui_batch):
         self.cmbTrace.currentTextChanged.connect(fun)
 
 
-
+    # TODO: @property?
     def update_progressbar(self, percentage:[int, float]):
         """
         Convert the percentage and sets the value to the progress bar.
@@ -180,19 +182,9 @@ class UIBatch(Ui_batch):
         ----------
         percentage : float
             The percentage.
-
-        Returns
-        -------
-        int
-            The percent calculated and set.
-
         """
-
         # Flush event pipeline to enable event-based cancellation.
         QCoreApplication.processEvents()
-        percent = int(percentage*100);
-        self.barProgress.setValue(percent);
-
-        return percent;
+        self.barProgress.setValue(percentage*100);
 
 

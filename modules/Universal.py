@@ -58,6 +58,7 @@ def convert_to_hours(timedifference):
 
     hours = 0.0
     try:
+        # 1 hour = 3600 seconds and 1 day = 24 hours
         hours += timedifference.seconds / 3600
         hours += timedifference.days * 24
     except AttributeError:
@@ -68,6 +69,8 @@ def convert_to_hours(timedifference):
 
 
 def timestamp_to_string(timestamp):
+    """Converts the given timestamp to a string with a pre-defined format."""
+    # strftime = STRing From TIME (with a given format)
     timestampString = datetime.strftime(timestamp, EXPORT["FORMAT_TIMESTAMP"])
     return timestampString
 
