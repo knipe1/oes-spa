@@ -388,8 +388,6 @@ class BatchAnalysis(QDialog):
             diffTimes = np.zeros((len(timestamps,)))
 
             for idx, timestamp in enumerate(timestamps):
-                timestamp = datetime.strptime(timestamp,
-                                              self.EXPORT["FORMAT_TIMESTAMP"])
                 diffTime = self.get_timediff_H(self.traceSpectrum, timestamp)
                 diffTimes[idx] = diffTime
         except:

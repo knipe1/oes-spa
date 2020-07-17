@@ -156,6 +156,8 @@ class UIMain(Ui_main):
     def __post_init__(self):
         self.fittings = self.retrieve_fittings()
         self.connect_select_fitting(self.load_current_fitting)
+        # initial hides
+        self.show_diff_wavelength(False)
 
 
     # TODO: ought be immutable
