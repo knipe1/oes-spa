@@ -12,4 +12,4 @@ PEAKS:
     shiftUp:  .2
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
-    normalizationFactor: 12
+    normalizationFactor: 1200

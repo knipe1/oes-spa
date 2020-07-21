@@ -129,7 +129,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="ddFitting"/>
+          <widget class="QComboBox" name="ddFitting">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

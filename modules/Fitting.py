@@ -61,7 +61,7 @@ class Fitting():
 
 
     def __post_init__(self):
-        self.__validate__()
+        self.errCode or self.__validate__()
 
 
     def __repr__(self):
@@ -70,6 +70,14 @@ class Fitting():
         return self.__module__ + ":\n" + str(info)
 
     def __validate__(self):
+        # TODO: Magic strings?
+        ERR_PEAK = "P!"
+        ERR_REF = "R!"
+        ERR_FIT = "F!"
+        ERR_ELSE = "O!"
+
+
+        # Checks that the name is given.
         try:
             self.currentFitting["NAME"]
         except KeyError as err:
@@ -78,22 +86,31 @@ class Fitting():
                               "fitting.".format(key))
             print("KeyError: {} not found in currently selected "\
                               "fitting.".format(key))
+            self.isValid = False
 
+        # Validation of the peak and the reference peak.
+        # Validate reference only if peak is already valid.
+        # Checks that the peak is valid.
         try:
             if not self.currentPeak.isValid:
                 self.logger.error("Invalid Peak")
                 print("Invalid Peak")
+
+            # Checks that the reference peak is valid.
+            try:
+                if self.currentReference and not self.currentReference.isValid:
+                    self.logger.error("Invalid reference peak.")
+                    print("Invalid reference peak.")
+            except AttributeError:
+                self.errCode += ERR_REF
+                self.logger.warning("No reference peak found.")
+                print("No reference peak found.")
+
         except AttributeError:
+            self.errCode += ERR_PEAK
             self.logger.error("No peak found.")
             print("No peak found.")
 
-        try:
-            if self.currentReference and not self.currentReference.isValid:
-                self.logger.error("Invalid reference peak.")
-                print("Invalid reference peak.")
-        except AttributeError:
-            self.logger.warning("No reference peak found.")
-            print("No reference peak found.")
 
 
     ### Properties
@@ -104,15 +121,21 @@ class Fitting():
 
     @currentFitting.setter
     def currentFitting(self, fitting):
+        self.errCode = ""
         try:
-            self.currentPeak = Peak(**fitting.get("PEAKS"))
-        except TypeError as err:
+            # TODO: Issue here if no Peak is defined => F! as error code.
+            self.currentPeak = Peak(**fitting["PEAKS"])
+        except KeyError as err:
             # In case of PEAKS is not defined:
-            # TypeError: type object argument after ** must be a mapping, not NoneType
-            # In case of centralWavelngth/.. is not defined:
-            # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
+            # KeyError: type object argument after ** must be a mapping, not NoneType
+            self.errCode += "F!"
             self.logger.error("Error: Fitting has an error!")
             print("Error: Fitting has an error!")
+        except TypeError as err:
+            # In case of centralWavelngth/.. is not defined:
+            # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
+            # Handled in Peak validation
+            pass
 
         self.currentName = fitting.get("NAME", "No name defined!")
         self._currentFitting = fitting

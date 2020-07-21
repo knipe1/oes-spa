@@ -52,27 +52,27 @@ def main():
         pass
 
 
-    window.batch.show()
+    # window.batch.show()
 
-    # # text = "filename"
-    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
-    # # arbitrary.start()
-    # # accept the name
+    # # # text = "filename"
+    # # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
+    # # # arbitrary.start()
+    # # # accept the name
 
-    enter = THR.Thread(target=emu.key_accept)
-    enter.start()
+    # enter = THR.Thread(target=emu.key_accept)
+    # enter.start()
 
-    # # in case of file already exists
-    # yes = THR.Thread(target=emu.key_alt_j)
-    # yes.start()
+    # # # in case of file already exists
+    # # yes = THR.Thread(target=emu.key_alt_j)
+    # # yes.start()
 
-    window.batch.window.btnSetFilename.click()
-    selection = THR.Thread(target=emu.key_select_file, args=[20])
-    selection.start()
-    window.lastdir = window.lastdir+"/Obel276"
-    window.batch.browse_spectra()
-    # window.batch.window.btnCalculate.click()
-    # window.batch.hide()
+    # window.batch.window.btnSetFilename.click()
+    # selection = THR.Thread(target=emu.key_select_file, args=[20])
+    # selection.start()
+    # window.lastdir = window.lastdir+"/Obel276"
+    # window.batch.browse_spectra()
+    # # window.batch.window.btnCalculate.click()
+    # # window.batch.hide()
 
     sys.exit(app.exec_())
 

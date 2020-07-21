@@ -26,6 +26,7 @@ import os
 
 # third-party libs
 from PyQt5.QtCore import pyqtBoundSignal
+from PyQt5.QtGui import QFont
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -356,6 +357,16 @@ class UIMain(Ui_main):
         fitConfig = ConfigLoader(path)
 
         self.currentFitting = Fitting(fitConfig.config)
+
+        # TODO: !HACK
+        # Update UI
+        defaultLabel="Fitting:"
+        label = "<b style='color:red'>"+self.currentFitting.errCode + "</b>"+defaultLabel
+        self.lblFitting.setText(label)
+        # font = QFont()
+        # font.setBold(not self.currentFitting.isValid)
+        # self.ddFitting.setFont(font)
+
 
 
     def add_information(self, entry:str):
