@@ -12,6 +12,6 @@ from enum import Enum, auto
 class ASC_PARAMETER(Enum):
     """Interface for the .asc-file parameter."""
     TEMP = auto()
-    WL = auto()
+    WL = "Wavelength (nm)"
     EX_TIME = auto()
-    GRAT = auto()
+    GRAT = "Grating Groove Density (l/mm)"

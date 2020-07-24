@@ -103,7 +103,6 @@ class ConfigLoader():
         try:
             with open(self.path, "r", newline='') as ymlFile:
                 config = yaml.load(ymlFile, Loader=yaml.FullLoader)
-                print("Hallelujah")
             return config
         except yaml.parser.ParserError:
             print("Could not open configuration. Invalid formatted!")

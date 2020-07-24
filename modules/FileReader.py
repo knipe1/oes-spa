@@ -390,9 +390,9 @@ class FileReader(FileFramework):
                 self.logger.info("Could not split row: {}".format(row))
 
             # Get specific values for further analysis
-            if name == "Wavelength (nm)":
+            if name == ASC.WL.value:
                 parameter[ASC.WL] = value
-            elif name == "Grating Groove Density (l/mm)":
+            elif name == ASC.GRAT.value:
                 parameter[ASC.GRAT] = value
 
             row = csvReader.__next__()

@@ -56,49 +56,11 @@ class Fitting():
         self.logger = Logger(__name__)
 
         self.currentFitting = fitting
-        self.__post_init__()
-
-
-    def __post_init__(self):
-        self.errCode or self.__validate__()
-
 
     def __repr__(self):
         info = {}
         info["currentFitting"] = self.currentFitting
         return self.__module__ + ":\n" + str(info)
-
-    def __validate__(self):
-        # Checks that the name is given.
-        try:
-            self.currentFitting["NAME"]
-        except KeyError as err:
-            key = err.args[0]
-            self.logger.error("KeyError: {} not found in currently selected "\
-                              "fitting.".format(key))
-            print("KeyError: {} not found in currently selected "\
-                              "fitting.".format(key))
-
-        # Validation of the peak and the reference peak.
-        # Validate reference only if peak is already valid.
-        try:
-            if not self.currentPeak.isValid:
-                self.logger.error("Invalid Peak")
-
-            # Checks that the reference peak is valid.
-            try:
-                # Distinguish between
-                # 1. No reference defined, which may be valid.
-                # 2. Invalid defined reference -> Error code.
-                if self.currentReference and not self.currentReference.isValid:
-                    self.logger.error("Invalid reference peak.")
-            except AttributeError:
-                self.errCode += ERR.REFERENCE.value
-                self.logger.warning("No reference peak found.")
-
-        except AttributeError:
-            self.errCode += ERR.PEAK.value
-            self.logger.error("No peak found.")
 
 
     ### Properties
@@ -130,8 +92,8 @@ class Fitting():
         except TypeError:
             # In case of centralWavelngth/.. is not defined:
             # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
-            # Handled in Peak validation
-            pass
+            self.logger.error("Invalid Peak")
+            self.errCode += ERR.PEAK.value
 
         self.currentName = fitting.get("NAME", "No name defined!")
         self._currentFitting = fitting
@@ -143,10 +105,14 @@ class Fitting():
     @currentPeak.setter
     def currentPeak(self, peak):
         try:
-            self.currentReference = ReferencePeak(**peak.reference)
+                # Distinguish between
+                # 1. No reference defined, which may be valid.
+                # 2. Invalid defined reference -> Error code.
+            if peak.reference:
+                self.currentReference = ReferencePeak(**peak.reference)
         except TypeError:
-            self.logger.warning("No reference peak defined.")
-
+            self.errCode += ERR.REFERENCE.value
+            self.logger.warning("Invalid reference peak defined.")
         self._currentPeak = peak
 
     @property
