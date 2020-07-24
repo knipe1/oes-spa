@@ -121,6 +121,8 @@ class Logger():
         """
 
         self.filename = self.FILE.get("LOG_FILE")
+        # config the format of the handler
+        formatter = logging.Formatter(self.format)
 
         # Setting up the logger with the default configuration.
         self.logger = logging.getLogger(name)   # get or create the logger
@@ -144,14 +146,16 @@ class Logger():
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
 
+        # Add log to file.
         fhandler.setLevel(self.level)
-
-        # config the format of the handler
-        formatter = logging.Formatter(self.format)
         fhandler.setFormatter(formatter)
-
-        # the handler can now log messages
         self.logger.addHandler(fhandler)
+
+        # Adding log also to console.
+        streamHandler = logging.StreamHandler()
+        streamHandler.setLevel(self.level)
+        streamHandler.setFormatter(formatter)
+        self.logger.addHandler(streamHandler)
 
     def __repr__(self):
         info = {}
