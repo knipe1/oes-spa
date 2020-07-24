@@ -24,7 +24,7 @@ EXPORT = config.EXPORT
 IMPORT = config.IMPORT
 
 def is_valid_filetype(url):
-        """checks if the given url is valid to load the data"""
+        """Checks whether the given url is valid to load the data."""
 
         isValid = True;
         file = url.toLocalFile();
@@ -38,6 +38,10 @@ def is_valid_filetype(url):
             isValid = False;
 
         return isValid;
+
+def mark_bold_red(label):
+    """Embed the given label into a Rich text format."""
+    return  "<b style='color:red'>" + label + "</b>"
 
 
 def convert_to_hours(timedifference):

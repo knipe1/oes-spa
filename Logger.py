@@ -98,6 +98,8 @@ class Logger():
     """
 
     # Load the configuration for filesystem properties.
+    config = ConfigLoader()
+    FILE = config.FILE
 
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -117,9 +119,8 @@ class Logger():
         None.
 
         """
-        config = ConfigLoader()
-        FILE = config.FILE
-        self.filename = FILE.get("LOG_FILE")
+
+        self.filename = self.FILE.get("LOG_FILE")
 
         # Setting up the logger with the default configuration.
         self.logger = logging.getLogger(name)   # get or create the logger

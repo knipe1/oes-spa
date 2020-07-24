@@ -26,13 +26,13 @@ import os
 
 # third-party libs
 from PyQt5.QtCore import pyqtBoundSignal
-from PyQt5.QtGui import QFont
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
 from ConfigLoader import ConfigLoader
 from modules.Fitting import Fitting
 from Logger import Logger
+from modules.Universal import mark_bold_red
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
@@ -155,6 +155,9 @@ class UIMain(Ui_main):
 
 
     def __post_init__(self):
+        # Get default label for fittings, defined in Qt-designer.
+        self.DEF_LBL_FITTING = self.lblFitting.text()
+
         self.fittings = self.retrieve_fittings()
         self.connect_select_fitting(self.load_current_fitting)
         # initial hides
@@ -358,15 +361,9 @@ class UIMain(Ui_main):
 
         self.currentFitting = Fitting(fitConfig.config)
 
-        # TODO: !HACK
         # Update UI
-        defaultLabel="Fitting:"
-        label = "<b style='color:red'>"+self.currentFitting.errCode + "</b>"+defaultLabel
+        label = mark_bold_red(self.currentFitting.errCode) + self.DEF_LBL_FITTING
         self.lblFitting.setText(label)
-        # font = QFont()
-        # font.setBold(not self.currentFitting.isValid)
-        # self.ddFitting.setFont(font)
-
 
 
     def add_information(self, entry:str):

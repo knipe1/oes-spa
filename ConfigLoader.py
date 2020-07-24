@@ -100,10 +100,14 @@ class ConfigLoader():
 
     def load_config(self):
         """"Load a config from a yml file."""
-        with open(self.path, "r", newline='') as ymlFile:
-            config = yaml.load(ymlFile, Loader=yaml.FullLoader)
-        return config
-
+        try:
+            with open(self.path, "r", newline='') as ymlFile:
+                config = yaml.load(ymlFile, Loader=yaml.FullLoader)
+                print("Hallelujah")
+            return config
+        except yaml.parser.ParserError:
+            print("Could not open configuration. Invalid formatted!")
+            return {}
 
     def save_config(self):
         """"Save a config to a yml file."""

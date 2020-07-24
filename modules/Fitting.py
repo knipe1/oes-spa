@@ -13,18 +13,17 @@ Created on Thu Apr  9 10:51:31 2020
 #   https://doc.qt.io/qt-5/qcombobox.html
 
 # standard libs
-import os
 
 # third-party libs
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-import modules.Universal as uni
 from Logger import Logger
 from custom_types.Peak import Peak
 from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
+from custom_types.ERROR_FITTING import ERROR_FITTING as ERR
 
 class Fitting():
     """
@@ -70,13 +69,6 @@ class Fitting():
         return self.__module__ + ":\n" + str(info)
 
     def __validate__(self):
-        # TODO: Magic strings?
-        ERR_PEAK = "P!"
-        ERR_REF = "R!"
-        ERR_FIT = "F!"
-        ERR_ELSE = "O!"
-
-
         # Checks that the name is given.
         try:
             self.currentFitting["NAME"]
@@ -86,31 +78,27 @@ class Fitting():
                               "fitting.".format(key))
             print("KeyError: {} not found in currently selected "\
                               "fitting.".format(key))
-            self.isValid = False
 
         # Validation of the peak and the reference peak.
         # Validate reference only if peak is already valid.
-        # Checks that the peak is valid.
         try:
             if not self.currentPeak.isValid:
                 self.logger.error("Invalid Peak")
-                print("Invalid Peak")
 
             # Checks that the reference peak is valid.
             try:
+                # Distinguish between
+                # 1. No reference defined, which may be valid.
+                # 2. Invalid defined reference -> Error code.
                 if self.currentReference and not self.currentReference.isValid:
                     self.logger.error("Invalid reference peak.")
-                    print("Invalid reference peak.")
             except AttributeError:
-                self.errCode += ERR_REF
+                self.errCode += ERR.REFERENCE.value
                 self.logger.warning("No reference peak found.")
-                print("No reference peak found.")
 
         except AttributeError:
-            self.errCode += ERR_PEAK
+            self.errCode += ERR.PEAK.value
             self.logger.error("No peak found.")
-            print("No peak found.")
-
 
 
     ### Properties
@@ -121,17 +109,25 @@ class Fitting():
 
     @currentFitting.setter
     def currentFitting(self, fitting):
+        """
+        Load the currently selected fitting.
+
+        Resets the error code, validates the fitting and make the properties
+        accessible.
+
+        """
+
         self.errCode = ""
+
         try:
-            # TODO: Issue here if no Peak is defined => F! as error code.
             self.currentPeak = Peak(**fitting["PEAKS"])
-        except KeyError as err:
+        except KeyError:
             # In case of PEAKS is not defined:
             # KeyError: type object argument after ** must be a mapping, not NoneType
-            self.errCode += "F!"
+            self.errCode += ERR.FITTING.value
             self.logger.error("Error: Fitting has an error!")
             print("Error: Fitting has an error!")
-        except TypeError as err:
+        except TypeError:
             # In case of centralWavelngth/.. is not defined:
             # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
             # Handled in Peak validation
@@ -168,3 +164,14 @@ class Fitting():
     @currentName.setter
     def currentName(self, name):
         self._currentName = name
+
+    @property
+    def errCode(self) -> str:
+        error = self._errCode
+        if error:
+            error += "!"
+        return error
+
+    @errCode.setter
+    def errCode(self, code:str):
+        self._errCode = code

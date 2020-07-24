@@ -14,7 +14,6 @@ import csv
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-import modules.Universal as uni
 from Logger import Logger
 
 

@@ -379,10 +379,10 @@ class FileReader(FileFramework):
         data = [];
         parameter = {}
 
-        # TODO: Fixed to line 39?
+        # TODO: Fixed to line 39? NO.
         # TODO: Fixed with 3 blank lines?
-        for ii in range(37):
-            row = csvReader.__next__()
+        row = csvReader.__next__()
+        while row:
             try:
                 name, value = asc_separate_parameter(row)
                 parameter[name] = value
@@ -390,18 +390,22 @@ class FileReader(FileFramework):
                 self.logger.info("Could not split row: {}".format(row))
 
             # Get specific values for further analysis
-            # Wavelength (nm)
-            if ii == 26:
+            if name == "Wavelength (nm)":
                 parameter[ASC.WL] = value
-            # Grating Groove Density (l/mm)
-            elif ii == 27:
+            elif name == "Grating Groove Density (l/mm)":
                 parameter[ASC.GRAT] = value
+
+            row = csvReader.__next__()
 
         # Collecting the data.
         for row in csvReader:
-            wavelength = float(row[0])
-            intensity = float(row[DATA_STRUCTURE["ASC_DATA_COLUMN"]])
-            data.append([wavelength, intensity])
+            try:
+                wavelength = float(row[0])
+                intensity = float(row[DATA_STRUCTURE["ASC_DATA_COLUMN"]])
+                data.append([wavelength, intensity])
+            except IndexError:
+                # Blank row
+                continue
 
         self.parameter = parameter
         return data;
