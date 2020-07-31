@@ -132,8 +132,7 @@ class Logger():
         while len(self.logger.handlers):
             self.logger.removeHandler(self.logger.handlers[0])
 
-        # config a file handler
-        # TODO: Adjust according to issue #17!
+        # config a file handler.
         try:
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)

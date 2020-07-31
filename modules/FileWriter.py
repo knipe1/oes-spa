@@ -94,6 +94,13 @@ class FileWriter(FileFramework):
         dialog.information_ExportFinished(expFilename)
         return True
 
+    def write_line(self, data):
+        with open(self.filename, 'a', newline='') as f:
+            # open writer with self defined dialect
+            writer = csv.writer(f, dialect=self.dialect)
+            writer.writerow(data)
+
+
 
     def build_exp_filename(self, exportType):
         """Alters the current filename to a standard processed export

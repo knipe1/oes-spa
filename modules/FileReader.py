@@ -117,6 +117,7 @@ class FileReader(FileFramework):
         """Determine filetype."""
         # Use active dict access here to raise an error.
         suffixes = self.IMPORT["VALID_SUFFIX"]
+        print(self.filename)
         fileinfo = QFileInfo(self.filename).suffix().lower()
 
         if not fileinfo in suffixes:
@@ -154,7 +155,7 @@ class FileReader(FileFramework):
             csvReader = csv.reader(csvFile, dialect=self.dialect)
 
             if get_header(csvReader, self.MARKER["HEADER"]):
-                print("FileReader: No valid header")
+                self.logger.error(f"FileReader: No valid header, marker not found {self.MARKER['HEADER']}")
                 return 1
 
             data = get_data(csvReader, **kwargs)

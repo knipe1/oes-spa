@@ -169,8 +169,41 @@ class BatchAnalysis(QDialog):
         self._files = FileSet(listWidget = self.window.listFiles,
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
+        self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
 
         self.set_connections()
+
+
+        # HACK --------------------------------------------------------
+
+        from modules.Watchdog import Watchdog
+        self.dog = Watchdog()
+        test = False
+        # test = True
+        test or self.dog.start('./sample files', self.watchdog_event)
+
+    def watchdog_event(self, path):
+        print("Watchdog: Modified file:", path)
+
+        # Check for modiefied batchfile or spectrum file.
+        # Checks absolute paths to avoid issues due to relative vs absolute paths.
+        batchPath = QFileInfo(self.batchFile).absoluteFilePath()
+        eventPath = QFileInfo(path).absoluteFilePath()
+
+        if batchPath == eventPath:
+            self.import_batch(takeCurrentBatchfile=True)
+        else:
+            print(1)
+            # self.analyze(eventPath)
+            print(2)
+            self.update_filelist([eventPath])
+            print(3, eventPath)
+            self._files.selectRowByFilename(eventPath)
+            print(4)
+            self.analyze(eventPath)
+        # HACK --------------------------------------------------------
+
+
 
     def __repr__(self):
         info = {}
@@ -195,6 +228,10 @@ class BatchAnalysis(QDialog):
 
     ### Events
     ### UI-interactions
+
+    def closeEvent(self, event):
+        """Closing the BatchAnalysis dialog to have a clear shutdown."""
+        self.dog.stop()
 
 
     def keyPressEvent(self, event):
@@ -259,26 +296,38 @@ class BatchAnalysis(QDialog):
 
     ### Methods/Analysis
 
-    def analyze(self):
+    # HACK: Single File
+    def analyze(self, singleFile=None):
 
-        # Reset the properties to have clean setup.
+        isSingleFile = bool(singleFile)
+        if singleFile:
+            singleFile = [singleFile]
+            print(singleFile)
+
+        # Reset the properties to have a clean setup.
         self.cancelByEsc = False
-        self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
+
         # Get the modus.
-        isUpdatePlot = self.window.get_update_plots()
-        isPlotTrace = self.window.get_plot_trace()
+        isUpdatePlot = self.window.get_update_plots()# or isSingleFile
+        isPlotTrace = self.window.get_plot_trace()# or isSingleFile
         # Export even if plot trace is selected (First export then import+plot)
         isExportBatch = self.window.get_export_batch() or isPlotTrace
+
         # Get characteristic values.
         basicSetting = self.parent().window.get_basic_setting()
 
         data = []
         skippedFiles = []
-        files = self._files.to_list()
+
+        # Either singleFile is given by a filename, then the amount of files=1,
+        # Otherwise the filelist is used.
+        files = singleFile or self._files.to_list()
         amount = len(files)
+        print("AMOUNT:", amount)
 
         for i in range(amount):
-
+            print("i:",i)
+            # continue
             # Be responsive and process events to enable cancelation.
             QApplication.processEvents()
             if self.cancelByEsc:
@@ -291,27 +340,27 @@ class BatchAnalysis(QDialog):
             file = files[i]
             self.currentFile = FileReader(file)
 
-            # Get the data.
-            specHandler = DataHandler(basicSetting)
-            specHandler.analyse_data(self.currentFile)
-            avg = specHandler.avgbase
-            peakHeight = specHandler.peakHeight
-            peakArea = specHandler.peakArea
-            peakPosition = specHandler.peakPosition
-            characteristicValue = specHandler.characteristicValue
-            timestamp = self.currentFile.timestamp
-
-            # excluding file if no appropiate data given like in processed
-            # spectra.
-            # TODO: Check more exlude conditions like characteristic value
-            # below some defined threshold.
-            # TODO: validate_results as method of specHandlaer? Would also omit
-            # the assignemts above!?
-            if not peakHeight:
-                skippedFiles.append(file)
-                continue
-
             if isExportBatch:
+                # Get the data.
+                specHandler = DataHandler(basicSetting)
+                specHandler.analyse_data(self.currentFile)
+                avg = specHandler.avgbase
+                peakHeight = specHandler.peakHeight
+                peakArea = specHandler.peakArea
+                peakPosition = specHandler.peakPosition
+                characteristicValue = specHandler.characteristicValue
+                timestamp = self.currentFile.timestamp
+
+                # excluding file if no appropiate data given like in processed
+                # spectra.
+                # TODO: Check more exlude conditions like characteristic value
+                # below some defined threshold.
+                # TODO: validate_results as method of specHandlaer? Would also omit
+                # the assignemts above!?
+                if not peakHeight:
+                    skippedFiles.append(file)
+                    continue
+
                 config = self.retrieve_batch_config()
                 config[CHC.BASELINE] = avg
                 config[CHC.CHARACTERISTIC_VALUE] = characteristicValue
@@ -322,15 +371,16 @@ class BatchAnalysis(QDialog):
                 config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
 
                 data.append(self.assemble_row(file, config))
-            elif isUpdatePlot:
-                self.parent().apply_data(file)
-            # elif isPlotTrace:
-            #     # TODO: #50 currently just peakArea, no dropdown.
-            #     # TODO: Check here the selection and assign proper value to it.
-            #     traceValue = peakArea
-            #     data = (timestamp, traceValue)
+                # HACK: ----------------------------------------------------------
+                if isSingleFile:
+                    self.export_batch(self.assemble_row(file, config), singleLine=True)
+                # HACK: ----------------------------------------------------------
 
-        if isExportBatch:
+            # if isUpdatePlot:
+            if isUpdatePlot and not isSingleFile:
+                self._files.selectRowByFilename(file)
+
+        if isExportBatch and not isSingleFile:
             characteristicName = basicSetting.fitting.currentPeak.name
             peakName = CHC.CHARACTERISTIC_VALUE.value + " ({})".format(characteristicName)
             self.export_batch(data, peakName=peakName)
@@ -340,7 +390,8 @@ class BatchAnalysis(QDialog):
 
 
         # Prompt the user with information about the skipped files.
-        dialog.information_BatchAnalysisFinished(skippedFiles)
+        if not isSingleFile:
+            dialog.information_BatchAnalysisFinished(skippedFiles)
 
 
     # TODO: Do not uses self --> can be static or out of the class
@@ -360,9 +411,6 @@ class BatchAnalysis(QDialog):
 
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTrace
-
-        # TODO: Check if init is necessary here!
-        self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
 
         # Select the file from which the data shall be imported.
         try:
@@ -397,9 +445,9 @@ class BatchAnalysis(QDialog):
 
         # Plot the trace.
         try:
+            self.traceSpectrum.init_plot()
             self.traceSpectrum.update_data(diffTimes, values)
             self.traceSpectrum.set_y_label(columnValue)
-            self.traceSpectrum.init_plot()
             self.traceSpectrum.update_plot()
         except:
             # Could not retrieve valid data.
@@ -409,14 +457,17 @@ class BatchAnalysis(QDialog):
         return 0
 
 
-    def export_batch(self, data, peakName=None):
+    def export_batch(self, data, peakName=None, singleLine=False):
 
         # Assemble header with the name of the characteristic value.
         header = self.assemble_header(valueName=peakName)
 
         # Export in csv file.
         csvWriter = FileWriter(self.batchFile)
-        csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
+        if singleLine:
+            csvWriter.write_line(data)
+        else:
+            csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
 
 
     def assemble_header(self, valueName=""):
@@ -559,7 +610,7 @@ class BatchAnalysis(QDialog):
 
         # TODO: Errorhandling?
         # Distinguish given index by numerical value (from another method) or
-        # is given by the ListModel (by an click event)
+        # is given by the ListModel (by an event)
         try:
             index = index.row()
         except AttributeError:

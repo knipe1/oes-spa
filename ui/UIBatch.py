@@ -160,7 +160,7 @@ class UIBatch(Ui_batch):
 
     def connect_select_file(self, fun):
         """Interface to connect fun to clicked signal of the button."""
-        self.listFiles.clicked.connect(fun)
+        self.listFiles.currentRowChanged.connect(fun)
 
 
     def connect_set_filename(self, fun):

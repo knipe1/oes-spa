@@ -120,7 +120,7 @@ class FileSet(set):
 
 
     def selectRowByFilename(self, filename):
-        """Gets the i-th item of the sorted list."""
+        """Gets the i-th item of the sorted list by the filename."""
         files = self.to_list()
         i = files.index(filename)
         if self.has_listWidget():
