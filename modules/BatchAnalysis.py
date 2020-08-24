@@ -41,6 +41,7 @@ import dialog_messages as dialog
 from Logger import Logger
 from modules.Spectrum import Spectrum
 from ui.UIBatch import UIBatch
+from modules.Watchdog import Watchdog
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
 from modules.DataHandler import DataHandler
@@ -176,7 +177,6 @@ class BatchAnalysis(QDialog):
 
         # HACK --------------------------------------------------------
 
-        from modules.Watchdog import Watchdog
         self.dog = Watchdog()
         test = False
         # test = True
@@ -185,7 +185,7 @@ class BatchAnalysis(QDialog):
     def watchdog_event(self, path):
         print("Watchdog: Modified file:", path)
 
-        # Check for modiefied batchfile or spectrum file.
+        # Check for modified batchfile or spectrum file.
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
         batchPath = QFileInfo(self.batchFile).absoluteFilePath()
         eventPath = QFileInfo(path).absoluteFilePath()
@@ -193,13 +193,8 @@ class BatchAnalysis(QDialog):
         if batchPath == eventPath:
             self.import_batch(takeCurrentBatchfile=True)
         else:
-            print(1)
-            # self.analyze(eventPath)
-            print(2)
             self.update_filelist([eventPath])
-            print(3, eventPath)
             self._files.selectRowByFilename(eventPath)
-            print(4)
             self.analyze(eventPath)
         # HACK --------------------------------------------------------
 
