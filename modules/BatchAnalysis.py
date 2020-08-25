@@ -170,6 +170,7 @@ class BatchAnalysis(QDialog):
         self._files = FileSet(listWidget = self.window.listFiles,
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
+        self.WDdirectory = self.window.WDdirectory
         self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
 
         self.set_connections()
@@ -218,8 +219,7 @@ class BatchAnalysis(QDialog):
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_set_filename(self.specify_batchfile)
         self.window.connect_change_trace(self.import_batch)
-
-
+        self.window.connect_set_directory(self.specify_watchdog_directory)
 
     ### Events
     ### UI-interactions
@@ -545,6 +545,20 @@ class BatchAnalysis(QDialog):
         self.batchFile = filename
 
         return filename
+
+
+    def specify_watchdog_directory(self):
+        directory = dialog.dialog_getDirectory(self.lastdir)
+
+        # TODO: Use property here?! Liek batchFile
+        self.WDdirectory = directory
+        self.window.WDdirectory = directory
+
+        # Update last directory if not cancelled.
+        if directory:
+            self.lastdir = directory
+
+
 
 
     def browse_spectra(self):

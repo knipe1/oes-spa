@@ -43,6 +43,17 @@ class UIBatch(Ui_batch):
         self.foutCSV.setText(filename)
 
 
+    @property
+    def WDdirectory(self):
+        """WDdirectory getter"""
+        return self.foutWatchdog.text()
+
+    @WDdirectory.setter
+    def WDdirectory(self, filename:str):
+        """WDdirectory setter"""
+        self.foutWatchdog.setText(filename)
+
+
     # TODO: dict/list?@property
     @property
     def currentTrace(self)->str:
@@ -171,6 +182,11 @@ class UIBatch(Ui_batch):
     def connect_change_trace(self, fun):
         """Interface to connect fun to clicked signal of the button."""
         self.cmbTrace.currentTextChanged.connect(fun)
+
+
+    def connect_set_directory(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnSetWatchdogDir.clicked.connect(fun)
 
 
     # TODO: @property?

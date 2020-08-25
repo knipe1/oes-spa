@@ -239,7 +239,7 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
     return filename;
 
 
-def dialog_getDirectory(directory, parent=None):
+def dialog_getDirectory(directory="./", parent=None):
     """
     Opens a native  dialog to set the filename if not given.
 
