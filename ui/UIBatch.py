@@ -189,6 +189,11 @@ class UIBatch(Ui_batch):
         self.btnSetWatchdogDir.clicked.connect(fun)
 
 
+    def connect_watchdog(self, fun):
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnWatchdog.clicked.connect(fun)
+
+
     # TODO: @property?
     def update_progressbar(self, percentage:[int, float]):
         """

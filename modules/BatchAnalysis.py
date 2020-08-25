@@ -124,7 +124,25 @@ class BatchAnalysis(QDialog):
     def batchFile(self, text:str):
         """batchFile setter: Updating the ui"""
         self._batchFile = text
-        self.window.batchFile = text
+        try:
+            self.window.batchFile = text
+        except:
+            pass
+
+
+    @property
+    def WDdirectory(self):
+        """WDdirectory getter"""
+        return self._WDdirectory
+
+    @WDdirectory.setter
+    def WDdirectory(self, path:str):
+        """WDdirectory setter: Updating the ui"""
+        self._WDdirectory = path
+        try:
+            self.window.WDdirectory = path
+        except:
+            pass
 
 
     @property
@@ -155,6 +173,10 @@ class BatchAnalysis(QDialog):
         # Initialize the parent class ( == QDialog.__init__(self).
         super().__init__(parent)
 
+        # Init the props to prevent errors in the ui-init routine.
+        self.batchFile = None
+        self.WDdirectory = None
+
         # Set up ui.
         self.window = UIBatch(self)
 
@@ -182,6 +204,51 @@ class BatchAnalysis(QDialog):
         test = False
         # test = True
         test or self.dog.start('./sample files', self.watchdog_event)
+
+
+    def toggle_watchdog(self, status):
+        if status:
+            self.activate_watchdog()
+        else:
+            self.deactivate_watchdog()
+
+
+    def deactivate_watchdog(self):
+        try:
+            self.dog.stop()
+        except:
+            pass
+
+
+    def activate_watchdog(self):
+        """
+
+
+        Returns
+        -------
+        None.
+
+        """
+        # Check if stuff is valid
+        from os.path import isdir
+
+        WDpath = self.WDdirectory
+        if not isdir(WDpath):
+            print("WDpath not defined:", WDpath)
+            return
+
+        batchPath = QFileInfo(self.batchFile).path()
+        if not isdir(batchPath):
+            print("batchPath not defined:", batchPath)
+            return
+
+        # Start WD for batchfile
+        self.dog.start(WDpath, self.watchdog_event)
+
+        # Start WD for spectra directory (if they differ).
+        if not (WDpath == batchPath):
+            self.dog.start(batchPath, self.watchdog_event)
+
 
     def watchdog_event(self, path):
         print("Watchdog: Modified file:", path)
@@ -220,13 +287,14 @@ class BatchAnalysis(QDialog):
         self.window.connect_set_filename(self.specify_batchfile)
         self.window.connect_change_trace(self.import_batch)
         self.window.connect_set_directory(self.specify_watchdog_directory)
+        self.window.connect_watchdog(self.toggle_watchdog)
 
     ### Events
     ### UI-interactions
 
     def closeEvent(self, event):
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
-        self.dog.stop()
+        self.deactivate_watchdog()
 
 
     def keyPressEvent(self, event):
@@ -235,6 +303,8 @@ class BatchAnalysis(QDialog):
 
         Regarding deletions, cancellations,...
         """
+        print(self.batchFile)
+        print(QFileInfo(self.batchFile).path())
 
         isFocused = self.window.focussed_filelist()
         isDelete = event.matches(QKeys.Delete)
