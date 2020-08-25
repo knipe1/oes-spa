@@ -65,7 +65,7 @@
      <item>
       <widget class="QLineEdit" name="foutWatchdog">
        <property name="readOnly">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -324,11 +324,11 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="RadProcess"/>
   <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="RadProcess"/>
  </buttongroups>
 </ui>

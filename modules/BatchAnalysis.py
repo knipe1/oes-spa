@@ -364,13 +364,13 @@ class BatchAnalysis(QDialog):
     # HACK: Single File
     def analyze(self, singleFile=None):
 
+        # Reset the properties to have a clean setup.
+        self.cancelByEsc = False
+
         isSingleFile = bool(singleFile)
         if singleFile:
             singleFile = [singleFile]
             print(singleFile)
-
-        # Reset the properties to have a clean setup.
-        self.cancelByEsc = False
 
         # Get the modus.
         isUpdatePlot = self.window.get_update_plots()# or isSingleFile

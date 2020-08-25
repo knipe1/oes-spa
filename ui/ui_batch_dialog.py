@@ -43,7 +43,7 @@ class Ui_batch(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.foutWatchdog = QtWidgets.QLineEdit(batch)
-        self.foutWatchdog.setReadOnly(False)
+        self.foutWatchdog.setReadOnly(True)
         self.foutWatchdog.setObjectName("foutWatchdog")
         self.horizontalLayout.addWidget(self.foutWatchdog)
         self.btnWatchdog = QtWidgets.QPushButton(batch)
