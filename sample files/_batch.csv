@@ -1,4 +1,10 @@
-Date 25.08.2020 15:01:00
+Date 26.08.2020 08:51:49
 Filename	Peak height	Peak area	Baseline	Characteristic value (BH Peak)	Header info	Peak position
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Obelix276 15.Spk	5.2281240395829	0.5215456524082048	4004.5242717143747	12.372359652041503	12.04.2019 14:56:53	433.426494725
-/home/hauke/IAF/oes-spectra-analysis-Homeversion/sample files/Obelix276 50.Spk	3.0313434862376116	0.30917658475026627	4989.394557927584	7.040553251498527	12.04.2019 15:41:48	433.43151231
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/1_342nm.asc	0.003117129245871571	0.0	2654.3950610126344	0.0	26.05.2020 14:44:40	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/2_342nm.asc	0.01986629817335794	0.0	2610.543817291197	0.0	26.05.2020 14:46:13	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/3_342nm.asc	0.04092755624519756	0.0	2564.372059181958	0.0	26.05.2020 14:47:47	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/4_342nm.asc	0.004118173968192935	0.0	2594.19985507127	0.0	26.05.2020 14:49:20	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/5_342nm.asc	0.036737889655407835	0.0	2326.56644580163	0.0	26.05.2020 14:50:53	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/6_342nm.asc	0.044929943573252674	0.0	2351.0853228889864	0.0	26.05.2020 14:52:27	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/7_342nm.asc	0.017289108992751222	0.0	2886.126298114532	0.0	26.05.2020 14:54:00	348.51129
+/home/hauke/IAF/oes-spectra-analysis-Homeversion/AW__Hilfe_in_Python/9_342nm.asc	0.011365705768649745	0.0	3091.6510202829563	0.0	26.05.2020 14:57:06	348.51129

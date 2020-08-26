@@ -69,6 +69,8 @@ class AnalysisWindow(QMainWindow):
     @currentFile.setter
     def currentFile(self, file:FileReader):
         """currentFile setter: Updating the ui"""
+        previousFile = self._currentFile
+        self._currentFile = file
         try:
             self.set_fileinformation(file)
 
@@ -80,13 +82,12 @@ class AnalysisWindow(QMainWindow):
                     self.window.add_information(entry)
 
             # Set Wavelength if provided and a freshly loaded file.
-            if self._currentFile.header != file.header:
+            if self._currentFile.header != previousFile.header:
                 self.window.wavelength = file.parameter[ASC.WL]
         except AttributeError:
             self.logger.info("Reloaded/Redrawn file.")
         except KeyError:
             self.logger.info("No Wavelength provided by: " + file.filename)
-        self._currentFile = file
 
     ### Methods
 
