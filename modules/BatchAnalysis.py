@@ -11,6 +11,7 @@ Usage:
 
 Glossary:
     batchfile: The file in which the characteristic values are exported to.
+    WDdirectory: Directory which is observed by the WatchDog (WD)
 
 
 Created on Mon Jan 20 10:22:44 2020
@@ -28,6 +29,7 @@ Created on Mon Jan 20 10:22:44 2020
 # standard libs
 import numpy as np
 from datetime import datetime
+from os.path import isdir
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo
@@ -193,78 +195,89 @@ class BatchAnalysis(QDialog):
                              updateOnChange = self.enable_analysis)
         self.batchFile = self.window.batchFile
         self.WDdirectory = self.window.WDdirectory
+        self.dog = Watchdog()
         self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
 
+        # Link events of the ui to methods of this class.
         self.set_connections()
 
 
-        # HACK --------------------------------------------------------
 
-        self.dog = Watchdog()
-        test = False
-        # test = True
-        test or self.dog.start('./sample files', self.watchdog_event)
-
-
-    def toggle_watchdog(self, status):
-        if status:
-            self.activate_watchdog()
-        else:
-            self.deactivate_watchdog()
-
-
-    def deactivate_watchdog(self):
-        try:
-            self.dog.stop()
-        except:
-            pass
-
-
-    def activate_watchdog(self):
+    def toggle_watchdog(self, status:bool)->None:
         """
+        Activates or deactivates the Watchdog.
 
+
+        Parameters
+        ----------
+        status : bool
+            Activates the WD if True, deactivates otherwise.
 
         Returns
         -------
         None.
 
         """
-        # Check if stuff is valid
-        from os.path import isdir
+
+        if status:
+            self.activate_watchdog()
+        else:
+            self.deactivate_watchdog()
+
+
+    def deactivate_watchdog(self)->None:
+        try:
+            self.dog.stop()
+        except:
+            pass
+
+
+    def activate_watchdog(self)->None:
+        """
+        Activates the WD if corresponding paths are valid.
+
+        Returns
+        -------
+        None.
+
+        """
+
 
         WDpath = self.WDdirectory
         if not isdir(WDpath):
-            print("WDpath not defined:", WDpath)
+            self.logger.warning("WDpath not defined: %s"%(WDpath))
             return
 
         batchPath = QFileInfo(self.batchFile).path()
         if not isdir(batchPath):
-            print("batchPath not defined:", batchPath)
+            self.logger.warning("batchPath not defined: %s"%(batchPath))
             return
 
-        # Start WD for batchfile
-        self.dog.start(WDpath, self.watchdog_event)
+        try:
+            # Start WD for batchfile
+            self.dog.start(WDpath, self.watchdog_event)
 
-        # Start WD for spectra directory (if they differ).
-        if not (WDpath == batchPath):
-            self.dog.start(batchPath, self.watchdog_event)
+            # Start WD for spectra directory (if they differ).
+            if not (WDpath == batchPath):
+                self.dog.start(batchPath, self.watchdog_event)
+        except AttributeError:
+            self.logger.error("Error: No dog initialized!")
 
 
     def watchdog_event(self, path):
-        print("Watchdog: Modified file:", path)
+        self.logger.warning("Watchdog: Modified file: %s"%(path))
 
-        # Check for modified batchfile or spectrum file.
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
         batchPath = QFileInfo(self.batchFile).absoluteFilePath()
         eventPath = QFileInfo(path).absoluteFilePath()
 
+        # Distinguish between modified batch- and spectrum-file.
         if batchPath == eventPath:
             self.import_batch(takeCurrentBatchfile=True)
         else:
             self.update_filelist([eventPath])
             self._files.selectRowByFilename(eventPath)
             self.analyze(eventPath)
-        # HACK --------------------------------------------------------
 
 
 
@@ -368,14 +381,13 @@ class BatchAnalysis(QDialog):
         self.cancelByEsc = False
 
         isSingleFile = bool(singleFile)
-        if singleFile:
+        if isSingleFile:
             singleFile = [singleFile]
-            print(singleFile)
 
         # Get the modus.
-        isUpdatePlot = self.window.get_update_plots()# or isSingleFile
-        isPlotTrace = self.window.get_plot_trace()# or isSingleFile
-        # Export even if plot trace is selected (First export then import+plot)
+        isUpdatePlot = self.window.get_update_plots()
+        isPlotTrace = self.window.get_plot_trace()
+        # Export even if plot trace is selected(First export then import+plot).
         isExportBatch = self.window.get_export_batch() or isPlotTrace
 
         # Get characteristic values.
@@ -388,11 +400,10 @@ class BatchAnalysis(QDialog):
         # Otherwise the filelist is used.
         files = singleFile or self._files.to_list()
         amount = len(files)
-        print("AMOUNT:", amount)
+        self.logger.info("No. of files %i:"%(amount))
 
         for i in range(amount):
-            print("i:",i)
-            # continue
+
             # Be responsive and process events to enable cancelation.
             QApplication.processEvents()
             if self.cancelByEsc:
@@ -441,13 +452,14 @@ class BatchAnalysis(QDialog):
                     self.export_batch(self.assemble_row(file, config), singleLine=True)
                 # HACK: ----------------------------------------------------------
 
-            # if isUpdatePlot:
+            # Select by filename to trigger event based update of the plot.
             if isUpdatePlot and not isSingleFile:
                 self._files.selectRowByFilename(file)
 
         if isExportBatch and not isSingleFile:
+            # Get the name of the peak for proper description.
             characteristicName = basicSetting.fitting.currentPeak.name
-            peakName = CHC.CHARACTERISTIC_VALUE.value + " ({})".format(characteristicName)
+            peakName = CHC.CHARACTERISTIC_VALUE.value + " (%s)"%(characteristicName)
             self.export_batch(data, peakName=peakName)
 
         if isPlotTrace:

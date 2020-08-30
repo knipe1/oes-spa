@@ -193,7 +193,10 @@ class Spectrum():
             self.logger.warning("Could not plot baseline.")
 
         # Zoom to specific area.
-        axes.update_layout(xLimit=(self.xData[0], self.xData[-1]));
+        try:
+            axes.update_layout(xLimit=(self.xData[0], self.xData[-1]));
+        except:
+            pass
 
         for intArea in self.intAreas:
             col = int_peak_color if intArea.peakType == CHC.TYPE_PEAK else int_ref_color

@@ -7,11 +7,9 @@ Created on Sun Jun 14 09:17:48 2020
 """
 
 # standard libs
-from enum import Enum, auto
+from enum import Enum
 
 class ASC_PARAMETER(Enum):
     """Interface for the .asc-file parameter."""
-    TEMP = auto()
     WL = "Wavelength (nm)"
-    EX_TIME = auto()
     GRAT = "Grating Groove Density (l/mm)"
