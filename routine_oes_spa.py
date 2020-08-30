@@ -75,6 +75,9 @@ def main():
     # # window.batch.window.btnCalculate.click()
     # # # window.batch.hide()
 
+    # Activate WD
+    window.batch.window.btnWatchdog.click()
+
     sys.exit(app.exec_())
 
 

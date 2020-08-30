@@ -38,4 +38,4 @@ class Watchdog():
         try:
             self.observer.stop()
         except:
-            print("no observer initialized.")
+            print("No observer initialized.")

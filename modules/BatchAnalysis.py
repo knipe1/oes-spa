@@ -230,6 +230,7 @@ class BatchAnalysis(QDialog):
             self.dog.stop()
         except:
             pass
+        self.window.btnSetWatchdogDir.setEnabled(True)
 
 
     def activate_watchdog(self)->None:
@@ -242,15 +243,20 @@ class BatchAnalysis(QDialog):
 
         """
 
-
+        isValid = True
+        # Prequerities given if WDpath and batchpath are defined.
         WDpath = self.WDdirectory
         if not isdir(WDpath):
             self.logger.warning("WDpath not defined: %s"%(WDpath))
-            return
+            isValid = False
 
         batchPath = QFileInfo(self.batchFile).path()
         if not isdir(batchPath):
             self.logger.warning("batchPath not defined: %s"%(batchPath))
+            isValid = False
+
+        if not isValid:
+            self.window.btnWatchdog.setChecked(False)
             return
 
         try:
@@ -260,6 +266,8 @@ class BatchAnalysis(QDialog):
             # Start WD for spectra directory (if they differ).
             if not (WDpath == batchPath):
                 self.dog.start(batchPath, self.watchdog_event)
+
+            self.window.btnSetWatchdogDir.setEnabled(False)
         except AttributeError:
             self.logger.error("Error: No dog initialized!")
 
