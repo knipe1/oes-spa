@@ -392,9 +392,9 @@ class FileReader(FileFramework):
 
             # Get specific values for further analysis
             if name == ASC.WL.value:
-                parameter[ASC.WL] = value
+                self.WAVELENGTH = value
             elif name == ASC.GRAT.value:
-                parameter[ASC.GRAT] = value
+                self.GRATING = value
 
             row = csvReader.__next__()
 

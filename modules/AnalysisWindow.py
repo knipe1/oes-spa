@@ -75,15 +75,16 @@ class AnalysisWindow(QMainWindow):
             self.set_fileinformation(file)
 
             # Set additional information (like from asc-file)
-            self.window.clear_information()
-            for key, value in file.parameter.items():
-                if not isinstance(key, ASC):
-                    entry = key + ": " + value
-                    self.window.add_information(entry)
+            self.window.update_information(file.parameter)
+            # self.window.clear_information()
+            # for key, value in file.parameter.items():
+            #     if not isinstance(key, ASC):
+            #         entry = key + ": " + value
+            #         self.window.add_information(entry)
 
             # Set Wavelength if provided and a freshly loaded file.
             if self._currentFile.header != previousFile.header:
-                self.window.wavelength = file.parameter[ASC.WL]
+                self.window.wavelength = file.WAVELENGTH
         except AttributeError:
             self.logger.info("Reloaded/Redrawn file.")
         except KeyError:
@@ -373,7 +374,7 @@ class AnalysisWindow(QMainWindow):
         # Check for differences in entered WL and stored WL
         try:
             showDiffWL = False
-            if float(file.parameter[ASC.WL]) != basicSetting.wavelength:
+            if float(file.WAVELENGTH) != basicSetting.wavelength:
                 showDiffWL = True
         except:
             pass

@@ -106,7 +106,18 @@ class UIMain(Ui_main):
     @wavelength.setter
     def wavelength(self, wl):
         """Sets the given wavelenght wl to the ui-element."""
-        self.tinCentralWavelength.setText(wl)
+
+    @property
+    def grating(self)->int:
+        """Get the converted grating or None."""
+        # TODO: cf. wavelength, but dropdown cannot be empty.
+        grating = None
+        try:
+            grating = self.ddGrating.currentText()
+            grating = float(grating)
+        except:
+            self.logger.error("Could not get valid value for grating!")
+        return grating
 
 
     @property
@@ -366,12 +377,28 @@ class UIMain(Ui_main):
         self.lblFitting.setText(label)
 
 
-    def add_information(self, entry:str):
-        self.listInformation.addItem(entry)
+    def update_information(self, info:dict):
+        """
+        Resets the information box and update it with the given information.
 
+        Parameters
+        ----------
+        info : dict
+            Information of the form: description->value.
 
-    def clear_information(self):
+        Returns
+        -------
+        None.
+
+        """
+        # Init Format and clear.
+        form = ": "
         self.listInformation.clear()
+        for line in info.items():
+            # format the entry
+            entry = form.join(line)
+            self.listInformation.addItem(entry)
+
 
 
     def show_diff_wavelength(self, show:bool):
