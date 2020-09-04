@@ -76,11 +76,6 @@ class AnalysisWindow(QMainWindow):
 
             # Set additional information (like from asc-file)
             self.window.update_information(file.parameter)
-            # self.window.clear_information()
-            # for key, value in file.parameter.items():
-            #     if not isinstance(key, ASC):
-            #         entry = key + ": " + value
-            #         self.window.add_information(entry)
 
             # Set Wavelength if provided and a freshly loaded file.
             if self._currentFile.header != previousFile.header:
@@ -245,8 +240,6 @@ class AnalysisWindow(QMainWindow):
         filename, timestamp = self.get_fileinformation()
         labels = spec.labels.values()
         xyData = zip(spec.xData, spec.yData)
-        # xyData = uni.extract_xy_data(spec.ui.axes,
-        #                              spec.markup.get("label"))
 
         if filename == None:
             isExported = False;
@@ -376,7 +369,7 @@ class AnalysisWindow(QMainWindow):
             showDiffWL = False
             if float(file.WAVELENGTH) != basicSetting.wavelength:
                 showDiffWL = True
-        except:
+        except KeyError:
             pass
         finally:
             self.window.show_diff_wavelength(showDiffWL)

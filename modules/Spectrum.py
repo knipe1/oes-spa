@@ -158,6 +158,7 @@ class Spectrum():
 
     def set_y_label(self, label):
         arbitraryUnit = " / a. u."
+        # TODO: Incorrect label for asc files
         self.labels["yLabel"] = label + arbitraryUnit
         self.markup["label"] = label
 

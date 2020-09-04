@@ -22,6 +22,7 @@ config = ConfigLoader()
 BATCH = config.BATCH
 EXPORT = config.EXPORT
 IMPORT = config.IMPORT
+TIMESTAMP = config.TIMESTAMP
 
 def is_valid_filetype(url):
         """Checks whether the given url is valid to load the data."""
@@ -75,7 +76,7 @@ def convert_to_hours(timedifference):
 def timestamp_to_string(timestamp):
     """Converts the given timestamp to a string with a pre-defined format."""
     # strftime = STRing From TIME (with a given format)
-    timestampString = datetime.strftime(timestamp, EXPORT["FORMAT_TIMESTAMP"])
+    timestampString = datetime.strftime(timestamp, TIMESTAMP["EXPORT"])
     return timestampString
 
 def add_suffix(filename, suffix):

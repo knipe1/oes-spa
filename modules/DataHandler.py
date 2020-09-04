@@ -24,6 +24,7 @@ from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
 from custom_types.Integration import Integration
 
 
@@ -141,7 +142,7 @@ class DataHandler(QObject):
         try:
             # 12.04391 -> delta wl
             self.dispersion = 12.04391 / parameter[ASC.GRAT]
-        except:
+        except KeyError:
             # 12.042204 -> analysed with asc-data: used instead of 14
             self.dispersion = 12.042204 / basicSetting.grating
 
@@ -212,6 +213,9 @@ class DataHandler(QObject):
         None. Assigns the extracted information to instance.
 
         """
+        if not isinstance(self.xData[0], float):
+            # TODO: is Batch
+            return
 
         # Convert x data into wavelengths or just shift it.
         procXData = self.assign_wavelength()
@@ -239,8 +243,9 @@ class DataHandler(QObject):
         """
 
         # Get raw data. Process data and calculate characteristic values.
-        if not file.is_valid_datafile():
+        if file.check_datafile() != ERR.OK:
             dialog.critical_unknownFiletype()
+            # TODO: log Error
             return None
 
 

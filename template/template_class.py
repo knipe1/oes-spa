@@ -23,12 +23,23 @@ class name():
     # Load the configuration.
     config = ConfigLoader()
 
+
+    ### Properties
+
+
+    ### __Methods__
+
     def __init__(self):
 
         # Set up the logger.
         self.logger = Logger(__name__)
 
-        self.post_init__()
+        self.__post_init__()
 
     def __post_init__(self):
         pass
+
+
+    ### Methods
+
+### module-level functions

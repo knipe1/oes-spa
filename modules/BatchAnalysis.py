@@ -495,6 +495,7 @@ class BatchAnalysis(QDialog):
     def import_batch(self, takeCurrentBatchfile=False):
 
         # Define the specific value which shall be plotted.
+        # TODO: rename to currentTraceValue
         columnValue = self.window.currentTrace
 
         # Select the file from which the data shall be imported.

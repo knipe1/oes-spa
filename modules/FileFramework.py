@@ -20,11 +20,16 @@ from Logger import Logger
 class FileFramework:
 
     # Load the configuration for import, export and further properties.
+    # TODO: Use Properties?
     config = ConfigLoader()
     EXPORT = config.EXPORT
     IMPORT = config.IMPORT
     MARKER = config.MARKER
     DIALECT = config.DIALECT
+    DIALECT_CSV = config.DIALECT_CSV
+    DATA_STRUCTURE = config.DATA_STRUCTURE
+    TIMESTAMP = config.TIMESTAMP
+
 
     def __init__(self, filename):
         # set up the logger
@@ -32,10 +37,18 @@ class FileFramework:
 
         self.filename = filename
 
+        # Register different dialects for different filetypes.
         csv.register_dialect(self.DIALECT["name"],
                              delimiter = self.DIALECT["delimiter"],
                              quoting = self.DIALECT["quoting"])
+        csv.register_dialect(self.DIALECT_CSV["name"],
+                             delimiter = self.DIALECT_CSV["delimiter"],
+                             quoting = self.DIALECT_CSV["quoting"])
+
+        # set default dialect.
         self.dialect = self.DIALECT["name"]
+
+
 
 # TODO: testcode to evaluate usage of datetime lib
 # from datetime import datetime

@@ -41,12 +41,13 @@ def main():
     try:
         # window.export_raw()
         #window.window.ddFitting.setCurrentIndex(3)
-        # window.file_open("./sample files/Asterix1059 1.Spk")
+        window.file_open("./sample files/Asterix1059 1.Spk")
         window.file_open("./sample files/SIF/testasc.asc")
         # window.file_open("./sample files/_batch.csv")
         # window.export_raw()
         # window.export_processed()
-        # window.file_open("./sample files/Asterix1059 1_raw.csv")
+        window.file_open("./sample files/Asterix1059 1_raw.csv")
+        # window.file_open("./sample files/Asterix1059 1_processed.csv")
         # window.export_processed()
     except:
         pass
@@ -54,19 +55,20 @@ def main():
 
     window.batch.show()
 
-    # text = "filename"
-    # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
-    # arbitrary.start()
-    # accept the name
+    # # text = "filename"
+    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
+    # # arbitrary.start()
+    # # accept the name
 
-    enter = THR.Thread(target=emu.key_accept)
-    enter.start()
 
-    # # in case of file already exists
-    # yes = THR.Thread(target=emu.key_alt_j)
-    # yes.start()
+    # enter = THR.Thread(target=emu.key_accept)
+    # enter.start()
 
-    window.batch.window.btnSetFilename.click()
+    # # # in case of file already exists
+    # # yes = THR.Thread(target=emu.key_alt_j)
+    # # yes.start()
+
+    # window.batch.window.btnSetFilename.click()
     # selection = THR.Thread(target=emu.key_select_file, args=[20])
     # selection.start()
     # window.lastdir = window.lastdir+"/Obel276"
@@ -76,7 +78,7 @@ def main():
     # # # window.batch.hide()
 
     # Activate WD
-    window.batch.window.btnWatchdog.click()
+    # window.batch.window.btnWatchdog.click()
 
     sys.exit(app.exec_())
 

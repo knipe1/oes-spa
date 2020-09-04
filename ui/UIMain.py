@@ -106,6 +106,9 @@ class UIMain(Ui_main):
     @wavelength.setter
     def wavelength(self, wl):
         """Sets the given wavelenght wl to the ui-element."""
+        self.tinCentralWavelength.setText(wl)
+
+
 
     @property
     def grating(self)->int:
@@ -191,14 +194,11 @@ class UIMain(Ui_main):
 
 
     def get_results(self):
-        results = {CHC.PEAK_HEIGHT.value:
-                       self.toutPeakHeight.text(),
-                   CHC.PEAK_AREA.value:
-                       self.toutPeakArea.text(),
-                   CHC.BASELINE.value:
-                       self.toutBaseline.text(),
+        results = {CHC.PEAK_HEIGHT.value: self.toutPeakHeight.text(),
+                   CHC.PEAK_AREA.value: self.toutPeakArea.text(),
+                   CHC.BASELINE.value: self.toutBaseline.text(),
                    self.lblCharacteristicValue.text():
-                       self.toutCHCValue.text(),
+                       self.toutCharacteristicValue.text(),
                    }
         return results
 

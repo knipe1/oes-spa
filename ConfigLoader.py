@@ -50,6 +50,11 @@ class ConfigLoader():
         return self.config["DIALECT"]
 
     @property
+    def DIALECT_CSV(self) -> dict:
+        """Get the DIALECT-configuration."""
+        return self.config["DIALECT_CSV"]
+
+    @property
     def EXPORT(self) -> dict:
         """Get the EXPORT-configuration."""
         return self.config["EXPORT"]
@@ -78,6 +83,11 @@ class ConfigLoader():
     def PLOT(self) -> dict:
         """Get the PLOT-configuration."""
         return self.config["PLOT"]
+
+    @property
+    def TIMESTAMP(self) -> dict:
+        """Get the TIMESTAMP-configuration."""
+        return self.config["TIMESTAMP"]
 
 
     # Set indiviual props to update them properly.

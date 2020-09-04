@@ -24,6 +24,7 @@ import modules.Universal as uni
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.SUFFICES import SUFFICES as SUFF
 
 
 class FileWriter(FileFramework):
@@ -32,9 +33,7 @@ class FileWriter(FileFramework):
 
     def __init__(self, filename, timestamp=None):
         FileFramework.__init__(self, filename)
-
-        # TODO: Errorhandling if directory is cancelled or does not exist
-        # self.directory = self.select_directory()
+        self.dialect = self.DIALECT_CSV["name"]
 
         # (Create and) assign timestamp.
         if timestamp == None:
@@ -71,6 +70,7 @@ class FileWriter(FileFramework):
             False: if directory is not set.
 
         """
+
         expFilename = self.build_exp_filename(exportType)
         if not expFilename:
             return False
@@ -95,6 +95,7 @@ class FileWriter(FileFramework):
         return True
 
     def write_line(self, data):
+        # TODO: docstring
         with open(self.filename, 'a', newline='') as f:
             # open writer with self defined dialect
             writer = csv.writer(f, dialect=self.dialect)
@@ -106,13 +107,11 @@ class FileWriter(FileFramework):
         """Alters the current filename to a standard processed export
         filename"""
         rawFilename = self.filename
-        # remove the suffix
-        # TODO: doublecheck methods
-        for suffix in self.IMPORT["VALID_SUFFIX"]:
-            rawFilename = rawFilename.replace("."+suffix, "")
+        # remove the suffix by taking the first element prior a point.
+        rawFilename = rawFilename.split(".")[0]
 
         # Check whether the user is about to export an exported spectrum.
-        isRawSpectrum = rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0
+        isRawSpectrum = (rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0)
         isProccessedSpectrum = rawFilename.rfind(
             self.EXPORT["PROCESSED_APPENDIX"]) >= 0
         if isRawSpectrum or isProccessedSpectrum:
@@ -125,9 +124,10 @@ class FileWriter(FileFramework):
         elif exportType == EXPORT_TYPE.PROCESSED:
             appendix = self.EXPORT["PROCESSED_APPENDIX"];
 
-        return rawFilename+appendix+self.EXPORT["EXP_SUFFIX"];
+        return rawFilename + appendix + self.EXPORT["EXP_SUFFIX"];
 
     def build_head(self):
+        # TODO: docstring
         timestamp = self.timestamp
         try:
             timestamp = uni.timestamp_to_string(timestamp)

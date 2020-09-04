@@ -3,9 +3,14 @@ BATCH:
   SEPARATOR: ':'
   SUFFIX: csv
 DATA_STRUCTURE:
+  PIXEL_COLUMN: 0
   ASC_DATA_COLUMN: 1
   CSV_DATA_COLUMN: 1
   SPK_DATA_COLUMN: 3
+DIALECT_CSV:
+  delimiter: ","
+  name: csv_data
+  quoting: 0
 DIALECT:
   delimiter: "\t"
   name: spectral_data
@@ -40,6 +45,7 @@ IMPORT:
 MARKER:
   DATA: Data
   HEADER: Date
+  BATCH: Filename
 PLOT:
   BATCH_DATA_COLOR: k
   BATCH_DATA_LABEL: Characteristic
@@ -60,3 +66,6 @@ PLOT:
   RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
+TIMESTAMP:
+  EXPORT: '%d.%m.%Y %H:%M:%S'
+  ASC: "%a %b %d %H:%M:%S.%f %Y"
