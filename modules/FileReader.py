@@ -32,6 +32,8 @@ from modules.FileFramework import FileFramework
 from modules.AscReader import AscReader
 from modules.CsvReader import CsvReader
 from modules.SpkReader import SpkReader
+# further modules
+import modules.Universal as uni
 
 # enums (alphabetical order)
 from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
@@ -69,20 +71,10 @@ class FileReader(FileFramework):
     -------
     check_datafile()->ERROR_CODE:
         Checks whether the file contains valid data.
-    get_suffix()->str:
+    determine_subReader()->str:
         Extracts the filetype of the given filename.
     read_file(**kwargs)->ERROR_CODE:
         TODO
-    get_exported_header(row:list)->None:
-        Extracts the header of an exported (csv, and spk) file.
-    get_asc_header(row:list)->None:
-        Extracts the header of an .asc file.
-    get_spk_data(fReader)->list:
-        Read out the data of a .spk-file respective to its structure.
-    get_csv_data(fReader)->list:
-        Read out the data of a .csv-file respective to its structure.
-    get_asc_data(fReader)->list:
-        Read out the data of a .asc-file respective to its structure.
 
     """
 
@@ -164,11 +156,12 @@ class FileReader(FileFramework):
         # Init with "Not set!" to display the warning on the ui.
         self.date = "Not set!"
         self.time = "Not set!"
+        self.subReader = None
 
 
     def determine_subReader(self):
         # TODO: docstring
-        suffix = self.get_suffix()
+        suffix = uni.get_suffix(self.filename)
 
         if suffix == SUFF.CSV.value:
             subReader = CsvReader()
@@ -181,7 +174,7 @@ class FileReader(FileFramework):
 
         else:
             self.logger.warning(f"Unknown suffix: {suffix}")
-            return ERR.UNKNOWN_FILETYPE
+            return None
 
         return subReader
 
@@ -196,7 +189,7 @@ class FileReader(FileFramework):
         """
 
         # Filetype.
-        if not self.get_suffix():
+        if not self.subReader:
             return ERR.UNKNOWN_FILETYPE;
 
         # Data in general.
@@ -214,61 +207,29 @@ class FileReader(FileFramework):
         return ERR.OK;
 
 
-    def get_suffix(self)->str:
-        """
-        Extracts the filetype of the given filename.
-
-        Moreover, it checks whether the suffix of the filename is valid.
-
-        Returns
-        -------
-        fileinfo : str or bool
-            suffix of the file if valid.
-            False otherwise.
-
-        """
-
-        # Use only lower case to avoid overhead for .spk & .Spk files.
-        fileSuffix = QFileInfo(self.filename).completeSuffix().lower()
-
-        if not SUFF.has_value(fileSuffix):
-            fileSuffix = False;
-
-        return fileSuffix
-
-
     def read_file(self, **kwargs)->ERR:
         """Readout given file"""
-        # TODO: config? parentclass?
-        # TODO: issue if file has no header
-        # TODO: issue if there were no data
-        # TODO: issue if file starts with empty line
 
         # Get Data from file.
-        with open(self.filename, 'r', newline='') as openFile:
+        with open(self.filename, 'r') as openFile:
             # Set up the reader (even if the file is something else than csv,
             # because we use another dialect then).
             fReader = csv.reader(openFile, dialect=self.subReader.dialect)
 
-
+            # Header information
             get_header = self.subReader.get_header
-
             errorHeader = self.extract_header(fReader, get_header)
             if errorHeader != ERR.OK:
                 return errorHeader
 
-            # TODO: another method
             # Gets the set of parameter of the file if available.
-            try:
-                self.parameter = self.subReader.get_parameter(fReader, **kwargs)
-            except AttributeError:
-                print("Could not find paramter method.")
+            self.parameter = self.read_parameter(fReader, self.subReader, **kwargs)
 
-            self.data = read_data(fReader, self.subReader)
+            # Data
+            self.data = self.read_data(fReader, self.subReader)
             if not len(self.data):
                 self.logger.error(f"No valid data in {self.filename}")
                 return ERR.INVALID_DATA
-        # HACK ---------------------------------------------------------------
 
         return ERR.OK
 
@@ -301,44 +262,61 @@ class FileReader(FileFramework):
         return ERR.INVALID_HEADER
 
 
-### module-level functions
+    def read_data(self, fReader, subReader)->list:
+        """
+        Read the data of the specified columns of a file opened with a reader.
 
-def read_data(fReader, subReader)->list:
-    """
-    Read the data of the specified columns of a file opened with a reader.
+        Iter through the rows of a file and extracts its data with respect to
+        the specified columns.
 
-    Iter through the rows of a file and extracts its data with respect to
-    the specified columns.
+        Parameters
+        ----------
+        fReader : csv.Reader
+            The file to read is opened with that reader.
+        xColumn : int
+            The index of the column which contains the x values of the data.
+        yColumn : int
+            The index of the column which contains the y values of the data.
 
-    Parameters
-    ----------
-    fReader : csv.Reader
-        The file to read is opened with that reader.
-    xColumn : int
-        The index of the column which contains the x values of the data.
-    yColumn : int
-        The index of the column which contains the y values of the data.
+        Returns
+        -------
+        data : list
+            Contains the x- and y-data. First entry in each element is the x-
+            value, second is the y-value.
 
-    Returns
-    -------
-    data : list
-        Contains the x- and y-data. First entry in each element is the x-
-        value, second is the y-value.
+        """
+        data = []
+        subReader.preprocess(fReader)
+        xColumn, yColumn = subReader.xyColumn
+        timeFormat = subReader.subKwargs.get("timeFormat")
 
-    """
-    data = []
-    subReader.preprocess(fReader)
-    xColumn, yColumn = subReader.xyColumn
-    timeFormat = subReader.subKwargs.get("timeFormat")
+        for row in fReader:
+            xData = read_x_data(row[xColumn], timeFormat)
+            yData = float(row[yColumn])
+            data.append([xData, yData])
 
-    for row in fReader:
+        return data
+
+
+    def read_parameter(self, fReader, subReader, **kwargs):
+        # TODO: docstring
+        parameter = {}
         try:
-            xData = float(row[xColumn])
-        except ValueError:
-            # batch analysis uses timestamp of files for plotting.
-            xData = datetime.strptime(row[xColumn], timeFormat)
+            parameter = subReader.get_parameter(fReader, **kwargs)
+        except AttributeError:
+            self.logger.debug("Could not find paramter method.")
+        return parameter
 
-        yData = float(row[yColumn])
-        data.append([xData, yData])
 
-    return data
+### Module-level methods
+
+def read_x_data(value:str, timeFormat:datetime=None):
+    # TODO: docstring
+    try:
+        xValue = float(value)
+    except ValueError:
+        # batch analysis uses timestamp of files for plotting.
+        xValue = datetime.strptime(value, timeFormat)
+    return xValue
+
+

@@ -24,6 +24,23 @@ EXPORT = config.EXPORT
 IMPORT = config.IMPORT
 TIMESTAMP = config.TIMESTAMP
 
+def get_suffix(path:str)->str:
+    """
+    Extracts the complete suffix of the given filename.
+
+    Returns
+    -------
+    fileSuffix : str
+        Complete suffix in lower case.
+
+    """
+
+    # Use only lower case to avoid overhead for e.g. .spk & .Spk files.
+    fileSuffix = QFileInfo(path).completeSuffix().lower()
+
+    return fileSuffix
+
+
 def is_valid_filetype(url):
         """Checks whether the given url is valid to load the data."""
 

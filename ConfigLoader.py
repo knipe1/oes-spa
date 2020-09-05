@@ -111,7 +111,7 @@ class ConfigLoader():
     def load_config(self):
         """"Load a config from a yml file."""
         try:
-            with open(self.path, "r", newline='') as ymlFile:
+            with open(self.path, "r") as ymlFile:
                 config = yaml.load(ymlFile, Loader=yaml.FullLoader)
             return config
         except yaml.parser.ParserError:
@@ -120,5 +120,5 @@ class ConfigLoader():
 
     def save_config(self):
         """"Save a config to a yml file."""
-        with open(self.path, "w", newline='') as ymlFile:
+        with open(self.path, "w") as ymlFile:
             yaml.dump(self.config, ymlFile)

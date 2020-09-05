@@ -3,7 +3,7 @@
 """
 Created on Fri Sep  4 10:29:05 2020
 
-@author: hauke
+@author: Hauke Wernecke
 """
 
 # standard libs

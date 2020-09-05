@@ -97,13 +97,11 @@ class Logger():
 
     """
 
-    # Load the configuration for filesystem properties.
-    config = ConfigLoader()
-    FILE = config.FILE
 
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     mode = "w"
+
 
     def __init__(self, name: str):
         """
@@ -119,6 +117,9 @@ class Logger():
         None.
 
         """
+        # Load the configuration for filesystem properties.
+        config = ConfigLoader()
+        self.FILE = config.FILE
 
         self.filename = self.FILE.get("LOG_FILE")
         # config the format of the handler
@@ -140,8 +141,7 @@ class Logger():
             # Request a new location of the logfile.
             dialogFile = dialog_LogFileNotFound()
             # Use the URL. Default if cancelled.
-            filename = dialogFile
-            self.filename = filename
+            self.filename = dialogFile
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
 
@@ -156,12 +156,14 @@ class Logger():
         streamHandler.setFormatter(formatter)
         self.logger.addHandler(streamHandler)
 
+
     def __repr__(self):
         info = {}
         info["level"] = self.level
         info["format"] = self.format
         info["filename"] = self.filename
         return self.__module__ + ":\n" + str(info)
+
 
     def debug(self, msg: str, extra=None):
         """

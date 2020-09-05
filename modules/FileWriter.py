@@ -75,7 +75,7 @@ class FileWriter(FileFramework):
         if not expFilename:
             return False
 
-        with open(expFilename, 'w', newline='') as expFile:
+        with open(expFilename, 'w') as expFile:
             # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
             # creating the head using file specific properties
@@ -96,7 +96,7 @@ class FileWriter(FileFramework):
 
     def write_line(self, data):
         # TODO: docstring
-        with open(self.filename, 'a', newline='') as f:
+        with open(self.filename, 'a') as f:
             # open writer with self defined dialect
             writer = csv.writer(f, dialect=self.dialect)
             writer.writerow(data)
