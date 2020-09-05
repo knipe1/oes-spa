@@ -6,7 +6,6 @@ Created on Fri Jul 24 22:44:59 2020
 @author: Hauke Wernecke
 """
 
-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 from PyQt5.QtCore import QFileInfo
@@ -37,5 +36,6 @@ class Watchdog():
     def stop(self):
         try:
             self.observer.stop()
+            self.observer.join(1)
         except:
             print("No observer initialized.")

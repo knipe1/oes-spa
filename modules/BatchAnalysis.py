@@ -226,10 +226,7 @@ class BatchAnalysis(QDialog):
 
 
     def deactivate_watchdog(self)->None:
-        try:
-            self.dog.stop()
-        except:
-            pass
+        self.dog.stop()
         self.window.btnSetWatchdogDir.setEnabled(True)
 
 
@@ -273,7 +270,7 @@ class BatchAnalysis(QDialog):
 
 
     def watchdog_event(self, path):
-        self.logger.warning("Watchdog: Modified file: %s"%(path))
+        self.logger.info("Watchdog: Modified file: %s"%(path))
 
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
         batchPath = QFileInfo(self.batchFile).absoluteFilePath()
@@ -281,8 +278,10 @@ class BatchAnalysis(QDialog):
 
         # Distinguish between modified batch- and spectrum-file.
         if batchPath == eventPath:
+            self.logger.info("WD: Batchfile modified.")
             self.import_batch(takeCurrentBatchfile=True)
         else:
+            self.logger.info("WD: Spectrum file modified/added.")
             self.update_filelist([eventPath])
             self._files.selectRowByFilename(eventPath)
             self.analyze(eventPath)
@@ -373,8 +372,9 @@ class BatchAnalysis(QDialog):
         # Get the urls and check their validity.
         urls = event.mimeData().urls();
         for url in urls:
-            if uni.is_valid_filetype(url):
-                valid_urls.add(url.toLocalFile())
+            localUrl = uni.get_valid_local_url(url)
+            if localUrl:
+                valid_urls.add(localUrl)
 
         # Updates the filelist with the valid urls.
         self.update_filelist(valid_urls)
@@ -384,6 +384,7 @@ class BatchAnalysis(QDialog):
 
     # HACK: Single File
     def analyze(self, singleFile=None):
+        self.logger.debug("Analyze file.")
 
         # Reset the properties to have a clean setup.
         self.cancelByEsc = False
@@ -743,6 +744,7 @@ class BatchAnalysis(QDialog):
 
         """
         self._files.update(filelist)
+        self.logger.debug("Filelist updated.")
 
 
     def reset_files(self):

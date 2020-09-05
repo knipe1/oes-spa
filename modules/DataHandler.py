@@ -138,13 +138,16 @@ class DataHandler(QObject):
         self.basicSetting = basicSetting
 
         # TODO: Calculation of dispersion. How to distinguish asc, spk, csv file?
-        parameter = kwargs.get("parameter")
+        parameter = kwargs.get("parameter", {})
+
         try:
             # 12.04391 -> delta wl
             self.dispersion = 12.04391 / parameter[ASC.GRAT]
         except KeyError:
             # 12.042204 -> analysed with asc-data: used instead of 14
             self.dispersion = 12.042204 / basicSetting.grating
+        except TypeError:
+            self.logger.error("No valid set of paramter given, not even an empty dict.")
 
         if kwargs.get("funConnection"):
             self.signals = self.init_signals()

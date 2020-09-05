@@ -138,6 +138,16 @@ class FileReader(FileFramework):
         self.read_file(**kwargs)
 
 
+    def __eq__(self, other):
+        # TODO: docstring
+        try:
+            isEqual = (self.header == other.header)
+        except AttributeError:
+            # If compared with another type, that type has no header attribute.
+            isEqual = False
+        return isEqual
+
+
     def __repr__(self):
         info = {}
         info["Header"] = self.header

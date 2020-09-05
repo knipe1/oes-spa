@@ -32,7 +32,8 @@ class AnalysisWindow(QMainWindow):
     Main Window. Organization and interfaces of sub-types/windows.
 
 
-    Further descriptions...
+    Glossary:
+        - currentFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
 
     Usage:
         TODO
@@ -62,54 +63,45 @@ class AnalysisWindow(QMainWindow):
     ### Properties
 
     @property
-    def currentFile(self):
+    def currentFile(self)->FileReader:
         """currentFile getter"""
         return self._currentFile
 
     @currentFile.setter
     def currentFile(self, file:FileReader):
         """currentFile setter: Updating the ui"""
-        previousFile = self._currentFile
+
+        isFileReloaded = (self._currentFile == file)
         self._currentFile = file
-        try:
-            self.set_fileinformation(file)
+        self.set_fileinformation(file)
 
-            # Set additional information (like from asc-file)
-            self.window.update_information(file.parameter)
+        # Set additional information (like from asc-file).
+        # Or clear previous information.
+        self.window.update_information(file.parameter)
 
-            # Set Wavelength if provided and a freshly loaded file.
-            if self._currentFile.header != previousFile.header:
-                self.window.wavelength = file.WAVELENGTH
-        except AttributeError:
-            self.logger.info("Reloaded/Redrawn file.")
-        except KeyError:
-            self.logger.info("No Wavelength provided by: " + file.filename)
+        # Set Wavelength if provided and a freshly loaded file.
+        if not isFileReloaded:
+            self.set_wavelength_from_file(file)
 
-    ### Methods
+
+    ### __Methods__
 
     def __init__(self, initialShow=True):
-        """initialize the parent class ( == QMainWindow.__init__(self)"""
+        # TODO: docstring?
+
+        self.logger = Logger(__name__)
+
+        #initialize the parent class ( == QMainWindow.__init__(self)
         super(AnalysisWindow, self).__init__()
 
-        # Set file and directory
+        # Set defaults.
+        # TODO: new method? Issue with inheritance.
         self.lastdir = self.FILE["DEF_DIR"];
         self._currentFile = None;
-        # general settings
-        # TODO: maybe false, if BatchAnalysis is open?
-        self.setAcceptDrops(True)
 
-        # Set up the user interface from Designer.
-        # Load the main window
+        ## Set up the user interfaces (main application window, batch window)
         self.window = UIMain(self)
-        # Load batch dialog
         self.batch = BatchAnalysis(self)
-        # init the fitting and with the retrieved fittings
-        # TODO: provide interface? Like get_fittings? No, it is a attribute
-        # using the @property-decorator --> to be documented?
-
-        # set up the logger
-        # After setting up the ui?!
-        self.logger = Logger(__name__)
 
         self.__post_init__()
 
@@ -128,12 +120,14 @@ class AnalysisWindow(QMainWindow):
         return self.__module__ + ":\n" + str(info)
 
     def init_spectra(self):
+        # TODO: docstring
         self.rawSpectrum = Spectrum(self.window.get_raw_plot(),
                                     EXPORT_TYPE.RAW)
         self.processedSpectrum = Spectrum(self.window.get_processed_plot(),
                                           EXPORT_TYPE.PROCESSED);
 
     def set_connections(self):
+        # TODO: docstring
         win = self.window
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
@@ -156,8 +150,11 @@ class AnalysisWindow(QMainWindow):
         """
         Drag Element over Window event.
 
-        Handles only number of files: One file->AnalysisWindow, more files->
-        BatchAnalysis. Validation takes place in dropEvent-handler.
+        Handles only number of files:
+            1 file-> AnalysisWindow,
+            more files-> BatchAnalysis.
+
+        Validation takes place in dropEvent-handler.
         """
 
         # Prequerities.
@@ -178,21 +175,31 @@ class AnalysisWindow(QMainWindow):
 
         event.accept --> dropEvent is handled by current Widget.
         """
-		# TODO: errorhandling?
+
         # Can only be one single file. Otherwise would be rejected by
         # dragEvent-handler.
         url = event.mimeData().urls()[0];
-        localUrl = url.toLocalFile();
 
         # Validation.
-        if uni.is_valid_filetype(url):
-            event.accept();
+        localUrl = uni.get_valid_local_url(url)
+        if localUrl:
             self.apply_data(localUrl)
+            event.accept();
         else:
             dialog.critical_unknownSuffix(parent=self)
 
 
     ### Methods
+
+
+    def set_wavelength_from_file(self, file:FileReader):
+        # TODO: docstring
+        try:
+            self.window.wavelength = file.WAVELENGTH
+        except KeyError:
+            # Exception if a non-.asc file is loaded.
+            self.logger.debug("No Wavelength provided by: " + file.filename)
+
 
     def file_open(self, filename):
         """Open FileDialog to choose Raw-Data-File """

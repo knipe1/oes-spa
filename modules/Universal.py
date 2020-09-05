@@ -11,11 +11,15 @@ import re
 from datetime import datetime
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, QUrl
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
 import dialog_messages as dialog
+
+
+# Enums
+from custom_types.SUFFICES import SUFFICES as SUFF
 
 # Load the configuration for import and batch properties.
 config = ConfigLoader()
@@ -23,6 +27,7 @@ BATCH = config.BATCH
 EXPORT = config.EXPORT
 IMPORT = config.IMPORT
 TIMESTAMP = config.TIMESTAMP
+
 
 def get_suffix(path:str)->str:
     """
@@ -41,21 +46,35 @@ def get_suffix(path:str)->str:
     return fileSuffix
 
 
-def is_valid_filetype(url):
-        """Checks whether the given url is valid to load the data."""
+def get_valid_local_url(url:QUrl)->str:
+    """
+    Checks validity of the url and returns local url if valid.
 
-        isValid = True;
-        file = url.toLocalFile();
+    Parameters
+    ----------
+    url : QUrl
+        Url of the file.
 
-        if not url.isValid():
-            isValid = False;
+    Returns
+    -------
+    localUrl : str
+        The local url of given url if valid.
+        None otherwise.
 
-        # Validate suffix.
-        completeSuffix = QFileInfo(file).completeSuffix().lower()
-        if not completeSuffix in IMPORT["VALID_SUFFIX"]:
-            isValid = False;
+    """
 
-        return isValid;
+    if not url.isValid():
+        return
+
+    localUrl = url.toLocalFile();
+    suffix = get_suffix(localUrl)
+
+    # Validate suffix.
+    if SUFF.has_value(suffix):
+        return localUrl
+
+    return
+
 
 def mark_bold_red(label):
     """Embed the given label into a Rich text format."""
