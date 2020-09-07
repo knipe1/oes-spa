@@ -188,6 +188,7 @@ class FileReader(FileFramework):
 
         return subReader
 
+
     def check_datafile(self)->ERR:
         """
         Checks whether the file contains valid data.
@@ -264,7 +265,13 @@ class FileReader(FileFramework):
         marker = self.MARKER["HEADER"]
 
         for row in fReader:
-            if marker in row[0]:
+            try:
+                cell = row[0]
+            except IndexError:
+                # Skip blank rows/lines.
+                continue
+
+            if marker in cell:
                 self.date, self.time = get_header(row)
                 return ERR.OK;
 

@@ -715,7 +715,7 @@ class BatchAnalysis(QDialog):
         try:
             index = index.row()
         except AttributeError:
-            print("Open indexed file called programmatically")
+            print("Open indexed file called programmatically.")
 
         try:
             self.parent().apply_data(self._files[index])
