@@ -28,6 +28,7 @@ from ui.UIMain import UIMain
 from Logger import Logger
 
 # enums
+from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
@@ -143,8 +144,8 @@ class AnalysisWindow(QMainWindow):
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
-        win.connect_open_file(self.handle_open_files)
-        # win.connect_select_fitting(self.update_results)
+        win.connect_open_file(self.file_open)
+        win.connect_select_fitting(self.update_results)
         win.connect_change_basic_settings(self.redraw)
         win.connect_fileinformation(self.SIG_filename, self.SIG_date,
                                     self.SIG_time)
@@ -212,24 +213,37 @@ class AnalysisWindow(QMainWindow):
             self.logger.debug("No Wavelength provided by: " + file.filename)
 
 
-    def handle_open_files(self):
+    def file_open(self, filename):
+        """Open FileDialog to choose Raw-Data-File """
+        # Load a file via menu bar
+        # File-->Open
+        # Batch-->Drag&Drop or -->Browse Files
+        # TODO: doublecheck batch handling here. Look up event management
+        # TODO: Why check specific False? Why not falsy?
 
-        # Single File: Update spectra.
-        # Multiple files: BatchAnalysis.
-        filelist = dialog.dialog_openFiles(self.lastdir);
+        # filename is False, when an event of actOpen in the menu bar
+        # (File-->Open) is triggered.
+        # TODO: is False or == False or filename:?
+        # if filename is False:
+        if not filename:
+            # Cancel/Quit dialog --> [].
+            # One file selected: Update spectra.
+            # Multiple files: BatchAnalysis.
+            filename = dialog.dialog_openFiles(self.lastdir);
+            if len(filename) > 1:
+                self.batch.show();
+                self.batch.update_filelist(filename)
+            elif len(filename) == 1:
+                filename = filename[0];
+            else:
+                filename = "";
 
-        isSingleFile = (len(filelist) == 1)
-        isMultipleFiles = (len(filelist) > 1)
-
-        if isSingleFile:
-            filename = filelist[0];
-            self.lastdir = filename
+        # Handling if just one file was selected or filename was given.
+        if filename != "":
+            fileInfo = QFileInfo(filename)
+            self.lastdir = fileInfo.absolutePath()
+            filename = fileInfo.absoluteFilePath()
             self.apply_data(filename)
-
-        elif isMultipleFiles:
-            self.batch.show();
-            self.batch.update_filelist(filelist)
-
 
 
     ### Export
@@ -360,6 +374,7 @@ class AnalysisWindow(QMainWindow):
         then set header information and draw spectra"""
         # TODO: error handling
 
+        connect = self.window.connect_results if updateResults else None;
 
         # Prepare file.
         file = FileReader(filename)
@@ -378,7 +393,6 @@ class AnalysisWindow(QMainWindow):
             self.window.show_diff_wavelength(showDiffWL)
 
 
-        connect = self.window.connect_results if updateResults else None;
         specHandler = DataHandler(basicSetting,
                                   funConnection=connect,
                                   parameter=file.parameter)
