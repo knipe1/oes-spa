@@ -25,53 +25,64 @@ from modules.Spectrum import Spectrum
 
 
 # set up the logger
-logger = Logger(__name__)
+# logger = Logger(__name__)
 
 def main():
     """Main program """
 
-    logger.debug("Start routine")
+    # logger.debug("Start routine")
 
     # Setup GUI
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
     # automatic open and close routine
+    # window.apply_data("./sample files/Asterix1059 1.Spk")
     try:
         # window.export_raw()
         #window.window.ddFitting.setCurrentIndex(3)
-        window.file_open("./sample files/Asterix1059 1.Spk")
-        # window.file_open("./sample files/SIF/testasc.asc")
-        # window.file_open("./sample files/_batch.csv")
+        window.apply_data("./sample files/Asterix1059 1.Spk")
+        # window.apply_data("./sample files/SIF/testasc.asc")
+        # window.apply_data("./sample files/_batch.csv")
         # window.export_raw()
         # window.export_processed()
-        # window.file_open("./sample files/Asterix1059 1_raw.csv")
+        # window.apply_data("./sample files/Asterix1059 1_raw.csv")
+        # window.apply_data("./sample files/Asterix1059 1_processed.csv")
         # window.export_processed()
     except:
         pass
 
 
-    # window.batch.show()
+    window.batch.show()
 
     # # text = "filename"
     # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
     # # arbitrary.start()
     # # accept the name
 
-    # enter = THR.Thread(target=emu.key_accept)
-    # enter.start()
-
+    # Set the Filename
+    enter = THR.Thread(target=emu.key_accept)
+    enter.start()
     # # in case of file already exists
     # yes = THR.Thread(target=emu.key_alt_j)
     # yes.start()
+    window.batch.window.btnSetFilename.click()
 
-    # window.batch.window.btnSetFilename.click()
-    # selection = THR.Thread(target=emu.key_select_file, args=[20])
-    # selection.start()
-    # window.lastdir = window.lastdir+"/Obel276"
-    # window.batch.browse_spectra()
-    # window.batch.window.btnCalculate.click()
+    selection = THR.Thread(target=emu.key_select_file, args=[10])
+    selection.start()
+    window.lastdir = window.lastdir+"/Obel276"
+    window.batch.browse_spectra()
+    window.batch.window.radTrace.click()
+    window.batch.window.btnCalculate.click()
     # window.batch.hide()
+
+    # # Set WD directory
+    # enter = THR.Thread(target=emu.key_accept)
+    # enter.start()
+    # window.batch.window.btnSetWatchdogDir.click()
+
+    # # Activate WD
+    # window.batch.window.btnWatchdog.click()
 
     sys.exit(app.exec_())
 

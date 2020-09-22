@@ -50,6 +50,11 @@ class ConfigLoader():
         return self.config["DIALECT"]
 
     @property
+    def DIALECT_CSV(self) -> dict:
+        """Get the DIALECT-configuration."""
+        return self.config["DIALECT_CSV"]
+
+    @property
     def EXPORT(self) -> dict:
         """Get the EXPORT-configuration."""
         return self.config["EXPORT"]
@@ -70,14 +75,14 @@ class ConfigLoader():
         return self.config["IMPORT"]
 
     @property
-    def MARKER(self) -> dict:
-        """Get the MARKER-configuration."""
-        return self.config["MARKER"]
-
-    @property
     def PLOT(self) -> dict:
         """Get the PLOT-configuration."""
         return self.config["PLOT"]
+
+    @property
+    def TIMESTAMP(self) -> dict:
+        """Get the TIMESTAMP-configuration."""
+        return self.config["TIMESTAMP"]
 
 
     # Set indiviual props to update them properly.
@@ -100,12 +105,15 @@ class ConfigLoader():
 
     def load_config(self):
         """"Load a config from a yml file."""
-        with open(self.path, "r", newline='') as ymlFile:
-            config = yaml.load(ymlFile, Loader=yaml.FullLoader)
-        return config
-
+        try:
+            with open(self.path, "r") as ymlFile:
+                config = yaml.load(ymlFile, Loader=yaml.FullLoader)
+            return config
+        except yaml.parser.ParserError:
+            print("Could not open configuration. Invalid formatted!")
+            return {}
 
     def save_config(self):
         """"Save a config to a yml file."""
-        with open(self.path, "w", newline='') as ymlFile:
+        with open(self.path, "w") as ymlFile:
             yaml.dump(self.config, ymlFile)

@@ -4,7 +4,7 @@ NAME: "Example (No reference)"
 # 1-n Peaks:
 PEAKS:
     # name indicates the naming of the peak. Might be useful in extracting information.
-    name: "BH Peak"
+    name: "noref Peak"
     # central wavelength of the peak
     centralWavelength: 433.5
     # limits of integration for that peak
@@ -12,4 +12,4 @@ PEAKS:
     shiftUp:  .2
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
-    normalizationFactor: 12
+    normalizationFactor: 1200

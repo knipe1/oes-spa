@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 """
 
+
+    Glossary:
+        - currentFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
 @author: Hauke Wernecke
 """
 
+# standard libs
+from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
@@ -18,34 +23,22 @@ from modules.BatchAnalysis import BatchAnalysis
 from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
 from modules.FileWriter import FileWriter
-from modules.Fitting import Fitting
 from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
 from Logger import Logger
 
 # enums
-from custom_types.CHARACTERISTIC import CHARACTERISTIC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 
 class AnalysisWindow(QMainWindow):
     """
-    Main Window. Organization and interfaces of sub-types/windows.
-
-
-    Further descriptions...
+    Main Window. Organization and interfaces of sub-types/sub-windows.
 
     Usage:
-        TODO
-
-    Attributes
-    ----------
-    name : type
-        description.
-
-
-    Methods
-    -------
+        from modules.AnalysisWindow import AnalysisWindow
+        window = AnalysisWindow()
+        window.apply_data("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
 
     # Load the configuration for plotting, import and filesystem properties.
@@ -53,10 +46,6 @@ class AnalysisWindow(QMainWindow):
     PLOT = config.PLOT;
     FILE = config.FILE
     IMPORT = config.IMPORT
-
-    # set up the logger
-    logger = Logger(__name__)
-
 
     ## qt-signals
     # fileinformation
@@ -67,38 +56,63 @@ class AnalysisWindow(QMainWindow):
     ### Properties
 
     @property
-    def currentFile(self):
+    def currentFile(self)->FileReader:
         """currentFile getter"""
         return self._currentFile
 
     @currentFile.setter
     def currentFile(self, file:FileReader):
         """currentFile setter: Updating the ui"""
+
+        isFileReloaded = (self._currentFile == file)
         self._currentFile = file
         self.set_fileinformation(file)
 
-    ### Methods
+        # Set additional information (like from asc-file).
+        # Or clear previous information.
+        self.window.update_information(file.parameter)
+
+        # Set Wavelength if provided and a freshly loaded file.
+        if not isFileReloaded:
+            self.set_wavelength_from_file(file)
+
+
+    @property
+    def lastdir(self):
+        """lastdir getter"""
+        return self._lastdir
+
+    @lastdir.setter
+    def lastdir(self, directory:str):
+        """lastdir setter: Updating the parent"""
+        if path.isdir(directory):
+            newDirectory = directory
+        elif path.isfile(directory):
+            newDirectory = path.dirname(directory)
+        else:
+            return
+
+        self._lastdir = newDirectory
+
+
+    ### __Methods__
 
     def __init__(self, initialShow=True):
-        """initialize the parent class ( == QMainWindow.__init__(self)"""
+        # TODO: docstring?
+
+        self.logger = Logger(__name__)
+
+        #initialize the parent class ( == QMainWindow.__init__(self)
         super(AnalysisWindow, self).__init__()
 
-        # Set file and directory
+        # Set defaults.
+        # TODO: new method? Issue with inheritance.
         self.lastdir = self.FILE["DEF_DIR"];
         self._currentFile = None;
-        # general settings
-        # TODO: maybe false, if BatchAnalysis is open?
-        self.setAcceptDrops(True)
 
-        # Set up the user interface from Designer.
-        # Load the main window
+        ## Set up the user interfaces (main application window, batch window)
         self.window = UIMain(self)
-        # Load batch dialog
         self.batch = BatchAnalysis(self)
-        # init the fitting and with the retrieved fittings
-        # TODO: provide interface? Like get_fittings? No, it is a attribute
-        # using the @property-decorator --> to be documented?
-        # self.fittings = Fitting(self.window.fittings)
 
         self.__post_init__()
 
@@ -110,25 +124,27 @@ class AnalysisWindow(QMainWindow):
         self.set_connections()
         self.init_spectra()
 
+
     def __repr__(self):
         info = {}
         info["currentFile"] = self.currentFile
         info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
+
     def init_spectra(self):
-        self.rawSpectrum = Spectrum(self.window.get_raw_plot(),
-                                    EXPORT_TYPE.RAW)
-        self.processedSpectrum = Spectrum(self.window.get_processed_plot(),
-                                          EXPORT_TYPE.PROCESSED);
+        # TODO: docstring
+        self.rawSpectrum = Spectrum(self.window.get_raw_plot(), EXPORT_TYPE.RAW)
+        self.processedSpectrum = Spectrum(self.window.get_processed_plot(), EXPORT_TYPE.PROCESSED);
 
     def set_connections(self):
+        # TODO: docstring
         win = self.window
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
-        win.connect_open_file(self.file_open)
-        win.connect_select_fitting(self.update_results)
+        win.connect_open_file(self.handle_open_files)
+        # win.connect_select_fitting(self.update_results)
         win.connect_change_basic_settings(self.redraw)
         win.connect_fileinformation(self.SIG_filename, self.SIG_date,
                                     self.SIG_time)
@@ -145,8 +161,11 @@ class AnalysisWindow(QMainWindow):
         """
         Drag Element over Window event.
 
-        Handles only number of files: One file->AnalysisWindow, more files->
-        BatchAnalysis. Validation takes place in dropEvent-handler.
+        Handles only number of files:
+            1 file-> AnalysisWindow,
+            more files-> BatchAnalysis.
+
+        Validation takes place in dropEvent-handler.
         """
 
         # Prequerities.
@@ -167,51 +186,50 @@ class AnalysisWindow(QMainWindow):
 
         event.accept --> dropEvent is handled by current Widget.
         """
-		# TODO: errorhandling?
+
         # Can only be one single file. Otherwise would be rejected by
         # dragEvent-handler.
         url = event.mimeData().urls()[0];
-        localUrl = url.toLocalFile();
 
         # Validation.
-        if uni.is_valid_filetype(url):
-            event.accept();
+        localUrl = uni.get_valid_local_url(url)
+        if localUrl:
             self.apply_data(localUrl)
+            event.accept();
         else:
             dialog.critical_unknownSuffix(parent=self)
 
 
     ### Methods
 
-    def file_open(self, filename):
-        """Open FileDialog to choose Raw-Data-File """
-        # Load a file via menu bar
-        # File-->Open
-        # Batch-->Drag&Drop or -->Browse Files
-        # TODO: doublecheck batch handling here. Look up event management
-        # TODO: Why check specific False? Why not falsy?
 
-        # filename is False, when an event of actOpen in the menu bar
-        # (File-->Open) is triggered.
-        # TODO: is False or == False or filename:?
-        # if filename is False:
-        if not filename:
-            # Cancel/Quit dialog --> [].
-            # One file selected: Update spectra.
-            # Multiple files: BatchAnalysis.
-            filename = dialog.dialog_openFiles(self.lastdir);
-            if len(filename) > 1:
-                self.batch.show();
-                self.batch.update_filelist(filename)
-            elif len(filename) == 1:
-                filename = filename[0];
-            else:
-                filename = "";
+    def set_wavelength_from_file(self, file:FileReader):
+        # TODO: docstring
+        try:
+            self.window.wavelength = file.WAVELENGTH
+        except KeyError:
+            # Exception if a non-.asc file is loaded.
+            self.logger.debug("No Wavelength provided by: " + file.filename)
 
-        # Handling if just one file was selected or filename was given.
-        if filename != "":
-            self.lastdir = QFileInfo(filename).absolutePath()
+
+    def handle_open_files(self):
+
+        # Single File: Update spectra.
+        # Multiple files: BatchAnalysis.
+        filelist = dialog.dialog_openFiles(self.lastdir);
+
+        isSingleFile = (len(filelist) == 1)
+        isMultipleFiles = (len(filelist) > 1)
+
+        if isSingleFile:
+            filename = filelist[0];
+            self.lastdir = filename
             self.apply_data(filename)
+
+        elif isMultipleFiles:
+            self.batch.show();
+            self.batch.update_filelist(filelist)
+
 
 
     ### Export
@@ -227,8 +245,6 @@ class AnalysisWindow(QMainWindow):
         filename, timestamp = self.get_fileinformation()
         labels = spec.labels.values()
         xyData = zip(spec.xData, spec.yData)
-        # xyData = uni.extract_xy_data(spec.ui.axes,
-        #                              spec.markup.get("label"))
 
         if filename == None:
             isExported = False;
@@ -266,8 +282,7 @@ class AnalysisWindow(QMainWindow):
 
         try:
             for spectrum in spectra:
-                spectrum.init_plot();
-                spectrum.update_plot();
+                spectrum.plot_spectrum()
         except:
             self.logger.error("Could not draw spectra. Missing valid spectra.")
 
@@ -337,6 +352,7 @@ class AnalysisWindow(QMainWindow):
         self.SIG_date.emit(date)
         self.SIG_time.emit(time)
 
+
     ### data analysis
 
     def apply_data(self, filename, updateSpectra=True, updateResults=True):
@@ -344,15 +360,28 @@ class AnalysisWindow(QMainWindow):
         then set header information and draw spectra"""
         # TODO: error handling
 
-        connect = self.window.connect_results if updateResults else None;
 
         # Prepare file.
         file = FileReader(filename)
 
         # Update plots and ui.
         basicSetting = self.window.get_basic_setting()
+
+        # Check for differences in entered WL and stored WL
+        try:
+            showDiffWL = False
+            if float(file.WAVELENGTH) != basicSetting.wavelength:
+                showDiffWL = True
+        except KeyError:
+            pass
+        finally:
+            self.window.show_diff_wavelength(showDiffWL)
+
+
+        connect = self.window.connect_results if updateResults else None;
         specHandler = DataHandler(basicSetting,
-                                  funConnection=connect)
+                                  funConnection=connect,
+                                  parameter=file.parameter)
         # Validate results?
         results = specHandler.analyse_data(file)
 
@@ -361,14 +390,14 @@ class AnalysisWindow(QMainWindow):
 
         # Update and the spectra.
         if updateSpectra:
+            data = specHandler.data
+            baseline = specHandler.baseline
+            processedData = specHandler.procData
 
-            rawIntegration, procIntegration = \
-                self.get_integration_area(specHandler)
+            rawIntegration, procIntegration = self.get_integration_area(specHandler)
 
-            self.rawSpectrum.update_data(*specHandler.data, *rawIntegration)
-            self.rawSpectrum.add_baseline(specHandler.baseline)
-            self.processedSpectrum.update_data(*specHandler.procData,
-                                               *procIntegration)
+            self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
+            self.processedSpectrum.update_data(processedData, procIntegration)
 
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 

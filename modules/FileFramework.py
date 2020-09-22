@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Module for general purposes regarding read and write operations
-
-Register a common  dialect and
-defines the configurations
+Module for general purposes regarding read and write operations.
 
 @author: Hauke Wernecke
 """
@@ -14,25 +11,55 @@ import csv
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-import modules.Universal as uni
+from Logger import Logger
+
 
 
 class FileFramework:
 
-    # Load the configuration for import, export and further properties.
+    # Configuration.
     config = ConfigLoader()
     EXPORT = config.EXPORT
     IMPORT = config.IMPORT
-    MARKER = config.MARKER
     DIALECT = config.DIALECT
+    DIALECT_CSV = config.DIALECT_CSV
+    DATA_STRUCTURE = config.DATA_STRUCTURE
+    TIMESTAMP = config.TIMESTAMP
+
+    # constants
+    MARKER  = {"BATCH": "Filename",
+              "DATA": "Data",
+              "HEADER": "Date",}
+
 
     def __init__(self, filename):
-        self.filename = filename
+        # Set up the logger.
+        self.logger = Logger(__name__)
 
+        self.filename = filename
+        self.register_dialects()
+        self.dialect = None
+
+
+    @property
+    def spectralDialect(self):
+        return self.DIALECT["name"]
+
+
+    @property
+    def csvDialect(self):
+        return self.DIALECT_CSV["name"]
+
+
+    def register_dialects(self):
         csv.register_dialect(self.DIALECT["name"],
                              delimiter = self.DIALECT["delimiter"],
                              quoting = self.DIALECT["quoting"])
-        self.dialect = self.DIALECT["name"]
+        csv.register_dialect(self.DIALECT_CSV["name"],
+                             delimiter = self.DIALECT_CSV["delimiter"],
+                             quoting = self.DIALECT_CSV["quoting"])
+
+
 
 # TODO: testcode to evaluate usage of datetime lib
 # from datetime import datetime

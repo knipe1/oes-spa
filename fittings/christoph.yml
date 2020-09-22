@@ -4,7 +4,7 @@ NAME: "Example Fitting"
 # 1-n Peaks:
 PEAKS:
     # name indicates the naming of the peak. Might be useful in extracting information.
-    name: "Example Peak"
+    name: "BH Peak"
     # central wavelength of the peak
     centralWavelength: 433.5
     # limits of integration for that peak
@@ -12,7 +12,7 @@ PEAKS:
     shiftUp:  .2
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
-    normalizationFactor: 100
+    normalizationFactor: 1
     reference:
         # central wavelength of the reference peak
         centralWavelength: 434.5

@@ -1,67 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+
 Created on Thu May  7 14:40:11 2020
 
-@author: hauke
+@author: Hauke Wernecke
 """
+
+# standard libs
+
+# third-party libs
 
 # local modules/libs
 import modules.Universal as uni
 
+# Enums
+
 class FileSet(set):
     """
-    Extends a set with interaction with a listWidget.
+    Extends a set for interaction with a listWidget.
 
     Usage:
         from custum_types.FileSet import FileSet
-        further usage such as a set. And one can also get an item of this set.
-
-
-    Attributes
-    ----------
-    listWidget : QListWidgetItem
-        The widget which displays the set/list.
-
-
-
-    Methods
-    -------
-    to_list():
-        Convert the set to a sorted/indexed list.
-    update_ui():
-        Update ui with converted and sorted/indexed list.
-    has_listWidget():
-        Checks the object for a list widget attribute.
+        further usage such as a set. Additionaly one can get items of this set.
 
     """
 
+    @property
+    def selected_row(self):
+        row = self.listWidget.currentRow()
+        return row
 
-    def __init__(self, iterable=(), listWidget=None, updateOnChange=None):
+    @selected_row.setter
+    def selected_row(self, i):
+        self.listWidget.setCurrentRow(i)
+
+
+    def __init__(self, listWidget, iterable=()):
         """
-        Init the Object.
 
         Parameters
         ----------
+        listWidget : QListWidgetItem
+            The ui element in which to display the list.
         iterable : iterable, optional
             The initial set. The default is ().
-        listWidget : QListWidgetItem, optional
-            The ui element in which to display the list. The default is None.
         updateOnChange : function/method, optional
-            The function is called when the set was changed. The default is
-            None.
+            The function is called when the set was changed. The default is None.
         """
         super().__init__(iterable)
         self.listWidget = listWidget
-        # Workaround: It's not possible to emit a signal like viewChanged,
-        # therefore the function is provided.
-        self.updateOnChange = updateOnChange
 
 
     def __getitem__(self, i):
-        """Gets the i-th item of the sorted list."""
+        """Gets the i-th item of the unsorted list."""
         files = self.to_list()
-        return list.__getitem__(files, i)
+        return files[i]
 
 
     def clear(self):
@@ -74,27 +68,22 @@ class FileSet(set):
         """Updates the set AND updates the ui."""
 
         # Get the current selection.
-        if self.has_listWidget():
-            selectedIdx = self.listWidget.currentRow()
-            if selectedIdx >= 0:
-                filename = self[selectedIdx]
+        filename = None
+        index = self.selected_row
+        if index >= 0:
+            filename = self[index]
+            index = None
 
         # Updates the set as usual and refresh ui.
         super().update(s)
-        self.update_ui()
+        self.update_ui(index=index, filename=filename)
 
-        # Select the first or previously selected file.
-        if (not selectedIdx is None) and selectedIdx < 0 :
-            self.listWidget.setCurrentRow(0)
-        else:
-            self.selectRowByFilename(filename)
 
     def remove(self, t):
         """Removes an item AND updates the ui."""
         super().remove(t)
-        idx = self.listWidget.currentRow()
-        self.update_ui()
-        self.listWidget.setCurrentRow(idx-1)
+        idx = self.selected_row - 1
+        self.update_ui(index=idx)
 
 
     def to_list(self, naturalSort=True, indexed=False):
@@ -102,31 +91,29 @@ class FileSet(set):
         files = list(self)
         if naturalSort:
             files.sort(key=uni.natural_keys)
+
         if indexed:
             files = uni.add_index_to_text(uni.reduce_path(files))
+
         return files
 
 
-    def update_ui(self):
+    def update_ui(self, index=None, filename=None):
         """Update ui with converted and sorted/indexed list."""
-        if self.has_listWidget():
-            files = self.to_list(indexed=True)
+        files = self.to_list(indexed=True)
 
-            self.listWidget.clear()
-            self.listWidget.addItems(files)
+        self.listWidget.clear()
+        self.listWidget.addItems(files)
 
-        if self.updateOnChange:
-            self.updateOnChange()
+        if not index is None:
+            # max(index, 0) ensures that no row with a neg. index is selected.
+            self.selected_row = max(index, 0)
+        elif not filename is None:
+            self.select_row_by_filename(filename)
 
 
-    def selectRowByFilename(self, filename):
-        """Gets the i-th item of the sorted list."""
+    def select_row_by_filename(self, filename):
+        """Gets the i-th item of the sorted list by the filename."""
         files = self.to_list()
         i = files.index(filename)
-        if self.has_listWidget():
-            self.listWidget.setCurrentRow(i)
-
-
-    def has_listWidget(self):
-        """Checks the object for a list widget attribute."""
-        return not (self.listWidget is None)
+        self.selected_row = i

@@ -13,21 +13,25 @@ Created on Thu Apr  9 10:51:31 2020
 #   https://doc.qt.io/qt-5/qcombobox.html
 
 # standard libs
-import os
 
 # third-party libs
-from PyQt5 import QtCore
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-import modules.Universal as uni
 from Logger import Logger
 from custom_types.Peak import Peak
 from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
+from custom_types.ERROR_FITTING import ERROR_FITTING as ERR_FIT
 
-class Fitting(QtCore.QObject):
+
+# constants
+NO_NAME_DEFINED = "No name provided!"
+
+
+
+class Fitting():
     """
     # TODO: docstring
     Interface for properties of the current active fitting.
@@ -42,8 +46,6 @@ class Fitting(QtCore.QObject):
 
     Methods
     -------
-    load_current_fitting(fitting_name:str) -> dict:
-        Retrieve the config of the currently selected fitting.
 
     """
 
@@ -51,94 +53,140 @@ class Fitting(QtCore.QObject):
     config = ConfigLoader()
     FITTING = config.FITTING;
 
-    # Set up the logger.
-    logger = Logger(__name__)
-
-    # variables
-    _fittings = {}
+    # constants
+    NO_NAME_DEFINED = "No name provided!"
 
 
     def __init__(self, fitting):
-        QtCore.QObject.__init__(self)
-        self.currentFitting = fitting
+        # set up the logger
+        self.logger = Logger(__name__)
+
+        self.fitting = fitting
+        self.errCode = ERR_FIT.OK.value
+
+        name, peakParameter = self.extract_parameter(fitting)
+
+        self.name = name
+        # peakParameter = self.get_peak_parameter(fitting)
+        self.peak = self.set_peak(peakParameter)
+
+
+    def extract_parameter(self, fitting:dict)->dict:
+
+        fittingName = self.extract_fitting_name(fitting)
+        peakParameter = self.extract_peak_parameter(fitting)
+        # referencePeakParameter = self.extract_peak_reference_parameter(peakParameter)
+
+
+        # referencePeak = ReferencePeak(**referencePeakParameter)
+        # peakParameter["reference"] = referencePeak
+
+        # parameter = {}
+        # parameter["name"] = fittingName
+        # parameter["peak"] = peakParameter
+
+        return fittingName, peakParameter
+
+    def extract_fitting_name(self, fitting:dict):
+        name = fitting.get("NAME", NO_NAME_DEFINED)
+        return name
+
+
+    def extract_peak_parameter(self, fitting:dict):
+        try:
+            peakParameter = fitting["PEAKS"]
+            return peakParameter
+        except KeyError:
+            # In case of PEAKS is not defined:
+            # KeyError: type object argument after ** must be a mapping, not NoneType
+            self.update_errorcode_fitting()
+
+
+    def extract_peak_reference_parameter(self, peakParameter:dict):
+        referencePeakParameter = peakParameter.get("reference")
+        return referencePeakParameter
+
+
+    def set_peak(self, peakParameter:dict)->Peak:
+        try:
+            peak = Peak(**peakParameter)
+            return peak
+        except TypeError:
+            # In case an argument is not defined e.g.:
+            # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
+            self.update_errorcode_peak()
+
+
+    def set_peak_reference(self, peak:Peak):
+        try:
+            if peak.reference is None:
+                # 1. Invalid defined reference -> Error code.
+                self.update_errorcode_reference()
+            else:
+                # 2. No reference defined, which may be valid.
+                self.reference = peak.reference
+        except AttributeError:
+            self.logger.info("No reference peak defined.")
+
 
     def __repr__(self):
         info = {}
-        info["currentFitting"] = self.currentFitting
+        info["Fitting"] = self.fitting
         return self.__module__ + ":\n" + str(info)
 
+
     ### Properties
-    @property
-    def currentFitting(self) -> dict:
-        """currentFitting getter"""
-        return self._currentFitting
-
-    @currentFitting.setter
-    def currentFitting(self, fitting):
-        self.currentPeak = Peak(**fitting.get("PEAKS"))
-        self.currentName = fitting.get("NAME")
-        self._currentFitting = fitting
 
     @property
-    def currentPeak(self) -> Peak:
-        return self._currentPeak
+    def peak(self) -> Peak:
+        return self._peak
 
-    @currentPeak.setter
-    def currentPeak(self, peak):
-        try:
-            self.currentReference = ReferencePeak(**peak.reference)
-        except TypeError:
-            self.logger.warning("No reference peak defined.")
+    @peak.setter
+    def peak(self, peak):
+        self.set_peak_reference(peak)
+        self._peak = peak
+        return
 
-        self._currentPeak = peak
 
     @property
-    def currentReference(self) -> Peak:
-        return self._currentReference
+    def reference(self) -> Peak:
+        return self._reference
 
-    @currentReference.setter
-    def currentReference(self, reference):
-        self._currentReference = reference
+    @reference.setter
+    def reference(self, reference):
+        self._reference = reference
 
     @property
-    def currentName(self) -> str:
-        return self._currentName
+    def name(self) -> str:
+        return self._name
 
-    @currentName.setter
-    def currentName(self, name):
-        self._currentName = name
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    @property
+    def errCode(self) -> str:
+        error = self._errCode
+        if error:
+            error += "!"
+        return error
+
+    @errCode.setter
+    def errCode(self, code:str):
+        self._errCode = code
 
 
-    # def load_current_fitting(self, fitting_name:str) -> dict:
-    #     """
-    #     Retrieve the config of the currently selected fitting.
+    def update_errorcode_fitting(self):
+        self.errCode += ERR_FIT.FITTING.value
+        self.logger.error("Error: Fitting has an error!")
 
-    #     Can be connected to the signal of an ui element, e.g.
-    #     "currentTextChanged".
 
-    #     Parameters
-    #     ----------
-    #     fitting_name : str
-    #         The name of the selected fitting within the ui element.
+    def update_errorcode_peak(self):
+        self.errCode += ERR_FIT.PEAK.value
+        self.logger.error("Error: Peak is not properly defined!")
 
-    #     Returns
-    #     -------
-    #     fitConfig : dict
-    #         Contains the config of the selected fitting.
 
-    #     """
-    #     # TODO: another function? if so, use current_fitting as property
-    #     # and use the other funtion?
-    #     # TODO: check out the class Peak!
-    #     # get the selected fitting
-    #     self.logger.info("load current fitting")
-    #     for fit, name in self.fittings.items():
-    #         if name == fitting_name:
-    #             current_fit = fit
-    #             break
+    def update_errorcode_reference(self):
+        self.errCode += ERR_FIT.REFERENCE.value
+        self.logger.warning("Invalid reference peak defined.")
 
-    #     # load the config from the file and set the current config
-    #     path = os.path.join(self.FITTING["DIR"], current_fit)
-    #     fitConfig = ConfigLoader(path)
-
-    #     self.currentFitting = fitConfig.config

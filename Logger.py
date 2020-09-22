@@ -97,11 +97,11 @@ class Logger():
 
     """
 
-    # Load the configuration for filesystem properties.
 
     level = logging.DEBUG
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     mode = "w"
+
 
     def __init__(self, name: str):
         """
@@ -117,9 +117,13 @@ class Logger():
         None.
 
         """
+        # Load the configuration for filesystem properties.
         config = ConfigLoader()
-        FILE = config.FILE
-        self.filename = FILE.get("LOG_FILE")
+        self.FILE = config.FILE
+
+        self.filename = self.FILE.get("LOG_FILE")
+        # config the format of the handler
+        formatter = logging.Formatter(self.format)
 
         # Setting up the logger with the default configuration.
         self.logger = logging.getLogger(name)   # get or create the logger
@@ -129,28 +133,29 @@ class Logger():
         while len(self.logger.handlers):
             self.logger.removeHandler(self.logger.handlers[0])
 
-        # config a file handler
-        # TODO: Adjust according to issue #17!
+        # config a file handler.
         try:
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
-        except (FileNotFoundError, IsADirectoryError, TypeError) as err:
+        except (FileNotFoundError, IsADirectoryError, TypeError, PermissionError, OSError):
             # Request a new location of the logfile.
             dialogFile = dialog_LogFileNotFound()
             # Use the URL. Default if cancelled.
-            filename = dialogFile if dialogFile else self.defaultLogfile
-            self.filename = filename
+            self.filename = dialogFile
             fhandler = logging.FileHandler(filename = self.filename,
                                            mode = self.mode)
 
+        # Add log to file.
         fhandler.setLevel(self.level)
-
-        # config the format of the handler
-        formatter = logging.Formatter(self.format)
         fhandler.setFormatter(formatter)
-
-        # the handler can now log messages
         self.logger.addHandler(fhandler)
+
+        # Adding log also to console.
+        streamHandler = logging.StreamHandler()
+        streamHandler.setLevel(self.level)
+        streamHandler.setFormatter(formatter)
+        self.logger.addHandler(streamHandler)
+
 
     def __repr__(self):
         info = {}
@@ -158,6 +163,7 @@ class Logger():
         info["format"] = self.format
         info["filename"] = self.filename
         return self.__module__ + ":\n" + str(info)
+
 
     def debug(self, msg: str, extra=None):
         """

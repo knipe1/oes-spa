@@ -12,9 +12,13 @@ from dataclasses import dataclass
 # third-party libs
 
 # local modules/libs
+from custom_types.BasePeak import BasePeak
+
+# Enums
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
 @dataclass(frozen=True)
-class ReferencePeak:
+class ReferencePeak(BasePeak):
     """
     Describes the properties of a (reference) peak.
 
@@ -24,12 +28,6 @@ class ReferencePeak:
 
     Attributes
     ----------
-    centralWavelength: float
-        The wavelength of the peak.
-    shiftUp: float
-        The upper limit of the peak regarding the integration.
-    shiftDown: float
-        The lower limit of the peak regarding the integration.
     minimum: float = 0.0
         The minimum value(height?/area?) the peak needs to be valid.
 
@@ -37,17 +35,12 @@ class ReferencePeak:
     Methods
     -------
     """
-    centralWavelength: float
-    shiftUp: float
-    shiftDown: float
     minimum: float = 0.0;           # minimum for a valid Peak
 
-    def __validate(self):
-        if not self.shiftUp >= self.centralWavelength:
-            raise ValueError("Upper limit has to be greater than central wavelength")
-        if not self.shiftDown <= self.centralWavelength:
-            raise ValueError("Lower limit has to be smaller than central wavelength")
 
-    def __post_init__(self):
-        pass
-        # self.__validate()
+    @property
+    def isValid(self):
+        error = super(ReferencePeak, self).isValid
+        if not self.minimum >= 0:
+            error = ERR.INVALID_MINIMUM
+        return error

@@ -7,37 +7,89 @@ This module is for general purposes and includes various functions.
 """
 
 # standard libs
+import os
 import re
 from datetime import datetime
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, QUrl
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
 import dialog_messages as dialog
+
+
+# Enums
+from custom_types.SUFFICES import SUFFICES as SUFF
 
 # Load the configuration for import and batch properties.
 config = ConfigLoader()
 BATCH = config.BATCH
 EXPORT = config.EXPORT
 IMPORT = config.IMPORT
+TIMESTAMP = config.TIMESTAMP
 
-def is_valid_filetype(url):
-        """checks if the given url is valid to load the data"""
 
-        isValid = True;
-        file = url.toLocalFile();
+def extract_absolute_path(filename):
+    absolutePath = QFileInfo(filename).absolutePath()
+    return absolutePath
 
-        if not url.isValid():
-            isValid = False;
 
-        # Validate suffix.
-        completeSuffix = QFileInfo(file).completeSuffix().lower()
-        if not completeSuffix in IMPORT["VALID_SUFFIX"]:
-            isValid = False;
+def get_suffix(path:str)->str:
+    """
+    Extracts the complete suffix of the given filename.
 
-        return isValid;
+    Returns
+    -------
+    fileSuffix : str
+        Complete suffix in lower case.
+
+    """
+
+    # Use only lower case to avoid overhead for e.g. .spk & .Spk files.
+    fileSuffix = QFileInfo(path).completeSuffix().lower()
+
+    return fileSuffix
+
+
+def get_valid_local_url(url:QUrl)->str:
+    """
+    Checks validity of the url and returns local url if valid.
+
+    Parameters
+    ----------
+    url : QUrl
+        Url of the file.
+
+    Returns
+    -------
+    localUrl : str
+        The local url of given url if valid.
+        None otherwise.
+
+    """
+
+    if not url.isValid():
+        return
+
+    localUrl = url.toLocalFile();
+    return localUrl
+    if is_valid_suffix(localUrl):
+        return localUrl
+
+    return
+
+
+def is_valid_suffix(filename:str):
+    suffix = get_suffix(filename)
+    if SUFF.has_value(suffix):
+        return True
+    return False
+
+
+def mark_bold_red(label):
+    """Embed the given label into a Rich text format."""
+    return  "<b style='color:red'>" + label + "</b>"
 
 
 def convert_to_hours(timedifference):
@@ -58,6 +110,7 @@ def convert_to_hours(timedifference):
 
     hours = 0.0
     try:
+        # 1 hour = 3600 seconds and 1 day = 24 hours
         hours += timedifference.seconds / 3600
         hours += timedifference.days * 24
     except AttributeError:
@@ -68,18 +121,22 @@ def convert_to_hours(timedifference):
 
 
 def timestamp_to_string(timestamp):
-    timestampString = datetime.strftime(timestamp, EXPORT["FORMAT_TIMESTAMP"])
+    """Converts the given timestamp to a string with a pre-defined format."""
+    # strftime = STRing From TIME (with a given format)
+    timestampString = datetime.strftime(timestamp, TIMESTAMP["EXPORT"])
     return timestampString
 
 def add_suffix(filename, suffix):
-    fileInfo = QFileInfo(filename)
-    path = fileInfo.absolutePath() + "/"
+    fileSuffix = get_suffix(filename)
 
-    if not fileInfo.completeSuffix() == suffix:
-            filenameWithSuffix = fileInfo.baseName() + "." + suffix
-            filename = path + filenameWithSuffix
+    if not fileSuffix == suffix:
+        fileInfo = QFileInfo(filename)
+        path = extract_absolute_path(filename)
+        filenameWithSuffix = fileInfo.baseName() + "." + suffix
+        newFilename = os.path.join(path, filenameWithSuffix)
 
-    return filename, path
+    return newFilename
+
 
 def reduce_path(url):
     """
@@ -90,39 +147,29 @@ def reduce_path(url):
     url : str or list of strings
         The url/path that should be reduced.
 
-    Raises
-    ------
-    TypeError
-        If no string is given.
-
     Returns
     -------
-    TYPE
-        origin url if no or merely one directory is found.
-        Otherwise the fundtion return the filename and one directory
+    yield (opt. directory/) + filename as string
 
     """
     # TODO: delimiter for windows? or cross platforms?
     # Not in config? Due to static property?
     delimiter = "/";
 
-    if type(url) == str:
-        index = find_second_last(url, delimiter)
-        if index < 0:
-            return url
+    # Converting string url to list to enabel funtion for strings and lists.
+    if isinstance(url, str):
+        url = [url]
 
-        return url[index:]
-
-    if all([type(path) == str for path in url]):
-        reducedUrl = [];
+    try:
         for path in url:
             index = find_second_last(path, delimiter)
             if index < 0:
-                reducedUrl.append(path)
-            reducedUrl.append(path[index:])
-        return reducedUrl;
+                text = path
+            text = path[index:]
+            yield text
+    except:
+        print("HELP: Some unknown error occured!!!")
 
-    raise TypeError("url(s) must be a path (string)")
 
 
 def find_second_last(text, pattern):
@@ -171,25 +218,18 @@ def add_index_to_text(texts):
     ----------
     texts : list of strings
 
-    Raises
-    ------
-    TypeError
-        Raises if no list is given or not all items in the list are strings.
-
     Returns
     -------
-    list
-        return a list with modified elements.
+    yield: the text with the index prior
 
     """
-    if type(texts) != list:
-        raise TypeError("texts must be a list")
-    if all([type(text) != str for text in texts]) and texts:
-        raise TypeError("text must be a string")
-
-    return [format(idx, BATCH["INDEX_FORMAT"]) +
-            BATCH["SEPARATOR"] + text
-            for idx, text in enumerate(texts)]
+    try:
+        sep = BATCH["SEPARATOR"]
+        for idx, text in enumerate(texts):
+            index = format(idx, BATCH["INDEX_FORMAT"])
+            yield index + sep + text
+    except:
+        print("HELP: Some unknown error occured!!!")
 
 
 def natural_keys(text):

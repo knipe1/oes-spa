@@ -55,7 +55,8 @@ def critical_unknownFiletype(parent=None):
 
 def critical_unknownSuffix(suffixes=IMPORT["VALID_SUFFIX"], parent=None):
     """
-    Displays an error message if the file cannot be opened due to a wrong suffix. It will also display the valid suffixes.
+    Displays an error message if the file cannot be opened due to a wrong suffix.
+    It will also display the valid suffixes.
 
     Parameters
     ----------
@@ -97,7 +98,7 @@ def warning_fileSelection(parent=None):
 
 
 def dialog_openFiles(directory, allowedSuffixes=IMPORT["SUFFIXES"],
-                     parent=None):
+                     singleFile=False, parent=None):
     """
     Opens a native dialog to open one or multiple files.
 
@@ -127,10 +128,14 @@ def dialog_openFiles(directory, allowedSuffixes=IMPORT["SUFFIXES"],
 
     if type(directory) not in [str]:
         raise TypeError("Directory must be a path (string)");
-    filenames, _ = QFileDialog.getOpenFileNames(parent = parent,
-                                                caption = caption,
-                                                directory = directory,
-                                                filter = filter, );
+
+
+    parameter = {"parent": parent, "caption": caption, "directory": directory,
+                 "filter": filter, }
+    if singleFile:
+        filenames, _ = QFileDialog.getOpenFileName(**parameter);
+    else:
+        filenames, _ = QFileDialog.getOpenFileNames(**parameter);
     return filenames;
 
 def information_BatchAnalysisFinished(skippedFiles, parent=None):
@@ -166,7 +171,7 @@ def information_NormalizationFactor(parent=None):
 
 def dialog_LogFileNotFound(parent=None):
     # TODO docstring
-    defaultDirectory = "./debug.log"
+    defaultDirectory = "../debug.log"
     # Prompt the user.
     title = "Log file could not be found";
     text = """Please select a new default path for your config file.""";
@@ -179,7 +184,8 @@ def dialog_LogFileNotFound(parent=None):
                                              directory = defaultDirectory,);
 
     # Get the new or a default filename.
-    filename = filename.toLocalFile() if filename else defaultDirectory
+    localFilename = filename.toLocalFile()
+    filename = localFilename if localFilename else defaultDirectory
 
     # Getting the current config and change the LOG_FILE property.
     config = ConfigLoader()
@@ -233,7 +239,7 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
     return filename;
 
 
-def dialog_getDirectory(directory, parent=None):
+def dialog_getDirectory(directory="./", parent=None):
     """
     Opens a native  dialog to set the filename if not given.
 

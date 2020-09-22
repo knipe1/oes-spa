@@ -1,6 +1,6 @@
 # Example/Muster
 # Name of the Fitting: Displayed in the Dropdown-Menu
-NAME: "Example Fitting"
+NAME: "Example (Invalid Ref.)"
 # 1-n Peaks:
 PEAKS:
     # name indicates the naming of the peak. Might be useful in extracting information.
@@ -9,15 +9,15 @@ PEAKS:
     centralWavelength: 433.5
     # limits of integration for that peak
     shiftDown: .2
-    shiftUp:  .2
+    shiftUp:  .21
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
-    normalizationFactor: 100
+    normalizationFactor: 12
     reference:
         # central wavelength of the reference peak
-        centralWavelength: 434.5
+        # centralWavelength: 434.51
         # limits of integration for that reference peak
         shiftDown: .3
-        shiftUp:  .4
+        # shiftUp:  .41
         # Minimum to use the peak. Peak height is used for evaluation.
         minimum: 0.00002

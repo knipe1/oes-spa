@@ -32,11 +32,12 @@ from ui.ui_main_window import Ui_main
 from ConfigLoader import ConfigLoader
 from modules.Fitting import Fitting
 from Logger import Logger
+from modules.Universal import mark_bold_red
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
 from custom_types.UI_RESULTS import UI_RESULTS
-from custom_types.CHARACTERISTIC import CHARACTERISTIC
+from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class UIMain(Ui_main):
     """
@@ -81,14 +82,46 @@ class UIMain(Ui_main):
         Connect given signals to corresponding ui elements.
     """
 
-    # set up the logger
-    logger = Logger(__name__)
-
     # Load the configuration for fitting properties.
     config = ConfigLoader()
     FITTING = config.FITTING;
 
     ### properties
+
+    @property
+    def wavelength(self)->float:
+        """Get the converted wavelength or None."""
+        # TODO: try/except vs throw an error?
+        # try: no exception and the program can still run
+        # error: is it an error, if the ui element is not found -> prob. yes
+        # error: if something invalid is written? -> prompt
+        wavelength = None
+        try:
+            wavelength = self.tinCentralWavelength.text()
+            wavelength = float(wavelength)
+        except:
+            self.logger.error("Could not get valid value for wavelength!")
+        return wavelength
+
+    @wavelength.setter
+    def wavelength(self, wl):
+        """Sets the given wavelenght wl to the ui-element."""
+        self.tinCentralWavelength.setText(wl)
+
+
+
+    @property
+    def grating(self)->int:
+        """Get the converted grating or None."""
+        # TODO: cf. wavelength, but dropdown cannot be empty.
+        grating = None
+        try:
+            grating = self.ddGrating.currentText()
+            grating = float(grating)
+        except:
+            self.logger.error("Could not get valid value for grating!")
+        return grating
+
 
     @property
     def fittings(self)->dict:
@@ -102,11 +135,12 @@ class UIMain(Ui_main):
         Updating the ui
         """
         self._fittings = fits
-        uiElement = self.UI_MAPPING.get("fitting")
-
-        if not uiElement is None:
+        try:
+            uiElement = self.UI_MAPPING["fitting"]
             uiElement.clear()
             uiElement.addItems(fits.values())
+        except:
+            pass
 
     ### methods
 
@@ -124,14 +158,24 @@ class UIMain(Ui_main):
         None.
 
         """
+        # set up the logger
+        self.logger = Logger(__name__)
+
         self.setupUi(parent)
         self.UI_MAPPING = self.init_mapping()
+
+
         self.__post_init__()
 
 
     def __post_init__(self):
+        # Get default label for fittings, defined in Qt-designer.
+        self.DEF_LBL_FITTING = self.lblFitting.text()
+
         self.fittings = self.retrieve_fittings()
         self.connect_select_fitting(self.load_current_fitting)
+        # initial hides
+        self.show_diff_wavelength(False)
 
 
     # TODO: ought be immutable
@@ -141,21 +185,16 @@ class UIMain(Ui_main):
                    UI_RESULTS.tout_PEAK_HEIGHT: self.toutPeakHeight,
                    UI_RESULTS.tout_PEAK_AREA: self.toutPeakArea,
                    UI_RESULTS.tout_BASELINE: self.toutBaseline,
-                   UI_RESULTS.tout_CHARACTERISTIC_VALUE:
-                       self.toutCharacteristicValue,
-                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE:
-                       self.lblCharacteristicValue,
+                   UI_RESULTS.tout_CHARACTERISTIC_VALUE: self.toutCharacteristicValue,
+                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE: self.lblCharacteristicValue,
                    }
         return mapping
 
 
     def get_results(self):
-        results = {CHARACTERISTIC.PEAK_HEIGHT.value:
-                       self.toutPeakHeight.text(),
-                   CHARACTERISTIC.PEAK_AREA.value:
-                       self.toutPeakArea.text(),
-                   CHARACTERISTIC.BASELINE.value:
-                       self.toutBaseline.text(),
+        results = {CHC.PEAK_HEIGHT.value: self.toutPeakHeight.text(),
+                   CHC.PEAK_AREA.value: self.toutPeakArea.text(),
+                   CHC.BASELINE.value: self.toutBaseline.text(),
                    self.lblCharacteristicValue.text():
                        self.toutCharacteristicValue.text(),
                    }
@@ -257,6 +296,7 @@ class UIMain(Ui_main):
                 # except maybe? Or just check and log it?
                 signal.connect(uiElement.setText)
 
+
     def connect_fileinformation(self, sigFilename, sigDate, sigTime):
         # TODO: docstring, also add to class methods
         sigFilename.connect(self.toutFilename.setText)
@@ -289,10 +329,12 @@ class UIMain(Ui_main):
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
                     path = os.path.join(self.FITTING["DIR"], file)
-
                     fitConfig = ConfigLoader(path)
-                    fitName = fitConfig.config.get("NAME")
-                    fitDict[file] = fitName
+
+                    fit = fitConfig.config.get("NAME", "no name def.")
+                    fitDict[file] = fit
+                    # fit = Fitting(fitConfig.config)
+                    # fitDict[file] = fit.name
 
         return fitDict
 
@@ -328,42 +370,54 @@ class UIMain(Ui_main):
         path = os.path.join(self.FITTING["DIR"], current_fit)
         fitConfig = ConfigLoader(path)
 
-        self.currentFitting = fitConfig.config
+        self.currentFitting = Fitting(fitConfig.config)
+
+        # Update UI
+        label = mark_bold_red(self.currentFitting.errCode) + self.DEF_LBL_FITTING
+        self.lblFitting.setText(label)
+
+
+    def update_information(self, info:dict):
+        """
+        Resets the information box and update it with the given information.
+
+        Parameters
+        ----------
+        info : dict
+            Information of the form: description->value.
+
+        Returns
+        -------
+        None.
+
+        """
+        # Init Format and clear.
+        form = ": "
+        self.listInformation.clear()
+        for line in info.items():
+            # format the entry
+            entry = form.join(line)
+            self.listInformation.addItem(entry)
+
+
+
+    def show_diff_wavelength(self, show:bool):
+        uiElement = self.lblDiffWavelength
+        if show:
+            uiElement.show()
+        else:
+            uiElement.hide()
 
 
     def get_basic_setting(self)->BasicSetting:
 
-        wavelength = self.get_central_wavelength()
         grating = self.get_grating()
-        fitting = Fitting(self.currentFitting)
-        setting = BasicSetting(wavelength, grating, fitting)
+        fitting = self.currentFitting
+        setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;
 
-
-    def get_central_wavelength(self)->float:
-        """
-        Gets the value of the ui element.
-
-        Returns
-        -------
-        wavelength: float
-            The current text of the input ui element.
-
-        """
-        # TODO: try/except vs throw an error?
-        # try: no exception and the program can still run
-        # error: is it an error, if the ui element is not found -> prob. yes
-        # error: if something invalid is written? -> prompt
-        wavelength = None
-        try:
-            wavelength = self.tinCentralWavelength.text()
-            wavelength = float(wavelength)
-        except:
-            self.logger.error("Could not get valid value for wavelength!")
-        return wavelength
-
-
+    # TODO: @property
     def get_grating(self)->int:
         """
         Gets the value of the ui element.
@@ -374,7 +428,7 @@ class UIMain(Ui_main):
             The current text of the input ui element.
 
         """
-        # TODO: see above. compare get_central_wavelength
+        # TODO: see above. compare self.wavelength
         grating = None
         try:
             grating = self.ddGrating.currentText()

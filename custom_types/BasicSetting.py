@@ -3,7 +3,7 @@
 """
 Created on Sun May  3 20:27:58 2020
 
-@author: hauke
+@author: Hauke Wernecke
 """
 
 

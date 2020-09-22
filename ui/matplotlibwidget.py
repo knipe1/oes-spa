@@ -80,9 +80,6 @@ class MplCanvas(Canvas):
 class MatplotlibWidget(QWidget):
     def __init__(self, parent):
         super(MatplotlibWidget, self).__init__()
-        # Using a vertical test1: toolbar below test1.
-        # Using a vertical layout: toolbar below graphz.
-        # Using a vertical test2: toolbar below test2.
         self.vbl = QVBoxLayout()
         self.add_canvas(self.vbl)
         self.add_toolbar(self.vbl)
@@ -93,7 +90,10 @@ class MatplotlibWidget(QWidget):
         """Draw the plot immediately."""
         self.axes.legend();
         self.canvas.draw()
-        self.canvas.flush_events()
+
+        # Refactored - events were flushed in BatchAnalysis also allow to
+        # cancel the analysis. Therefore, the next line is not needed anymore.
+        # self.canvas.flush_events()
 
 
     def add_canvas(self, layout, **kwargs):
