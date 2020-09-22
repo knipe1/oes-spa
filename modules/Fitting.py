@@ -23,7 +23,13 @@ from custom_types.Peak import Peak
 from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
-from custom_types.ERROR_FITTING import ERROR_FITTING as ERR
+from custom_types.ERROR_FITTING import ERROR_FITTING as ERR_FIT
+
+
+# constants
+NO_NAME_DEFINED = "No name provided!"
+
+
 
 class Fitting():
     """
@@ -47,89 +53,116 @@ class Fitting():
     config = ConfigLoader()
     FITTING = config.FITTING;
 
-    # variables
-    _fittings = {}
+    # constants
+    NO_NAME_DEFINED = "No name provided!"
 
 
     def __init__(self, fitting):
         # set up the logger
         self.logger = Logger(__name__)
 
-        self.currentFitting = fitting
+        self.fitting = fitting
+        self.errCode = ERR_FIT.OK.value
+
+        name, peakParameter = self.extract_parameter(fitting)
+
+        self.name = name
+        # peakParameter = self.get_peak_parameter(fitting)
+        self.peak = self.set_peak(peakParameter)
+
+
+    def extract_parameter(self, fitting:dict)->dict:
+
+        fittingName = self.extract_fitting_name(fitting)
+        peakParameter = self.extract_peak_parameter(fitting)
+        # referencePeakParameter = self.extract_peak_reference_parameter(peakParameter)
+
+
+        # referencePeak = ReferencePeak(**referencePeakParameter)
+        # peakParameter["reference"] = referencePeak
+
+        # parameter = {}
+        # parameter["name"] = fittingName
+        # parameter["peak"] = peakParameter
+
+        return fittingName, peakParameter
+
+    def extract_fitting_name(self, fitting:dict):
+        name = fitting.get("NAME", NO_NAME_DEFINED)
+        return name
+
+
+    def extract_peak_parameter(self, fitting:dict):
+        try:
+            peakParameter = fitting["PEAKS"]
+            return peakParameter
+        except KeyError:
+            # In case of PEAKS is not defined:
+            # KeyError: type object argument after ** must be a mapping, not NoneType
+            self.update_errorcode_fitting()
+
+
+    def extract_peak_reference_parameter(self, peakParameter:dict):
+        referencePeakParameter = peakParameter.get("reference")
+        return referencePeakParameter
+
+
+    def set_peak(self, peakParameter:dict)->Peak:
+        try:
+            peak = Peak(**peakParameter)
+            return peak
+        except TypeError:
+            # In case an argument is not defined e.g.:
+            # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
+            self.update_errorcode_peak()
+
+
+    def set_peak_reference(self, peak:Peak):
+        try:
+            if peak.reference is None:
+                # 1. Invalid defined reference -> Error code.
+                self.update_errorcode_reference()
+            else:
+                # 2. No reference defined, which may be valid.
+                self.reference = peak.reference
+        except AttributeError:
+            self.logger.info("No reference peak defined.")
+
 
     def __repr__(self):
         info = {}
-        info["currentFitting"] = self.currentFitting
+        info["Fitting"] = self.fitting
         return self.__module__ + ":\n" + str(info)
 
 
     ### Properties
-    @property
-    def currentFitting(self) -> dict:
-        """currentFitting getter"""
-        return self._currentFitting
-
-    @currentFitting.setter
-    def currentFitting(self, fitting):
-        """
-        Load the currently selected fitting.
-
-        Resets the error code, validates the fitting and make the properties
-        accessible.
-
-        """
-
-        self.errCode = ""
-
-        try:
-            self.currentPeak = Peak(**fitting["PEAKS"])
-        except KeyError:
-            # In case of PEAKS is not defined:
-            # KeyError: type object argument after ** must be a mapping, not NoneType
-            self.errCode += ERR.FITTING.value
-            self.logger.error("Error: Fitting has an error!")
-            print("Error: Fitting has an error!")
-        except TypeError:
-            # In case of centralWavelngth/.. is not defined:
-            # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
-            self.logger.error("Invalid Peak")
-            self.errCode += ERR.PEAK.value
-
-        self.currentName = fitting.get("NAME", "No name defined!")
-        self._currentFitting = fitting
 
     @property
-    def currentPeak(self) -> Peak:
-        return self._currentPeak
+    def peak(self) -> Peak:
+        return self._peak
 
-    @currentPeak.setter
-    def currentPeak(self, peak):
-        try:
-                # Distinguish between
-                # 1. No reference defined, which may be valid.
-                # 2. Invalid defined reference -> Error code.
-            if peak.reference:
-                self.currentReference = ReferencePeak(**peak.reference)
-        except TypeError:
-            self.errCode += ERR.REFERENCE.value
-            self.logger.warning("Invalid reference peak defined.")
-        self._currentPeak = peak
+    @peak.setter
+    def peak(self, peak):
+        self.set_peak_reference(peak)
+        self._peak = peak
+        return
+
 
     @property
-    def currentReference(self) -> Peak:
-        return self._currentReference
+    def reference(self) -> Peak:
+        return self._reference
 
-    @currentReference.setter
-    def currentReference(self, reference):
-        self._currentReference = reference
+    @reference.setter
+    def reference(self, reference):
+        self._reference = reference
 
     @property
-    def currentName(self) -> str:
-        return self._currentName
+    def name(self) -> str:
+        return self._name
 
-    @currentName.setter
-    def currentName(self, name):
-        self._currentName = name
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     @property
     def errCode(self) -> str:
@@ -141,3 +174,19 @@ class Fitting():
     @errCode.setter
     def errCode(self, code:str):
         self._errCode = code
+
+
+    def update_errorcode_fitting(self):
+        self.errCode += ERR_FIT.FITTING.value
+        self.logger.error("Error: Fitting has an error!")
+
+
+    def update_errorcode_peak(self):
+        self.errCode += ERR_FIT.PEAK.value
+        self.logger.error("Error: Peak is not properly defined!")
+
+
+    def update_errorcode_reference(self):
+        self.errCode += ERR_FIT.REFERENCE.value
+        self.logger.warning("Invalid reference peak defined.")
+

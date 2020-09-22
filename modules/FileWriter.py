@@ -15,7 +15,6 @@ import csv
 from datetime import datetime
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
 from modules.FileFramework import FileFramework
 
 # local modules/libs
@@ -33,7 +32,8 @@ class FileWriter(FileFramework):
 
     def __init__(self, filename, timestamp=None):
         FileFramework.__init__(self, filename)
-        self.dialect = self.DIALECT_CSV["name"]
+        self.dialect = self.csvDialect
+
 
         # (Create and) assign timestamp.
         if timestamp == None:

@@ -11,23 +11,12 @@ Created on Fri Sep  4 11:27:29 2020
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-from Logger import Logger
+# FileFramework: base class.
+from modules.FileFramework import FileFramework
 
 # Enums
 
-class ConfigReader():
-
-    # Load the configuration.
-    config = ConfigLoader()
-    DATA_STRUCTURE = config.DATA_STRUCTURE
-    DIALECT = config.DIALECT
-    DIALECT_CSV = config.DIALECT_CSV
-    TIMESTAMP = config.TIMESTAMP
-    # EXPORT = config.EXPORT
-    # IMPORT = config.IMPORT
-    MARKER = config.MARKER
-
+class ConfigReader(FileFramework):
 
     ### Properties
 
@@ -81,9 +70,7 @@ class ConfigReader():
     ### __Methods__
 
     def __init__(self):
-
-        # Set up the logger.
-        self.logger = Logger(__name__)
+        super().__init__(filename=None)
         self.set_defaults()
 
     ### methods

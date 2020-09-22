@@ -14,30 +14,54 @@ from typing import List
 # third-party libs
 
 # local modules/libs
+from custom_types.BasePeak import BasePeak
 from custom_types.ReferencePeak import ReferencePeak
 from dialog_messages import information_NormalizationFactor
 
+# Enums
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
-def set_factor():
-    """If no value provided, prompt the user and set the default."""
-    default = 1.0
+# constants
+DEFAULT_NORM_FACTOR = 1.0
+
+def default_norm_factor():
+    """Prompt the user and set the default."""
     information_NormalizationFactor()
-    return default
+    return DEFAULT_NORM_FACTOR
 
-@dataclass(frozen=True)
-class Peak(ReferencePeak):
-    name: str = "";
-    normalizationFactor: float = field(default_factory=set_factor);
-    reference: List[ReferencePeak] = field(default_factory=list);
+class Peak(BasePeak):
 
-    def add_reference(self, reference: ReferencePeak):
-        if isinstance(reference, ReferencePeak):
-            self.reference.append(reference)
+    def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, **kwargs):
 
-    def __post_init__(self):
-        self.__validate__()
+        super().__init__(centralWavelength, shiftUp, shiftDown)
+        self.name = name
 
-    def __validate__(self):
+        if normalizationFactor is None:
+            normalizationFactor = default_norm_factor()
+        self.normalizationFactor = normalizationFactor
+
+        ref = kwargs.get("reference")
+        self.set_reference(ref)
+
+
+    def set_reference(self, ref):
+        """
+        Undefined: Omitting attribute
+        Unproperly defined: reference = None
+        Properly defined: reference is a ReferencePeak
+        """
+
+        if ref:
+            try:
+                self.reference = ReferencePeak(**ref)
+            except TypeError:
+                self.reference = None
+
+
+    @property
+    def isValid(self):
+        error = super().isValid
         if not self.normalizationFactor >= 0:
-            self.isValid = False
+            error = ERR.INVALID_NORM_FACTOR
+        return error
 

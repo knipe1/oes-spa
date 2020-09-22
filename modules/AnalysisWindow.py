@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 """
 
+
+    Glossary:
+        - currentFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
 @author: Hauke Wernecke
 """
 
+# standard libs
+from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
@@ -28,23 +33,12 @@ from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 class AnalysisWindow(QMainWindow):
     """
-    Main Window. Organization and interfaces of sub-types/windows.
-
-
-    Glossary:
-        - currentFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
+    Main Window. Organization and interfaces of sub-types/sub-windows.
 
     Usage:
-        TODO
-
-    Attributes
-    ----------
-    name : type
-        description.
-
-
-    Methods
-    -------
+        from modules.AnalysisWindow import AnalysisWindow
+        window = AnalysisWindow()
+        window.apply_data("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
 
     # Load the configuration for plotting, import and filesystem properties.
@@ -83,6 +77,24 @@ class AnalysisWindow(QMainWindow):
             self.set_wavelength_from_file(file)
 
 
+    @property
+    def lastdir(self):
+        """lastdir getter"""
+        return self._lastdir
+
+    @lastdir.setter
+    def lastdir(self, directory:str):
+        """lastdir setter: Updating the parent"""
+        if path.isdir(directory):
+            newDirectory = directory
+        elif path.isfile(directory):
+            newDirectory = path.dirname(directory)
+        else:
+            return
+
+        self._lastdir = newDirectory
+
+
     ### __Methods__
 
     def __init__(self, initialShow=True):
@@ -112,18 +124,18 @@ class AnalysisWindow(QMainWindow):
         self.set_connections()
         self.init_spectra()
 
+
     def __repr__(self):
         info = {}
         info["currentFile"] = self.currentFile
         info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
+
     def init_spectra(self):
         # TODO: docstring
-        self.rawSpectrum = Spectrum(self.window.get_raw_plot(),
-                                    EXPORT_TYPE.RAW)
-        self.processedSpectrum = Spectrum(self.window.get_processed_plot(),
-                                          EXPORT_TYPE.PROCESSED);
+        self.rawSpectrum = Spectrum(self.window.get_raw_plot(), EXPORT_TYPE.RAW)
+        self.processedSpectrum = Spectrum(self.window.get_processed_plot(), EXPORT_TYPE.PROCESSED);
 
     def set_connections(self):
         # TODO: docstring
@@ -132,7 +144,7 @@ class AnalysisWindow(QMainWindow):
         win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
         win.connect_open_file(self.handle_open_files)
-        win.connect_select_fitting(self.update_results)
+        # win.connect_select_fitting(self.update_results)
         win.connect_change_basic_settings(self.redraw)
         win.connect_fileinformation(self.SIG_filename, self.SIG_date,
                                     self.SIG_time)
@@ -211,9 +223,7 @@ class AnalysisWindow(QMainWindow):
 
         if isSingleFile:
             filename = filelist[0];
-            fileInfo = QFileInfo(filename)
-
-            self.lastdir = fileInfo.absolutePath()
+            self.lastdir = filename
             self.apply_data(filename)
 
         elif isMultipleFiles:
@@ -272,8 +282,7 @@ class AnalysisWindow(QMainWindow):
 
         try:
             for spectrum in spectra:
-                spectrum.init_plot();
-                spectrum.update_plot();
+                spectrum.plot_spectrum()
         except:
             self.logger.error("Could not draw spectra. Missing valid spectra.")
 
@@ -381,14 +390,14 @@ class AnalysisWindow(QMainWindow):
 
         # Update and the spectra.
         if updateSpectra:
+            data = specHandler.data
+            baseline = specHandler.baseline
+            processedData = specHandler.procData
 
-            rawIntegration, procIntegration = \
-                self.get_integration_area(specHandler)
+            rawIntegration, procIntegration = self.get_integration_area(specHandler)
 
-            self.rawSpectrum.update_data(*specHandler.data, *rawIntegration)
-            self.rawSpectrum.add_baseline(specHandler.baseline)
-            self.processedSpectrum.update_data(*specHandler.procData,
-                                               *procIntegration)
+            self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
+            self.processedSpectrum.update_data(processedData, procIntegration)
 
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 

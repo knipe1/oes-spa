@@ -7,6 +7,7 @@ This module is for general purposes and includes various functions.
 """
 
 # standard libs
+import os
 import re
 from datetime import datetime
 
@@ -27,6 +28,11 @@ BATCH = config.BATCH
 EXPORT = config.EXPORT
 IMPORT = config.IMPORT
 TIMESTAMP = config.TIMESTAMP
+
+
+def extract_absolute_path(filename):
+    absolutePath = QFileInfo(filename).absolutePath()
+    return absolutePath
 
 
 def get_suffix(path:str)->str:
@@ -67,13 +73,18 @@ def get_valid_local_url(url:QUrl)->str:
         return
 
     localUrl = url.toLocalFile();
-    suffix = get_suffix(localUrl)
-
-    # Validate suffix.
-    if SUFF.has_value(suffix):
+    return localUrl
+    if is_valid_suffix(localUrl):
         return localUrl
 
     return
+
+
+def is_valid_suffix(filename:str):
+    suffix = get_suffix(filename)
+    if SUFF.has_value(suffix):
+        return True
+    return False
 
 
 def mark_bold_red(label):
@@ -116,14 +127,16 @@ def timestamp_to_string(timestamp):
     return timestampString
 
 def add_suffix(filename, suffix):
-    fileInfo = QFileInfo(filename)
-    path = fileInfo.absolutePath() + "/"
+    fileSuffix = get_suffix(filename)
 
-    if not fileInfo.completeSuffix() == suffix:
-            filenameWithSuffix = fileInfo.baseName() + "." + suffix
-            filename = path + filenameWithSuffix
+    if not fileSuffix == suffix:
+        fileInfo = QFileInfo(filename)
+        path = extract_absolute_path(filename)
+        filenameWithSuffix = fileInfo.baseName() + "." + suffix
+        newFilename = os.path.join(path, filenameWithSuffix)
 
-    return filename, path
+    return newFilename
+
 
 def reduce_path(url):
     """

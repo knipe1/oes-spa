@@ -75,11 +75,6 @@ class ConfigLoader():
         return self.config["IMPORT"]
 
     @property
-    def MARKER(self) -> dict:
-        """Get the MARKER-configuration."""
-        return self.config["MARKER"]
-
-    @property
     def PLOT(self) -> dict:
         """Get the PLOT-configuration."""
         return self.config["PLOT"]

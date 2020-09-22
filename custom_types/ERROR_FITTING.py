@@ -7,10 +7,11 @@ Created on Fri Jul 24 12:07:42 2020
 """
 
 # standard libs
-from enum import Enum
+from enum import Enum, unique
 
+@unique
 class ERROR_FITTING(Enum):
-    """Interface for the .asc-file parameter."""
+    OK = ""
     PEAK = "P"
     REFERENCE = "R"
     FITTING = "F"

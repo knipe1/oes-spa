@@ -99,7 +99,7 @@ class DataHandler(QObject):
         """avgbase setter"""
         self._characteristicValue = value
         self.SIG_characteristicValue.emit(str(self.characteristicValue))
-        chcName = self.basicSetting.fitting.currentPeak.name or "No name defined!"
+        chcName = self.basicSetting.fitting.peak.name or "No name defined!"
         self.SIG_characteristicName.emit(chcName)
 
 
@@ -258,12 +258,12 @@ class DataHandler(QObject):
         fitting = self.basicSetting.fitting
 
         # Find Peak and obtain height, area, and position
-        peakChcs = self.calculate_peak(fitting.currentPeak)
+        peakChcs = self.calculate_peak(fitting.peak)
         # TODO: Evaluate!
         try:
             characteristicValue, intAreas = self.calculate_characteristic_value(
-                fitting.currentPeak, fitting.currentReference)
-        except:
+                fitting.peak, fitting.reference)
+        except AttributeError:
             # This is also displayed in the text field.
             # TODO: May be also be exported? Issue?
             characteristicValue = "No reference defined."
@@ -381,8 +381,8 @@ class DataHandler(QObject):
         peakArea = np.trapz(peakAreaY, peakAreaX)
 
         # validation
-        if yPeak <= peak.minimum:
-            yPeak, xPeak, peakArea = 0, 0, 0
+        # if yPeak <= peak.minimum:
+            # yPeak, xPeak, peakArea = 0, 0, 0
         # TODO: further validation?!?
 
         results[CHC.PEAK_HEIGHT] = yPeak

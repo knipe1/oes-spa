@@ -11,7 +11,6 @@ Created on Fri Jan 24 12:00:10 2020
 # standard libs
 
 # third-party libs
-from PyQt5.QtCore import QCoreApplication      # To flush event pipeline.
 from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
@@ -54,9 +53,8 @@ class UIBatch(Ui_batch):
         self.foutWatchdog.setText(filename)
 
 
-    # TODO: dict/list?@property
     @property
-    def currentTrace(self)->str:
+    def currentTraceValue(self)->str:
         """Gets the current selection of cmbTrace"""
         return self.cmbTrace.currentText()
 
@@ -83,8 +81,7 @@ class UIBatch(Ui_batch):
 
     ### Methods
     def __init__(self, parent):
-        self.parent = parent
-        self.setupUi(self.parent)
+        self.setupUi(parent)
         self.traceValues = self.init_trace()
 
         # Disable option to edit the strings in the file list.
@@ -204,8 +201,6 @@ class UIBatch(Ui_batch):
         percentage : float
             The percentage.
         """
-        # Flush event pipeline to enable event-based cancellation.
-        QCoreApplication.processEvents()
         self.barProgress.setValue(percentage*100);
 
 

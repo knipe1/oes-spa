@@ -4,7 +4,7 @@ NAME: "Example Fitting"
 # 1-n Peaks:
 PEAKS:
     # name indicates the naming of the peak. Might be useful in extracting information.
-    name: "BH Peak"
+    name: "Example Peak"
     # central wavelength of the peak
     centralWavelength: 433.5
     # limits of integration for that peak

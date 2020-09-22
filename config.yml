@@ -42,10 +42,6 @@ IMPORT:
   - csv
   - spk
   - Spk
-MARKER:
-  BATCH: Filename
-  DATA: Data
-  HEADER: Date
 PLOT:
   BATCH_DATA_COLOR: k
   BATCH_DATA_LABEL: Characteristic

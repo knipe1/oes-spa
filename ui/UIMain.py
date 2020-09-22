@@ -185,10 +185,8 @@ class UIMain(Ui_main):
                    UI_RESULTS.tout_PEAK_HEIGHT: self.toutPeakHeight,
                    UI_RESULTS.tout_PEAK_AREA: self.toutPeakArea,
                    UI_RESULTS.tout_BASELINE: self.toutBaseline,
-                   UI_RESULTS.tout_CHARACTERISTIC_VALUE:
-                       self.toutCharacteristicValue,
-                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE:
-                       self.lblCharacteristicValue,
+                   UI_RESULTS.tout_CHARACTERISTIC_VALUE: self.toutCharacteristicValue,
+                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE: self.lblCharacteristicValue,
                    }
         return mapping
 
@@ -331,10 +329,12 @@ class UIMain(Ui_main):
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
                     path = os.path.join(self.FITTING["DIR"], file)
-
                     fitConfig = ConfigLoader(path)
-                    fit = Fitting(fitConfig.config)
-                    fitDict[file] = fit.currentName
+
+                    fit = fitConfig.config.get("NAME", "no name def.")
+                    fitDict[file] = fit
+                    # fit = Fitting(fitConfig.config)
+                    # fitDict[file] = fit.name
 
         return fitDict
 

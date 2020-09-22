@@ -12,6 +12,7 @@ from enum import Enum, auto
 
 class CHARACTERISTIC(Enum):
     """Including the labels to link numerical values to characteristic ones."""
+    FILENAME = "Filename"
     PEAK_HEIGHT = "Peak height"
     PEAK_AREA = "Peak area"
     BASELINE = "Baseline"
