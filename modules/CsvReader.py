@@ -20,9 +20,6 @@ from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class CsvReader(ConfigReader):
 
-    ### Properties
-
-
     ### __Methods__
 
     def __init__(self):

@@ -22,8 +22,6 @@ import numpy as np
 from datetime import datetime
 
 # third-party libs
-# QFileInfo provides system-independent file info.
-from PyQt5.QtCore import QFileInfo
 
 # local modules/libs
 # FileFramework: base class.
@@ -189,7 +187,7 @@ class FileReader(FileFramework):
         return subReader
 
 
-    def check_datafile(self)->ERR:
+    def is_valid_spectrum(self)->ERR:
         """
         Checks whether the file contains valid data.
 
@@ -214,6 +212,8 @@ class FileReader(FileFramework):
         # Check file information.
         if not self.timestamp:
             return ERR.INVALID_FILEINFORMATION;
+
+
 
         return ERR.OK;
 

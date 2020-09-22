@@ -126,13 +126,13 @@ def timestamp_to_string(timestamp):
     timestampString = datetime.strftime(timestamp, TIMESTAMP["EXPORT"])
     return timestampString
 
-def add_suffix(filename, suffix):
+def replace_suffix(filename, suffix):
     fileSuffix = get_suffix(filename)
 
     if not fileSuffix == suffix:
         fileInfo = QFileInfo(filename)
         path = extract_absolute_path(filename)
-        filenameWithSuffix = fileInfo.baseName() + "." + suffix
+        filenameWithSuffix = fileInfo.baseName() + suffix
         newFilename = os.path.join(path, filenameWithSuffix)
 
     return newFilename

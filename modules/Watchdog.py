@@ -17,11 +17,11 @@ class MyHandler(FileSystemEventHandler):
         self.modifiedFile = modifiedFile or print
 
     def on_modified(self, event):
-        # only consider FileModifiedEvent and no DirModifiedEvent
+        # only consider FileModifiedEvent and no DirModifiedEvent.
         if isinstance(event, FileModifiedEvent):
             path = event.src_path
             info = QFileInfo(path)
-            if "." not in info.baseName():
+            if "." not in info.baseName():# TODO: Purpose?
                 self.modifiedFile(event.src_path)
 
 
@@ -32,6 +32,7 @@ class Watchdog():
         self.observer = Observer()
         self.observer.schedule(self.file_handler, path, recursive=False)
         self.observer.start()
+
 
     def stop(self):
         try:

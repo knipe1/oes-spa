@@ -21,15 +21,25 @@ class FileFramework:
     config = ConfigLoader()
     EXPORT = config.EXPORT
     IMPORT = config.IMPORT
-    DIALECT = config.DIALECT
-    DIALECT_CSV = config.DIALECT_CSV
-    DATA_STRUCTURE = config.DATA_STRUCTURE
     TIMESTAMP = config.TIMESTAMP
 
     # constants
     MARKER  = {"BATCH": "Filename",
               "DATA": "Data",
               "HEADER": "Date",}
+
+    DATA_STRUCTURE = {"PIXEL_COLUMN": 0,
+                      "ASC_DATA_COLUMN": 1,
+                      "CSV_DATA_COLUMN": 1,
+                      "SPK_DATA_COLUMN": 3,}
+
+    DIALECT = {"name": "spectral_data",
+               "delimiter": "\t",
+               "quoting": csv.QUOTE_MINIMAL,}
+
+    DIALECT_CSV = {"name": "csv_data",
+                   "delimiter": ",",
+                   "quoting": csv.QUOTE_MINIMAL,}
 
 
     def __init__(self, filename):
@@ -38,7 +48,6 @@ class FileFramework:
 
         self.filename = filename
         self.register_dialects()
-        self.dialect = None
 
 
     @property
