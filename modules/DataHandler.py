@@ -231,7 +231,7 @@ class DataHandler(QObject):
 
         # Shifting y data and normalization to average baseline intensity.
         procYData = self.yData - baseline
-        procYData = procYData / avgbase
+        procYData = procYData / abs(avgbase)
 
         self.procData = (procXData, procYData)
         self.baseline = baseline
@@ -246,7 +246,7 @@ class DataHandler(QObject):
         """
 
         # Get raw data. Process data and calculate characteristic values.
-        if file.check_datafile() != ERR.OK:
+        if file.is_valid_spectrum() != ERR.OK:
             dialog.critical_unknownFiletype()
             # TODO: log Error
             return None

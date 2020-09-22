@@ -256,10 +256,10 @@ class BatchAnalysis(QDialog):
         if batchPath == eventPath:
             self.logger.info("WD: Batchfile modified.")
             self.import_batch(takeCurrentBatchfile=True)
-        else:
+        elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added.")
-            self.update_filelist([eventPath])
-            self._files.select_row_by_filename(eventPath)
+            # self.update_filelist([eventPath])
+            # self._files.select_row_by_filename(eventPath)
             self.analyze(eventPath)
 
 
@@ -361,7 +361,7 @@ class BatchAnalysis(QDialog):
             QApplication.processEvents()
             if self.isScheduledCancel:
                 break
-
+            return
             # Update process bar
             self.window.update_progressbar((i+1)/amount)
 
@@ -493,7 +493,7 @@ class BatchAnalysis(QDialog):
             None if dialog was quit or cancelled.
 
         """
-        batchfileSuffix = self.BATCH["SUFFIX"]
+        batchfileSuffix = self.EXPORT["EXP_SUFFIX"]
 
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
@@ -502,7 +502,7 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
 
-        filename = uni.add_suffix(filename, batchfileSuffix)
+        filename = uni.replace_suffix(filename, batchfileSuffix)
 
         # Change interface and preset for further dialogs (lastdir)
         self.lastdir = filename
@@ -591,6 +591,7 @@ class BatchAnalysis(QDialog):
         None.
 
         """
+
         for filename in filelist:
             if not uni.is_valid_suffix(filename):
                 filelist.remove(filename)

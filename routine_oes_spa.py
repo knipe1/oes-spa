@@ -76,13 +76,13 @@ def main():
     window.batch.window.btnCalculate.click()
     # window.batch.hide()
 
-    # # Set WD directory
-    # enter = THR.Thread(target=emu.key_accept)
-    # enter.start()
-    # window.batch.window.btnSetWatchdogDir.click()
+    # Set WD directory
+    enter = THR.Thread(target=emu.key_accept)
+    enter.start()
+    window.batch.window.btnSetWatchdogDir.click()
 
-    # # Activate WD
-    # window.batch.window.btnWatchdog.click()
+    # Activate WD
+    window.batch.window.btnWatchdog.click()
 
     sys.exit(app.exec_())
 

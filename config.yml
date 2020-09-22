@@ -2,19 +2,6 @@ BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
   SUFFIX: csv
-DATA_STRUCTURE:
-  ASC_DATA_COLUMN: 1
-  CSV_DATA_COLUMN: 1
-  PIXEL_COLUMN: 0
-  SPK_DATA_COLUMN: 3
-DIALECT:
-  delimiter: "\t"
-  name: spectral_data
-  quoting: 0
-DIALECT_CSV:
-  delimiter: ','
-  name: csv_data
-  quoting: 0
 EXPORT:
   DEF_BATCH_FILTER: Comma separated (*.csv)
   DEF_BATCH_NAME: _batch
@@ -35,8 +22,6 @@ IMPORT:
   - SpexHex File (*.spk)
   - Exported Raw spectrum (*.csv)
   - Full information spectrum (*.asc)
-  VALID_SCHEME:
-  - file
   VALID_SUFFIX:
   - asc
   - csv

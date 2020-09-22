@@ -25,27 +25,32 @@ import modules.Universal as uni
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.SUFFICES import SUFFICES as SUFF
 
+# constants
+PROCESSED_APPENDIX = "_processed"
+RAW_APPENDIX = "_raw"
+
 
 class FileWriter(FileFramework):
     """File reader for spectral data files """
 
-
     def __init__(self, filename, timestamp=None):
         FileFramework.__init__(self, filename)
+        self.timestamp = self.determine_timestamp(timestamp)
         self.dialect = self.csvDialect
 
-
-        # (Create and) assign timestamp.
-        if timestamp == None:
-            timestamp = datetime.now()
-            timestamp = uni.timestamp_to_string(timestamp)
-        self.timestamp = timestamp
 
     def __repr__(self):
         info = {}
         info["filename"] = self.filename
         info["Timestamp"] = self.timestamp
         return self.__module__ + ":\n" + str(info)
+
+
+    def determine_timestamp(self, timestamp):
+        if timestamp == None:
+            timestamp = datetime.now()
+            timestamp = uni.timestamp_to_string(timestamp)
+        return timestamp
 
 
     def write_data(self, data, labels, exportType, additionalInformation = {}):
@@ -76,7 +81,6 @@ class FileWriter(FileFramework):
             return False
 
         with open(expFilename, 'w') as expFile:
-            # open writer with self defined dialect
             csvWr = csv.writer(expFile, dialect=self.dialect)
             # creating the head using file specific properties
             csvWr.writerow([self.build_head()])
@@ -110,19 +114,10 @@ class FileWriter(FileFramework):
         # remove the suffix by taking the first element prior a point.
         rawFilename = rawFilename.split(".")[0]
 
-        # Check whether the user is about to export an exported spectrum.
-        isRawSpectrum = (rawFilename.rfind(self.EXPORT["RAW_APPENDIX"]) >= 0)
-        isProccessedSpectrum = rawFilename.rfind(
-            self.EXPORT["PROCESSED_APPENDIX"]) >= 0
-        if isRawSpectrum or isProccessedSpectrum:
-            return ""
+        if is_exported_spectrum(rawFilename):
+            return
 
-        # get the correct appendix
-        appendix = ""
-        if exportType == EXPORT_TYPE.RAW:
-            appendix = self.EXPORT["RAW_APPENDIX"]
-        elif exportType == EXPORT_TYPE.PROCESSED:
-            appendix = self.EXPORT["PROCESSED_APPENDIX"];
+        appendix = determine_appendix(exportType)
 
         return rawFilename + appendix + self.EXPORT["EXP_SUFFIX"];
 
@@ -136,3 +131,18 @@ class FileWriter(FileFramework):
             print("Timestamp is no date object.")
         return " ".join([self.MARKER["HEADER"], timestamp])
 
+
+def is_exported_spectrum(filename):
+    isRawSpectrum = (filename.rfind(RAW_APPENDIX) >= 0)
+    isProccessedSpectrum = filename.rfind(PROCESSED_APPENDIX) >= 0
+    isExported = isRawSpectrum or isProccessedSpectrum
+    return isExported
+
+
+def determine_appendix(exportType):
+    appendix = ""
+    if exportType == EXPORT_TYPE.RAW:
+        appendix = RAW_APPENDIX
+    elif exportType == EXPORT_TYPE.PROCESSED:
+        appendix = PROCESSED_APPENDIX
+    return appendix

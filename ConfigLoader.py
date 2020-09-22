@@ -40,21 +40,6 @@ class ConfigLoader():
         return self.config["BATCH"]
 
     @property
-    def DATA_STRUCTURE(self) -> dict:
-        """Get the DATA_STRUCTURE-configuration."""
-        return self.config["DATA_STRUCTURE"]
-
-    @property
-    def DIALECT(self) -> dict:
-        """Get the DIALECT-configuration."""
-        return self.config["DIALECT"]
-
-    @property
-    def DIALECT_CSV(self) -> dict:
-        """Get the DIALECT-configuration."""
-        return self.config["DIALECT_CSV"]
-
-    @property
     def EXPORT(self) -> dict:
         """Get the EXPORT-configuration."""
         return self.config["EXPORT"]
