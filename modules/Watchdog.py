@@ -17,6 +17,7 @@ class MyHandler(FileSystemEventHandler):
         self.modifiedFile = modifiedFile or print
 
     def on_modified(self, event):
+        print("ASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         # only consider FileModifiedEvent and no DirModifiedEvent.
         if isinstance(event, FileModifiedEvent):
             path = event.src_path

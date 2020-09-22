@@ -321,7 +321,7 @@ class FileReader(FileFramework):
         try:
             parameter = subReader.get_parameter(fReader, **kwargs)
         except AttributeError:
-            self.logger.debug("Could not find paramter method.")
+            self.logger.debug("Could not find parameter method.")
         return parameter
 
 

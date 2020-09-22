@@ -68,12 +68,12 @@ def main():
     # yes.start()
     window.batch.window.btnSetFilename.click()
 
-    selection = THR.Thread(target=emu.key_select_file, args=[10])
-    selection.start()
-    window.lastdir = window.lastdir+"/Obel276"
-    window.batch.browse_spectra()
-    window.batch.window.radTrace.click()
-    window.batch.window.btnCalculate.click()
+    # selection = THR.Thread(target=emu.key_select_file, args=[10])
+    # selection.start()
+    # window.lastdir = window.lastdir+"/Obel276"
+    # window.batch.browse_spectra()
+    # window.batch.window.radTrace.click()
+    # window.batch.window.btnCalculate.click()
     # window.batch.hide()
 
     # Set WD directory

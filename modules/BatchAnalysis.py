@@ -249,18 +249,19 @@ class BatchAnalysis(QDialog):
         self.logger.info("Watchdog: Modified file: %s"%(path))
 
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
-        batchPath = uni.extract_absolute_path(self.batchFile)
+        # batchPath = uni.extract_absolute_path(self.batchFile)
         eventPath = uni.extract_absolute_path(path)
+        # print("BATCH", self.batchFile, "EVENT", path, "WD:",self.WDdirectory)
 
         # Distinguish between modified batch- and spectrum-file.
-        if batchPath == eventPath:
+        if self.batchFile == path:
             self.logger.info("WD: Batchfile modified.")
             self.import_batch(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added.")
-            # self.update_filelist([eventPath])
-            # self._files.select_row_by_filename(eventPath)
-            self.analyze(eventPath)
+            self.update_filelist([path])
+            self._files.select_row_by_filename(path)
+            self.analyze(path)
 
 
     def toggle_watchdog(self, status:bool)->None:
@@ -361,7 +362,7 @@ class BatchAnalysis(QDialog):
             QApplication.processEvents()
             if self.isScheduledCancel:
                 break
-            return
+
             # Update process bar
             self.window.update_progressbar((i+1)/amount)
 
@@ -408,7 +409,7 @@ class BatchAnalysis(QDialog):
 
         if isExportBatch:
             if isSingleFile:
-                self.export_batch(assemble_row(config), singleLine=True)
+                self.export_batch(assemble_row(config), isSingleLine=True)
             else:
                 # Get the name of the peak for proper description.
                 peakName = basicSetting.fitting.peak.name
@@ -496,7 +497,7 @@ class BatchAnalysis(QDialog):
         batchfileSuffix = self.EXPORT["EXP_SUFFIX"]
 
         # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
+        filename = dialog.dialog_saveFile(self.lastdir)
 
         # Cancel or quit the dialog.
         if not filename:
