@@ -222,10 +222,10 @@ class FileReader(FileFramework):
         """Readout given file"""
 
         # Get Data from file.
-        with open(self.filename, 'r') as openFile:
+        with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,
             # because we use another dialect then).
-            fReader = csv.reader(openFile, dialect=self.subReader.dialect, newline='')
+            fReader = csv.reader(openFile, dialect=self.subReader.dialect)
 
             # Header information
             get_header = self.subReader.get_header
