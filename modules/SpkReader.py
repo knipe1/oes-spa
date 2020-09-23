@@ -11,11 +11,11 @@ Created on Fri Sep  4 12:11:22 2020
 # third-party libs
 
 # local modules/libs
-from modules.ConfigReader import ConfigReader
+from modules.BaseReader import BaseReader
 
 # Enums
 
-class SpkReader(ConfigReader):
+class SpkReader(BaseReader):
 
     ### Properties
 
@@ -23,7 +23,7 @@ class SpkReader(ConfigReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        ConfigReader.__init__(self)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):

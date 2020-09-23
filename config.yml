@@ -1,14 +1,10 @@
 BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
-  SUFFIX: csv
 EXPORT:
-  DEF_BATCH_FILTER: Comma separated (*.csv)
+  BATCH_FILTER: Comma separated (*.csv)
   DEF_BATCH_NAME: _batch
-  EXP_SUFFIX: .csv
-  FORMAT_TIMESTAMP: '%d.%m.%Y %H:%M:%S'
-  PROCESSED_APPENDIX: _processed
-  RAW_APPENDIX: _raw
+  SUFFIX: .csv
 FILE:
   DEF_DIR: ./sample files
   DEF_FILE: ''
@@ -47,6 +43,3 @@ PLOT:
   RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
-TIMESTAMP:
-  ASC: '%a %b %d %H:%M:%S.%f %Y'
-  EXPORT: '%d.%m.%Y %H:%M:%S'

@@ -16,7 +16,6 @@ from PyQt5.QtCore import QFileInfo, QUrl
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-import dialog_messages as dialog
 
 
 # Enums
@@ -27,29 +26,28 @@ config = ConfigLoader()
 BATCH = config.BATCH
 EXPORT = config.EXPORT
 IMPORT = config.IMPORT
-TIMESTAMP = config.TIMESTAMP
+
+# constants
+from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
 
 
-def extract_absolute_path(filename):
-    absolutePath = QFileInfo(filename).absolutePath()
-    return absolutePath
+def extract_path_and_basename(filename):
+    fileInfo = QFileInfo(filename)
+    absolutePath = fileInfo.absolutePath()
+    baseName = fileInfo.baseName()
+    return absolutePath, baseName
 
 
 def get_suffix(path:str)->str:
-    """
-    Extracts the complete suffix of the given filename.
-
-    Returns
-    -------
-    fileSuffix : str
-        Complete suffix in lower case.
-
-    """
-
+    """Extracts the complete suffix in lower case of the given path."""
     # Use only lower case to avoid overhead for e.g. .spk & .Spk files.
     fileSuffix = QFileInfo(path).completeSuffix().lower()
-
     return fileSuffix
+
+
+def is_valid_suffix(filename:str)->bool:
+    suffix = get_suffix(filename)
+    return SUFF.has_value(suffix)
 
 
 def get_valid_local_url(url:QUrl)->str:
@@ -78,13 +76,6 @@ def get_valid_local_url(url:QUrl)->str:
         return localUrl
 
     return
-
-
-def is_valid_suffix(filename:str):
-    suffix = get_suffix(filename)
-    if SUFF.has_value(suffix):
-        return True
-    return False
 
 
 def mark_bold_red(label):
@@ -123,17 +114,25 @@ def convert_to_hours(timedifference):
 def timestamp_to_string(timestamp):
     """Converts the given timestamp to a string with a pre-defined format."""
     # strftime = STRing From TIME (with a given format)
-    timestampString = datetime.strftime(timestamp, TIMESTAMP["EXPORT"])
+    timestampString = datetime.strftime(timestamp, EXPORT_TIMESTAMP)
     return timestampString
 
-def replace_suffix(filename, suffix):
-    fileSuffix = get_suffix(filename)
 
+def timestamp_from_string(timestamp):
+    """Converts the given timestamp to a string with a pre-defined format."""
+    # strptime = STRing To TIME (with a given format)
+    timestamp = datetime.strptime(timestamp, EXPORT_TIMESTAMP)
+    return timestamp
+
+
+def replace_suffix(filename, suffix=None):
+    """Replaces the suffix of the filename. Default is defined in the configuration."""
+    newSuffix = suffix or EXPORT["SUFFIX"]
+
+    fileSuffix = get_suffix(filename)
     if not fileSuffix == suffix:
-        fileInfo = QFileInfo(filename)
-        path = extract_absolute_path(filename)
-        filenameWithSuffix = fileInfo.baseName() + suffix
-        newFilename = os.path.join(path, filenameWithSuffix)
+        path, baseName = extract_path_and_basename(filename)
+        newFilename = os.path.join(path, baseName + newSuffix)
 
     return newFilename
 

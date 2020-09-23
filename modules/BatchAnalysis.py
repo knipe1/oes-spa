@@ -249,9 +249,7 @@ class BatchAnalysis(QDialog):
         self.logger.info("Watchdog: Modified file: %s"%(path))
 
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
-        # batchPath = uni.extract_absolute_path(self.batchFile)
-        eventPath = uni.extract_absolute_path(path)
-        # print("BATCH", self.batchFile, "EVENT", path, "WD:",self.WDdirectory)
+        eventPath, _ = uni.extract_path_and_basename(path)
 
         # Distinguish between modified batch- and spectrum-file.
         if self.batchFile == path:
@@ -494,8 +492,6 @@ class BatchAnalysis(QDialog):
             None if dialog was quit or cancelled.
 
         """
-        batchfileSuffix = self.EXPORT["EXP_SUFFIX"]
-
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_saveFile(self.lastdir)
 
@@ -503,7 +499,7 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
 
-        filename = uni.replace_suffix(filename, batchfileSuffix)
+        filename = uni.replace_suffix(filename)
 
         # Change interface and preset for further dialogs (lastdir)
         self.lastdir = filename

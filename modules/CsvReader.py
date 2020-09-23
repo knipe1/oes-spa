@@ -13,18 +13,21 @@ import fnmatch
 # third-party libs
 
 # local modules/libs
-from modules.ConfigReader import ConfigReader
+from modules.BaseReader import BaseReader
 
 # Enums
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
-class CsvReader(ConfigReader):
+# constants
+from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
+
+class CsvReader(BaseReader):
 
     ### __Methods__
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        ConfigReader.__init__(self)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):
@@ -38,7 +41,7 @@ class CsvReader(ConfigReader):
         self.dialect = self.DIALECT_CSV["name"]
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["CSV_DATA_COLUMN"]
-        self.subKwargs = {"timeFormat": self.exportTimestampformat}
+        self.subKwargs = {"timeFormat": EXPORT_TIMESTAMP}
 
         # default batch columns must be the value of an CHC.element.
         self.defaultBatchYColumn = CHC.PEAK_AREA.value

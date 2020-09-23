@@ -12,7 +12,7 @@
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QFileInfo, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
@@ -258,7 +258,7 @@ class AnalysisWindow(QMainWindow):
         # Collect data.
         filename, timestamp = self.get_fileinformation()
         labels = spec.labels.values()
-        xyData = zip(spec.xData, spec.yData)
+        xyData = spec.data
 
         if filename == None:
             isExported = False;
@@ -276,10 +276,12 @@ class AnalysisWindow(QMainWindow):
 
         return isExported;
 
+
     def export_raw(self):
         """Save Raw-Data in CSV-File """
         self.export_spectrum(self.rawSpectrum)
         return 0
+
 
     def export_processed(self):
         """Save processed spectrum to CSV-File """

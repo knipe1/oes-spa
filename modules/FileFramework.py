@@ -19,9 +19,7 @@ class FileFramework:
 
     # Configuration.
     config = ConfigLoader()
-    EXPORT = config.EXPORT
     IMPORT = config.IMPORT
-    TIMESTAMP = config.TIMESTAMP
 
     # constants
     MARKER  = {"BATCH": "Filename",
