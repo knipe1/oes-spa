@@ -37,20 +37,16 @@ def main():
     window = AnalysisWindow()
 
     # automatic open and close routine
-    # window.apply_data("./sample files/Asterix1059 1.Spk")
-    try:
-        # window.export_raw()
-        #window.window.ddFitting.setCurrentIndex(3)
-        window.apply_data("./sample files/Asterix1059 1.Spk")
-        # window.apply_data("./sample files/SIF/testasc.asc")
-        # window.apply_data("./sample files/_batch.csv")
-        # window.export_raw()
-        # window.export_processed()
-        # window.apply_data("./sample files/Asterix1059 1_raw.csv")
-        # window.apply_data("./sample files/Asterix1059 1_processed.csv")
-        # window.export_processed()
-    except:
-        pass
+    # window.export_raw()
+    #window.window.ddFitting.setCurrentIndex(3)
+    window.apply_data("./sample files/Asterix1059 1.Spk")
+    # window.apply_data("./sample files/SIF/testasc.asc")
+    # window.apply_data("./sample files/_batch.csv")
+    window.export_raw()
+    window.export_processed()
+    # window.apply_data("./sample files/Asterix1059 1_raw.csv")
+    # window.apply_data("./sample files/Asterix1059 1_processed.csv")
+    # window.export_processed()
 
 
     window.batch.show()

@@ -39,6 +39,7 @@ from modules.DataHandler import DataHandler
 from custom_types.FileSet import FileSet
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
 
 # constants
@@ -249,18 +250,17 @@ class BatchAnalysis(QDialog):
         self.logger.info("Watchdog: Modified file: %s"%(path))
 
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
-        batchPath = uni.extract_absolute_path(self.batchFile)
-        eventPath = uni.extract_absolute_path(path)
+        eventPath, _ = uni.extract_path_and_basename(path)
 
         # Distinguish between modified batch- and spectrum-file.
-        if batchPath == eventPath:
+        if self.batchFile == path:
             self.logger.info("WD: Batchfile modified.")
             self.import_batch(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added.")
-            # self.update_filelist([eventPath])
-            # self._files.select_row_by_filename(eventPath)
-            self.analyze(eventPath)
+            self.update_filelist([path])
+            self._files.select_row_by_filename(path)
+            self.analyze(path)
 
 
     def toggle_watchdog(self, status:bool)->None:
@@ -361,7 +361,7 @@ class BatchAnalysis(QDialog):
             QApplication.processEvents()
             if self.isScheduledCancel:
                 break
-            return
+
             # Update process bar
             self.window.update_progressbar((i+1)/amount)
 
@@ -408,7 +408,7 @@ class BatchAnalysis(QDialog):
 
         if isExportBatch:
             if isSingleFile:
-                self.export_batch(assemble_row(config), singleLine=True)
+                self.export_batch(assemble_row(config), isSingleLine=True)
             else:
                 # Get the name of the peak for proper description.
                 peakName = basicSetting.fitting.peak.name
@@ -434,6 +434,9 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
         file = FileReader(filename, columnValue=columnValue)
+
+        if file.is_valid_spectrum() == ERR.OK:
+            return
 
         # TODO: Check sorting of 2D arrays make sense here.
         timestamps, values = file.data
@@ -493,16 +496,14 @@ class BatchAnalysis(QDialog):
             None if dialog was quit or cancelled.
 
         """
-        batchfileSuffix = self.EXPORT["EXP_SUFFIX"]
-
         # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_saveFile(self.lastdir,  parent=self)
+        filename = dialog.dialog_saveFile(self.lastdir)
 
         # Cancel or quit the dialog.
         if not filename:
             return
 
-        filename = uni.replace_suffix(filename, batchfileSuffix)
+        filename = uni.replace_suffix(filename)
 
         # Change interface and preset for further dialogs (lastdir)
         self.lastdir = filename

@@ -83,7 +83,7 @@ class FileReader(FileFramework):
         """Formats date and time as defined in the configuration."""
         strTime = self.date + " " + self.time
         try:
-            time = datetime.strptime(strTime, self.TIMESTAMP["EXPORT"])
+            time = uni.timestamp_from_string(strTime)
         except ValueError:
             time = None
         return time
@@ -204,6 +204,9 @@ class FileReader(FileFramework):
         # Data in general.
         if not len(self.xData):
             return ERR.INVALID_DATA;
+        if not isinstance(self.xData[0], (float, int)):
+            # is not a spectrum, maybe a batchfile.
+            return ERR.INVALID_DATA
 
         # Data that have same length.
         if len(self.xData) != len(self.yData):
@@ -222,7 +225,7 @@ class FileReader(FileFramework):
         """Readout given file"""
 
         # Get Data from file.
-        with open(self.filename, 'r') as openFile:
+        with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,
             # because we use another dialect then).
             fReader = csv.reader(openFile, dialect=self.subReader.dialect)
@@ -234,10 +237,10 @@ class FileReader(FileFramework):
                 return errorHeader
 
             # Gets the set of parameter of the file if available.
-            self.parameter = self.read_parameter(fReader, self.subReader, **kwargs)
+            self.parameter = self.read_parameter(fReader, self.subReader)
 
             # Data
-            self.data = self.read_data(fReader, self.subReader)
+            self.data = self.read_data(fReader, self.subReader, **kwargs)
             if not len(self.data):
                 self.logger.error(f"No valid data in {self.filename}")
                 return ERR.INVALID_DATA
@@ -279,7 +282,7 @@ class FileReader(FileFramework):
         return ERR.INVALID_HEADER
 
 
-    def read_data(self, fReader, subReader)->list:
+    def read_data(self, fReader, subReader, **kwargs)->list:
         """
         Read the data of the specified columns of a file opened with a reader.
 
@@ -303,7 +306,7 @@ class FileReader(FileFramework):
 
         """
         data = []
-        subReader.preprocess(fReader)
+        subReader.preprocess(fReader, **kwargs)
         xColumn, yColumn = subReader.xyColumn
         timeFormat = subReader.subKwargs.get("timeFormat")
 
@@ -315,13 +318,13 @@ class FileReader(FileFramework):
         return data
 
 
-    def read_parameter(self, fReader, subReader, **kwargs):
+    def read_parameter(self, fReader, subReader):
         # TODO: docstring
         parameter = {}
         try:
-            parameter = subReader.get_parameter(fReader, **kwargs)
+            parameter = subReader.get_parameter(fReader)
         except AttributeError:
-            self.logger.debug("Could not find paramter method.")
+            self.logger.debug("Could not find parameter method.")
         return parameter
 
 

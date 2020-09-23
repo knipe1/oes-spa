@@ -12,18 +12,19 @@ Created on Mon Jan 27 11:02:13 2020
 
 # standard libs
 import csv
+from os import path
 from datetime import datetime
 
 # third-party libs
-from modules.FileFramework import FileFramework
+from PyQt5.QtCore import QFileInfo
 
 # local modules/libs
+from modules.FileFramework import FileFramework
 import dialog_messages as dialog
 import modules.Universal as uni
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
-from custom_types.SUFFICES import SUFFICES as SUFF
 
 # constants
 PROCESSED_APPENDIX = "_processed"
@@ -76,11 +77,11 @@ class FileWriter(FileFramework):
 
         """
 
-        expFilename = self.build_exp_filename(exportType)
+        expFilename = self.build_exp_filename(self.filename, exportType)
         if not expFilename:
             return False
 
-        with open(expFilename, 'w') as expFile:
+        with open(expFilename, 'w', newline='') as expFile:
             csvWr = csv.writer(expFile, dialect=self.dialect)
             # creating the head using file specific properties
             csvWr.writerow([self.build_head()])
@@ -100,26 +101,26 @@ class FileWriter(FileFramework):
 
     def write_line(self, data):
         # TODO: docstring
-        with open(self.filename, 'a') as f:
+        with open(self.filename, 'a', newline='') as f:
             # open writer with self defined dialect
             writer = csv.writer(f, dialect=self.dialect)
             writer.writerow(data)
 
 
 
-    def build_exp_filename(self, exportType):
-        """Alters the current filename to a standard processed export
-        filename"""
-        rawFilename = self.filename
-        # remove the suffix by taking the first element prior a point.
-        rawFilename = rawFilename.split(".")[0]
+    def build_exp_filename(self, filename, exportType):
+        """Alters the current filename to a standard processed export filename"""
+        filepath, baseName = uni.extract_path_and_basename(filename)
 
-        if is_exported_spectrum(rawFilename):
+        if is_exported_spectrum(baseName):
             return
 
         appendix = determine_appendix(exportType)
 
-        return rawFilename + appendix + self.EXPORT["EXP_SUFFIX"];
+        exportFilename = path.join(filepath, baseName + appendix)
+        exportFilename = uni.replace_suffix(exportFilename)
+
+        return exportFilename
 
     def build_head(self):
         # TODO: docstring

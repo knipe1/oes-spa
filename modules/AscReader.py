@@ -12,11 +12,14 @@ from datetime import datetime
 # third-party libs
 
 # local modules/libs
-from modules.ConfigReader import ConfigReader
+from modules.BaseReader import BaseReader
 
-# Enums
+# constants
+from GLOBAL_CONSTANTS import ASC_TIMESTAMP, EXPORT_TIMESTAMP
 
-class AscReader(ConfigReader):
+EXPORT_DATE, EXPORT_TIME = EXPORT_TIMESTAMP.split(" ")
+
+class AscReader(BaseReader):
 
     ### Properties
 
@@ -25,7 +28,7 @@ class AscReader(ConfigReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        ConfigReader.__init__(self)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):
@@ -58,11 +61,11 @@ class AscReader(ConfigReader):
         _, timestamp = asc_separate_parameter(row)
 
         # Convert the given time string into date and time.
-        timestamp = datetime.strptime(timestamp, self.ascTimestampformat)
+        timestamp = datetime.strptime(timestamp, ASC_TIMESTAMP)
 
         # Format the timestamp according to the 'export' time format.
-        date = timestamp.strftime(self.exportDateformat)
-        time = timestamp.strftime(self.exportTimeformat)
+        date = timestamp.strftime(EXPORT_DATE)
+        time = timestamp.strftime(EXPORT_TIME)
 
         return (date, time)
 

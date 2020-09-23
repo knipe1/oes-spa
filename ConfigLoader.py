@@ -64,11 +64,6 @@ class ConfigLoader():
         """Get the PLOT-configuration."""
         return self.config["PLOT"]
 
-    @property
-    def TIMESTAMP(self) -> dict:
-        """Get the TIMESTAMP-configuration."""
-        return self.config["TIMESTAMP"]
-
 
     # Set indiviual props to update them properly.
     @property

@@ -222,7 +222,7 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
 
     # default properties of the dialog
     title = "Set Filename";
-    filter = EXPORT["DEF_BATCH_FILTER"];
+    filter = EXPORT["BATCH_FILTER"];
     # set the default batch name
     if not presetFilename:
         presetFilename = EXPORT["DEF_BATCH_NAME"];
