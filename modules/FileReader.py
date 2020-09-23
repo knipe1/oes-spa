@@ -225,7 +225,7 @@ class FileReader(FileFramework):
         with open(self.filename, 'r') as openFile:
             # Set up the reader (even if the file is something else than csv,
             # because we use another dialect then).
-            fReader = csv.reader(openFile, dialect=self.subReader.dialect)
+            fReader = csv.reader(openFile, dialect=self.subReader.dialect, newline='')
 
             # Header information
             get_header = self.subReader.get_header

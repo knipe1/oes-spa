@@ -269,8 +269,7 @@ class AnalysisWindow(QMainWindow):
         if isExported:
             # write data to csv
             csvWriter = FileWriter(filename, timestamp)
-            isExported = csvWriter.write_data(xyData, labels,
-                                              spec.exportType, results)
+            isExported = csvWriter.write_data(xyData, labels, spec.exportType, results)
 
         if not isExported:
             dialog.information_ExportAborted();

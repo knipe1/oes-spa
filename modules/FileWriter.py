@@ -81,7 +81,7 @@ class FileWriter(FileFramework):
             return False
 
         with open(expFilename, 'w') as expFile:
-            csvWr = csv.writer(expFile, dialect=self.dialect)
+            csvWr = csv.writer(expFile, dialect=self.dialect, newline='')
             # creating the head using file specific properties
             csvWr.writerow([self.build_head()])
             # adding characteristic values
@@ -102,7 +102,7 @@ class FileWriter(FileFramework):
         # TODO: docstring
         with open(self.filename, 'a') as f:
             # open writer with self defined dialect
-            writer = csv.writer(f, dialect=self.dialect)
+            writer = csv.writer(f, dialect=self.dialect, newline='')
             writer.writerow(data)
 
 
