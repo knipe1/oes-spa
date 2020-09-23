@@ -39,6 +39,7 @@ from modules.DataHandler import DataHandler
 from custom_types.FileSet import FileSet
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
 
 # constants
@@ -433,6 +434,9 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
         file = FileReader(filename, columnValue=columnValue)
+
+        if file.is_valid_spectrum() == ERR.OK:
+            return
 
         # TODO: Check sorting of 2D arrays make sense here.
         timestamps, values = file.data
