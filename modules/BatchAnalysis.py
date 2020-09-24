@@ -248,8 +248,6 @@ class BatchAnalysis(QDialog):
     ### Watchdog routines
 
     def watchdog_event_handler(self, path:str)->None:
-        self.logger.info("Watchdog: Modified file: %s"%(path))
-
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
         eventPath, _ = uni.extract_path_and_basename(path)
 
@@ -258,7 +256,7 @@ class BatchAnalysis(QDialog):
             self.logger.info("WD: Batchfile modified.")
             self.import_batch(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
-            self.logger.info("WD: Spectrum file modified/added.")
+            self.logger.info("WD: Spectrum file modified/added: %s"%(path))
             self.update_filelist([path])
             self._files.select_row_by_filename(path)
             self.analyze(path)
