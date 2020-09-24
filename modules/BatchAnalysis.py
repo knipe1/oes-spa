@@ -31,7 +31,7 @@ import dialog_messages as dialog
 from modules.Spectrum import Spectrum
 from modules.Watchdog import Watchdog
 from modules.FileReader import FileReader
-from modules.FileWriter import FileWriter
+from modules.BatchWriter import BatchWriter
 from modules.DataHandler import DataHandler
 
 
@@ -408,12 +408,13 @@ class BatchAnalysis(QDialog):
                 self._files.select_row_by_filename(file)
 
         if isExportBatch:
+            # Get the name of the peak for proper description.
+            peakName = basicSetting.fitting.peak.name
+            header = assemble_header(config, peakName=peakName)
             if isSingleFile:
-                self.export_batch(assemble_row(config), isSingleLine=True)
+                data = assemble_row(config)
+                self.export_batch(data, header, isUpdate=True)
             else:
-                # Get the name of the peak for proper description.
-                peakName = basicSetting.fitting.peak.name
-                header = assemble_header(config, peakName=peakName)
                 self.export_batch(data, header)
 
         if isPlotTrace:
@@ -470,14 +471,14 @@ class BatchAnalysis(QDialog):
         return diffTimes
 
 
-    def export_batch(self, data, header=None, isSingleLine=False):
+    def export_batch(self, data, header, isUpdate=False):
 
         # Export in csv file.
-        csvWriter = FileWriter(self.batchFile)
-        if isSingleLine:
-            csvWriter.write_line(data)
+        csvWriter = BatchWriter(self.batchFile)
+        if isUpdate:
+            csvWriter.extend_data(data, header)
         else:
-            csvWriter.write_data(data, header, EXPORT_TYPE.BATCH)
+            csvWriter.export(data, header)
 
 
 
