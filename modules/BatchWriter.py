@@ -88,13 +88,17 @@ class BatchWriter(FileFramework):
 
 
     def is_valid_batchfile(self):
-        with open(self.filename, 'r', newline='') as f:
-            fReader = csv.reader(f, dialect=self.dialect)
-            for row in fReader:
-                cell = row[0]
-                if self.MARKER["BATCH"] in cell:
-                    return True
-            return False
+        isValid = False
+        try:
+            with open(self.filename, 'r', newline='') as f:
+                fReader = csv.reader(f, dialect=self.dialect)
+                for row in fReader:
+                    if self.MARKER["BATCH"] in row[0]:
+                        isValid = True
+                        break
+        except FileNotFoundError:
+            isValid = False
+        return isValid
 
 
 def build_exp_filename(filename):
