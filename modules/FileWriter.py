@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-File Writermodule
-
-Export raw-/processed spectra
-
 Created on Mon Jan 27 11:02:13 2020
 
 @author: Hauke Wernecke
@@ -22,6 +18,7 @@ from PyQt5.QtCore import QFileInfo
 from modules.FileFramework import FileFramework
 import dialog_messages as dialog
 import modules.Universal as uni
+from modules.CsvReader import CsvReader
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
@@ -100,6 +97,10 @@ class FileWriter(FileFramework):
         return True
 
     def write_line(self, data):
+        if self.determine_type(self.filename) == EXPORT_TYPE.BATCH:
+            mode = 'a'
+        else:
+            mode = 'w'
         # TODO: docstring
         with open(self.filename, 'a', newline='') as f:
             # open writer with self defined dialect
@@ -131,6 +132,18 @@ class FileWriter(FileFramework):
             # TODO: Implement logger?
             print("Timestamp is no date object.")
         return " ".join([self.MARKER["HEADER"], timestamp])
+
+
+
+    def determine_type(self, filename):
+        csvReader = CsvReader(filename)
+
+        with open(self.filename, 'r', newline='') as f:
+            # open writer with self defined dialect
+            fReader = csv.writer(f, dialect=self.dialect)
+            csvReader.preprocess(fReader)
+
+        return csvReader.type
 
 
 def is_exported_spectrum(filename):

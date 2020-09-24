@@ -44,6 +44,7 @@ from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
 # constants
 
+
 class BatchAnalysis(QDialog):
     """
     Provides an dialog widget as interface to analyze multiple spectra.
@@ -338,7 +339,7 @@ class BatchAnalysis(QDialog):
             singleFile = [singleFile]
 
         # Get the modus.
-        isUpdatePlot = self.window.get_update_plots()
+        isUpdatePlot = self.window.get_update_plots() and not isSingleFile
         isPlotTrace = self.window.get_plot_trace()
         # Export even if plot trace is selected(First export then import+plot).
         isExportBatch = self.window.get_export_batch() or isPlotTrace
@@ -403,7 +404,7 @@ class BatchAnalysis(QDialog):
                 data.append(assemble_row(config))
 
             # Select by filename to trigger event based update of the plot.
-            if isUpdatePlot and not isSingleFile:
+            if isUpdatePlot:
                 self._files.select_row_by_filename(file)
 
         if isExportBatch:

@@ -14,6 +14,9 @@ from datetime import datetime
 # local modules/libs
 from modules.BaseReader import BaseReader
 
+# Enums
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
+
 # constants
 from GLOBAL_CONSTANTS import ASC_TIMESTAMP, EXPORT_TIMESTAMP
 
@@ -41,6 +44,7 @@ class AscReader(BaseReader):
         # TODO: docstring
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["ASC_DATA_COLUMN"]
+        self.type = EXPORT_TYPE.SPECTRUM
 
 
     def get_header(self, row:list)->tuple:
