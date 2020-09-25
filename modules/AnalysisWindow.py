@@ -4,7 +4,7 @@
 
 
     Glossary:
-        - currentFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
+        - activeFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
 @author: Hauke Wernecke
 """
 
@@ -57,16 +57,16 @@ class AnalysisWindow(QMainWindow):
     ### Properties
 
     @property
-    def currentFile(self)->FileReader:
-        """currentFile getter"""
-        return self._currentFile
+    def activeFile(self)->FileReader:
+        """activeFile getter"""
+        return self._activeFile
 
-    @currentFile.setter
-    def currentFile(self, file:FileReader):
-        """currentFile setter: Updating the ui"""
+    @activeFile.setter
+    def activeFile(self, file:FileReader):
+        """activeFile setter: Updating the ui"""
 
-        isFileReloaded = (self._currentFile == file)
-        self._currentFile = file
+        isFileReloaded = (self._activeFile == file)
+        self._activeFile = file
         self.set_fileinformation(file)
 
         # Set additional information (like from asc-file).
@@ -109,7 +109,7 @@ class AnalysisWindow(QMainWindow):
         # Set defaults.
         # TODO: new method? Issue with inheritance.
         self.lastdir = self.FILE["DEF_DIR"];
-        self._currentFile = None;
+        self._activeFile = None;
 
         ## Set up the user interfaces (main application window, batch window)
         self.window = UIMain(self)
@@ -128,7 +128,7 @@ class AnalysisWindow(QMainWindow):
 
     def __repr__(self):
         info = {}
-        info["currentFile"] = self.currentFile
+        info["activeFile"] = self.activeFile
         info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
@@ -305,7 +305,7 @@ class AnalysisWindow(QMainWindow):
     def update_results(self):
         """Updates the result section of the ui with the current file."""
         try:
-            self.apply_data(self.currentFile.filename, updateSpectra=False)
+            self.apply_data(self.activeFile.filename, updateSpectra=False)
         except AttributeError as err:
             self.logger.error("Currently no file selected to update results.")
             self.logger.error(err)
@@ -315,7 +315,7 @@ class AnalysisWindow(QMainWindow):
         """
         Redraw the plots with the currently opened file.
 
-        Uses self.currentFile.filename to get the filename.
+        Uses self.activeFile.filename to get the filename.
 
         Parameters
         ----------
@@ -329,7 +329,7 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_data(self.currentFile.filename)
+            self.apply_data(self.activeFile.filename)
             self.logger.info("Redraw triggered by:" + text)
         except:
             self.logger.warning("Redraw Failed")
@@ -342,8 +342,8 @@ class AnalysisWindow(QMainWindow):
         # TODO: self.filename
         # TODO: self.filename = {name: asd, timestamp: sad}
         try:
-            filename = self.currentFile.filename
-            timestamp = self.currentFile.timestamp
+            filename = self.activeFile.filename
+            timestamp = self.activeFile.timestamp
         except:
             self.logger.error("Could not get filename/fileinformation.")
             filename = None;
@@ -413,7 +413,7 @@ class AnalysisWindow(QMainWindow):
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
         # Update the currently open file.
-        self.currentFile = file;
+        self.activeFile = file;
         return 0
 
     ### unsorted

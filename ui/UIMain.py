@@ -411,31 +411,11 @@ class UIMain(Ui_main):
 
     def get_basic_setting(self)->BasicSetting:
 
-        grating = self.get_grating()
+        grating = self.grating
         fitting = self.currentFitting
         setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;
-
-    # TODO: @property
-    def get_grating(self)->int:
-        """
-        Gets the value of the ui element.
-
-        Returns
-        -------
-        grating: int
-            The current text of the input ui element.
-
-        """
-        # TODO: see above. compare self.wavelength
-        grating = None
-        try:
-            grating = self.ddGrating.currentText()
-            grating = int(grating)
-        except:
-            self.logger.error("Could not get valid value for grating!")
-        return grating
 
 
     def get_raw_plot(self):
