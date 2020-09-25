@@ -143,7 +143,7 @@ class BatchAnalysis(QDialog):
         self._files = FileSet(listWidget = self.window.listFiles)
         self.batchFile = self.window.batchFile
         self.WDdirectory = self.window.WDdirectory
-        self.dog = Watchdog()
+        self.dog = Watchdog(self.watchdog_event_handler)
         self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
 
         # Link events of the ui to methods of this class.
@@ -308,11 +308,11 @@ class BatchAnalysis(QDialog):
 
         try:
             # Start WD for batchfile
-            self.dog.start(WDpath, self.watchdog_event_handler)
+            self.dog.start(WDpath)
 
             # Start WD for spectra directory (if they differ).
             if not (WDpath == batchPath):
-                self.dog.start(batchPath, self.watchdog_event_handler)
+                self.dog.start(batchPath)
 
             self.window.btnSetWatchdogDir.setEnabled(False)
         except AttributeError:
