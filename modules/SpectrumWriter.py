@@ -13,7 +13,7 @@ from os import path
 # third-party libs
 
 # local modules/libs
-from modules.FileFramework import FileFramework
+from modules.FileWriter import FileWriter
 import dialog_messages as dialog
 import modules.Universal as uni
 
@@ -25,11 +25,11 @@ PROCESSED_APPENDIX = "_processed"
 RAW_APPENDIX = "_raw"
 
 
-class SpectrumWriter(FileFramework):
+class SpectrumWriter(FileWriter):
 
 
     def __init__(self, filename, timestamp):
-        FileFramework.__init__(self, filename)
+        super().__init__(filename)
         self.timestamp = timestamp
         self.dialect = self.csvDialect
 
@@ -41,7 +41,7 @@ class SpectrumWriter(FileFramework):
         return self.__module__ + ":\n" + str(info)
 
 
-    def export(self, data, titles, exportType, additionalInformation = {}):
+    def export(self, data, columnTitles, exportType, additionalInformation = {}):
         """
         Writes the header, additional information, label and data into a csv file.
 
@@ -65,9 +65,9 @@ class SpectrumWriter(FileFramework):
 
         with open(exportFilename, 'w', newline='') as exportFile:
             fWriter = csv.writer(exportFile, dialect=self.dialect)
-            self.write_header(fWriter)
+            super().write_header(fWriter, self.timestamp)
             self.write_information(fWriter, additionalInformation)
-            self.write_column_titles(fWriter, titles)
+            super().write_column_titles(fWriter, columnTitles)
             self.write_data(fWriter, data)
 
         dialog.information_ExportFinished(exportFilename)

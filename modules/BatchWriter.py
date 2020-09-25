@@ -13,7 +13,7 @@ from datetime import datetime
 # third-party libs
 
 # local modules/libs
-from modules.FileFramework import FileFramework
+from modules.FileWriter import FileWriter
 import dialog_messages as dialog
 import modules.Universal as uni
 
@@ -22,7 +22,7 @@ import modules.Universal as uni
 # constants
 
 
-class BatchWriter(FileFramework):
+class BatchWriter(FileWriter):
     """
     Writer for batchfiles.
 
@@ -30,7 +30,7 @@ class BatchWriter(FileFramework):
     """
 
     def __init__(self, filename):
-        FileFramework.__init__(self, filename)
+        super().__init__(filename)
         self.timestamp = datetime.now()
         self.dialect = self.csvDialect
 
@@ -55,13 +55,13 @@ class BatchWriter(FileFramework):
 
         """
 
-        expFilename = build_exp_filename(self.filename)
+        exportFilename = build_exp_filename(self.filename)
 
-        with open(expFilename, 'w', newline='') as expFile:
-            csvWriter = csv.writer(expFile, dialect=self.dialect)
-            self.write_header(csvWriter)
-            self.write_column_titles(csvWriter, columnTitles)
-            csvWriter.writerows(data)
+        with open(exportFilename, 'w', newline='') as exportFile:
+            fWriter = csv.writer(exportFile, dialect=self.dialect)
+            super().write_header(fWriter, self.timestamp)
+            super().write_column_titles(fWriter, columnTitles)
+            fWriter.writerows(data)
 
 
     def extend_data(self, data, columnTitles):
@@ -76,15 +76,6 @@ class BatchWriter(FileFramework):
             writer = csv.writer(f, dialect=self.dialect)
             writer.writerow(data)
 
-
-    def write_header(self, fWriter):
-        strTimestamp = uni.timestamp_to_string(self.timestamp)
-        header =  self.MARKER["HEADER"] + " " + strTimestamp
-        fWriter.writerow([header])
-
-
-    def write_column_titles(self, fWriter, titles):
-        fWriter.writerow(titles)
 
 
     def is_valid_batchfile(self):

@@ -377,24 +377,22 @@ class AnalysisWindow(QMainWindow):
 
         # Prepare file.
         file = FileReader(filename)
+        if not file.is_valid_spectrum():
+            return
 
         # Update plots and ui.
         basicSetting = self.window.get_basic_setting()
 
         # Check for differences in entered WL and stored WL
         try:
-            showDiffWL = False
-            if float(file.WAVELENGTH) != basicSetting.wavelength:
-                showDiffWL = True
+            showDiffWL = (float(file.WAVELENGTH) != basicSetting.wavelength)
         except KeyError:
-            pass
+            showDiffWL = False
         finally:
             self.window.show_diff_wavelength(showDiffWL)
 
 
-        specHandler = DataHandler(basicSetting,
-                                  funConnection=connect,
-                                  parameter=file.parameter)
+        specHandler = DataHandler(basicSetting, funConnection=connect, parameter=file.parameter)
         # Validate results?
         results = specHandler.analyse_data(file)
 
