@@ -336,7 +336,7 @@ def read_x_data(value:str, timeFormat:datetime=None):
         xValue = float(value)
     except ValueError:
         # batch analysis uses timestamp of files for plotting.
-        xValue = datetime.strptime(value, timeFormat)
+        xValue = uni.timestamp_from_string(value, timeFormat)
     return xValue
 
 

@@ -7,12 +7,12 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
-from datetime import datetime
 
 # third-party libs
 
 # local modules/libs
 from modules.BaseReader import BaseReader
+import modules.Universal as uni
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
@@ -62,16 +62,17 @@ class AscReader(BaseReader):
             The date and the time of the measurement of the spectrum.
 
         """
-        _, timestamp = asc_separate_parameter(row)
+        _, strTime = asc_separate_parameter(row)
 
         # Convert the given time string into date and time.
-        timestamp = datetime.strptime(timestamp, ASC_TIMESTAMP)
+        timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
 
         # Format the timestamp according to the 'export' time format.
-        date = timestamp.strftime(EXPORT_DATE)
-        time = timestamp.strftime(EXPORT_TIME)
+        date = uni.string_to_timestamp(timestamp, EXPORT_DATE)
+        time = uni.string_to_timestamp(timestamp, EXPORT_TIME)
 
         return (date, time)
+
 
     def get_parameter(self, fReader):
         """
