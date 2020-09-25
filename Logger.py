@@ -27,9 +27,6 @@ Created on Sun Mar 29 12:21:03 2020
 @author: Hauke Wernecke
 """
 
-# TODO: Add metadata
-# TODO: Add streamhandler?
-
 # further descriptive videos
 # Logging module: https://www.youtube.com/watch?v=g8nQ90Hk328
 # Logging module (simple): https://www.youtube.com/watch?v=-ARI4Cz-awo

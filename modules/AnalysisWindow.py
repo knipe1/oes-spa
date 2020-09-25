@@ -22,7 +22,7 @@ import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
 from modules.DataHandler import DataHandler
 from modules.FileReader import FileReader
-from modules.FileWriter import FileWriter
+from modules.SpectrumWriter import SpectrumWriter
 from modules.Spectrum import Spectrum
 from ui.UIMain import UIMain
 from Logger import Logger
@@ -267,11 +267,9 @@ class AnalysisWindow(QMainWindow):
             isExported = False;
 
         if isExported:
-            # write data to csv
-            csvWriter = FileWriter(filename, timestamp)
-            isExported = csvWriter.write_data(xyData, labels, spec.exportType, results)
-
-        if not isExported:
+            csvWriter = SpectrumWriter(filename, timestamp)
+            csvWriter.export(xyData, labels, spec.exportType, results)
+        else:
             dialog.information_ExportAborted();
 
         return isExported;
