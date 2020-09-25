@@ -258,7 +258,7 @@ class AnalysisWindow(QMainWindow):
         # Collect data.
         filename, timestamp = self.get_fileinformation()
         labels = spec.labels.values()
-        xyData = spec.data
+        xyData = spec.data.transpose()
 
         if filename == None:
             isExported = False;

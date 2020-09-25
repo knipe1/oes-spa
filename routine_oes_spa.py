@@ -10,6 +10,7 @@ Single and batch analysis of OES spectra
 
 # standard libs
 import sys
+import time
 
 # third-party libs
 import emulator as emu
@@ -40,12 +41,15 @@ def main():
     # window.export_raw()
     #window.window.ddFitting.setCurrentIndex(3)
     window.apply_data("./sample files/Asterix1059 1.Spk")
+    time.sleep(1)
     # window.apply_data("./sample files/SIF/testasc.asc")
     # window.apply_data("./sample files/_batch.csv")
     window.export_raw()
     window.export_processed()
-    # window.apply_data("./sample files/Asterix1059 1_raw.csv")
-    # window.apply_data("./sample files/Asterix1059 1_processed.csv")
+    window.apply_data("./sample files/Asterix1059 1_raw.csv")
+    time.sleep(1)
+    window.apply_data("./sample files/Asterix1059 1_processed.csv")
+    time.sleep(1)
     # window.export_processed()
 
 
