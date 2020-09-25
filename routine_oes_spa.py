@@ -47,10 +47,9 @@ def main():
     window.export_raw()
     window.export_processed()
     window.apply_data("./sample files/Asterix1059 1_raw.csv")
-    time.sleep(1)
+    window.export_raw()
     window.apply_data("./sample files/Asterix1059 1_processed.csv")
-    time.sleep(1)
-    # window.export_processed()
+    window.export_processed()
 
 
     window.batch.show()
