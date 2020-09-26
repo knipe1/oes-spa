@@ -455,7 +455,7 @@ class BatchAnalysis(QDialog):
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
-            filename = dialog.dialog_openFiles(self.lastdir, singleFile=True)
+            filename = dialog.dialog_openBatchFile(self.lastdir)
             self.lastdir = filename
         return filename
 
@@ -497,7 +497,7 @@ class BatchAnalysis(QDialog):
 
         """
         # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_saveFile(self.lastdir)
+        filename = dialog.dialog_saveBatchfile(self.lastdir)
 
         # Cancel or quit the dialog.
         if not filename:
@@ -513,7 +513,7 @@ class BatchAnalysis(QDialog):
 
 
     def specify_watchdog_directory(self):
-        directory = dialog.dialog_getDirectory(self.lastdir)
+        directory = dialog.dialog_getWatchdogDirectory(self.lastdir)
 
         if directory:
             self.WDdirectory = directory
@@ -523,7 +523,7 @@ class BatchAnalysis(QDialog):
 
     def browse_spectra(self):
         """Opens a dialog to browse for spectra and updates the filelist."""
-        filelist = dialog.dialog_openFiles(self.lastdir)
+        filelist = dialog.dialog_openSpectra(self.lastdir)
         self.update_filelist(filelist)
         try:
             filename = filelist[0]

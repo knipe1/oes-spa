@@ -2,13 +2,13 @@ BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
 EXPORT:
-  BATCH_FILTER: Comma separated (*.csv)
+  BATCH_FILTER: Batch files (*.csv)
   DEF_BATCH_NAME: _batch
   SUFFIX: .csv
 FILE:
   DEF_DIR: ./sample files
   DEF_FILE: ''
-  LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
+  LOG_FILE: debug.log
 FITTING:
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml

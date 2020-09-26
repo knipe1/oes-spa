@@ -229,7 +229,7 @@ class AnalysisWindow(QMainWindow):
             # Cancel/Quit dialog --> [].
             # One file selected: Update spectra.
             # Multiple files: BatchAnalysis.
-            filename = dialog.dialog_openFiles(self.lastdir);
+            filename = dialog.dialog_openSpectra(self.lastdir);
             if len(filename) > 1:
                 self.batch.show();
                 self.batch.update_filelist(filename)
