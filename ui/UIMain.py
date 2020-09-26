@@ -33,6 +33,7 @@ from ConfigLoader import ConfigLoader
 from modules.Fitting import Fitting
 from Logger import Logger
 from modules.Universal import mark_bold_red
+from ui.matplotlibwidget import MatplotlibWidget
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
@@ -141,6 +142,14 @@ class UIMain(Ui_main):
             uiElement.addItems(fits.values())
         except:
             pass
+
+    @property
+    def plotRawSpectrum(self)->MatplotlibWidget:
+        return self.mplRaw
+
+    @property
+    def plotProcessedSpectrum(self)->MatplotlibWidget:
+        return self.mplProcessed
 
     ### methods
 
@@ -297,11 +306,11 @@ class UIMain(Ui_main):
                 signal.connect(uiElement.setText)
 
 
-    def connect_fileinformation(self, sigFilename, sigDate, sigTime):
+    def set_fileinformation(self, filename:str, date:str, time:str)->None:
         # TODO: docstring, also add to class methods
-        sigFilename.connect(self.toutFilename.setText)
-        sigDate.connect(self.toutDate.setText)
-        sigTime.connect(self.toutTime.setText)
+        self.toutFilename.setText(filename)
+        self.toutDate.setText(date)
+        self.toutTime.setText(time)
 
 
     def retrieve_fittings(self) -> list:
@@ -416,29 +425,3 @@ class UIMain(Ui_main):
         setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;
-
-
-    def get_raw_plot(self):
-        """
-        Gets the ui element.
-
-        Returns
-        -------
-        MatplotlibWidget
-            The ui element for plotting the raw data.
-
-        """
-        return self.mplRaw
-
-
-    def get_processed_plot(self):
-        """
-        Gets the ui element.
-
-        Returns
-        -------
-        MatplotlibWidget
-            The ui element for plotting the processed data.
-
-        """
-        return self.mplProcessed

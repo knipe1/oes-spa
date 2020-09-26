@@ -31,12 +31,12 @@ from modules.Spectrum import Spectrum
 def main():
     """Main program """
 
-    exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
+    exportSpectra = True
+    showBatch = False
+    selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
-    activateWD = True
+    activateWD = False
 
 
     # Setup GUI

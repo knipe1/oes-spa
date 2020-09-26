@@ -136,6 +136,10 @@ class FileReader(FileFramework):
         self.read_file(**kwargs)
 
 
+    def __bool__(self):
+        return (self.is_valid_spectrum() == ERR.OK)
+
+
     def __eq__(self, other):
         # TODO: docstring
         try:
