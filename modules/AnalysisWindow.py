@@ -28,6 +28,7 @@ from modules.Spectrum import Spectrum
 from modules.SpectrumWriter import SpectrumWriter
 
 # enums
+from custom_types.BasicSetting import BasicSetting
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
@@ -234,12 +235,12 @@ class AnalysisWindow(QMainWindow):
 
 
     def export_raw(self):
-        """Save Raw-Data in CSV-File """
+        """Export the raw spectrum."""
         self.export_spectrum(self.rawSpectrum)
 
 
     def export_processed(self):
-        """Save processed spectrum to CSV-File """
+        """Export the processed spectrum with the analyical characteristics."""
         results = self.window.get_results();
         self.export_spectrum(self.processedSpectrum, results)
 
@@ -248,45 +249,36 @@ class AnalysisWindow(QMainWindow):
 
     def draw_spectra(self, *spectra):
         """Init and plot the given spectra."""
-
-        try:
-            for spectrum in spectra:
-                spectrum.plot_spectrum()
-        except:
-            self.logger.error("Could not draw spectra. Missing valid spectra.")
-
-        return 0
+        for spectrum in spectra:
+            spectrum.plot_spectrum()
 
 
     def apply_fitting(self):
-        """Updates the result section of the ui with the current file."""
+        """
+        Apply the fitting for the active file again.
+
+        Prevent that the spectrum is again plotted.
+        """
         try:
-            self.apply_data(self.activeFile.filename, updateSpectra=False)
+            self.apply_data(self.activeFile.filename, updateResults=True, updateSpectra=False)
         except AttributeError as err:
-            self.logger.error("Currently no file selected to update results.")
+            self.logger.error("Could not apply the fitting.")
             self.logger.error(err)
 
 
-    def redraw(self, text:str=""):
+    def redraw(self, value:str=None):
         """
         Redraw the plots with the currently opened file.
-
-        Uses self.activeFile.filename to get the filename.
 
         Parameters
         ----------
         text : str
             The text of the new selected option. Informative in the logger.
-            The default is "".
-
-        Returns
-        -------
-        None.
 
         """
         try:
             self.apply_data(self.activeFile.filename)
-            self.logger.info("Redraw triggered by:" + text)
+            self.logger.info("New value of setting:" + value)
         except:
             self.logger.warning("Redraw Failed")
 
@@ -316,7 +308,7 @@ class AnalysisWindow(QMainWindow):
 
     ### data analysis
 
-    def apply_data(self, filename, updateSpectra=True, updateResults=True):
+    def apply_data(self, filename:str, updateSpectra=True, updateResults=True):
         """read out a file and extract its information,
         then set header information and draw spectra"""
         # TODO: error handling
@@ -328,24 +320,16 @@ class AnalysisWindow(QMainWindow):
         if not file.is_valid_spectrum():
             return
 
-        # Update plots and ui.
         basicSetting = self.window.get_basic_setting()
 
-        # Check for differences in entered WL and stored WL
-        try:
-            showDiffWL = (float(file.WAVELENGTH) != basicSetting.wavelength)
-        except KeyError:
-            showDiffWL = False
-        finally:
-            self.window.show_diff_wavelength(showDiffWL)
-
+        self.show_wavelength_difference_information(file, basicSetting)
 
         specHandler = DataHandler(basicSetting, funConnection=connect, parameter=file.parameter)
         # Validate results?
         results = specHandler.analyse_data(file)
 
         if results is None:
-            return -1
+            return
 
         # Update and the spectra.
         if updateSpectra:
@@ -353,7 +337,7 @@ class AnalysisWindow(QMainWindow):
             baseline = specHandler.baseline
             processedData = specHandler.procData
 
-            rawIntegration, procIntegration = self.get_integration_area(specHandler)
+            rawIntegration, procIntegration = specHandler.get_integration_area()
 
             self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
             self.processedSpectrum.update_data(processedData, procIntegration)
@@ -362,20 +346,6 @@ class AnalysisWindow(QMainWindow):
 
         # Update the currently open file.
         self.activeFile = file;
-        return 0
-
-    ### unsorted
-    def get_integration_area(self, dataHandler):
-        rawIntegration = []
-        procIntegration = []
-        for intArea in dataHandler.integration:
-            if intArea.spectrumType == EXPORT_TYPE.RAW:
-                rawIntegration.append(intArea)
-            else:
-                procIntegration.append(intArea)
-
-        return rawIntegration, procIntegration
-
 
 
     def set_wavelength_from_file(self, file:FileReader):
@@ -385,3 +355,12 @@ class AnalysisWindow(QMainWindow):
         except KeyError:
             # Exception if a non-.asc file is loaded.
             self.logger.debug("No Wavelength provided by: " + file.filename)
+
+
+    def show_wavelength_difference_information(self, file:FileReader, basicSetting:BasicSetting):
+        try:
+            hasDifferentWl = (float(file.WAVELENGTH) != basicSetting.wavelength)
+        except KeyError:
+            hasDifferentWl = False
+        finally:
+            self.window.show_diff_wavelength(hasDifferentWl)

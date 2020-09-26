@@ -392,3 +392,15 @@ class DataHandler(QObject):
         results[CHC.INTEGRATION_WL] = integrationWl
 
         return results
+
+
+    def get_integration_area(self):
+        rawIntegration = []
+        procIntegration = []
+        for intArea in self.integration:
+            if intArea.spectrumType == EXPORT_TYPE.RAW:
+                rawIntegration.append(intArea)
+            elif intArea.spectrumType == EXPORT_TYPE.PROCESSED:
+                procIntegration.append(intArea)
+
+        return rawIntegration, procIntegration

@@ -47,7 +47,7 @@ def main():
     # # window.export_raw()
     # #window.window.ddFitting.setCurrentIndex(3)
     # window.apply_data("./sample files/SIF/testasc.asc")
-    # window.apply_data("./sample files/Asterix1059 1.Spk")
+    window.apply_data("./sample files/Asterix1059 1.Spk")
     # # window.apply_data("./sample files/_batch.csv")
     if exportSpectra:
         window.export_raw()
