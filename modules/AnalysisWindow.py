@@ -338,7 +338,7 @@ class AnalysisWindow(QMainWindow):
 
         # Update and the spectra.
         if updateSpectra:
-            data = specHandler.rawXYdata
+            data = specHandler.rawData
             baseline = specHandler.baseline
             processedData = specHandler.procData
 

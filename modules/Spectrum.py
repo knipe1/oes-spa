@@ -49,7 +49,11 @@ class Spectrum():
 
     @property
     def xData(self):
-        return self._data[0]
+        return self._data[:, 0]
+
+    @property
+    def yData(self):
+        return self._data[:, 1]
 
     @classmethod
     def get_labels(cls, exportType):
@@ -103,8 +107,7 @@ class Spectrum():
         info["labels"] = self.labels
         info["markup"] = self.markup
         info["has Baseline"] = self.hasattr("baseline")
-        info["data length"] = "X:{}, Y:{}".format(len(self.data[0]),
-                                                  len(self.data[1]))
+        info["data length"] = "X:{}, Y:{}".format(len(self.xData), len(self.yData))
         return self.__module__ + ":\n" + str(info)
 
 
@@ -152,7 +155,7 @@ class Spectrum():
     def update_plot(self):
         """Updates the plots in the ui element."""
 
-        self.ui.axes.plot(*self.data, **self.markup);
+        self.ui.axes.plot(self.xData, self.yData, **self.markup);
         self.plot_baseline()
         self.plot_integration_areas()
         self.center_plot()
