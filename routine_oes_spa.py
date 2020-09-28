@@ -32,10 +32,10 @@ def main():
     """Main program """
 
     exportSpectra = True
-    showBatch = False
-    selectBatchfile = False
-    selectBatchSpectra = False
-    hideBatch = False
+    showBatch = True
+    selectBatchfile = True
+    selectBatchSpectra = True
+    hideBatch = True
     activateWD = False
 
 
@@ -50,7 +50,11 @@ def main():
     window.apply_data("./sample files/Asterix1059 1.Spk")
     # # window.apply_data("./sample files/_batch.csv")
     if exportSpectra:
+        accept_raw = THR.Thread(target=emu.key_accept)
+        accept_raw.start()
         window.export_raw()
+        accept_processed = THR.Thread(target=emu.key_accept)
+        accept_processed.start()
         window.export_processed()
         window.apply_data("./sample files/Asterix1059 1_raw.csv")
         window.export_raw()

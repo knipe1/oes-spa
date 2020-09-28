@@ -54,7 +54,7 @@ class AscReader(BaseReader):
         Parameters
         ----------
         row: list
-            Required. The row of the file containing the header information.
+            The row of the file containing the header information.
 
         Returns
         -------

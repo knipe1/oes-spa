@@ -12,7 +12,6 @@
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
@@ -22,7 +21,7 @@ from Logger import Logger
 import modules.Universal as uni
 import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
-from modules.DataHandler import DataHandler
+from modules.SpectrumHandler import SpectrumHandler
 from modules.FileReader import FileReader
 from modules.Spectrum import Spectrum
 from modules.SpectrumWriter import SpectrumWriter
@@ -301,7 +300,7 @@ class AnalysisWindow(QMainWindow):
 
 
     def set_fileinformation(self, filereader:FileReader):
-        """Updates the fileinformation"""
+        """Updates the fileinformation."""
         filename, date, time = filereader.header
         self.window.set_fileinformation(filename, date, time)
 
@@ -311,9 +310,6 @@ class AnalysisWindow(QMainWindow):
     def apply_data(self, filename:str, updateSpectra=True, updateResults=True):
         """read out a file and extract its information,
         then set header information and draw spectra"""
-        # TODO: error handling
-
-        connect = self.window.connect_results if updateResults else None;
 
         # Prepare file.
         file = FileReader(filename)
@@ -324,16 +320,25 @@ class AnalysisWindow(QMainWindow):
 
         self.show_wavelength_difference_information(file, basicSetting)
 
-        specHandler = DataHandler(basicSetting, funConnection=connect, parameter=file.parameter)
+        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
         # Validate results?
         results = specHandler.analyse_data(file)
 
         if results is None:
             return
 
+
+        if updateResults:
+            avg = specHandler.avgbase
+            peakHeight = specHandler.peakHeight
+            peakArea = specHandler.peakArea
+            characteristicValue = specHandler.characteristicValue
+            characteristicLabel = basicSetting.fitting.peak.name
+            self.window.set_results(avg, peakHeight, peakArea, characteristicValue, characteristicLabel)
+
         # Update and the spectra.
         if updateSpectra:
-            data = specHandler.data
+            data = specHandler.rawXYdata
             baseline = specHandler.baseline
             processedData = specHandler.procData
 

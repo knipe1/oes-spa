@@ -32,7 +32,7 @@ from modules.Spectrum import Spectrum
 from modules.Watchdog import Watchdog
 from modules.FileReader import FileReader
 from modules.BatchWriter import BatchWriter
-from modules.DataHandler import DataHandler
+from modules.SpectrumHandler import SpectrumHandler
 
 
 # Enums
@@ -370,7 +370,7 @@ class BatchAnalysis(QDialog):
 
             if isExportBatch:
                 # Get the data.
-                specHandler = DataHandler(basicSetting)
+                specHandler = SpectrumHandler(basicSetting)
                 specHandler.analyse_data(self.currentFile)
                 avg = specHandler.avgbase
                 peakHeight = specHandler.peakHeight

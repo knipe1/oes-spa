@@ -25,7 +25,6 @@ Created on Fri Jan 27 2020
 import os
 
 # third-party libs
-from PyQt5.QtCore import pyqtBoundSignal
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -37,7 +36,6 @@ from ui.matplotlibwidget import MatplotlibWidget
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
-from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class UIMain(Ui_main):
@@ -191,11 +189,6 @@ class UIMain(Ui_main):
     # TODO: import from somewhere? Issue: can't link to ui element
     def init_mapping(self):
         mapping = {"fitting": self.ddFitting,
-                   UI_RESULTS.tout_PEAK_HEIGHT: self.toutPeakHeight,
-                   UI_RESULTS.tout_PEAK_AREA: self.toutPeakArea,
-                   UI_RESULTS.tout_BASELINE: self.toutBaseline,
-                   UI_RESULTS.tout_CHARACTERISTIC_VALUE: self.toutCharacteristicValue,
-                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE: self.lblCharacteristicValue,
                    }
         return mapping
 
@@ -208,6 +201,13 @@ class UIMain(Ui_main):
                        self.toutCharacteristicValue.text(),
                    }
         return results
+
+    def set_results(self, baseline:str, peakHeight:str, peakArea:str, characteristicValue:str, characteristicLabel:str):
+        self.toutPeakHeight.setText(str(peakHeight))
+        self.toutPeakArea.setText(str(peakArea))
+        self.toutBaseline.setText(str(baseline))
+        self.toutCharacteristicValue.setText(str(characteristicValue))
+        self.lblCharacteristicValue.setText(str(characteristicLabel))
 
 
     # Connect methods: Provides at least one event (signal) to connect to a
@@ -255,55 +255,6 @@ class UIMain(Ui_main):
         uiElement.currentTextChanged.connect(fun)
         # Emit the signal once to trigger the connected methods once.
         uiElement.currentTextChanged.emit(uiElement.currentText())
-
-
-
-    def connect_results(self, signals:dict):
-        """
-        Connect given signals to corresponding ui elements.
-
-        Parameters
-        ----------
-        signals : dict
-            Should contain key-value pairs like the following structure: key as
-            a defined key in the enum UI_RESULTS, value as a signal of a
-            QtObject (pyqtBoundSignal).
-
-        Returns
-        -------
-        bool
-            False: No dict given/No valid key in dict.
-            True: No error occured.
-
-        """
-
-        # No custom Exception were raised so that the program do not crash just
-        # because the ui connection failed. Reports were given in the log.
-
-        # TODO: doublecheck. Throw an error if noo dict is given?
-        # Then remove upper comment and following 3 lines
-        if not isinstance(signals, dict):
-            self.logger.warning("connect_results: No dict given")
-            return False
-
-        # connect the signal with the corresponding ui element
-        for element, signal in signals.items():
-            # skip signal if not qt-signal
-            if not isinstance(signal, pyqtBoundSignal):
-                self.logger.info("connect_results: No valid signal")
-                continue
-            # skip key if not defined in enum
-            if not isinstance(element, UI_RESULTS):
-                self.logger.info("connect_results: No valid element")
-                continue
-
-            # if a ui element is linked to that element, the signal is
-            # connected
-            uiElement = self.UI_MAPPING.get(element)
-            if uiElement:
-                # TODO: validation: Check whether setText is a method? Use try
-                # except maybe? Or just check and log it?
-                signal.connect(uiElement.setText)
 
 
     def set_fileinformation(self, filename:str, date:str, time:str)->None:

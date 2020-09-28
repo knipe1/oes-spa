@@ -74,12 +74,6 @@ class SpectrumWriter(FileWriter):
         return
 
 
-    def write_header(self, fWriter):
-        strTimestamp = uni.timestamp_to_string(self.timestamp)
-        header =  self.MARKER["HEADER"] + " " + strTimestamp
-        fWriter.writerow([header])
-
-
     def write_column_titles(self, fWriter, titles):
         fWriter.writerow(titles)
 
