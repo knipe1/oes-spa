@@ -64,8 +64,6 @@ class UIMain(Ui_main):
 
     Methods
     -------
-    init_mapping():
-        Set up the mapping of ui elements and general keys.
     retrieve_fittings():
         Gets the fittings of the directory.
     connect_export_raw(fun):
@@ -136,7 +134,7 @@ class UIMain(Ui_main):
         """
         self._fittings = fits
         try:
-            uiElement = self.UI_MAPPING["fitting"]
+            uiElement = self.ddFitting
             uiElement.clear()
             uiElement.addItems(fits.values())
         except:
@@ -170,7 +168,6 @@ class UIMain(Ui_main):
         self.logger = Logger(__name__)
 
         self.setupUi(parent)
-        self.UI_MAPPING = self.init_mapping()
 
 
         self.__post_init__()
@@ -181,25 +178,16 @@ class UIMain(Ui_main):
         self.DEF_LBL_FITTING = self.lblFitting.text()
 
         self.fittings = self.retrieve_fittings()
-        self.connect_select_fitting(self.load_current_fitting)
-        # initial hides
+        self.ddFitting.currentTextChanged.connect(self.load_fitting)
+        # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
-
-
-    # TODO: ought be immutable
-    # TODO: import from somewhere? Issue: can't link to ui element
-    def init_mapping(self):
-        mapping = {"fitting": self.ddFitting,
-                   }
-        return mapping
 
 
     def get_results(self):
         results = {CHC.PEAK_HEIGHT.value: self.toutPeakHeight.text(),
                    CHC.PEAK_AREA.value: self.toutPeakArea.text(),
                    CHC.BASELINE.value: self.toutBaseline.text(),
-                   self.lblCharacteristicValue.text():
-                       self.toutCharacteristicValue.text(),
+                   self.lblCharacteristicValue.text(): self.toutCharacteristicValue.text(),
                    }
         return results
 
@@ -245,22 +233,7 @@ class UIMain(Ui_main):
         self.ddFitting.currentTextChanged.connect(fun)
 
 
-    def connect_select_fitting(self, fun):
-        """Interface to connect fun to text changed signal of the dropdown."""
-        # TODO: evaluate the pro and cons
-        # Pro: ui element can be changed in one position
-        # Con: Readability
-        # Alternatives:
-        # self.ddFitting.currentTextChanged.connect(fun)
-        # self.UI_MAPPING.get("fitting").currentTextChanged.connect(fun)
-        uiElement = self.UI_MAPPING["fitting"]
-        uiElement.currentTextChanged.connect(fun)
-        # Emit the signal once to trigger the connected methods once.
-        uiElement.currentTextChanged.emit(uiElement.currentText())
-
-
     def set_fileinformation(self, filename:str, date:str, time:str)->None:
-        # TODO: docstring, also add to class methods
         self.toutFilename.setText(filename)
         self.toutDate.setText(date)
         self.toutTime.setText(time)
@@ -295,48 +268,29 @@ class UIMain(Ui_main):
 
                     fit = fitConfig.config.get("NAME", "no name def.")
                     fitDict[file] = fit
-                    # fit = Fitting(fitConfig.config)
-                    # fitDict[file] = fit.name
 
         return fitDict
 
-    def load_current_fitting(self, fitting_name:str) -> dict:
+
+    def load_fitting(self, fittingName:str)->Fitting:
         """
-        Retrieve the config of the currently selected fitting.
-
-        Can be connected to the signal of an ui element, e.g.
-        "currentTextChanged".
-
         Parameters
         ----------
-        fitting_name : str
+        fittingName : str
             The name of the selected fitting within the ui element.
 
         Returns
         -------
-        fitConfig : dict
-            Contains the config of the selected fitting.
-
+        activeFitting : Fitting
         """
-        # TODO: another function? if so, use current_fitting as property
-        # and use the other funtion?
-        # TODO: check out the class Peak!
-        # get the selected fitting
-        self.logger.info("Load fitting.")
-        for fit, name in self.fittings.items():
-            if name == fitting_name:
-                current_fit = fit
-                break
 
-        # load the config from the file and set the current config
-        path = os.path.join(self.FITTING["DIR"], current_fit)
-        fitConfig = ConfigLoader(path)
+        self.logger.info("Load fitting: " + fittingName)
 
-        self.currentFitting = Fitting(fitConfig.config)
-
-        # Update UI
-        label = mark_bold_red(self.currentFitting.errCode) + self.DEF_LBL_FITTING
-        self.lblFitting.setText(label)
+        filename = self.get_filename_of_fitting(fittingName)
+        fitConfig = self.get_fitting_configuration(filename)
+        activeFitting = Fitting(fitConfig.config)
+        self.set_fittings_errorcode(activeFitting)
+        return activeFitting
 
 
     def update_information(self, info:dict):
@@ -374,7 +328,22 @@ class UIMain(Ui_main):
     def get_basic_setting(self)->BasicSetting:
 
         grating = self.grating
-        fitting = self.currentFitting
+        fitting = self.load_fitting(self.ddFitting.currentText())
         setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;
+
+
+    def get_filename_of_fitting(self, fittingName:str)->str:
+        for fitFilename, fitName in self.fittings.items():
+            if fitName == fittingName:
+                return fitFilename
+
+    def get_fitting_configuration(self, filename:str):
+        path = os.path.join(self.FITTING["DIR"], filename)
+        fitConfig = ConfigLoader(path)
+        return fitConfig
+
+    def set_fittings_errorcode(self, fit:Fitting):
+        label = mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
+        self.lblFitting.setText(label)

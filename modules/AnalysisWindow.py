@@ -294,7 +294,7 @@ class AnalysisWindow(QMainWindow):
 
     ### data analysis
 
-    def apply_data(self, filename:str, plotSpectra=True, updateResults=True):
+    def apply_data(self, filename:str):
         """read out a file and extract its information,
         then set header information and draw spectra"""
 
@@ -313,14 +313,14 @@ class AnalysisWindow(QMainWindow):
         if not results == ERR.OK:
             return
 
-        if updateResults:
-            peakName = basicSetting.fitting.peak.name
-            self.window.set_results(specHandler, peakName)
+        # if updateResults:
+        peakName = basicSetting.fitting.peak.name
+        self.window.set_results(specHandler, peakName)
 
         # Update and the spectra.
-        if plotSpectra:
-            self.update_spectra(specHandler)
-            self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+        # if plotSpectra:
+        self.update_spectra(specHandler)
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
         self.activeFile = file;
 
