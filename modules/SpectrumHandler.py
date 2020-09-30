@@ -45,47 +45,6 @@ class SpectrumHandler():
     ### Properties - Getter & Setter
 
     @property
-    def peakHeight(self) -> float:
-        """peakHeight getter"""
-        return self._peakHeight
-
-    @peakHeight.setter
-    def peakHeight(self, height:float):
-        """peakHeight setter"""
-        self._peakHeight = height
-
-    @property
-    def peakArea(self) -> float:
-        """peakArea getter"""
-        return self._peakArea
-
-    @peakArea.setter
-    def peakArea(self, area:float):
-        """peakArea setter"""
-        self._peakArea = area
-
-    @property
-    def avgbase(self) -> float:
-        """avgbase getter"""
-        return self._avgbase
-
-    @avgbase.setter
-    def avgbase(self, base:float):
-        """avgbase setter"""
-        self._avgbase = base
-
-    @property
-    def characteristicValue(self) -> float:
-        """avgbase getter"""
-        return self._characteristicValue
-
-    @characteristicValue.setter
-    def characteristicValue(self, value:float):
-        """avgbase setter"""
-        self._characteristicValue = value
-
-
-    @property
     def rawData(self) -> np.ndarray:
         return self._rawData
 
@@ -99,14 +58,11 @@ class SpectrumHandler():
     def procData(self) -> tuple:
         """Processed x and y data."""
         return self._processedData
-        return self.procXData, self.procYData
 
     @procData.setter
     def procData(self, xyData:tuple):
         """Processed x and y data."""
         self._processedData = np.array(xyData).transpose()
-        self.procXData = xyData[0]
-        self.procYData = xyData[1]
 
 
     def __init__(self, basicSetting, **kwargs):
@@ -124,8 +80,8 @@ class SpectrumHandler():
         except KeyError:
             # 12.042204 -> analysed with asc-data: used instead of 14
             self.dispersion = 12.042204 / basicSetting.grating
-        except TypeError:
-            self.logger.error("No valid set of paramter given, not even an empty dict.")
+
+        self.reset_characteristics()
 
 
     def __repr__(self):
@@ -138,13 +94,14 @@ class SpectrumHandler():
         return self.__module__ + ":\n" + str(info)
 
 
-    def analyse_data(self, file:FileReader):
-        """Processes the raw data to obtain the OES spectrum:
-            - Sets x values to wavelength.
-            - Determines baseline and subtracts it.
-            - Normalizes intensity to baseline intensity.
-        """
+    def reset_characteristics(self):
+        self.characteristicValue = 0.0
+        self.peakArea = 0.0
+        self.peakHeight = 0.0
+        self.peakPosition = 0.0
 
+
+    def analyse_data(self, file:FileReader):
         # Get raw data. Process data and calculate characteristic values.
         errorcode = file.is_valid_spectrum()
         if errorcode != ERR.OK:
@@ -157,13 +114,19 @@ class SpectrumHandler():
 
         # Find Peak and obtain height, area, and position
         fitting = self.basicSetting.fitting
-        peakCharacteristics = self.calculate_peak(fitting.peak)
-        self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
-        self.peakArea = peakCharacteristics[CHC.PEAK_AREA]
-        self.peakPosition = peakCharacteristics[CHC.PEAK_POSITION]
         self.integration = []
-        self.integration.append(peakCharacteristics[CHC.INTEGRATION_PXL])
-        self.integration.append(peakCharacteristics[CHC.INTEGRATION_WL])
+        try:
+            peakCharacteristics, integrationAreas = self.calculate_peak(fitting.peak)
+            self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
+            self.peakArea = peakCharacteristics[CHC.PEAK_AREA]
+            self.peakPosition = peakCharacteristics[CHC.PEAK_POSITION]
+        except TypeError:
+            self.reset_characteristics()
+            self.logger.warning("Could not calculate peak characteristics.")
+            return ERR.OK
+
+        self.integration.append(integrationAreas[CHC.INTEGRATION_RAW])
+        self.integration.append(integrationAreas[CHC.INTEGRATION_PROCESSED])
 
         characteristicValue, intAreas = self.calculate_characteristic_value(fitting.peak)
         self.characteristicValue = characteristicValue
@@ -184,20 +147,28 @@ class SpectrumHandler():
             return characteristicValue, intAreas
 
         # Calculate characteristics of the peak
-        peakCharacteristics = self.calculate_peak(peak)
-        peakArea = peakCharacteristics[CHC.PEAK_AREA]
+        try:
+            peakCharacteristics, _ = self.calculate_peak(peak)
+            peakArea = peakCharacteristics[CHC.PEAK_AREA]
+        except TypeError:
+            self.logger.warning("Could not calculate peak characteristics.")
 
         # Calculate characteristics of the reference peak
-        refCharacteristic = self.calculate_peak(peak.reference)
-        refHeight = refCharacteristic[CHC.PEAK_HEIGHT]
+        try:
+            refCharacteristic, integrationAreas = self.calculate_peak(peak.reference)
+            refHeight = refCharacteristic[CHC.PEAK_HEIGHT]
+        except TypeError:
+            refHeight = 0
+            self.logger.warning("Could not calculate reference characteristics.")
         # Set the type for these integration areas.
-        refCharacteristic[CHC.INTEGRATION_PXL].peakType = CHC.TYPE_REFERENCE
-        refCharacteristic[CHC.INTEGRATION_WL].peakType = CHC.TYPE_REFERENCE
-        intAreas.append(refCharacteristic[CHC.INTEGRATION_PXL])
-        intAreas.append(refCharacteristic[CHC.INTEGRATION_WL])
+        integrationAreas[CHC.INTEGRATION_RAW].peakType = CHC.TYPE_REFERENCE
+        integrationAreas[CHC.INTEGRATION_PROCESSED].peakType = CHC.TYPE_REFERENCE
+        intAreas.append(integrationAreas[CHC.INTEGRATION_RAW])
+        intAreas.append(integrationAreas[CHC.INTEGRATION_PROCESSED])
 
         # TODO: @knittel validation?
-        characteristicValue = peakArea / refHeight * peak.normalizationFactor
+        if refHeight >= peak.reference.minimum:
+            characteristicValue = peakArea / refHeight * peak.normalizationFactor
 
         return characteristicValue, intAreas
 
@@ -216,10 +187,10 @@ class SpectrumHandler():
 
         Returns
         -------
-        (yPeak:float, peakArea:float, xPeak:float)
+        (xPeak:float, yPeak:float, peakArea:float)
+            xPeak: The wavelength of the peak.
             yPeak: The intensity of the peak, aka peak height.
             peakArea: The area of the peak.
-            xPeak: The wavelength of the peak.
 
         """
         results = {}
@@ -230,34 +201,34 @@ class SpectrumHandler():
         upperLimit = peak.centralWavelength + peak.shiftUp
         idxBorderRight = np.abs(procXData - upperLimit).argmin()
         idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
-        idxInt = range(idxBorderLeft, idxBorderRight+1)
+        if (idxBorderRight == 0) or (idxBorderLeft == len(procXData)):
+            return
+        # +1 in integrationRange due to the last value is omitted in python ranges.
+        integrationRange = range(idxBorderLeft, idxBorderRight+1)
 
         # Get the highest Peak in the integration area.
-        idxPeak = procYData[idxInt].argmax() + idxBorderLeft
+        idxPeak = procYData[integrationRange].argmax() + idxBorderLeft
         xPeak = procXData[idxPeak]
         yPeak = procYData[idxPeak]
 
         # getting all wavelength(x) and the intensities(y)
-        peakAreaX = procXData[idxInt]
-        peakAreaY = procYData[idxInt]
-        integrationRaw = Integration(self.rawData[idxInt])
-        integrationProcessed = Integration(self.procData[idxInt], spectrumType=EXPORT_TYPE.PROCESSED)
-
+        peakAreaX = procXData[integrationRange]
+        peakAreaY = procYData[integrationRange]
         # Integrate along the given axis using the composite trapezoidal rule.
         peakArea = np.trapz(peakAreaY, peakAreaX)
+        # determine integration areas.
+        integrationRaw = Integration(self.rawData[integrationRange])
+        integrationProcessed = Integration(self.procData[integrationRange], spectrumType=EXPORT_TYPE.PROCESSED)
 
-        # validation
-        # if yPeak <= peak.minimum:
-            # yPeak, xPeak, peakArea = 0, 0, 0
-        # TODO: further validation?!?
 
         results[CHC.PEAK_HEIGHT] = yPeak
         results[CHC.PEAK_POSITION] = xPeak
         results[CHC.PEAK_AREA] = peakArea
-        results[CHC.INTEGRATION_PXL] = integrationRaw
-        results[CHC.INTEGRATION_WL] = integrationProcessed
 
-        return results
+        integrationAreas = {CHC.INTEGRATION_RAW: integrationRaw,
+                            CHC.INTEGRATION_PROCESSED: integrationProcessed}
+
+        return results, integrationAreas
 
 
     def get_integration_area(self):

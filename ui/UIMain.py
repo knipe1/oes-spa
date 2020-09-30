@@ -256,10 +256,10 @@ class UIMain(Ui_main):
 
         """
         fitDict = {}
-        # check out the default directory for fittings
+        # Check out the default directory for fittings.
         for _, _, f in os.walk(self.FITTING["DIR"]):
             for file in f:
-                # get the fitting files matching the pattern
+                # Get the fitting files matching the pattern.
                 if file.rfind(self.FITTING["FILE_PATTERN"]) > -1:
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
