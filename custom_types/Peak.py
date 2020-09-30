@@ -8,8 +8,6 @@ Created on Thu Apr 16 09:48:04 2020
 
 
 # standard libs
-from dataclasses import dataclass, field
-from typing import List
 
 # third-party libs
 

@@ -27,6 +27,7 @@ from modules.Spectrum import Spectrum
 from modules.SpectrumWriter import SpectrumWriter
 
 # enums
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
 from custom_types.BasicSetting import BasicSetting
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
@@ -136,7 +137,6 @@ class AnalysisWindow(QMainWindow):
         win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
         win.connect_open_file(self.file_open)
-        win.connect_select_fitting(self.apply_fitting)
         win.connect_change_basic_settings(self.redraw)
 
 
@@ -252,19 +252,6 @@ class AnalysisWindow(QMainWindow):
             spectrum.plot_spectrum()
 
 
-    def apply_fitting(self):
-        """
-        Apply the fitting for the active file again.
-
-        Prevent that the spectrum is again plotted.
-        """
-        try:
-            self.apply_data(self.activeFile.filename, updateResults=True, updateSpectra=False)
-        except AttributeError as err:
-            self.logger.error("Could not apply the fitting.")
-            self.logger.error(err)
-
-
     def redraw(self, value:str=None):
         """
         Redraw the plots with the currently opened file.
@@ -307,7 +294,7 @@ class AnalysisWindow(QMainWindow):
 
     ### data analysis
 
-    def apply_data(self, filename:str, updateSpectra=True, updateResults=True):
+    def apply_data(self, filename:str, plotSpectra=True, updateResults=True):
         """read out a file and extract its information,
         then set header information and draw spectra"""
 
@@ -321,35 +308,20 @@ class AnalysisWindow(QMainWindow):
         self.show_wavelength_difference_information(file, basicSetting)
 
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
-        # Validate results?
+        # TODO: Validate results?
         results = specHandler.analyse_data(file)
-
-        if results is None:
+        if not results == ERR.OK:
             return
 
-
         if updateResults:
-            avg = specHandler.avgbase
-            peakHeight = specHandler.peakHeight
-            peakArea = specHandler.peakArea
-            characteristicValue = specHandler.characteristicValue
-            characteristicLabel = basicSetting.fitting.peak.name
-            self.window.set_results(avg, peakHeight, peakArea, characteristicValue, characteristicLabel)
+            peakName = basicSetting.fitting.peak.name
+            self.window.set_results(specHandler, peakName)
 
         # Update and the spectra.
-        if updateSpectra:
-            data = specHandler.rawData
-            baseline = specHandler.baseline
-            processedData = specHandler.procData
-
-            rawIntegration, procIntegration = specHandler.get_integration_area()
-
-            self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
-            self.processedSpectrum.update_data(processedData, procIntegration)
-
+        if plotSpectra:
+            self.update_spectra(specHandler)
             self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
-        # Update the currently open file.
         self.activeFile = file;
 
 
@@ -369,3 +341,12 @@ class AnalysisWindow(QMainWindow):
             hasDifferentWl = False
         finally:
             self.window.show_diff_wavelength(hasDifferentWl)
+
+    def update_spectra(self, SpectrumHandler:SpectrumHandler):
+        data = SpectrumHandler.rawData
+        baseline = SpectrumHandler.baseline
+        processedData = SpectrumHandler.procData
+        rawIntegration, procIntegration = SpectrumHandler.get_integration_area()
+
+        self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
+        self.processedSpectrum.update_data(processedData, procIntegration)

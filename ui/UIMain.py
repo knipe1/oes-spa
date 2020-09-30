@@ -33,6 +33,7 @@ from modules.Fitting import Fitting
 from Logger import Logger
 from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
+from modules.SpectrumHandler import SpectrumHandler
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
@@ -202,12 +203,13 @@ class UIMain(Ui_main):
                    }
         return results
 
-    def set_results(self, baseline:str, peakHeight:str, peakArea:str, characteristicValue:str, characteristicLabel:str):
-        self.toutPeakHeight.setText(str(peakHeight))
-        self.toutPeakArea.setText(str(peakArea))
-        self.toutBaseline.setText(str(baseline))
-        self.toutCharacteristicValue.setText(str(characteristicValue))
-        self.lblCharacteristicValue.setText(str(characteristicLabel))
+
+    def set_results(self, spectrumHandler:SpectrumHandler, peakName:str):
+        self.toutPeakHeight.setText(str(spectrumHandler.peakHeight))
+        self.toutPeakArea.setText(str(spectrumHandler.peakArea))
+        self.toutBaseline.setText(str(spectrumHandler.avgbase))
+        self.toutCharacteristicValue.setText(str(spectrumHandler.characteristicValue))
+        self.lblCharacteristicValue.setText(str(peakName))
 
 
     # Connect methods: Provides at least one event (signal) to connect to a

@@ -38,7 +38,7 @@ FILE = config.FILE;
 
 
 
-def critical_unknownFiletype(parent:QMainWindow=None)->None:
+def critical_invalidSpectrum(parent:QMainWindow=None)->None:
     """
     Displays a error message that the filetype is unknown.
 
@@ -48,7 +48,7 @@ def critical_unknownFiletype(parent:QMainWindow=None)->None:
         The window is given to place the messagebox on the screen. The default is None.
 
     """
-    title = "Error: File could not be opened";
+    title = "Error: File could not be opened.";
     text = "Filetype unknown or file unreadable!";
     QMessageBox.critical(parent, title, text);
 

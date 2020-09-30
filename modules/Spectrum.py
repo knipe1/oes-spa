@@ -22,6 +22,7 @@ import modules.Universal as uni
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
+
 class Spectrum():
     """
     Concatenate properties of a spectrum to have data and plot abilities together.
@@ -117,14 +118,14 @@ class Spectrum():
         self.baselineMarkup = self.get_markup(self.BASELINE)
 
 
-    def update_data(self, xyData, integrationAreas=[], baselineData=None):
+    def update_data(self, xyData, integrationAreas:list=None, baselineData=None):
         """
         Updates the data of the spectrum.
 
         Set integration areas and baseline for more detailled plotting.
         """
         self.data = xyData
-        self.integrationAreas = integrationAreas
+        self.integrationAreas = integrationAreas or []
         if not baselineData is None:
             self.add_baseline(baselineData)
 

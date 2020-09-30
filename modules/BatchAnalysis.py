@@ -433,8 +433,8 @@ class BatchAnalysis(QDialog):
         filename = self.determine_batchfile(takeCurrentBatchfile)
         if not filename:
             return
-        file = FileReader(filename, columnValue=columnValue)
 
+        file = FileReader(filename, columnValue=columnValue)
         if file.is_valid_spectrum() == ERR.OK:
             return
 
