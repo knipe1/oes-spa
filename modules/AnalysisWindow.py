@@ -47,7 +47,7 @@ class AnalysisWindow(QMainWindow):
     # Load the configuration for plotting, import and filesystem properties.
     config = ConfigLoader()
     PLOT = config.PLOT;
-    FILE = config.FILE
+    GENERAL = config.GENERAL
     IMPORT = config.IMPORT
 
     ### Properties
@@ -343,9 +343,9 @@ class AnalysisWindow(QMainWindow):
             self.window.show_diff_wavelength(hasDifferentWl)
 
     def update_spectra(self, SpectrumHandler:SpectrumHandler):
-        data = SpectrumHandler.rawData
+        data = SpectrumHandler.rawData.transpose()
         baseline = SpectrumHandler.baseline
-        processedData = SpectrumHandler.procData
+        processedData = SpectrumHandler.procData.transpose()
         rawIntegration, procIntegration = SpectrumHandler.get_integration_area()
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)

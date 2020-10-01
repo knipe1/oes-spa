@@ -314,14 +314,14 @@ class BatchAnalysis(QDialog):
             if not (WDpath == batchPath):
                 self.dog.start(batchPath)
 
-            self.window.btnSetWatchdogDir.setEnabled(False)
+            self.window.enable_WD(False)
         except AttributeError:
             self.logger.error("Error: No dog initialized!")
 
 
     def deactivate_watchdog(self)->None:
         self.dog.stop()
-        self.window.btnSetWatchdogDir.setEnabled(True)
+        self.window.enable_WD(True)
 
 
     ### Methods/Analysis

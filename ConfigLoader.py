@@ -45,9 +45,9 @@ class ConfigLoader():
         return self.config["EXPORT"]
 
     @property
-    def FILE(self) -> dict:
+    def GENERAL(self) -> dict:
         """Get the FILE-configuration."""
-        return self.config["FILE"]
+        return self.config["GENERAL"]
 
     @property
     def FITTING(self) -> dict:

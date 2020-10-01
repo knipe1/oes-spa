@@ -116,9 +116,9 @@ class Logger():
         """
         # Load the configuration for filesystem properties.
         config = ConfigLoader()
-        self.FILE = config.FILE
+        self.GENERAL = config.GENERAL
 
-        self.filename = self.FILE.get("LOG_FILE")
+        self.filename = self.GENERAL.get("LOG_FILE")
         # config the format of the handler
         formatter = logging.Formatter(self.format)
 

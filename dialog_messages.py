@@ -34,7 +34,7 @@ DEF_WD_DIR = "./"
 config = ConfigLoader()
 EXPORT = config.EXPORT;
 IMPORT = config.IMPORT;
-FILE = config.FILE;
+GENERAL = config.GENERAL;
 
 
 

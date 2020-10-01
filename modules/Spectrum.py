@@ -46,7 +46,7 @@ class Spectrum():
 
     @data.setter
     def data(self, xyData):
-        self._data = np.array(xyData)
+        self._data = np.array(xyData).transpose()
 
     @property
     def xData(self):
