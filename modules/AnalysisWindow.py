@@ -99,7 +99,7 @@ class AnalysisWindow(QMainWindow):
 
 
         # Set defaults.
-        self.lastdir = self.FILE["DEF_DIR"];
+        self.lastdir = self.GENERAL["INITIAL_DIR"];
         self._activeFile = None;
 
         ## Set up the user interfaces

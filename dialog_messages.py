@@ -68,7 +68,7 @@ def critical_unknownSuffix(suffices:list=None, parent:QMainWindow=None)->None:
     """
 
     # Set default.
-    suffices = suffices or IMPORT["VALID_SUFFIX"]
+    suffices = suffices or IMPORT["SUFFIX"]
     # Format the suffices.
     strSuffices = ["." + suffix for suffix in suffices];
     strSuffices = ", ".join(strSuffices);
@@ -81,7 +81,7 @@ def critical_unknownSuffix(suffices:list=None, parent:QMainWindow=None)->None:
 
 def dialog_openBatchFile(directory:str, parent:QMainWindow=None)->None:
     caption = "Open batchfile"
-    filter = EXPORT["BATCH_FILTER"]
+    filter = EXPORT["FILTER"]
 
     filename, _ = QFileDialog.getOpenFileName(parent=parent,
                                               caption=caption,
@@ -108,7 +108,7 @@ def dialog_openSpectra(directory:str, parent:QMainWindow=None)->None:
 
     """
     caption = "Load spectra";
-    filterSuffixes = IMPORT["SUFFIXES"]
+    filterSuffixes = IMPORT["FILTER"]
     filter = ";;".join(filterSuffixes);
 
     filenames, _ = QFileDialog.getOpenFileNames(parent=parent,
@@ -194,7 +194,7 @@ def dialog_saveBatchfile(directory:str, presetFilename:str=None, parent:QMainWin
 
     # default properties of the dialog
     title = "Set filename of the batchfile";
-    filter = EXPORT["BATCH_FILTER"];
+    filter = EXPORT["FILTER"];
     presetFilename = presetFilename or EXPORT["DEF_BATCH_NAME"];
 
     directoryWithPreset = path.join(directory, presetFilename)

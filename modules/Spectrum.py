@@ -181,11 +181,11 @@ class Spectrum():
 
 
     def plot_integration_areas(self):
-        int_peak_color = self.PLOT["INT_PEAK_COLOR"]
-        int_ref_color = self.PLOT["INT_REF_COLOR"]
+        peakColor = self.PLOT["INT_PEAK_COLOR"]
+        referenceColor = self.PLOT["INT_REF_COLOR"]
 
         for intArea in self.integrationAreas:
-            col = int_peak_color if intArea.peakType == CHC.TYPE_PEAK else int_ref_color
+            col = peakColor if intArea.peakType == CHC.TYPE_PEAK else referenceColor
             self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
 
 
