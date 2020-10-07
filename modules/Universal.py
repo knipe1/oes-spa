@@ -24,11 +24,12 @@ from custom_types.SUFFICES import SUFFICES as SUFF
 # Load the configuration for import and batch properties.
 config = ConfigLoader()
 BATCH = config.BATCH
-EXPORT = config.EXPORT
-IMPORT = config.IMPORT
 
 # constants
 from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
+
+# Take "." and the suffix value to create the file extension.
+EXPORT_SUFFIX = "." + SUFF.CSV.value
 
 
 def extract_path_and_basename(filename):
@@ -113,7 +114,7 @@ def timestamp_from_string(timestamp, timeformat=None):
 def replace_suffix(filename, suffix=None):
     """Replaces the suffix of the filename. Default is defined in the configuration."""
     # Note: The suffix needs to have a dot in front of the extension.
-    newSuffix = suffix or EXPORT["SUFFIX"]
+    newSuffix = suffix or EXPORT_SUFFIX
 
     fileSuffix = get_suffix(filename)
     if not fileSuffix == suffix:

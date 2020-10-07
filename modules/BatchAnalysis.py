@@ -61,7 +61,6 @@ class BatchAnalysis(QDialog):
     # Load the configuration for batch analysis and export.
     config = ConfigLoader()
     BATCH = config.BATCH;
-    EXPORT = config.EXPORT;
 
 
     ### Properties

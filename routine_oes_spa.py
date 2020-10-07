@@ -31,7 +31,7 @@ from modules.Spectrum import Spectrum
 def main():
     """Main program """
 
-    exportSpectra = False
+    exportSpectra = True
     showBatch = True
     selectBatchfile = True
     selectBatchSpectra = True

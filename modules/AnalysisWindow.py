@@ -48,7 +48,6 @@ class AnalysisWindow(QMainWindow):
     config = ConfigLoader()
     PLOT = config.PLOT;
     GENERAL = config.GENERAL
-    IMPORT = config.IMPORT
 
     ### Properties
 

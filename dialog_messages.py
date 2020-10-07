@@ -25,16 +25,26 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QMainWindow
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
+from custom_types.SUFFICES import SUFFICES as SUFF
 
 # constants
 DEF_LOG_FILE = "../debug.log"
 DEF_WD_DIR = "./"
+IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
+               "SpexHex File (*.spk)",
+               "Exported Raw spectrum (*.csv)",
+               "Full information spectrum (*.asc)",
+               ]
+EXPORT_FILTER = ["Batch files (*.csv)",]
 
 # Load the configuration for import, export and filesystem properties.
 config = ConfigLoader()
-EXPORT = config.EXPORT;
-IMPORT = config.IMPORT;
 GENERAL = config.GENERAL;
+BATCH = config.BATCH;
+
+
+def filter_from_list(filterlist:list)->str:
+    return ";;".join(filterlist)
 
 
 
@@ -68,7 +78,7 @@ def critical_unknownSuffix(suffices:list=None, parent:QMainWindow=None)->None:
     """
 
     # Set default.
-    suffices = suffices or IMPORT["SUFFIX"]
+    suffices = suffices or SUFF.value_set()
     # Format the suffices.
     strSuffices = ["." + suffix for suffix in suffices];
     strSuffices = ", ".join(strSuffices);
@@ -81,7 +91,7 @@ def critical_unknownSuffix(suffices:list=None, parent:QMainWindow=None)->None:
 
 def dialog_openBatchFile(directory:str, parent:QMainWindow=None)->None:
     caption = "Open batchfile"
-    filter = EXPORT["FILTER"]
+    filter = filter_from_list(EXPORT_FILTER)
 
     filename, _ = QFileDialog.getOpenFileName(parent=parent,
                                               caption=caption,
@@ -108,8 +118,7 @@ def dialog_openSpectra(directory:str, parent:QMainWindow=None)->None:
 
     """
     caption = "Load spectra";
-    filterSuffixes = IMPORT["FILTER"]
-    filter = ";;".join(filterSuffixes);
+    filter = filter_from_list(IMPORT_FILTER)
 
     filenames, _ = QFileDialog.getOpenFileNames(parent=parent,
                                                 caption=caption,
@@ -194,8 +203,8 @@ def dialog_saveBatchfile(directory:str, presetFilename:str=None, parent:QMainWin
 
     # default properties of the dialog
     title = "Set filename of the batchfile";
-    filter = EXPORT["FILTER"];
-    presetFilename = presetFilename or EXPORT["DEF_BATCH_NAME"];
+    filter = filter_from_list(EXPORT_FILTER)
+    presetFilename = presetFilename or BATCH["DEF_FILENAME"];
 
     directoryWithPreset = path.join(directory, presetFilename)
 

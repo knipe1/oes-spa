@@ -1,27 +1,13 @@
 BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
-EXPORT:
-  FILTER: Batch files (*.csv)
-  DEF_BATCH_NAME: _batch
-  SUFFIX: .csv
+  DEF_FILENAME: _batch
 GENERAL:
   INITIAL_DIR: ./sample files
   LOG_FILE: debug.log
 FITTING:
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-IMPORT:
-  FILTER:
-  - Data sets (*.spk *.csv *.asc)
-  - SpexHex File (*.spk)
-  - Exported Raw spectrum (*.csv)
-  - Full information spectrum (*.asc)
-  SUFFIX:
-  - asc
-  - csv
-  - spk
-  - Spk
 PLOT:
   BATCH_DATA_COLOR: k
   BATCH_DATA_LABEL: Characteristic

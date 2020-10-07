@@ -19,7 +19,6 @@ class FileFramework:
 
     # Configuration.
     config = ConfigLoader()
-    IMPORT = config.IMPORT
 
     # constants
     MARKER  = {"BATCH": "Filename",

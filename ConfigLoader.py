@@ -40,11 +40,6 @@ class ConfigLoader():
         return self.config["BATCH"]
 
     @property
-    def EXPORT(self) -> dict:
-        """Get the EXPORT-configuration."""
-        return self.config["EXPORT"]
-
-    @property
     def GENERAL(self) -> dict:
         """Get the FILE-configuration."""
         return self.config["GENERAL"]
@@ -53,11 +48,6 @@ class ConfigLoader():
     def FITTING(self) -> dict:
         """Get the FITTING-configuration."""
         return self.config["FITTING"]
-
-    @property
-    def IMPORT(self) -> dict:
-        """Get the IMPORT-configuration."""
-        return self.config["IMPORT"]
 
     @property
     def PLOT(self) -> dict:
