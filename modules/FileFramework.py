@@ -32,11 +32,11 @@ class FileFramework:
 
     DIALECT = {"name": "spectral_data",
                "delimiter": "\t",
-               "quoting": csv.QUOTE_MINIMAL,}
+               "quoting": csv.QUOTE_NONNUMERIC,}
 
     DIALECT_CSV = {"name": "csv_data",
                    "delimiter": ",",
-                   "quoting": csv.QUOTE_MINIMAL,}
+                   "quoting": csv.QUOTE_NONNUMERIC,}
 
 
     def __init__(self, filename):
