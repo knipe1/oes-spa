@@ -237,6 +237,7 @@ class BatchAnalysis(QDialog):
 
         try:
             valid_urls.remove(None)
+            dialog.critical_unknownSuffix(parent=self)
         except KeyError:
             self.logger.debug("No invalid url found.")
 
@@ -368,6 +369,9 @@ class BatchAnalysis(QDialog):
             # Read out the filename and the data.
             file = files[i]
             self.currentFile = FileReader(file)
+            if not self.currentFile.is_valid_spectrum() == ERR.OK:
+                skippedFiles.append(file)
+                continue
 
             if isExportBatch:
                 # Get the data.
@@ -426,6 +430,7 @@ class BatchAnalysis(QDialog):
         # Prompt the user with information about the skipped files.
         if not isSingleFile:
             dialog.information_BatchAnalysisFinished(skippedFiles)
+            self._files.difference_update(skippedFiles)
 
         return ERR.OK
 
@@ -524,7 +529,6 @@ class BatchAnalysis(QDialog):
         if directory:
             self.WDdirectory = directory
             self.lastdir = directory
-
 
 
     def browse_spectra(self):

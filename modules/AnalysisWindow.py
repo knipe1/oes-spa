@@ -348,6 +348,7 @@ class AnalysisWindow(QMainWindow):
         finally:
             self.window.show_diff_wavelength(hasDifferentWl)
 
+
     def update_spectra(self, SpectrumHandler:SpectrumHandler):
         data = SpectrumHandler.rawData.transpose()
         baseline = SpectrumHandler.baseline
