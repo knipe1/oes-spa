@@ -203,7 +203,7 @@ class AnalysisWindow(QMainWindow):
         # Multiple files: BatchAnalysis.
         filelist = dialog.dialog_openSpectra(self.lastdir);
         isSingleFile = (len(filelist) == 1)
-        isMultipleFiles =(len(filelist) > 1)
+        isMultipleFiles = (len(filelist) > 1)
 
         if isMultipleFiles:
             self.batch.show();
@@ -212,24 +212,32 @@ class AnalysisWindow(QMainWindow):
             filename = filelist[0];
             self.apply_data(filename)
 
+        try:
+            self.lastdir = filelist[0]
+        except IndexError:
+            pass
+
+
 
     ### Export
 
     def export_spectrum(self, spectrum:Spectrum, results:dict={}):
         """Export raw/processed spectrum."""
 
-        if not self.activeFile:
-            # TODO: Put this into SpectrumWriter.export()?
-            dialog.information_ExportAborted();
-            return
-
         # Collect data.
         filename, timestamp = self.get_fileinformation()
-        labels = spectrum.labels.values()
-        xyData = spectrum.data.transpose()
 
-        csvWriter = SpectrumWriter(filename, timestamp)
-        csvWriter.export(xyData, labels, spectrum.exportType, results)
+        writer = SpectrumWriter(filename, timestamp)
+
+        try:
+            exportedFilename = writer.export(spectrum, results)
+        except AttributeError:
+            exportedFilename = None
+        finally:
+            if exportedFilename:
+                dialog.information_ExportFinished(exportedFilename)
+            else:
+                dialog.information_ExportAborted()
 
 
     def export_raw(self):
@@ -307,9 +315,10 @@ class AnalysisWindow(QMainWindow):
         self.show_wavelength_difference_information(file, basicSetting)
 
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
-        # TODO: Validate results?
-        results = specHandler.analyse_data(file)
-        if not results == ERR.OK:
+
+        errorcode = specHandler.analyse_data(file)
+        if not errorcode == ERR.OK:
+            dialog.critical_invalidSpectrum()
             return
 
         # if updateResults:

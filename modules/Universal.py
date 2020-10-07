@@ -95,10 +95,11 @@ def convert_to_hours(timedifference:timedelta):
     return hours
 
 
-def timestamp_to_string(timestamp):
+def timestamp_to_string(timestamp, timeformat=None):
     """Converts the given timestamp to a string with a pre-defined format."""
     # strftime = STRing From TIME (with a given format)
-    timestampString = datetime.strftime(timestamp, EXPORT_TIMESTAMP)
+    timeformat = timeformat or EXPORT_TIMESTAMP
+    timestampString = datetime.strftime(timestamp, timeformat)
     return timestampString
 
 

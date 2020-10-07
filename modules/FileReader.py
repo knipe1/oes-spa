@@ -244,9 +244,10 @@ class FileReader(FileFramework):
             self.parameter = self.read_parameter(fReader, self.subReader)
 
             # Data
-            self.data = self.read_data(fReader, self.subReader, **kwargs)
-            if not len(self.data):
-                self.logger.error(f"No valid data in {self.filename}")
+            try:
+                self.data = self.read_data(fReader, self.subReader, **kwargs)
+            except IndexError:
+                self.logger.error(f"Could not read data in {self.filename}!")
                 return ERR.INVALID_DATA
 
         return ERR.OK

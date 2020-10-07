@@ -94,7 +94,6 @@ class SpectrumHandler():
         # Get raw data. Process data and calculate characteristic values.
         errorcode = file.is_valid_spectrum()
         if errorcode != ERR.OK:
-            dialog.critical_invalidSpectrum()
             self.logger.warning("Could not analyse spectrum.")
             return errorcode
 

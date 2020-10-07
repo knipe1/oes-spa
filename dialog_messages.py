@@ -182,7 +182,7 @@ def update_logfile_in_configuration(logfile:str)->None:
     config.save_config()
 
 
-def dialog_saveBatchfile(directory:str, presetFilename:str=None, parent:QMainWindow=None)->None:
+def dialog_saveBatchfile(directory:str, presetFilename:str=None, parent:QMainWindow=None)->str:
     """
 
     Parameters

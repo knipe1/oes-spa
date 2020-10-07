@@ -256,9 +256,11 @@ class BatchAnalysis(QDialog):
             self.import_batch(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added: %s"%(path))
+            errorcode = self.analyze(path)
+            if not errorcode ==ERR.OK:
+                return
             self.update_filelist([path])
             self._files.select_row_by_filename(path)
-            self.analyze(path)
 
 
     def toggle_watchdog(self, status:bool)->None:
@@ -370,7 +372,10 @@ class BatchAnalysis(QDialog):
             if isExportBatch:
                 # Get the data.
                 specHandler = SpectrumHandler(basicSetting)
-                specHandler.analyse_data(self.currentFile)
+                errorcode = specHandler.analyse_data(self.currentFile)
+                if not errorcode == ERR.OK:
+                    return errorcode
+
                 avg = specHandler.avgbase
                 peakHeight = specHandler.peakHeight
                 peakArea = specHandler.peakArea
@@ -421,6 +426,8 @@ class BatchAnalysis(QDialog):
         # Prompt the user with information about the skipped files.
         if not isSingleFile:
             dialog.information_BatchAnalysisFinished(skippedFiles)
+
+        return ERR.OK
 
 
 

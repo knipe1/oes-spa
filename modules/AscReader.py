@@ -41,7 +41,6 @@ class AscReader(BaseReader):
     ### Methods
 
     def set_asc_defaults(self):
-        # TODO: docstring
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["ASC_DATA_COLUMN"]
         self.type = EXPORT_TYPE.SPECTRUM
@@ -62,14 +61,17 @@ class AscReader(BaseReader):
             The date and the time of the measurement of the spectrum.
 
         """
-        _, strTime = asc_separate_parameter(row)
 
-        # Convert the given time string into date and time.
-        timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
+        try:
+            _, strTime = asc_separate_parameter(row)
+            # Convert the given time string into date and time.
+            timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
+        except ValueError:
+            return (None, None)
 
         # Format the timestamp according to the 'export' time format.
-        date = uni.string_to_timestamp(timestamp, EXPORT_DATE)
-        time = uni.string_to_timestamp(timestamp, EXPORT_TIME)
+        date = uni.timestamp_to_string(timestamp, EXPORT_DATE)
+        time = uni.timestamp_to_string(timestamp, EXPORT_TIME)
 
         return (date, time)
 
@@ -100,6 +102,9 @@ class AscReader(BaseReader):
             except IndexError:
                 # Break at the first blank row.
                 break
+            except ValueError:
+                # Skip invalid parameter line.
+                continue
 
         return parameter;
 

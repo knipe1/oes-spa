@@ -16,6 +16,7 @@ from os import path
 from modules.FileWriter import FileWriter
 import dialog_messages as dialog
 import modules.Universal as uni
+import modules.Spectrum as Spectrum
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
@@ -26,7 +27,6 @@ RAW_APPENDIX = "_raw"
 
 
 class SpectrumWriter(FileWriter):
-
 
     def __init__(self, filename, timestamp):
         super().__init__(filename)
@@ -41,7 +41,7 @@ class SpectrumWriter(FileWriter):
         return self.__module__ + ":\n" + str(info)
 
 
-    def export(self, data, columnTitles, exportType, additionalInformation = {}):
+    def export(self, spectrum:Spectrum, additionalInformation:dict={}):
         """
         Writes the header, additional information, label and data into a csv file.
 
@@ -61,17 +61,16 @@ class SpectrumWriter(FileWriter):
         if is_exported_spectrum(self.filename):
             return
 
-        exportFilename = build_exp_filename(self.filename, exportType)
+        exportFilename = build_exp_filename(self.filename, spectrum.exportType)
 
         with open(exportFilename, 'w', newline='') as exportFile:
             fWriter = csv.writer(exportFile, dialect=self.dialect)
             super().write_header(fWriter, self.timestamp)
             self.write_information(fWriter, additionalInformation)
-            super().write_column_titles(fWriter, columnTitles)
-            self.write_data(fWriter, data)
+            super().write_column_titles(fWriter, spectrum.labels.values())
+            self.write_data(fWriter, spectrum.data)
 
-        dialog.information_ExportFinished(exportFilename)
-        return
+        return exportFilename
 
 
     def write_column_titles(self, fWriter, titles):
