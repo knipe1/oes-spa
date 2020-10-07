@@ -20,7 +20,7 @@ from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
-from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
+from modules.Universal import EXPORT_TIMESTAMP
 
 class CsvReader(BaseReader):
 

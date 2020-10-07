@@ -26,7 +26,8 @@ config = ConfigLoader()
 BATCH = config.BATCH
 
 # constants
-from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
+EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
+
 
 # Take "." and the suffix value to create the file extension.
 EXPORT_SUFFIX = "." + SUFF.CSV.value

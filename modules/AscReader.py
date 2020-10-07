@@ -18,9 +18,9 @@ import modules.Universal as uni
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
-from GLOBAL_CONSTANTS import ASC_TIMESTAMP, EXPORT_TIMESTAMP
-
+from modules.Universal import EXPORT_TIMESTAMP
 EXPORT_DATE, EXPORT_TIME = EXPORT_TIMESTAMP.split(" ")
+ASC_TIMESTAMP = '%a %b %d %H:%M:%S.%f %Y'
 
 class AscReader(BaseReader):
 

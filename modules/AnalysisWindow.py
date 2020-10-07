@@ -73,7 +73,7 @@ class AnalysisWindow(QMainWindow):
 
 
     @property
-    def lastdir(self):
+    def lastdir(self)->str:
         """Gets the directory which is preset for dialogs."""
         return self._lastdir
 
@@ -92,7 +92,7 @@ class AnalysisWindow(QMainWindow):
 
     ### __Methods__
 
-    def __init__(self, initialShow=True):
+    def __init__(self)->None:
         super().__init__()
         self.logger = Logger(__name__)
 
@@ -107,9 +107,8 @@ class AnalysisWindow(QMainWindow):
 
         self.__post_init__()
 
-        # initial settings
-        if initialShow:
-            self.show()
+        # Show window, otherwise the window does not appear anywhere on the screen.
+        self.show()
 
 
     def __post_init__(self):
@@ -128,6 +127,7 @@ class AnalysisWindow(QMainWindow):
         """Set up the Spectrum elements with the corresponding ui elements."""
         self.rawSpectrum = Spectrum(self.window.plotRawSpectrum, EXPORT_TYPE.RAW)
         self.processedSpectrum = Spectrum(self.window.plotProcessedSpectrum, EXPORT_TYPE.PROCESSED);
+
 
     def init_connections(self):
         # TODO: docstring
