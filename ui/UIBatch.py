@@ -137,6 +137,7 @@ class UIBatch(Ui_batch):
     def enable_WD(self, enable:bool):
         self.btnSetWatchdogDir.setEnabled(enable)
         self.btnSetFilename.setEnabled(enable)
+        self.btnWatchdog.setChecked(not enable)
 
 
     ## Connect methods
