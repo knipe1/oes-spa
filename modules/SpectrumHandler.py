@@ -15,7 +15,7 @@ import peakutils as pkus
 
 # local modules/libs
 from Logger import Logger
-import dialog_messages as dialog
+import  modules.Universal as uni
 from modules.FileReader import FileReader
 
 # enums
@@ -237,19 +237,18 @@ def process_data(rawData:np.ndarray, centralWavelength:float, dispersion:float):
 
 def process_x_data(rawXData:np.ndarray, centralWavelength:float, dispersion:float):
     """Assigns wavelength to the recorded Pixels """
-    xDataArePixel = (rawXData[1] - rawXData[0] == 1)
 
     # Center of the xData. Used for shifting the data.
     center = rawXData[len(rawXData) // 2 - 1]     # offset of python lists.
 
-
-    # TODO: implicit pixels?! @knittel/@reinke
+    xDataArePixel = uni.data_are_pixel(rawXData)
     # The difference is 1 if pixels are recorded. Data with a smaller difference contain wavelength data.
     if xDataArePixel:
+        # Employs the dispersion to convert pixel to wavelength
         start = centralWavelength - center*dispersion
         shiftedData = rawXData*dispersion + start
     else:
-        # Shifts the rawData to the given centralWavelenght
+        # Only shift the original data to the given centralWavelength
         shift = centralWavelength - center
         shiftedData = rawXData + shift
 

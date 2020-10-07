@@ -321,12 +321,10 @@ class AnalysisWindow(QMainWindow):
             dialog.critical_invalidSpectrum()
             return
 
-        # if updateResults:
         peakName = basicSetting.fitting.peak.name
         self.window.set_results(specHandler, peakName)
 
-        # Update and the spectra.
-        # if plotSpectra:
+        # Update the spectra.
         self.update_spectra(specHandler)
         self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 

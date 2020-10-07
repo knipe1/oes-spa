@@ -129,12 +129,18 @@ class Spectrum():
         if not baselineData is None:
             self.add_baseline(baselineData)
 
+        if uni.data_are_pixel(self.xData):
+            self.labels = self.get_labels(EXPORT_TYPE.RAW)
+        else:
+            self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
+
 
     def set_custom_y_label(self, label):
         arbitraryUnit = " / a. u."
         self.labels["yLabel"] = label + arbitraryUnit
         self.markup["label"] = label
         self.ui.axes.update_layout(**self.labels)
+
 
     def plot_spectrum(self):
         self.init_plot()

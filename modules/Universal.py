@@ -9,6 +9,7 @@ This module is for general purposes and includes various functions.
 # standard libs
 import os
 import re
+import numpy as np
 from datetime import datetime, timedelta
 
 # third-party libs
@@ -38,6 +39,11 @@ def extract_path_and_basename(filename):
     absolutePath = fileInfo.absolutePath()
     baseName = fileInfo.baseName()
     return absolutePath, baseName
+
+
+def data_are_pixel(data:np.ndarray)->bool:
+    arePixel = (data[1]-data[0] == 1)
+    return arePixel
 
 
 def get_suffix(path:str)->str:
