@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
-
     Glossary:
         - activeFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
+
 @author: Hauke Wernecke
 """
 
@@ -59,7 +58,6 @@ class AnalysisWindow(QMainWindow):
     @activeFile.setter
     def activeFile(self, file:FileReader)->None:
         """activeFile setter: Updating the ui"""
-
         isFileReloaded = (self._activeFile == file)
         self._activeFile = file
         self.set_fileinformation(file)
@@ -67,7 +65,6 @@ class AnalysisWindow(QMainWindow):
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
 
-        # Set Wavelength if provided and a freshly loaded file.
         if not isFileReloaded:
             self.set_wavelength_from_file(file)
 
@@ -79,7 +76,6 @@ class AnalysisWindow(QMainWindow):
 
     @lastdir.setter
     def lastdir(self, directory:str):
-        """Sets the directory which is preset for dialogs."""
         if path.isdir(directory):
             newDirectory = directory
         elif path.isfile(directory):
@@ -95,7 +91,6 @@ class AnalysisWindow(QMainWindow):
     def __init__(self)->None:
         super().__init__()
         self.logger = Logger(__name__)
-
 
         # Set defaults.
         self.lastdir = self.GENERAL["INITIAL_DIR"];
@@ -130,7 +125,6 @@ class AnalysisWindow(QMainWindow):
 
 
     def init_connections(self):
-        # TODO: docstring
         win = self.window
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
@@ -148,17 +142,6 @@ class AnalysisWindow(QMainWindow):
 
 
     def dragEnterEvent(self, event):
-        """
-        Drag Element over Window event.
-
-        Handles only number of files:
-            single file-> AnalysisWindow,
-            multiple files-> BatchAnalysis.
-
-        Validation takes place in dropEvent-handler.
-        """
-
-
         # Handle the urls. Multiple urls are handled by BatchAnalysis.
         urls = event.mimeData().urls();
         isSingleFile = (len(urls) == 1)
@@ -171,13 +154,6 @@ class AnalysisWindow(QMainWindow):
 
 
     def dropEvent(self, event):
-        """
-        Drop File in window event.
-
-        Validation and further processing of the data.
-
-        event.accept --> dropEvent is handled by current Widget.
-        """
         event.accept();
 
         # Can only be one single file.
@@ -192,15 +168,12 @@ class AnalysisWindow(QMainWindow):
 
     ### Methods
 
-
     def file_open(self):
         """Open FileDialog to select one or multiple spectra."""
         # File-->Open
         # Browse
 
         # Cancel/Quit dialog --> [].
-        # One file selected: Update spectrum.
-        # Multiple files: BatchAnalysis.
         filelist = dialog.dialog_openSpectra(self.lastdir);
         isSingleFile = (len(filelist) == 1)
         isMultipleFiles = (len(filelist) > 1)
@@ -218,15 +191,10 @@ class AnalysisWindow(QMainWindow):
             pass
 
 
-
     ### Export
 
     def export_spectrum(self, spectrum:Spectrum, results:dict={}):
-        """Export raw/processed spectrum."""
-
-        # Collect data.
         filename, timestamp = self.get_fileinformation()
-
         writer = SpectrumWriter(filename, timestamp)
 
         try:
@@ -241,12 +209,10 @@ class AnalysisWindow(QMainWindow):
 
 
     def export_raw(self):
-        """Export the raw spectrum."""
         self.export_spectrum(self.rawSpectrum)
 
 
     def export_processed(self):
-        """Export the processed spectrum with the analyical characteristics."""
         results = self.window.get_results();
         self.export_spectrum(self.processedSpectrum, results)
 
@@ -254,7 +220,6 @@ class AnalysisWindow(QMainWindow):
     ### Draw Plots.
 
     def draw_spectra(self, *spectra):
-        """Init and plot the given spectra."""
         for spectrum in spectra:
             spectrum.plot_spectrum()
 
@@ -265,7 +230,7 @@ class AnalysisWindow(QMainWindow):
 
         Parameters
         ----------
-        text : str
+        value : str
             The text of the new selected option. Informative in the logger.
 
         """
@@ -279,9 +244,6 @@ class AnalysisWindow(QMainWindow):
     ### fileinformation
 
     def get_fileinformation(self):
-        # TODO: @property?
-        # TODO: self.filename
-        # TODO: self.filename = {name: asd, timestamp: sad}
         try:
             filename = self.activeFile.filename
             timestamp = self.activeFile.timestamp
@@ -294,7 +256,6 @@ class AnalysisWindow(QMainWindow):
 
 
     def set_fileinformation(self, filereader:FileReader):
-        """Updates the fileinformation."""
         filename, date, time = filereader.header
         self.window.set_fileinformation(filename, date, time)
 
@@ -332,7 +293,6 @@ class AnalysisWindow(QMainWindow):
 
 
     def set_wavelength_from_file(self, file:FileReader):
-        # TODO: docstring
         try:
             self.window.wavelength = file.WAVELENGTH
         except KeyError:
