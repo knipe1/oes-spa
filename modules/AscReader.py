@@ -7,17 +7,20 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
-from datetime import datetime
 
 # third-party libs
 
 # local modules/libs
 from modules.BaseReader import BaseReader
+import modules.Universal as uni
+
+# Enums
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
-from GLOBAL_CONSTANTS import ASC_TIMESTAMP, EXPORT_TIMESTAMP
-
+from modules.Universal import EXPORT_TIMESTAMP
 EXPORT_DATE, EXPORT_TIME = EXPORT_TIMESTAMP.split(" ")
+ASC_TIMESTAMP = '%a %b %d %H:%M:%S.%f %Y'
 
 class AscReader(BaseReader):
 
@@ -38,9 +41,9 @@ class AscReader(BaseReader):
     ### Methods
 
     def set_asc_defaults(self):
-        # TODO: docstring
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["ASC_DATA_COLUMN"]
+        self.type = EXPORT_TYPE.SPECTRUM
 
 
     def get_header(self, row:list)->tuple:
@@ -50,7 +53,7 @@ class AscReader(BaseReader):
         Parameters
         ----------
         row: list
-            Required. The row of the file containing the header information.
+            The row of the file containing the header information.
 
         Returns
         -------
@@ -58,16 +61,20 @@ class AscReader(BaseReader):
             The date and the time of the measurement of the spectrum.
 
         """
-        _, timestamp = asc_separate_parameter(row)
 
-        # Convert the given time string into date and time.
-        timestamp = datetime.strptime(timestamp, ASC_TIMESTAMP)
+        try:
+            _, strTime = asc_separate_parameter(row)
+            # Convert the given time string into date and time.
+            timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
+        except ValueError:
+            return (None, None)
 
         # Format the timestamp according to the 'export' time format.
-        date = timestamp.strftime(EXPORT_DATE)
-        time = timestamp.strftime(EXPORT_TIME)
+        date = uni.timestamp_to_string(timestamp, EXPORT_DATE)
+        time = uni.timestamp_to_string(timestamp, EXPORT_TIME)
 
         return (date, time)
+
 
     def get_parameter(self, fReader):
         """
@@ -95,6 +102,9 @@ class AscReader(BaseReader):
             except IndexError:
                 # Break at the first blank row.
                 break
+            except ValueError:
+                # Skip invalid parameter line.
+                continue
 
         return parameter;
 

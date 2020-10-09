@@ -22,6 +22,7 @@ import modules.Universal as uni
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
+
 class Spectrum():
     """
     Concatenate properties of a spectrum to have data and plot abilities together.
@@ -45,11 +46,15 @@ class Spectrum():
 
     @data.setter
     def data(self, xyData):
-        self._data = np.array(xyData)
+        self._data = np.array(xyData).transpose()
 
     @property
     def xData(self):
-        return self._data[0]
+        return self._data[:, 0]
+
+    @property
+    def yData(self):
+        return self._data[:, 1]
 
     @classmethod
     def get_labels(cls, exportType):
@@ -103,8 +108,7 @@ class Spectrum():
         info["labels"] = self.labels
         info["markup"] = self.markup
         info["has Baseline"] = self.hasattr("baseline")
-        info["data length"] = "X:{}, Y:{}".format(len(self.data[0]),
-                                                  len(self.data[1]))
+        info["data length"] = "X:{}, Y:{}".format(len(self.xData), len(self.yData))
         return self.__module__ + ":\n" + str(info)
 
 
@@ -114,16 +118,21 @@ class Spectrum():
         self.baselineMarkup = self.get_markup(self.BASELINE)
 
 
-    def update_data(self, xyData, integrationAreas=[], baselineData=None):
+    def update_data(self, xyData, integrationAreas:list=None, baselineData=None):
         """
         Updates the data of the spectrum.
 
         Set integration areas and baseline for more detailled plotting.
         """
         self.data = xyData
-        self.integrationAreas = integrationAreas
+        self.integrationAreas = integrationAreas or []
         if not baselineData is None:
             self.add_baseline(baselineData)
+
+        if uni.data_are_pixel(self.xData):
+            self.labels = self.get_labels(EXPORT_TYPE.RAW)
+        else:
+            self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
 
     def set_custom_y_label(self, label):
@@ -131,6 +140,7 @@ class Spectrum():
         self.labels["yLabel"] = label + arbitraryUnit
         self.markup["label"] = label
         self.ui.axes.update_layout(**self.labels)
+
 
     def plot_spectrum(self):
         self.init_plot()
@@ -152,7 +162,7 @@ class Spectrum():
     def update_plot(self):
         """Updates the plots in the ui element."""
 
-        self.ui.axes.plot(*self.data, **self.markup);
+        self.ui.axes.plot(self.xData, self.yData, **self.markup);
         self.plot_baseline()
         self.plot_integration_areas()
         self.center_plot()
@@ -177,11 +187,11 @@ class Spectrum():
 
 
     def plot_integration_areas(self):
-        int_peak_color = self.PLOT["INT_PEAK_COLOR"]
-        int_ref_color = self.PLOT["INT_REF_COLOR"]
+        peakColor = self.PLOT["INT_PEAK_COLOR"]
+        referenceColor = self.PLOT["INT_REF_COLOR"]
 
         for intArea in self.integrationAreas:
-            col = int_peak_color if intArea.peakType == CHC.TYPE_PEAK else int_ref_color
+            col = peakColor if intArea.peakType == CHC.TYPE_PEAK else referenceColor
             self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
 
 

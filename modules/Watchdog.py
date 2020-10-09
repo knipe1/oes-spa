@@ -7,30 +7,31 @@ Created on Fri Jul 24 22:44:59 2020
 """
 
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileModifiedEvent
-from PyQt5.QtCore import QFileInfo
+from watchdog.events import FileSystemEventHandler
 
 
-class MyHandler(FileSystemEventHandler):
-    def __init__(self, modifiedFile=None):
+class SpectrumHandler(FileSystemEventHandler):
+    def __init__(self, onModifiedMethod):
         super().__init__()
-        self.modifiedFile = modifiedFile or print
+        self.onModifiedMethod = onModifiedMethod or print
 
     def on_modified(self, event):
-        # only consider FileModifiedEvent and no DirModifiedEvent.
-        if isinstance(event, FileModifiedEvent):
-            path = event.src_path
-            info = QFileInfo(path)
-            if "." not in info.baseName():# TODO: Purpose?
-                self.modifiedFile(event.src_path)
+        # Only consider File events.
+        if event.is_directory:
+            return
+
+        self.onModifiedMethod(event.src_path)
 
 
 class Watchdog():
 
-    def start(self, path, *args):
-        self.file_handler = MyHandler(*args)
+    def __init__(self, onModifiedMethod=None):
+        self.handler = SpectrumHandler(onModifiedMethod)
+
+
+    def start(self, path):
         self.observer = Observer()
-        self.observer.schedule(self.file_handler, path, recursive=False)
+        self.observer.schedule(self.handler, path, recursive=False)
         self.observer.start()
 
 

@@ -18,8 +18,6 @@ class TestFileFramework(TestCase):
     framework = FileFramework()
 
     def test_init(self):
-        self.assertTrue(isinstance(self.framework.EXPORT, dict));
-        self.assertTrue(isinstance(self.framework.IMPORT, dict));
         self.assertTrue(isinstance(self.framework.MARKER, dict));
         self.assertTrue(isinstance(self.framework.DIALECT, dict));
 

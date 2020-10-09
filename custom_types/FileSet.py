@@ -54,6 +54,8 @@ class FileSet(set):
 
     def __getitem__(self, i):
         """Gets the i-th item of the unsorted list."""
+        if i < 0:
+            raise IndexError
         files = self.to_list()
         return files[i]
 
@@ -84,6 +86,12 @@ class FileSet(set):
         super().remove(t)
         idx = self.selected_row - 1
         self.update_ui(index=idx)
+
+
+    def difference_update(self, interables):
+        """Removes an item AND updates the ui."""
+        super().difference_update(interables)
+        self.update_ui(index=0)
 
 
     def to_list(self, naturalSort=True, indexed=False):

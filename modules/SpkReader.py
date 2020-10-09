@@ -14,6 +14,8 @@ Created on Fri Sep  4 12:11:22 2020
 from modules.BaseReader import BaseReader
 
 # Enums
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
+
 
 class SpkReader(BaseReader):
 
@@ -37,6 +39,7 @@ class SpkReader(BaseReader):
         self.dialect = self.DIALECT["name"]
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["SPK_DATA_COLUMN"]
+        self.type = EXPORT_TYPE.SPECTRUM
 
 
     def get_header(self, row:list)->tuple:

@@ -17,9 +17,10 @@ from modules.BaseReader import BaseReader
 
 # Enums
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
-from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
+from modules.Universal import EXPORT_TIMESTAMP
 
 class CsvReader(BaseReader):
 
@@ -42,6 +43,7 @@ class CsvReader(BaseReader):
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["CSV_DATA_COLUMN"]
         self.subKwargs = {"timeFormat": EXPORT_TIMESTAMP}
+        self.type = None
 
         # default batch columns must be the value of an CHC.element.
         self.defaultBatchYColumn = CHC.PEAK_AREA.value
@@ -87,6 +89,7 @@ class CsvReader(BaseReader):
             cell = row[0]
 
             if self.MARKER["DATA"] in cell:
+                self.type = EXPORT_TYPE.SPECTRUM
                 break;
             elif self.MARKER["BATCH"] in cell:
                 # A general issue might be to open the batchfile with excel or
@@ -97,6 +100,7 @@ class CsvReader(BaseReader):
                     # Can be handled by a different dialect (uses ',' as separator).
 
                 # Get the column with respect to the header.
+                self.type = EXPORT_TYPE.BATCH
                 xColumnName = self.defaultBatchXColumn
                 yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
                 self.xColumn, self.yColumn = handle_batch_columns(row, xColumnName, yColumnName)

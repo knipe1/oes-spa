@@ -19,7 +19,6 @@ class FileFramework:
 
     # Configuration.
     config = ConfigLoader()
-    IMPORT = config.IMPORT
 
     # constants
     MARKER  = {"BATCH": "Filename",
@@ -65,16 +64,3 @@ class FileFramework:
         csv.register_dialect(self.DIALECT_CSV["name"],
                              delimiter = self.DIALECT_CSV["delimiter"],
                              quoting = self.DIALECT_CSV["quoting"])
-
-
-
-# TODO: testcode to evaluate usage of datetime lib
-# from datetime import datetime
-
-# stamp = "30.11.2018 16:14:14"
-
-# format_date = "%d.%m.%Y"
-# format_time = "%H:%M:%S"
-# test = datetime.strptime(stamp, format_date + " " + format_time)
-# print(test.strftime(format_date))
-# print(test.strftime(format_time))

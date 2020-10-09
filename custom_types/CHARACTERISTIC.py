@@ -19,8 +19,8 @@ class CHARACTERISTIC(Enum):
     PEAK_POSITION = "Peak position"
     HEADER_INFO = "Header info"
     CHARACTERISTIC_VALUE = "Characteristic value"
-    INTEGRATION_PXL = auto()
-    INTEGRATION_WL = auto()
+    INTEGRATION_RAW = auto()
+    INTEGRATION_PROCESSED = auto()
     TYPE_PEAK = auto()
     TYPE_REFERENCE = auto()
 

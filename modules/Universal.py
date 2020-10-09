@@ -9,7 +9,8 @@ This module is for general purposes and includes various functions.
 # standard libs
 import os
 import re
-from datetime import datetime
+import numpy as np
+from datetime import datetime, timedelta
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo, QUrl
@@ -24,11 +25,13 @@ from custom_types.SUFFICES import SUFFICES as SUFF
 # Load the configuration for import and batch properties.
 config = ConfigLoader()
 BATCH = config.BATCH
-EXPORT = config.EXPORT
-IMPORT = config.IMPORT
 
 # constants
-from GLOBAL_CONSTANTS import EXPORT_TIMESTAMP
+EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
+
+
+# Take "." and the suffix value to create the file extension.
+EXPORT_SUFFIX = "." + SUFF.CSV.value
 
 
 def extract_path_and_basename(filename):
@@ -36,6 +39,11 @@ def extract_path_and_basename(filename):
     absolutePath = fileInfo.absolutePath()
     baseName = fileInfo.baseName()
     return absolutePath, baseName
+
+
+def data_are_pixel(data:np.ndarray)->bool:
+    arePixel = (data[1]-data[0] == 1)
+    return arePixel
 
 
 def get_suffix(path:str)->str:
@@ -52,18 +60,12 @@ def is_valid_suffix(filename:str)->bool:
 
 def get_valid_local_url(url:QUrl)->str:
     """
-    Checks validity of the url and returns local url if valid.
-
-    Parameters
-    ----------
-    url : QUrl
-        Url of the file.
+    Checks whether the url is valid and has a valid suffix
 
     Returns
     -------
     localUrl : str
-        The local url of given url if valid.
-        None otherwise.
+        The local url of given url if valid. None otherwise.
 
     """
 
@@ -71,26 +73,19 @@ def get_valid_local_url(url:QUrl)->str:
         return
 
     localUrl = url.toLocalFile();
-    return localUrl
     if is_valid_suffix(localUrl):
         return localUrl
-
     return
 
 
-def mark_bold_red(label):
-    """Embed the given label into a Rich text format."""
-    return  "<b style='color:red'>" + label + "</b>"
-
-
-def convert_to_hours(timedifference):
+def convert_to_hours(timedifference:timedelta):
     """
-    Converts the difference of datetimes (timedelta-object) into hours.
+    Converts the difference of datetimes into hours.
 
     Parameters
     ----------
     timedifference : timedelta
-        The difference between to datetimes.
+        The difference between to datetime-objects.
 
     Returns
     -------
@@ -100,34 +95,34 @@ def convert_to_hours(timedifference):
     """
 
     hours = 0.0
-    try:
-        # 1 hour = 3600 seconds and 1 day = 24 hours
-        hours += timedifference.seconds / 3600
-        hours += timedifference.days * 24
-    except AttributeError:
-        # TODO: implement logger?
-        print("Could not convert {} into hours.".format(timedifference))
+    # 1 hour = 3600 seconds and 1 day = 24 hours
+    hours += timedifference.seconds / 3600
+    hours += timedifference.days * 24
 
     return hours
 
 
-def timestamp_to_string(timestamp):
+def timestamp_to_string(timestamp, timeformat=None):
     """Converts the given timestamp to a string with a pre-defined format."""
     # strftime = STRing From TIME (with a given format)
-    timestampString = datetime.strftime(timestamp, EXPORT_TIMESTAMP)
+    timeformat = timeformat or EXPORT_TIMESTAMP
+    timestampString = datetime.strftime(timestamp, timeformat)
     return timestampString
 
 
-def timestamp_from_string(timestamp):
-    """Converts the given timestamp to a string with a pre-defined format."""
+def timestamp_from_string(timestamp, timeformat=None):
+    """Converts the given timestamp to a string of a (pre-)defined format."""
+    # Set default if not provided.
+    timeformat = timeformat or EXPORT_TIMESTAMP
     # strptime = STRing To TIME (with a given format)
-    timestamp = datetime.strptime(timestamp, EXPORT_TIMESTAMP)
+    timestamp = datetime.strptime(timestamp, timeformat)
     return timestamp
 
 
 def replace_suffix(filename, suffix=None):
     """Replaces the suffix of the filename. Default is defined in the configuration."""
-    newSuffix = suffix or EXPORT["SUFFIX"]
+    # Note: The suffix needs to have a dot in front of the extension.
+    newSuffix = suffix or EXPORT_SUFFIX
 
     fileSuffix = get_suffix(filename)
     if not fileSuffix == suffix:
@@ -137,75 +132,20 @@ def replace_suffix(filename, suffix=None):
     return newFilename
 
 
-def reduce_path(url):
+def reduce_path(urls:list):
     """
-    Reduces the url of a path in that way, that only the filename and one additional directory is returned
-
-    Parameters
-    ----------
-    url : str or list of strings
-        The url/path that should be reduced.
+    Reduces the url to the filename and the parent directory.
 
     Returns
     -------
-    yield (opt. directory/) + filename as string
+    yield (relative path + parent directory + filename)
 
     """
-    # TODO: delimiter for windows? or cross platforms?
-    # Not in config? Due to static property?
-    delimiter = "/";
-
-    # Converting string url to list to enabel funtion for strings and lists.
-    if isinstance(url, str):
-        url = [url]
-
-    try:
-        for path in url:
-            index = find_second_last(path, delimiter)
-            if index < 0:
-                text = path
-            text = path[index:]
-            yield text
-    except:
-        print("HELP: Some unknown error occured!!!")
-
-
-
-def find_second_last(text, pattern):
-    """
-    Finds the second last occurence of the pattern in text.
-
-    Parameters
-    ----------
-    text : str
-        The text in which the patter is searched for.
-    pattern : str
-        The pattern to search for.
-
-    Raises
-    ------
-    TypeError
-        If no strings are given.
-
-    Returns
-    -------
-    index : int
-        -2 if the pattern is not found once
-        -1 if the pattern is only found once
-        index of the second last occurence of the pattern in text
-
-    """
-    if type(text) != str:
-        raise TypeError("text must be a string")
-    if type(pattern) != str:
-        raise TypeError("pattern must be a string")
-
-    index = None;
-    if text.rfind(pattern) < 0:
-        index = -2;
-    else:
-        index = text.rfind(pattern, 0, text.rfind(pattern))
-    return index
+    for path in urls:
+        # Use "NotExistingDirectory" to achieve that the resulting filepath is relative (../dir/filename.ext)
+        referencePath = os.path.abspath(os.path.join(path, "../../NotExistingDirectory"))
+        relativeFilepath = os.path.relpath(path, referencePath)
+        yield relativeFilepath
 
 
 def add_index_to_text(texts):
@@ -222,26 +162,24 @@ def add_index_to_text(texts):
     yield: the text with the index prior
 
     """
-    try:
-        sep = BATCH["SEPARATOR"]
-        for idx, text in enumerate(texts):
-            index = format(idx, BATCH["INDEX_FORMAT"])
-            yield index + sep + text
-    except:
-        print("HELP: Some unknown error occured!!!")
+    sep = BATCH["SEPARATOR"]
+    for idx, text in enumerate(texts):
+        index = format(idx, BATCH["INDEX_FORMAT"])
+        yield index + sep + text
 
 
 def natural_keys(text):
     """
-    alist.sort(key=natural_keys) sorts in human order.
+    A list.sort(key=natural_keys) sorts in human order.
     https://nedbatchelder.com/blog/200712/human_sorting.html
     """
-    def tryint(s):
-        try:
-            return int(s)
-        except ValueError:
-            return s
-
     # r'(\d+)' matches any digit number (# indicates one or more matches)
     # splitting a list of all non-numerical and numerical pattern
-    return [ tryint(c) for c in re.split(r'(\d+)', text) ]
+    return [ int(c) if c.isdigit() else c for c in re.split(r'(\d+)', text) ]
+
+
+### String markups
+
+def mark_bold_red(label):
+    """Embed the given label into a Rich text format."""
+    return  "<b style='color:red'>" + label + "</b>"

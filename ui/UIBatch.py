@@ -134,6 +134,12 @@ class UIBatch(Ui_batch):
         self.btnCalculate.setEnabled(enable)
 
 
+    def enable_WD(self, enable:bool):
+        self.btnSetWatchdogDir.setEnabled(enable)
+        self.btnSetFilename.setEnabled(enable)
+        self.btnWatchdog.setChecked(not enable)
+
+
     ## Connect methods
 
     def connect_browse_files(self, fun):

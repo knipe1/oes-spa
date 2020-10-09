@@ -1,28 +1,13 @@
 BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
-EXPORT:
-  BATCH_FILTER: Comma separated (*.csv)
-  DEF_BATCH_NAME: _batch
-  SUFFIX: .csv
-FILE:
-  DEF_DIR: ./sample files
-  DEF_FILE: ''
-  LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
+  DEF_FILENAME: _batch
+GENERAL:
+  INITIAL_DIR: ./sample files
+  LOG_FILE: debug.log
 FITTING:
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-IMPORT:
-  SUFFIXES:
-  - Data sets (*.spk *.csv *.asc)
-  - SpexHex File (*.spk)
-  - Exported Raw spectrum (*.csv)
-  - Full information spectrum (*.asc)
-  VALID_SUFFIX:
-  - asc
-  - csv
-  - spk
-  - Spk
 PLOT:
   BATCH_DATA_COLOR: k
   BATCH_DATA_LABEL: Characteristic

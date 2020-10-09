@@ -124,7 +124,7 @@ class FileReader(FileFramework):
 
     def __init__(self, filename, **kwargs):
         # FileFramework provides the dialect and config etc.
-        FileFramework.__init__(self, filename)
+        super().__init__(filename)
         self.set_defaults()
         self.subReader = self.determine_subReader()
 
@@ -134,6 +134,10 @@ class FileReader(FileFramework):
 
     def __post_init__(self, **kwargs):
         self.read_file(**kwargs)
+
+
+    def __bool__(self):
+        return (self.is_valid_spectrum() == ERR.OK)
 
 
     def __eq__(self, other):
@@ -240,9 +244,10 @@ class FileReader(FileFramework):
             self.parameter = self.read_parameter(fReader, self.subReader)
 
             # Data
-            self.data = self.read_data(fReader, self.subReader, **kwargs)
-            if not len(self.data):
-                self.logger.error(f"No valid data in {self.filename}")
+            try:
+                self.data = self.read_data(fReader, self.subReader, **kwargs)
+            except IndexError:
+                self.logger.error(f"Could not read data in {self.filename}!")
                 return ERR.INVALID_DATA
 
         return ERR.OK
@@ -336,7 +341,7 @@ def read_x_data(value:str, timeFormat:datetime=None):
         xValue = float(value)
     except ValueError:
         # batch analysis uses timestamp of files for plotting.
-        xValue = datetime.strptime(value, timeFormat)
+        xValue = uni.timestamp_from_string(value, timeFormat)
     return xValue
 
 

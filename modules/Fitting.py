@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-# TODO: docstring
-
 Created on Thu Apr  9 10:51:31 2020
 
 @author: Hauke Wernecke
@@ -20,7 +18,6 @@ Created on Thu Apr  9 10:51:31 2020
 from ConfigLoader import ConfigLoader
 from Logger import Logger
 from custom_types.Peak import Peak
-from custom_types.ReferencePeak import ReferencePeak
 
 # Enums
 from custom_types.ERROR_FITTING import ERROR_FITTING as ERR_FIT
@@ -34,7 +31,7 @@ NO_NAME_DEFINED = "No name provided!"
 class Fitting():
     """
     # TODO: docstring
-    Interface for properties of the current active fitting.
+    Interface for properties of the currently active fitting.
 
     Contains information about characteristic values, names, peaks and the
     corresponding reference peaks.
@@ -53,12 +50,36 @@ class Fitting():
     config = ConfigLoader()
     FITTING = config.FITTING;
 
-    # constants
-    NO_NAME_DEFINED = "No name provided!"
 
+    ### Properties
+
+    @property
+    def peak(self) -> Peak:
+        return self._peak
+
+    @peak.setter
+    def peak(self, peak):
+        self.set_peak_reference(peak)
+        self._peak = peak
+        return
+
+
+    @property
+    def errCode(self) -> str:
+        error = self._errCode
+        if error:
+            error += "!"
+        return error
+
+    @errCode.setter
+    def errCode(self, code:ERR_FIT):
+        self._errCode = code
+
+
+    ## __methods__
 
     def __init__(self, fitting):
-        # set up the logger
+        # Set up the logger.
         self.logger = Logger(__name__)
 
         self.fitting = fitting
@@ -67,25 +88,24 @@ class Fitting():
         name, peakParameter = self.extract_parameter(fitting)
 
         self.name = name
-        # peakParameter = self.get_peak_parameter(fitting)
         self.peak = self.set_peak(peakParameter)
 
+
+    def __repr__(self):
+        info = {}
+        info["Fitting"] = self.fitting
+        return self.__module__ + ":\n" + str(info)
+
+
+    ## methods
 
     def extract_parameter(self, fitting:dict)->dict:
 
         fittingName = self.extract_fitting_name(fitting)
         peakParameter = self.extract_peak_parameter(fitting)
-        # referencePeakParameter = self.extract_peak_reference_parameter(peakParameter)
-
-
-        # referencePeak = ReferencePeak(**referencePeakParameter)
-        # peakParameter["reference"] = referencePeak
-
-        # parameter = {}
-        # parameter["name"] = fittingName
-        # parameter["peak"] = peakParameter
 
         return fittingName, peakParameter
+
 
     def extract_fitting_name(self, fitting:dict):
         name = fitting.get("NAME", NO_NAME_DEFINED)
@@ -100,11 +120,6 @@ class Fitting():
             # In case of PEAKS is not defined:
             # KeyError: type object argument after ** must be a mapping, not NoneType
             self.update_errorcode_fitting()
-
-
-    def extract_peak_reference_parameter(self, peakParameter:dict):
-        referencePeakParameter = peakParameter.get("reference")
-        return referencePeakParameter
 
 
     def set_peak(self, peakParameter:dict)->Peak:
@@ -123,58 +138,13 @@ class Fitting():
                 # 1. Invalid defined reference -> Error code.
                 self.update_errorcode_reference()
             else:
-                # 2. No reference defined, which may be valid.
+                # 2. No reference defined, which is valid.
                 self.reference = peak.reference
         except AttributeError:
             self.logger.info("No reference peak defined.")
 
 
-    def __repr__(self):
-        info = {}
-        info["Fitting"] = self.fitting
-        return self.__module__ + ":\n" + str(info)
-
-
-    ### Properties
-
-    @property
-    def peak(self) -> Peak:
-        return self._peak
-
-    @peak.setter
-    def peak(self, peak):
-        self.set_peak_reference(peak)
-        self._peak = peak
-        return
-
-
-    @property
-    def reference(self) -> Peak:
-        return self._reference
-
-    @reference.setter
-    def reference(self, reference):
-        self._reference = reference
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        self._name = name
-
-    @property
-    def errCode(self) -> str:
-        error = self._errCode
-        if error:
-            error += "!"
-        return error
-
-    @errCode.setter
-    def errCode(self, code:str):
-        self._errCode = code
-
+    ## update errorcode methods
 
     def update_errorcode_fitting(self):
         self.errCode += ERR_FIT.FITTING.value
@@ -189,4 +159,3 @@ class Fitting():
     def update_errorcode_reference(self):
         self.errCode += ERR_FIT.REFERENCE.value
         self.logger.warning("Invalid reference peak defined.")
-

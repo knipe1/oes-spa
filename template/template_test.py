@@ -41,3 +41,8 @@ class TestModule(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+# How to Use Contextmanager:
+# with AssertRaises(ValueError):
+#     calc.divide(20,-2)
+#     calc.divide(10,0)

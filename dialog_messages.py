@@ -4,7 +4,6 @@
 This module concentrate all messages for dialogs together.
 Advantages:
     central location for adjusting messages
-    maintainable and testable
 
 Hints:
     definitions of functions:
@@ -16,44 +15,56 @@ Created on Tue Feb 18 10:10:29 2020
 @author: Hauke Wernecke
 """
 
+# standard libs
+from os import path
 
 
 # third-party libs
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QMainWindow
+
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
+from custom_types.SUFFICES import SUFFICES as SUFF
 
+# constants
+DEF_LOG_FILE = "../debug.log"
+DEF_WD_DIR = "./"
+IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
+               "SpexHex File (*.spk)",
+               "Exported Raw spectrum (*.csv)",
+               "Full information spectrum (*.asc)",
+               ]
+EXPORT_FILTER = ["Batch files (*.csv)",]
 
 # Load the configuration for import, export and filesystem properties.
 config = ConfigLoader()
-EXPORT = config.EXPORT;
-IMPORT = config.IMPORT;
-FILE = config.FILE;
+GENERAL = config.GENERAL;
+BATCH = config.BATCH;
+
+
+def filter_from_list(filterlist:list)->str:
+    return ";;".join(filterlist)
 
 
 
-def critical_unknownFiletype(parent=None):
+def critical_invalidSpectrum(parent:QMainWindow=None)->None:
     """
-    Displays a error message due to issues while open or read the file
+    Displays a error message that the filetype is unknown.
 
     Parameters
     ----------
     parent : QMainWindow (also other windows/widgets possible)
         The window is given to place the messagebox on the screen. The default is None.
 
-    Returns
-    -------
-    None.
-
     """
-    title = "Error: File could not be opened";
+    title = "Error: File could not be opened.";
     text = "Filetype unknown or file unreadable!";
     QMessageBox.critical(parent, title, text);
 
 
 
-def critical_unknownSuffix(suffixes=IMPORT["VALID_SUFFIX"], parent=None):
+def critical_unknownSuffix(suffices:list=None, parent:QMainWindow=None)->None:
     """
     Displays an error message if the file cannot be opened due to a wrong suffix.
     It will also display the valid suffixes.
@@ -63,141 +74,116 @@ def critical_unknownSuffix(suffixes=IMPORT["VALID_SUFFIX"], parent=None):
     suffixes : List of strings
         Contains the valid suffixes as a list.
     parent : TQMainWindow (also other windows/widgets possible)
-        The window is given to place the messagebox on the screen. The default is None.
-
-    Returns
-    -------
-    None.
 
     """
-    strSuffixes = ["." + suffix for suffix in suffixes];
-    strSuffixes = ", ".join(strSuffixes);
+
+    # Set default.
+    suffices = suffices or SUFF.value_set()
+    # Format the suffices.
+    strSuffices = ["." + suffix for suffix in suffices];
+    strSuffices = ", ".join(strSuffices);
 
     title = "Error: File could not be opened";
-    text = f"Valid filetypes: {strSuffixes}";
+    text = f"Valid filetypes: {strSuffices}";
+
     QMessageBox.critical(parent, title, text);
 
 
-def warning_fileSelection(parent=None):
+def dialog_openBatchFile(directory:str, parent:QMainWindow=None)->None:
+    caption = "Open batchfile"
+    filter = filter_from_list(EXPORT_FILTER)
+
+    filename, _ = QFileDialog.getOpenFileName(parent=parent,
+                                              caption=caption,
+                                              directory=directory,
+                                              filter=filter,)
+    return filename
+
+
+def dialog_openSpectra(directory:str, parent:QMainWindow=None)->None:
     """
-    Displays a warning if a function which requires a file is executed when no file is selected.
-
-    Parameters
-    ----------
-    parent : TQMainWindow (also other windows/widgets possible)
-        The window is given to place the messagebox on the screen. The default is None.
-
-    Returns
-    -------
-    None.
-
-    """
-    title = "Warning";
-    text = "No File selected!";
-    QMessageBox.warning(parent, title, text);
-
-
-def dialog_openFiles(directory, allowedSuffixes=IMPORT["SUFFIXES"],
-                     singleFile=False, parent=None):
-    """
-    Opens a native dialog to open one or multiple files.
+    Opens a native dialog to open one or multiple spectra.
 
     Parameters
     ----------
     directory : path as a string
         Path of the default directory.
-    allowedSuffixes : List of strings
-        Will be set as a filter to display only files with the matched suffixes.
-        The default is configured in IMPORT["SUFFIXES"].
     parent : TQMainWindow (also other windows/widgets possible)
         The window is given to place the messagebox on the screen. The default is None.
-
-    Raises
-    ------
-    TypeError
-        If directory is not a string.
 
     Returns
     -------
     list of filenames
-        Return the files selected. May be empty list, list with a single entry or list of entries.
+        Return the files selected. Empty list if dialog is cancelled.
 
     """
-    caption = "Load file(s)";
-    filter = ";;".join(allowedSuffixes);
+    caption = "Load spectra";
+    filter = filter_from_list(IMPORT_FILTER)
 
-    if type(directory) not in [str]:
-        raise TypeError("Directory must be a path (string)");
-
-
-    parameter = {"parent": parent, "caption": caption, "directory": directory,
-                 "filter": filter, }
-    if singleFile:
-        filenames, _ = QFileDialog.getOpenFileName(**parameter);
-    else:
-        filenames, _ = QFileDialog.getOpenFileNames(**parameter);
+    filenames, _ = QFileDialog.getOpenFileNames(parent=parent,
+                                                caption=caption,
+                                                directory=directory,
+                                                filter=filter,)
     return filenames;
 
-def information_BatchAnalysisFinished(skippedFiles, parent=None):
-    # TODO docstring
+
+def information_BatchAnalysisFinished(skippedFiles:list, parent:QMainWindow=None)->None:
     title = "Batch Analysis finished";
     text = "Skipped Files: \n" + "\n".join(skippedFiles);
     QMessageBox.information(parent, title, text);
 
-def information_ExportFinished(filename, parent=None):
-    # TODO docstring
+
+def information_ExportFinished(filename:str, parent:QMainWindow=None)->None:
     title = "Successfully exported";
     text = f"Exported to: {filename}";
     QMessageBox.information(parent, title, text);
 
 
-def information_ExportAborted(parent=None):
-    # TODO docstring
+def information_ExportAborted(parent:QMainWindow=None)->None:
     title = "Export failed!";
     text = "Export failed. Possible issues: No data found. Invalid file, "\
     "could not export raw or processed spectra.";
     QMessageBox.information(parent, title, text);
 
 
-def information_NormalizationFactor(parent=None):
-    # TODO docstring
+def information_NormalizationFactorUndefined(parent:QMainWindow=None)->None:
     title = "No Normalization Factor defined!";
-    text = "In the currently selected Fitting is no normalization factor of "\
-    "the peak defined. Please find an example in the example_fitting.yml. The"\
-    " normalization factor is maps the area-relation to a characteristic "\
-    "value, which may be used to determine the concentration.";
+    text = "In the currently selected Fitting is no normalization factor of the peak defined. "\
+    "Please find an example in the example_fitting.yml. "\
+    "The normalization factor maps the area-relation to a characteristic value, "\
+    "which may be used to determine the concentration.";
     QMessageBox.information(parent, title, text);
 
 
-def dialog_LogFileNotFound(parent=None):
-    # TODO docstring
-    defaultDirectory = "../debug.log"
+def dialog_LogFileNotFound(parent:QMainWindow=None)->None:
     # Prompt the user.
     title = "Log file could not be found";
-    text = """Please select a new default path for your config file.""";
+    text = """Please select a new default path for the log file.""";
     QMessageBox.information(parent, title, text);
 
     # Select a new log file.
-    caption = "Please select a log.file";
-    filename, _ = QFileDialog.getSaveFileUrl(parent = parent,
-                                             caption = caption,
-                                             directory = defaultDirectory,);
+    caption = "Please select a log file";
+    url, _ = QFileDialog.getSaveFileUrl(parent = parent,
+                                        caption = caption,
+                                        directory = DEF_LOG_FILE,);
 
-    # Get the new or a default filename.
-    localFilename = filename.toLocalFile()
-    filename = localFilename if localFilename else defaultDirectory
+    localFilename = url.toLocalFile()
+    logfile = localFilename if localFilename else DEF_LOG_FILE
 
+    update_logfile_in_configuration(logfile)
+
+    return logfile
+
+
+def update_logfile_in_configuration(logfile:str)->None:
     # Getting the current config and change the LOG_FILE property.
     config = ConfigLoader()
-    config.logFile = filename
+    config.logFile = logfile
     config.save_config()
 
-    return filename
 
-
-def dialog_saveFile(directory: str, presetFilename="", parent=None):
+def dialog_saveBatchfile(directory:str, presetFilename:str=None, parent:QMainWindow=None)->str:
     """
-    TODO: description
 
     Parameters
     ----------
@@ -208,11 +194,6 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
     parent : TQMainWindow (also other windows/widgets possible)
         The window is given to place the messagebox on the screen. The default is None.
 
-    Raises
-    ------
-    TypeError
-        If directory is not a string.
-
     Returns
     -------
     string
@@ -221,27 +202,18 @@ def dialog_saveFile(directory: str, presetFilename="", parent=None):
     """
 
     # default properties of the dialog
-    title = "Set Filename";
-    filter = EXPORT["BATCH_FILTER"];
-    # set the default batch name
-    if not presetFilename:
-        presetFilename = EXPORT["DEF_BATCH_NAME"];
+    title = "Set filename of the batchfile";
+    filter = filter_from_list(EXPORT_FILTER)
+    presetFilename = presetFilename or BATCH["DEF_FILENAME"];
 
-    # TODO: neccessary? Useful Errorhandling? Maybe log?
-    if type(directory) not in [str]:
-        raise TypeError("Directory must be a path (string)");
+    directoryWithPreset = path.join(directory, presetFilename)
 
-    # concat the path
-    path = directory+"/"+presetFilename;
-
-    # native dialog
-    filename, _ = QFileDialog.getSaveFileName(parent, title, path, filter);
+    filename, _ = QFileDialog.getSaveFileName(parent, title, directoryWithPreset, filter);
     return filename;
 
 
-def dialog_getDirectory(directory="./", parent=None):
+def dialog_getWatchdogDirectory(directory:str=None, parent:QMainWindow=None)->None:
     """
-    Opens a native  dialog to set the filename if not given.
 
     Parameters
     ----------
@@ -250,23 +222,16 @@ def dialog_getDirectory(directory="./", parent=None):
     parent : TQMainWindow (also other windows/widgets possible)
         The window is given to place the messagebox on the screen. The default is None.
 
-    Raises
-    ------
-    TypeError
-        If directory is not a string.
-
     Returns
     -------
     selectedDir : string
         Path of the selected directory.
 
     """
-    text = 'Save spectrum to...'
+    caption = 'Enable live tracking of ...'
+    directory = directory or DEF_WD_DIR
 
-    if type(directory) not in [str]:
-        raise TypeError("Directory must be a path (string)");
-
-    selectedDir = QFileDialog.getExistingDirectory(parent,
-                                                    caption = text,
-                                                    directory = directory)
+    selectedDir = QFileDialog.getExistingDirectory(parent=parent,
+                                                   caption=caption,
+                                                   directory=directory)
     return selectedDir

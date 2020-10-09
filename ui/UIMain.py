@@ -25,7 +25,6 @@ Created on Fri Jan 27 2020
 import os
 
 # third-party libs
-from PyQt5.QtCore import pyqtBoundSignal
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -33,10 +32,11 @@ from ConfigLoader import ConfigLoader
 from modules.Fitting import Fitting
 from Logger import Logger
 from modules.Universal import mark_bold_red
+from ui.matplotlibwidget import MatplotlibWidget
+from modules.SpectrumHandler import SpectrumHandler
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
-from custom_types.UI_RESULTS import UI_RESULTS
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class UIMain(Ui_main):
@@ -64,8 +64,6 @@ class UIMain(Ui_main):
 
     Methods
     -------
-    init_mapping():
-        Set up the mapping of ui elements and general keys.
     retrieve_fittings():
         Gets the fittings of the directory.
     connect_export_raw(fun):
@@ -136,11 +134,19 @@ class UIMain(Ui_main):
         """
         self._fittings = fits
         try:
-            uiElement = self.UI_MAPPING["fitting"]
+            uiElement = self.ddFitting
             uiElement.clear()
             uiElement.addItems(fits.values())
         except:
             pass
+
+    @property
+    def plotRawSpectrum(self)->MatplotlibWidget:
+        return self.mplRaw
+
+    @property
+    def plotProcessedSpectrum(self)->MatplotlibWidget:
+        return self.mplProcessed
 
     ### methods
 
@@ -162,7 +168,6 @@ class UIMain(Ui_main):
         self.logger = Logger(__name__)
 
         self.setupUi(parent)
-        self.UI_MAPPING = self.init_mapping()
 
 
         self.__post_init__()
@@ -173,32 +178,26 @@ class UIMain(Ui_main):
         self.DEF_LBL_FITTING = self.lblFitting.text()
 
         self.fittings = self.retrieve_fittings()
-        self.connect_select_fitting(self.load_current_fitting)
-        # initial hides
+        self.ddFitting.currentTextChanged.connect(self.load_fitting)
+        # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
-
-
-    # TODO: ought be immutable
-    # TODO: import from somewhere? Issue: can't link to ui element
-    def init_mapping(self):
-        mapping = {"fitting": self.ddFitting,
-                   UI_RESULTS.tout_PEAK_HEIGHT: self.toutPeakHeight,
-                   UI_RESULTS.tout_PEAK_AREA: self.toutPeakArea,
-                   UI_RESULTS.tout_BASELINE: self.toutBaseline,
-                   UI_RESULTS.tout_CHARACTERISTIC_VALUE: self.toutCharacteristicValue,
-                   UI_RESULTS.lbl_CHARACTERISTIC_VALUE: self.lblCharacteristicValue,
-                   }
-        return mapping
 
 
     def get_results(self):
         results = {CHC.PEAK_HEIGHT.value: self.toutPeakHeight.text(),
                    CHC.PEAK_AREA.value: self.toutPeakArea.text(),
                    CHC.BASELINE.value: self.toutBaseline.text(),
-                   self.lblCharacteristicValue.text():
-                       self.toutCharacteristicValue.text(),
+                   self.lblCharacteristicValue.text(): self.toutCharacteristicValue.text(),
                    }
         return results
+
+
+    def set_results(self, spectrumHandler:SpectrumHandler, peakName:str):
+        self.toutPeakHeight.setText(str(spectrumHandler.peakHeight))
+        self.toutPeakArea.setText(str(spectrumHandler.peakArea))
+        self.toutBaseline.setText(str(spectrumHandler.avgbase))
+        self.toutCharacteristicValue.setText(str(spectrumHandler.characteristicValue))
+        self.lblCharacteristicValue.setText(str(peakName))
 
 
     # Connect methods: Provides at least one event (signal) to connect to a
@@ -234,74 +233,10 @@ class UIMain(Ui_main):
         self.ddFitting.currentTextChanged.connect(fun)
 
 
-    def connect_select_fitting(self, fun):
-        """Interface to connect fun to text changed signal of the dropdown."""
-        # TODO: evaluate the pro and cons
-        # Pro: ui element can be changed in one position
-        # Con: Readability
-        # Alternatives:
-        # self.ddFitting.currentTextChanged.connect(fun)
-        # self.UI_MAPPING.get("fitting").currentTextChanged.connect(fun)
-        uiElement = self.UI_MAPPING["fitting"]
-        uiElement.currentTextChanged.connect(fun)
-        # Emit the signal once to trigger the connected methods once.
-        uiElement.currentTextChanged.emit(uiElement.currentText())
-
-
-
-    def connect_results(self, signals:dict):
-        """
-        Connect given signals to corresponding ui elements.
-
-        Parameters
-        ----------
-        signals : dict
-            Should contain key-value pairs like the following structure: key as
-            a defined key in the enum UI_RESULTS, value as a signal of a
-            QtObject (pyqtBoundSignal).
-
-        Returns
-        -------
-        bool
-            False: No dict given/No valid key in dict.
-            True: No error occured.
-
-        """
-
-        # No custom Exception were raised so that the program do not crash just
-        # because the ui connection failed. Reports were given in the log.
-
-        # TODO: doublecheck. Throw an error if noo dict is given?
-        # Then remove upper comment and following 3 lines
-        if not isinstance(signals, dict):
-            self.logger.warning("connect_results: No dict given")
-            return False
-
-        # connect the signal with the corresponding ui element
-        for element, signal in signals.items():
-            # skip signal if not qt-signal
-            if not isinstance(signal, pyqtBoundSignal):
-                self.logger.info("connect_results: No valid signal")
-                continue
-            # skip key if not defined in enum
-            if not isinstance(element, UI_RESULTS):
-                self.logger.info("connect_results: No valid element")
-                continue
-
-            # if a ui element is linked to that element, the signal is
-            # connected
-            uiElement = self.UI_MAPPING.get(element)
-            if uiElement:
-                # TODO: validation: Check whether setText is a method? Use try
-                # except maybe? Or just check and log it?
-                signal.connect(uiElement.setText)
-
-
-    def connect_fileinformation(self, sigFilename, sigDate, sigTime):
-        # TODO: docstring, also add to class methods
-        sigFilename.connect(self.toutFilename.setText)
-        sigDate.connect(self.toutDate.setText)
-        sigTime.connect(self.toutTime.setText)
+    def set_fileinformation(self, filename:str, date:str, time:str)->None:
+        self.toutFilename.setText(filename)
+        self.toutDate.setText(date)
+        self.toutTime.setText(time)
 
 
     def retrieve_fittings(self) -> list:
@@ -321,10 +256,10 @@ class UIMain(Ui_main):
 
         """
         fitDict = {}
-        # check out the default directory for fittings
+        # Check out the default directory for fittings.
         for _, _, f in os.walk(self.FITTING["DIR"]):
             for file in f:
-                # get the fitting files matching the pattern
+                # Get the fitting files matching the pattern.
                 if file.rfind(self.FITTING["FILE_PATTERN"]) > -1:
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
@@ -333,48 +268,29 @@ class UIMain(Ui_main):
 
                     fit = fitConfig.config.get("NAME", "no name def.")
                     fitDict[file] = fit
-                    # fit = Fitting(fitConfig.config)
-                    # fitDict[file] = fit.name
 
         return fitDict
 
-    def load_current_fitting(self, fitting_name:str) -> dict:
+
+    def load_fitting(self, fittingName:str)->Fitting:
         """
-        Retrieve the config of the currently selected fitting.
-
-        Can be connected to the signal of an ui element, e.g.
-        "currentTextChanged".
-
         Parameters
         ----------
-        fitting_name : str
+        fittingName : str
             The name of the selected fitting within the ui element.
 
         Returns
         -------
-        fitConfig : dict
-            Contains the config of the selected fitting.
-
+        activeFitting : Fitting
         """
-        # TODO: another function? if so, use current_fitting as property
-        # and use the other funtion?
-        # TODO: check out the class Peak!
-        # get the selected fitting
-        self.logger.info("Load fitting.")
-        for fit, name in self.fittings.items():
-            if name == fitting_name:
-                current_fit = fit
-                break
 
-        # load the config from the file and set the current config
-        path = os.path.join(self.FITTING["DIR"], current_fit)
-        fitConfig = ConfigLoader(path)
+        self.logger.info("Load fitting: " + fittingName)
 
-        self.currentFitting = Fitting(fitConfig.config)
-
-        # Update UI
-        label = mark_bold_red(self.currentFitting.errCode) + self.DEF_LBL_FITTING
-        self.lblFitting.setText(label)
+        filename = self.get_filename_of_fitting(fittingName)
+        fitConfig = self.get_fitting_configuration(filename)
+        activeFitting = Fitting(fitConfig.config)
+        self.set_fittings_errorcode(activeFitting)
+        return activeFitting
 
 
     def update_information(self, info:dict):
@@ -411,54 +327,23 @@ class UIMain(Ui_main):
 
     def get_basic_setting(self)->BasicSetting:
 
-        grating = self.get_grating()
-        fitting = self.currentFitting
+        grating = self.grating
+        fitting = self.load_fitting(self.ddFitting.currentText())
         setting = BasicSetting(self.wavelength, grating, fitting)
 
         return setting;
 
-    # TODO: @property
-    def get_grating(self)->int:
-        """
-        Gets the value of the ui element.
 
-        Returns
-        -------
-        grating: int
-            The current text of the input ui element.
+    def get_filename_of_fitting(self, fittingName:str)->str:
+        for fitFilename, fitName in self.fittings.items():
+            if fitName == fittingName:
+                return fitFilename
 
-        """
-        # TODO: see above. compare self.wavelength
-        grating = None
-        try:
-            grating = self.ddGrating.currentText()
-            grating = int(grating)
-        except:
-            self.logger.error("Could not get valid value for grating!")
-        return grating
+    def get_fitting_configuration(self, filename:str):
+        path = os.path.join(self.FITTING["DIR"], filename)
+        fitConfig = ConfigLoader(path)
+        return fitConfig
 
-
-    def get_raw_plot(self):
-        """
-        Gets the ui element.
-
-        Returns
-        -------
-        MatplotlibWidget
-            The ui element for plotting the raw data.
-
-        """
-        return self.mplRaw
-
-
-    def get_processed_plot(self):
-        """
-        Gets the ui element.
-
-        Returns
-        -------
-        MatplotlibWidget
-            The ui element for plotting the processed data.
-
-        """
-        return self.mplProcessed
+    def set_fittings_errorcode(self, fit:Fitting):
+        label = mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
+        self.lblFitting.setText(label)

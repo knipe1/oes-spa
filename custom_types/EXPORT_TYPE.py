@@ -16,3 +16,4 @@ class EXPORT_TYPE(Enum):
     RAW = auto()
     PROCESSED = auto()
     BATCH = auto()
+    SPECTRUM = auto()

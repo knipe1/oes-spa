@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
-
     Glossary:
-        - currentFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
+        - activeFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
+
 @author: Hauke Wernecke
 """
 
@@ -12,24 +11,26 @@
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
+from ui.UIMain import UIMain
 from ConfigLoader import ConfigLoader
+from Logger import Logger
 import modules.Universal as uni
 import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
-from modules.DataHandler import DataHandler
+from modules.SpectrumHandler import SpectrumHandler
 from modules.FileReader import FileReader
-from modules.FileWriter import FileWriter
 from modules.Spectrum import Spectrum
-from ui.UIMain import UIMain
-from Logger import Logger
+from modules.SpectrumWriter import SpectrumWriter
 
 # enums
-from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
+from custom_types.ERROR_CODE import ERROR_CODE as ERR
+from custom_types.BasicSetting import BasicSetting
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
+
+# constants
 
 
 class AnalysisWindow(QMainWindow):
@@ -45,47 +46,36 @@ class AnalysisWindow(QMainWindow):
     # Load the configuration for plotting, import and filesystem properties.
     config = ConfigLoader()
     PLOT = config.PLOT;
-    FILE = config.FILE
-    IMPORT = config.IMPORT
-
-    ## qt-signals
-    # fileinformation
-    SIG_filename = pyqtSignal(str)
-    SIG_date = pyqtSignal(str)
-    SIG_time= pyqtSignal(str)
+    GENERAL = config.GENERAL
 
     ### Properties
 
     @property
-    def currentFile(self)->FileReader:
-        """currentFile getter"""
-        return self._currentFile
+    def activeFile(self)->FileReader:
+        """activeFile getter"""
+        return self._activeFile
 
-    @currentFile.setter
-    def currentFile(self, file:FileReader):
-        """currentFile setter: Updating the ui"""
-
-        isFileReloaded = (self._currentFile == file)
-        self._currentFile = file
+    @activeFile.setter
+    def activeFile(self, file:FileReader)->None:
+        """activeFile setter: Updating the ui"""
+        isFileReloaded = (self._activeFile == file)
+        self._activeFile = file
         self.set_fileinformation(file)
 
-        # Set additional information (like from asc-file).
-        # Or clear previous information.
+        # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
 
-        # Set Wavelength if provided and a freshly loaded file.
         if not isFileReloaded:
             self.set_wavelength_from_file(file)
 
 
     @property
-    def lastdir(self):
-        """lastdir getter"""
+    def lastdir(self)->str:
+        """Gets the directory which is preset for dialogs."""
         return self._lastdir
 
     @lastdir.setter
     def lastdir(self, directory:str):
-        """lastdir setter: Updating the parent"""
         if path.isdir(directory):
             newDirectory = directory
         elif path.isfile(directory):
@@ -98,241 +88,155 @@ class AnalysisWindow(QMainWindow):
 
     ### __Methods__
 
-    def __init__(self, initialShow=True):
-        # TODO: docstring?
-
+    def __init__(self)->None:
+        super().__init__()
         self.logger = Logger(__name__)
 
-        #initialize the parent class ( == QMainWindow.__init__(self)
-        super(AnalysisWindow, self).__init__()
-
         # Set defaults.
-        # TODO: new method? Issue with inheritance.
-        self.lastdir = self.FILE["DEF_DIR"];
-        self._currentFile = None;
+        self.lastdir = self.GENERAL["INITIAL_DIR"];
+        self._activeFile = None;
 
-        ## Set up the user interfaces (main application window, batch window)
+        ## Set up the user interfaces
         self.window = UIMain(self)
         self.batch = BatchAnalysis(self)
 
         self.__post_init__()
 
-        # initial settings
-        if initialShow:
-            self.show()
+        # Show window, otherwise the window does not appear anywhere on the screen.
+        self.show()
+
 
     def __post_init__(self):
-        self.set_connections()
+        self.init_connections()
         self.init_spectra()
 
 
     def __repr__(self):
         info = {}
-        info["currentFile"] = self.currentFile
+        info["activeFile"] = self.activeFile
         info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
 
     def init_spectra(self):
-        # TODO: docstring
-        self.rawSpectrum = Spectrum(self.window.get_raw_plot(), EXPORT_TYPE.RAW)
-        self.processedSpectrum = Spectrum(self.window.get_processed_plot(), EXPORT_TYPE.PROCESSED);
+        """Set up the Spectrum elements with the corresponding ui elements."""
+        self.rawSpectrum = Spectrum(self.window.plotRawSpectrum, EXPORT_TYPE.RAW)
+        self.processedSpectrum = Spectrum(self.window.plotProcessedSpectrum, EXPORT_TYPE.PROCESSED);
 
-    def set_connections(self):
-        # TODO: docstring
+
+    def init_connections(self):
         win = self.window
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
         win.connect_show_batch(self.batch.show)
         win.connect_open_file(self.file_open)
-        win.connect_select_fitting(self.update_results)
         win.connect_change_basic_settings(self.redraw)
-        win.connect_fileinformation(self.SIG_filename, self.SIG_date,
-                                    self.SIG_time)
 
 
     ### Events
 
     def closeEvent(self, event):
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
+        self.batch.schedule_cancel_routine()
         self.batch.close()
 
 
     def dragEnterEvent(self, event):
-        """
-        Drag Element over Window event.
-
-        Handles only number of files:
-            1 file-> AnalysisWindow,
-            more files-> BatchAnalysis.
-
-        Validation takes place in dropEvent-handler.
-        """
-
-        # Prequerities.
-        urls = event.mimeData().urls();
-
         # Handle the urls. Multiple urls are handled by BatchAnalysis.
-        if len(urls) > 1:
+        urls = event.mimeData().urls();
+        isSingleFile = (len(urls) == 1)
+        isMultipleFiles =(len(urls) > 1)
+
+        if isMultipleFiles:
             self.batch.show();
-        elif len(urls) == 1:
+        elif isSingleFile:
             event.accept()
 
 
     def dropEvent(self, event):
-        """
-        Drop File in window event.
+        event.accept();
 
-        Validation and further processing of the data.
-
-        event.accept --> dropEvent is handled by current Widget.
-        """
-
-        # Can only be one single file. Otherwise would be rejected by
-        # dragEvent-handler.
+        # Can only be one single file.
         url = event.mimeData().urls()[0];
-
-        # Validation.
         localUrl = uni.get_valid_local_url(url)
+
         if localUrl:
             self.apply_data(localUrl)
-            event.accept();
         else:
             dialog.critical_unknownSuffix(parent=self)
 
 
     ### Methods
 
-
-    def set_wavelength_from_file(self, file:FileReader):
-        # TODO: docstring
-        try:
-            self.window.wavelength = file.WAVELENGTH
-        except KeyError:
-            # Exception if a non-.asc file is loaded.
-            self.logger.debug("No Wavelength provided by: " + file.filename)
-
-
-    def file_open(self, filename):
-        """Open FileDialog to choose Raw-Data-File """
-        # Load a file via menu bar
+    def file_open(self):
+        """Open FileDialog to select one or multiple spectra."""
         # File-->Open
-        # Batch-->Drag&Drop or -->Browse Files
-        # TODO: doublecheck batch handling here. Look up event management
-        # TODO: Why check specific False? Why not falsy?
+        # Browse
 
-        # filename is False, when an event of actOpen in the menu bar
-        # (File-->Open) is triggered.
-        # TODO: is False or == False or filename:?
-        # if filename is False:
-        if not filename:
-            # Cancel/Quit dialog --> [].
-            # One file selected: Update spectra.
-            # Multiple files: BatchAnalysis.
-            filename = dialog.dialog_openFiles(self.lastdir);
-            if len(filename) > 1:
-                self.batch.show();
-                self.batch.update_filelist(filename)
-            elif len(filename) == 1:
-                filename = filename[0];
-            else:
-                filename = "";
+        # Cancel/Quit dialog --> [].
+        filelist = dialog.dialog_openSpectra(self.lastdir);
+        isSingleFile = (len(filelist) == 1)
+        isMultipleFiles = (len(filelist) > 1)
 
-        # Handling if just one file was selected or filename was given.
-        if filename != "":
-            fileInfo = QFileInfo(filename)
-            self.lastdir = fileInfo.absolutePath()
-            filename = fileInfo.absoluteFilePath()
+        if isMultipleFiles:
+            self.batch.show();
+            self.batch.update_filelist(filelist)
+        elif isSingleFile:
+            filename = filelist[0];
             self.apply_data(filename)
+
+        try:
+            self.lastdir = filelist[0]
+        except IndexError:
+            pass
 
 
     ### Export
 
-    def export_spectrum(self, spectrum, results:dict={}):
-        """Export raw/processed spectrum."""
-
-        # Prequerities.
-        spec = spectrum
-        isExported = True
-
-        # Collect data.
+    def export_spectrum(self, spectrum:Spectrum, results:dict={}):
         filename, timestamp = self.get_fileinformation()
-        labels = spec.labels.values()
-        xyData = spec.data
+        writer = SpectrumWriter(filename, timestamp)
 
-        if filename == None:
-            isExported = False;
-
-        if xyData is None:
-            isExported = False;
-
-        if isExported:
-            # write data to csv
-            csvWriter = FileWriter(filename, timestamp)
-            isExported = csvWriter.write_data(xyData, labels, spec.exportType, results)
-
-        if not isExported:
-            dialog.information_ExportAborted();
-
-        return isExported;
+        try:
+            exportedFilename = writer.export(spectrum, results)
+        except AttributeError:
+            exportedFilename = None
+        finally:
+            if exportedFilename:
+                dialog.information_ExportFinished(exportedFilename)
+            else:
+                dialog.information_ExportAborted()
 
 
     def export_raw(self):
-        """Save Raw-Data in CSV-File """
         self.export_spectrum(self.rawSpectrum)
-        return 0
 
 
     def export_processed(self):
-        """Save processed spectrum to CSV-File """
         results = self.window.get_results();
         self.export_spectrum(self.processedSpectrum, results)
-        return 0
 
 
     ### Draw Plots.
 
     def draw_spectra(self, *spectra):
-        """Init and plot the given spectra."""
-
-        try:
-            for spectrum in spectra:
-                spectrum.plot_spectrum()
-        except:
-            self.logger.error("Could not draw spectra. Missing valid spectra.")
-
-        return 0
+        for spectrum in spectra:
+            spectrum.plot_spectrum()
 
 
-    def update_results(self):
-        """Updates the result section of the ui with the current file."""
-        try:
-            self.apply_data(self.currentFile.filename, updateSpectra=False)
-        except AttributeError as err:
-            self.logger.error("Currently no file selected to update results.")
-            self.logger.error(err)
-
-
-    def redraw(self, text:str=""):
+    def redraw(self, value:str=None):
         """
         Redraw the plots with the currently opened file.
 
-        Uses self.currentFile.filename to get the filename.
-
         Parameters
         ----------
-        text : str
+        value : str
             The text of the new selected option. Informative in the logger.
-            The default is "".
-
-        Returns
-        -------
-        None.
 
         """
         try:
-            self.apply_data(self.currentFile.filename)
-            self.logger.info("Redraw triggered by:" + text)
+            self.apply_data(self.activeFile.filename)
+            self.logger.info("New value of setting:" + value)
         except:
             self.logger.warning("Redraw Failed")
 
@@ -340,12 +244,9 @@ class AnalysisWindow(QMainWindow):
     ### fileinformation
 
     def get_fileinformation(self):
-        # TODO: @property?
-        # TODO: self.filename
-        # TODO: self.filename = {name: asd, timestamp: sad}
         try:
-            filename = self.currentFile.filename
-            timestamp = self.currentFile.timestamp
+            filename = self.activeFile.filename
+            timestamp = self.activeFile.timestamp
         except:
             self.logger.error("Could not get filename/fileinformation.")
             filename = None;
@@ -355,79 +256,64 @@ class AnalysisWindow(QMainWindow):
 
 
     def set_fileinformation(self, filereader:FileReader):
-        """Updates the fileinformation"""
-        # TODO: date+time = timestamp?
-        # TODO: validate inputs
-        # TODO: Review. Pythonic? Clean distinction between UI and logic, but
-        # looks kind of unstructured...
         filename, date, time = filereader.header
-
-        # Emit signals.
-        self.SIG_filename.emit(filename)
-        self.SIG_date.emit(date)
-        self.SIG_time.emit(time)
+        self.window.set_fileinformation(filename, date, time)
 
 
     ### data analysis
 
-    def apply_data(self, filename, updateSpectra=True, updateResults=True):
+    def apply_data(self, filename:str):
         """read out a file and extract its information,
         then set header information and draw spectra"""
-        # TODO: error handling
-
-        connect = self.window.connect_results if updateResults else None;
 
         # Prepare file.
         file = FileReader(filename)
+        if not file.is_valid_spectrum():
+            return
 
-        # Update plots and ui.
         basicSetting = self.window.get_basic_setting()
 
-        # Check for differences in entered WL and stored WL
+        self.show_wavelength_difference_information(file, basicSetting)
+
+        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
+
+        errorcode = specHandler.analyse_data(file)
+        if not errorcode == ERR.OK:
+            dialog.critical_invalidSpectrum()
+            return
+
+        peakName = basicSetting.fitting.peak.name
+        self.window.set_results(specHandler, peakName)
+
+        # Update the spectra.
+        self.update_spectra(specHandler)
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+
+        self.activeFile = file;
+
+
+    def set_wavelength_from_file(self, file:FileReader):
         try:
-            showDiffWL = False
-            if float(file.WAVELENGTH) != basicSetting.wavelength:
-                showDiffWL = True
+            self.window.wavelength = file.WAVELENGTH
         except KeyError:
-            pass
+            # Exception if a non-.asc file is loaded.
+            self.logger.debug("No Wavelength provided by: " + file.filename)
+
+
+    def show_wavelength_difference_information(self, file:FileReader, basicSetting:BasicSetting):
+        try:
+            hasDifferentWl = (float(file.WAVELENGTH) != basicSetting.wavelength)
+        except KeyError:
+            hasDifferentWl = False
         finally:
-            self.window.show_diff_wavelength(showDiffWL)
+            self.window.show_diff_wavelength(hasDifferentWl)
 
 
-        specHandler = DataHandler(basicSetting,
-                                  funConnection=connect,
-                                  parameter=file.parameter)
-        # Validate results?
-        results = specHandler.analyse_data(file)
+    def update_spectra(self, SpectrumHandler:SpectrumHandler):
+        data = SpectrumHandler.rawData.transpose()
+        baseline = SpectrumHandler.baseline
+        processedData = SpectrumHandler.procData.transpose()
+        rawIntegration, procIntegration = SpectrumHandler.get_integration_area()
 
-        if results is None:
-            return -1
-
-        # Update and the spectra.
-        if updateSpectra:
-            data = specHandler.data
-            baseline = specHandler.baseline
-            processedData = specHandler.procData
-
-            rawIntegration, procIntegration = self.get_integration_area(specHandler)
-
-            self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
-            self.processedSpectrum.update_data(processedData, procIntegration)
-
-            self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-
-        # Update the currently open file.
-        self.currentFile = file;
-        return 0
-
-    ### unsorted
-    def get_integration_area(self, dataHandler):
-        rawIntegration = []
-        procIntegration = []
-        for intArea in dataHandler.integration:
-            if intArea.spectrumType == EXPORT_TYPE.RAW:
-                rawIntegration.append(intArea)
-            else:
-                procIntegration.append(intArea)
-
-        return rawIntegration, procIntegration
+        self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
+        self.processedSpectrum.update_data(processedData, procIntegration)
