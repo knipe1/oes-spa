@@ -577,7 +577,7 @@ class BatchAnalysis(QDialog):
             selectedFilename = self._files[index]
             self.parent().apply_data(selectedFilename)
             selectedFile = FileReader(selectedFilename)
-            self.traceSpectrum.plot_reference(*selectedFile.fileinformation)
+            self.traceSpectrum.plot_recording(*selectedFile.fileinformation)
         except IndexError:
             self.logger.info("Cannot open file, invalid index provided!")
 
