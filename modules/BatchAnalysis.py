@@ -16,7 +16,7 @@ import numpy as np
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, QModelIndex
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence as QKeys
 
@@ -557,17 +557,11 @@ class BatchAnalysis(QDialog):
         self.window.enable_analysis(enable)
 
 
-    def open_indexed_file(self, index):
+    def open_indexed_file(self, index:(QModelIndex, int)):
         """
         Retrieve the data of the selected file of the list.
 
         Used for applying the data after clicking on the list.
-
-        Parameters
-        ----------
-        index : QModelIndex or int
-            Transmitted by the list. Or programmatically.
-
         """
 
         # Distinguish given index by numerical value (from another method) or
@@ -578,7 +572,12 @@ class BatchAnalysis(QDialog):
             self.logger.debug("Open indexed file called programmatically.")
 
         try:
-            self.parent().apply_data(self._files[index])
+            # HACK
+            # self.parent().apply_data(self._files[index])
+            selectedFilename = self._files[index]
+            self.parent().apply_data(selectedFilename)
+            selectedFile = FileReader(selectedFilename)
+            self.traceSpectrum.plot_reference(*selectedFile.fileinformation)
         except IndexError:
             self.logger.info("Cannot open file, invalid index provided!")
 

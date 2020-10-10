@@ -206,3 +206,21 @@ class Spectrum():
         diffTime = uni.convert_to_hours(timestamp - refTime)
 
         return diffTime
+
+
+    def plot_reference(self, filename, timestamp):
+        relativeTime = self.get_timediff_H(timestamp)
+        reducedFilename = ''.join(uni.reduce_path([filename]))
+        self.remove_reference()
+        markup = {"color": self.PLOT["REFERENCE_COLOR"],
+                  "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
+                  "label": reducedFilename,}
+        self.referencePlot = self.ui.axes.axvline(x=relativeTime, **markup)
+        self.ui.draw()
+
+    def remove_reference(self):
+        try:
+            self.referencePlot.remove()
+        except:
+            pass
+

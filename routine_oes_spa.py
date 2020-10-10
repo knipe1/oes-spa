@@ -33,8 +33,8 @@ def main():
     # True
     # False
 
-    initialLoad = True
-    exportSpectra = True
+    initialLoad = False
+    exportSpectra = False
     showBatch = True
     selectBatchfile = True
     selectBatchSpectra = True
