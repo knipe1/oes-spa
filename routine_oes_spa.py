@@ -33,7 +33,8 @@ def main():
     # True
     # False
 
-    exportSpectra = False
+    initialLoad = True
+    exportSpectra = True
     showBatch = True
     selectBatchfile = True
     selectBatchSpectra = True
@@ -45,11 +46,12 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
-    # # automatic open and close routine
-    # # window.export_raw()
-    # #window.window.ddFitting.setCurrentIndex(3)
-    window.apply_data("./sample files/SIF/testasc.asc")
-    # # window.apply_data("./sample files/_batch.csv")
+    # automatic open and close routine
+    # window.export_raw()
+    #window.window.ddFitting.setCurrentIndex(3)
+    if initialLoad:
+        window.apply_data("./sample files/SIF/testasc.asc")
+
     if exportSpectra:
         window.apply_data("./sample files/Asterix1059 1.Spk")
         accept_raw = THR.Thread(target=emu.key_accept)
@@ -59,17 +61,21 @@ def main():
         accept_processed.start()
         window.export_processed()
         window.apply_data("./sample files/Asterix1059 1_raw.csv")
+        reject_raw = THR.Thread(target=emu.key_accept)
+        reject_raw.start()
         window.export_raw()
         window.apply_data("./sample files/Asterix1059 1_processed.csv")
+        reject_processed = THR.Thread(target=emu.key_accept)
+        reject_processed.start()
         window.export_processed()
 
     if showBatch:
         window.batch.show()
 
-    # # text = "filename"
-    # # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
-    # # arbitrary.start()
-    # # accept the name
+    # text = "filename"
+    # arbitrary = THR.Thread(target=emu.key_arbitrary, args=[text])
+    # arbitrary.start()
+    # accept the name
 
     if selectBatchfile:
         # Set the Filename

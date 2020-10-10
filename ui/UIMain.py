@@ -34,6 +34,7 @@ from Logger import Logger
 from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
 from modules.SpectrumHandler import SpectrumHandler
+from modules.FileReader import FileReader
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
@@ -233,7 +234,8 @@ class UIMain(Ui_main):
         self.ddFitting.currentTextChanged.connect(fun)
 
 
-    def set_fileinformation(self, filename:str, date:str, time:str)->None:
+    def set_fileinformation(self, filereader:FileReader)->None:
+        filename, date, time = filereader.header
         self.toutFilename.setText(filename)
         self.toutDate.setText(date)
         self.toutTime.setText(time)

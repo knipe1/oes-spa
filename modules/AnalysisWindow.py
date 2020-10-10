@@ -60,7 +60,7 @@ class AnalysisWindow(QMainWindow):
         """activeFile setter: Updating the ui"""
         isFileReloaded = (self._activeFile == file)
         self._activeFile = file
-        self.set_fileinformation(file)
+        self.window.set_fileinformation(file)
 
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
@@ -194,7 +194,7 @@ class AnalysisWindow(QMainWindow):
     ### Export
 
     def export_spectrum(self, spectrum:Spectrum, results:dict={}):
-        filename, timestamp = self.get_fileinformation()
+        filename, timestamp = self.fileinformation_of_activeFile()
         writer = SpectrumWriter(filename, timestamp)
 
         try:
@@ -243,21 +243,15 @@ class AnalysisWindow(QMainWindow):
 
     ### fileinformation
 
-    def get_fileinformation(self):
+    def fileinformation_of_activeFile(self):
         try:
-            filename = self.activeFile.filename
-            timestamp = self.activeFile.timestamp
-        except:
-            self.logger.error("Could not get filename/fileinformation.")
+            filename, timestamp = self.activeFile.fileinformation
+        except AttributeError:
+            self.logger.error("Could not get fileinformation.")
             filename = None;
             timestamp = None;
-
-        return filename, timestamp
-
-
-    def set_fileinformation(self, filereader:FileReader):
-        filename, date, time = filereader.header
-        self.window.set_fileinformation(filename, date, time)
+        finally:
+            return filename, timestamp
 
 
     ### data analysis

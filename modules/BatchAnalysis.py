@@ -163,11 +163,11 @@ class BatchAnalysis(QDialog):
         self.window.connect_cancel(self.schedule_cancel_routine)
         self.window.connect_change_csvfile(self.enable_analysis)
         self.window.connect_clear(self.reset_files)
-        self.window.connect_import_batch(self.import_batch)
+        self.window.connect_import_batch(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_select_file(self.enable_analysis)
         self.window.connect_set_filename(self.specify_batchfile)
-        self.window.connect_change_trace(self.import_batch)
+        self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_set_directory(self.specify_watchdog_directory)
         self.window.connect_watchdog(self.toggle_watchdog)
 
@@ -254,7 +254,7 @@ class BatchAnalysis(QDialog):
         # Distinguish between modified batch- and spectrum-file.
         if self.batchFile == path:
             self.logger.info("WD: Batchfile modified.")
-            self.import_batch(takeCurrentBatchfile=True)
+            self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added: %s"%(path))
             errorcode = self.analyze(path)
@@ -424,7 +424,7 @@ class BatchAnalysis(QDialog):
                 self.export_batch(data, header)
 
         if isPlotTrace:
-            self.import_batch(takeCurrentBatchfile=True)
+            self.import_batchfile(takeCurrentBatchfile=True)
 
 
         # Prompt the user with information about the skipped files.
@@ -436,7 +436,7 @@ class BatchAnalysis(QDialog):
 
 
 
-    def import_batch(self, takeCurrentBatchfile=False):
+    def import_batchfile(self, takeCurrentBatchfile=False):
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTraceValue
 

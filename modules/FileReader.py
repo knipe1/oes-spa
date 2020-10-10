@@ -109,6 +109,11 @@ class FileReader(FileFramework):
 
 
     @property
+    def fileinformation(self):
+        return (self.filename, self.timestamp)
+
+
+    @property
     def WAVELENGTH(self):
         """Specific value of the parameter set."""
         return self.parameter[ASC.WL.value]
