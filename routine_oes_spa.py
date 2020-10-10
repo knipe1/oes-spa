@@ -33,11 +33,11 @@ def main():
     # True
     # False
 
-    initialLoad = False
+    initialLoad = True
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    showBatch = False
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
     activateWD = False
 

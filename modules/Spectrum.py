@@ -203,6 +203,8 @@ class Spectrum():
 
 
     ## Recording
+
+
     def plot_recording(self, filename:str, timestamp:datetime):
         relativeTime = self.get_timediff_H(timestamp)
         reducedFilename = ''.join(uni.reduce_path([filename]))
@@ -222,6 +224,8 @@ class Spectrum():
 
 
     ## Calculation
+
+
     def get_timediff_H(self, timestamp):
         try:
             refTime = self.referenceTime
