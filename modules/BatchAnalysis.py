@@ -393,11 +393,12 @@ class BatchAnalysis(QDialog):
                 # below some defined threshold.
                 # TODO: validate_results as method of specHandlaer? Would also omit
                 # the assignemts above!?
+
+                config = retrieve_batch_config()
                 if not peakHeight:
                     skippedFiles.append(file)
                     continue
 
-                config = retrieve_batch_config()
                 config[CHC.FILENAME] = file
                 config[CHC.BASELINE] = avg
                 config[CHC.CHARACTERISTIC_VALUE] = characteristicValue

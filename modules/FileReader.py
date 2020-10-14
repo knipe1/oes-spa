@@ -150,7 +150,6 @@ class FileReader(FileFramework):
 
 
     def __eq__(self, other):
-        # TODO: docstring
         try:
             isEqual = (self.header == other.header)
         except AttributeError:
