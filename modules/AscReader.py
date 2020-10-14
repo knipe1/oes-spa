@@ -7,6 +7,8 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
+import csv
+import numpy as np
 
 # third-party libs
 
@@ -46,7 +48,46 @@ class AscReader(BaseReader):
         self.type = EXPORT_TYPE.SPECTRUM
 
 
-    def get_header(self, row:list)->tuple:
+
+    def readout_file(self, fReader)->dict:
+
+        marker = self.MARKER["HEADER"]
+
+        data = []
+        parameter = {}
+
+        for line in fReader:
+            try:
+                element = line[0]
+            except IndexError:
+                # Skip blank lines
+                continue
+            if is_floatable(element):
+                data.append(line)
+            elif marker in element:
+                header = self.get_header(line)
+            elif len(line) == 1:
+                name, value = asc_separate_parameter(line)
+                parameter[name] = value
+
+
+        data = np.array(data, dtype=float)
+
+        try:
+            xData = data[:, self.xColumn]
+            yData = data[:, self.yColumn]
+            data = np.array((xData, yData)).transpose()
+        except IndexError:
+            self.logger.warning("No data found.")
+
+        information = {}
+        information["header"] = header
+        information["data"] = data
+        information["parameter"] = parameter
+        return information
+
+
+    def get_header(self, element:list)->tuple:
         """
         Extracts the header of an .asc file.
 
@@ -63,7 +104,7 @@ class AscReader(BaseReader):
         """
 
         try:
-            _, strTime = asc_separate_parameter(row)
+            _, strTime = asc_separate_parameter(element)
             # Convert the given time string into date and time.
             timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
         except ValueError:
@@ -76,7 +117,7 @@ class AscReader(BaseReader):
         return (date, time)
 
 
-    def get_parameter(self, fReader):
+    def get_parameter(self, fReader:csv.reader)->dict:
         """
         Read out the data of a .asc-file respective to its structure.
 
@@ -87,8 +128,7 @@ class AscReader(BaseReader):
 
         Returns
         -------
-        data: list
-            Contain the pixel/intensity values.
+        parameter: dict
 
         """
 
@@ -107,6 +147,21 @@ class AscReader(BaseReader):
                 continue
 
         return parameter;
+
+    def get_parameter_n(self, parameterContainer:set)->dict:
+        parameter = {}
+        for element in parameterContainer:
+            try:
+                name, value = asc_separate_parameter_n(element)
+                parameter[name] = value
+            except ValueError:
+                # Skip invalid parameter
+                continue
+        return parameter
+
+    def extract_data(self, data:list):
+        data = np.array(data, dtype=float)
+        return data
 
 
     def preprocess(self, fReader):
@@ -141,3 +196,32 @@ def asc_separate_parameter(row:list)->(str, str):
     description, value = row[0].split(":", 1)
     value = value.strip()
     return (description, value)
+
+def asc_separate_parameter_n(element:str)->(str, str):
+    """
+    Separates the description and the value of a parameter of a .asc-file.
+
+    Parameters
+    ----------
+    row : list
+        The row of a file, e.g. readout by a csv.reader-object.
+
+    Returns
+    -------
+    description : str
+        Description of the parameter.
+    value : str
+        Value of the parameter.
+    """
+
+    # Split uses the first ":", because the value may contain one as well.
+    description, value = element.split(":", 1)
+    value = value.strip()
+    return (description, value)
+
+def is_floatable(element:str)->bool:
+    try:
+        float(element)
+        return True
+    except ValueError:
+        return False

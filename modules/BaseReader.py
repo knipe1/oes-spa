@@ -66,3 +66,4 @@ class BaseReader(FileFramework):
         self.yColumn = None
         # subKwargs
         self.subKwargs = {}
+

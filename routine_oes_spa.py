@@ -5,9 +5,6 @@
 Single and batch analysis of OES spectra
 """
 
-# TODO: Write new issues from feature requests
-# TODO: conclude some issues, to doublecheck that it can be closed.
-
 # standard libs
 import sys
 import time
@@ -35,9 +32,9 @@ def main():
 
     initialLoad = True
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
-    selectBatchSpectra = False
+    showBatch = True
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
     activateWD = False
 
@@ -50,7 +47,12 @@ def main():
     # window.export_raw()
     #window.window.ddFitting.setCurrentIndex(3)
     if initialLoad:
-        window.apply_data("./sample files/SIF/testasc.asc")
+        window.apply_data("./sample files/Asterix1059 1.Spk")
+        # window.apply_data("./sample files/SIF/testasc.asc")
+        # window.apply_data("./sample files/SIF/388nm_Spek1_reversed.asc")
+        # window.apply_data("./sample files/Asterix1059 1_raw.csv")
+        # window.apply_data("./sample files/Asterix1059 1_processed.csv")
+        # window.apply_data("./sample files/_batch.csv")
 
     if exportSpectra:
         window.apply_data("./sample files/Asterix1059 1.Spk")

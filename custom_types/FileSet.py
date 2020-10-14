@@ -88,9 +88,9 @@ class FileSet(set):
         self.update_ui(index=idx)
 
 
-    def difference_update(self, interables):
+    def difference_update(self, iterables):
         """Removes an item AND updates the ui."""
-        super().difference_update(interables)
+        super().difference_update(iterables)
         self.update_ui(index=0)
 
 

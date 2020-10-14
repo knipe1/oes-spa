@@ -79,7 +79,7 @@ class SpectrumWriter(FileWriter):
 
     def write_information(self, fWriter:csv.writer, information:dict):
         for key, value in information.items():
-            fWriter.writerow([key, value])
+            fWriter.writerow(key + ": " + value)
 
     def write_data(self, fWriter:csv.writer, data):
         fWriter.writerow([self.MARKER["DATA"]])

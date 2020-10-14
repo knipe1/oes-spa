@@ -262,19 +262,15 @@ class AnalysisWindow(QMainWindow):
 
         # Prepare file.
         file = FileReader(filename)
-        if not file.is_valid_spectrum():
-            return
-
         basicSetting = self.window.get_basic_setting()
 
-        self.show_wavelength_difference_information(file, basicSetting)
-
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
-
         errorcode = specHandler.analyse_data(file)
         if not errorcode == ERR.OK:
             dialog.critical_invalidSpectrum()
             return
+
+        self.show_wavelength_difference_information(file, basicSetting)
 
         peakName = basicSetting.fitting.peak.name
         self.window.set_results(specHandler, peakName)
