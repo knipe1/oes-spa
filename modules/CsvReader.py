@@ -14,7 +14,7 @@ import numpy as np
 # third-party libs
 
 # local modules/libs
-from modules.BaseReader import BaseReader
+from modules.BaseReader import BaseReader, select_xyData
 import modules.Universal as uni
 
 # Enums
@@ -64,8 +64,7 @@ class CsvReader(BaseReader):
                 continue
 
             if marker in element:
-                _, date, time = element.split()
-                header = (date, time)
+                header = self.get_header(element)
             elif self.MARKER["BATCH"] in element:
                 # A general issue might be to open the batchfile with excel or
                 # something similar, because the program may use a different
@@ -82,12 +81,7 @@ class CsvReader(BaseReader):
                 self.type = EXPORT_TYPE.SPECTRUM
                 data = self.get_data(fReader)
 
-
-        data = np.array(data)
-
-        xData = convert_data(data[:, 0])
-        yData = convert_data(data[:, 1])
-        data = np.array((xData, yData)).transpose()
+        data = self.list_to_2column_array(data)
 
         information = {}
         information["header"] = header
@@ -95,110 +89,18 @@ class CsvReader(BaseReader):
         return information
 
 
+    def get_header(self, element:str)->tuple:
+        _, date, time = element.split()
+        return (date, time)
+
+
     def get_data(self, fReader):
         data = []
         for line in fReader:
-            data.append((line[self.xColumn], line[self.yColumn]))
-        return data
-
-    def get_header(self, element:list)->tuple:
-        """
-        Extracts the header of an exported (csv, and spk) file.
-
-
-        Parameters
-        ----------
-        row: list
-            Required. The row of the file containing the header information.
-
-        Returns
-        -------
-        date, time: str, str
-            The date and the time of the measurement of the spectrum.
-
-        """
-        _, date, time = element[0].split()
-        return (date, time)
-
-    def extract_data(self, data:list, **kwargs)->np.ndarray:
-        dataHeader = data[0]
-        isBatch = (self.MARKER["BATCH"] in dataHeader)
-        if isBatch:
-            # A general issue might be to open the batchfile with excel or
-            # something similar, because the program may use a different
-            # dialect to save it again if changes were made.
-            # Hint:
-                # Raises IndexError if columnYData cannot find the header.
-                # Can be handled by a different dialect (uses ',' as separator).
-
-            # Get the column with respect to the header.
-            self.type = EXPORT_TYPE.BATCH
-            xColumnName = self.defaultBatchXColumn
-            yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
-            self.xColumn, self.yColumn = handle_batch_columns(dataHeader, xColumnName, yColumnName)
-
-
-        # Omit dataHeader
-        # data.pop(0)
-        for idx, row in enumerate(data):
-            keep = False
-            for element in row:
-                try:
-                    element = float(element)
-                    keep = True
-                    break
-                except ValueError:
-                    continue
-            if not keep:
-                data.pop(idx)
-
-
-        data = np.array(data)
-
-        xData = convert_data(data[:, self.xColumn])
-        yData = convert_data(data[:, self.yColumn])
-        data = np.array((xData, yData)).transpose()
+            data.append(select_xyData(line, self.xColumn, self.yColumn))
         return data
 
 
-
-    def preprocess(self, fReader, **kwargs):
-        """
-        Read out the data of a .asc-file respective to its structure.
-
-        Parameters
-        ----------
-        fReader : csv.reader-object
-            Reader to iterate through the csv-file.
-
-        Returns
-        -------
-        data: list
-            Contain the pixel/intensity values.
-
-        """
-
-        # Iterate until data, or Batchmarker is found.
-        for row in fReader:
-            cell = row[0]
-
-            if self.MARKER["DATA"] in cell:
-                self.type = EXPORT_TYPE.SPECTRUM
-                break;
-            elif self.MARKER["BATCH"] in cell:
-                # A general issue might be to open the batchfile with excel or
-                # something similar, because the program may use a different
-                # dialect to save it again if changes were made.
-                # Hint:
-                    # Raises IndexError if columnYData cannot find the header.
-                    # Can be handled by a different dialect (uses ',' as separator).
-
-                # Get the column with respect to the header.
-                self.type = EXPORT_TYPE.BATCH
-                xColumnName = self.defaultBatchXColumn
-                yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
-                self.xColumn, self.yColumn = handle_batch_columns(row, xColumnName, yColumnName)
-                break
 
 
 def handle_batch_columns(dataHeader:list, xColumnName:str, yColumnName:str)->(int, int):
@@ -230,12 +132,3 @@ def handle_batch_columns(dataHeader:list, xColumnName:str, yColumnName:str)->(in
     return xColumn, yColumn
 
 
-def convert_data(xData:np.ndarray):
-    try:
-        xData = np.array(xData, dtype=float)
-    except ValueError:
-        xData = np.array(xData, dtype=object)
-        for idx, element in enumerate(xData):
-            xData[idx] = uni.timestamp_from_string(element)
-    finally:
-        return xData

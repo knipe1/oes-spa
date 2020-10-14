@@ -7,13 +7,12 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
-import csv
 import numpy as np
 
 # third-party libs
 
 # local modules/libs
-from modules.BaseReader import BaseReader
+from modules.BaseReader import BaseReader, is_floatable, select_xyData
 import modules.Universal as uni
 
 # Enums
@@ -48,7 +47,6 @@ class AscReader(BaseReader):
         self.type = EXPORT_TYPE.SPECTRUM
 
 
-
     def readout_file(self, fReader)->dict:
 
         marker = self.MARKER["HEADER"]
@@ -63,22 +61,17 @@ class AscReader(BaseReader):
                 # Skip blank lines
                 continue
             if is_floatable(element):
-                data.append(line)
+                data.append(select_xyData(line, self.xColumn, self.yColumn))
             elif marker in element:
                 header = self.get_header(line)
             elif len(line) == 1:
-                name, value = asc_separate_parameter(line)
+                try:
+                    name, value = asc_separate_parameter(line)
+                except ValueError:
+                    continue
                 parameter[name] = value
 
-
-        data = np.array(data, dtype=float)
-
-        try:
-            xData = data[:, self.xColumn]
-            yData = data[:, self.yColumn]
-            data = np.array((xData, yData)).transpose()
-        except IndexError:
-            self.logger.warning("No data found.")
+        data = self.list_to_2column_array(data)
 
         information = {}
         information["header"] = header
@@ -98,14 +91,13 @@ class AscReader(BaseReader):
 
         Returns
         -------
-        date, time: str, str
+        date, time: (str, str)
             The date and the time of the measurement of the spectrum.
 
         """
 
         try:
             _, strTime = asc_separate_parameter(element)
-            # Convert the given time string into date and time.
             timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
         except ValueError:
             return (None, None)
@@ -115,61 +107,6 @@ class AscReader(BaseReader):
         time = uni.timestamp_to_string(timestamp, EXPORT_TIME)
 
         return (date, time)
-
-
-    def get_parameter(self, fReader:csv.reader)->dict:
-        """
-        Read out the data of a .asc-file respective to its structure.
-
-        Parameters
-        ----------
-        fReader : csv.reader-object
-            Reader to iterate through the csv-file.
-
-        Returns
-        -------
-        parameter: dict
-
-        """
-
-        parameter = {}
-
-        # Gather the parameter.
-        for row in fReader:
-            try:
-                name, value = asc_separate_parameter(row)
-                parameter[name] = value
-            except IndexError:
-                # Break at the first blank row.
-                break
-            except ValueError:
-                # Skip invalid parameter line.
-                continue
-
-        return parameter;
-
-    def get_parameter_n(self, parameterContainer:set)->dict:
-        parameter = {}
-        for element in parameterContainer:
-            try:
-                name, value = asc_separate_parameter_n(element)
-                parameter[name] = value
-            except ValueError:
-                # Skip invalid parameter
-                continue
-        return parameter
-
-    def extract_data(self, data:list):
-        data = np.array(data, dtype=float)
-        return data
-
-
-    def preprocess(self, fReader):
-        # TODO: docstring
-        for row in fReader:
-            if len(row) != 0:
-                break
-        return
 
 
 
@@ -197,31 +134,4 @@ def asc_separate_parameter(row:list)->(str, str):
     value = value.strip()
     return (description, value)
 
-def asc_separate_parameter_n(element:str)->(str, str):
-    """
-    Separates the description and the value of a parameter of a .asc-file.
 
-    Parameters
-    ----------
-    row : list
-        The row of a file, e.g. readout by a csv.reader-object.
-
-    Returns
-    -------
-    description : str
-        Description of the parameter.
-    value : str
-        Value of the parameter.
-    """
-
-    # Split uses the first ":", because the value may contain one as well.
-    description, value = element.split(":", 1)
-    value = value.strip()
-    return (description, value)
-
-def is_floatable(element:str)->bool:
-    try:
-        float(element)
-        return True
-    except ValueError:
-        return False
