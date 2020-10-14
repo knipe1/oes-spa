@@ -369,6 +369,7 @@ class BatchAnalysis(QDialog):
             # Read out the filename and the data.
             file = files[i]
             self.currentFile = FileReader(file)
+            config = retrieve_batch_config()
             if not self.currentFile.is_valid_spectrum() == ERR.OK:
                 skippedFiles.append(file)
                 continue
@@ -393,8 +394,6 @@ class BatchAnalysis(QDialog):
                 # below some defined threshold.
                 # TODO: validate_results as method of specHandlaer? Would also omit
                 # the assignemts above!?
-
-                config = retrieve_batch_config()
                 if not peakHeight:
                     skippedFiles.append(file)
                     continue
