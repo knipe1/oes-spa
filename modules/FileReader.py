@@ -242,198 +242,198 @@ class FileReader(FileFramework):
         # return fileinformation
 
 
-    def read_file_old(self, **kwargs)->ERR:
-        """Readout given file"""
-        with open(self.filename, 'r', newline='') as openFile:
-            # Set up the reader (even if the file is something else than csv,
-            # because we use another dialect then).
-            fReader = csv.reader(openFile, dialect=self.subReader.dialect)
-            data = []
-            test = []
-            information = set()
-            for row in fReader:
-                test.append(row)
-                lenght = len(row)
-                isInformation = (lenght == 1)
-                isData = (lenght > 1)
-                if isInformation:
-                    information.update(row)
-                elif isData:
-                    data.append(row)
+    # def read_file_old(self, **kwargs)->ERR:
+    #     """Readout given file"""
+    #     with open(self.filename, 'r', newline='') as openFile:
+    #         # Set up the reader (even if the file is something else than csv,
+    #         # because we use another dialect then).
+    #         fReader = csv.reader(openFile, dialect=self.subReader.dialect)
+    #         data = []
+    #         test = []
+    #         information = set()
+    #         for row in fReader:
+    #             test.append(row)
+    #             lenght = len(row)
+    #             isInformation = (lenght == 1)
+    #             isData = (lenght > 1)
+    #             if isInformation:
+    #                 information.update(row)
+    #             elif isData:
+    #                 data.append(row)
 
-        # Header information
-        errorHeader = self.extract_header_n(information, self.subReader)
-        if not errorHeader == ERR.OK:
-            return errorHeader
+    #     # Header information
+    #     errorHeader = self.extract_header_n(information, self.subReader)
+    #     if not errorHeader == ERR.OK:
+    #         return errorHeader
 
-        self.data = self.subReader.extract_data(data, **kwargs)
-        self.data
+    #     self.data = self.subReader.extract_data(data, **kwargs)
+    #     self.data
 
-        # with open(self.filename, 'r', newline='') as openFile:
-        #     # Set up the reader (even if the file is something else than csv,
-        #     # because we use another dialect then).
-        #     fReader = csv.reader(openFile, dialect=self.subReader.dialect)
-        #     # Header information
-        #     errorHeader = self.extract_header(fReader, self.subReader)
-        #     if errorHeader != ERR.OK:
-        #         return errorHeader
+    #     # with open(self.filename, 'r', newline='') as openFile:
+    #     #     # Set up the reader (even if the file is something else than csv,
+    #     #     # because we use another dialect then).
+    #     #     fReader = csv.reader(openFile, dialect=self.subReader.dialect)
+    #     #     # Header information
+    #     #     errorHeader = self.extract_header(fReader, self.subReader)
+    #     #     if errorHeader != ERR.OK:
+    #     #         return errorHeader
 
-        #     # Data
-        #     try:
-        #         self.data = self.read_data(fReader, self.subReader, **kwargs)
-        #         reRead = False
-        #     except IndexError:
-        #         # self.logger.error(f"Could not read data in {self.filename}!")
-        #         # return ERR.INVALID_DATA
-        #         reRead = True
+    #     #     # Data
+    #     #     try:
+    #     #         self.data = self.read_data(fReader, self.subReader, **kwargs)
+    #     #         reRead = False
+    #     #     except IndexError:
+    #     #         # self.logger.error(f"Could not read data in {self.filename}!")
+    #     #         # return ERR.INVALID_DATA
+    #     #         reRead = True
 
-        # if reRead:
-        #     with open(self.filename, 'r', newline='') as openFile:
-        #         fReader = csv.reader(openFile, dialect=self.subReader.dialect)
-        #         try:
-        #             self.data = self.read_data(fReader, self.subReader, **kwargs)
-        #         except IndexError:
-        #             self.logger.error(f"Could not read data in {self.filename}!")
-        #             return ERR.INVALID_DATA
-
-
-
-        return ERR.OK
-
-
-    def extract_header(self, fReader, subReader):
-        """
-        Extracts the header information of a file.
-
-        Parameters
-        ----------
-        fReader : csv.Reader
-            The file to read is opened with that reader.
-        subReader :
-
-        Returns
-        -------
-        ERROR_CODE
-
-        """
-        marker = self.MARKER["HEADER"]
-
-        for row in fReader:
-            try:
-                cell = row[0]
-            except IndexError:
-                # Skip blank rows/lines.
-                continue
-
-            if marker in cell:
-                self.date, self.time = subReader.get_header(row)
-                # Gets the set of parameter of the file if available.
-                self.parameter = self.read_parameter(fReader, subReader)
-                return ERR.OK;
-
-        self.logger.error(f"No valid header, marker not found '{marker}'")
-        return ERR.INVALID_HEADER
-
-
-    def extract_header_n(self, information:set, subReader):
-        marker = self.MARKER["HEADER"]
-        markerWildcard = marker + "*"
-
-        headerContainer = fnmatch.filter(information, markerWildcard)
-        try:
-            self.date, self.time = subReader.get_header(headerContainer)
-        except IndexError:
-            self.logger.error(f"No valid header, marker not found '{marker}'")
-            return ERR.INVALID_HEADER
-
-        parameterContainer = information.copy()
-        parameterContainer.difference_update(headerContainer)
-        self.parameter = self.read_parameter_n(subReader, parameterContainer)
-
-        return ERR.OK
+    #     # if reRead:
+    #     #     with open(self.filename, 'r', newline='') as openFile:
+    #     #         fReader = csv.reader(openFile, dialect=self.subReader.dialect)
+    #     #         try:
+    #     #             self.data = self.read_data(fReader, self.subReader, **kwargs)
+    #     #         except IndexError:
+    #     #             self.logger.error(f"Could not read data in {self.filename}!")
+    #     #             return ERR.INVALID_DATA
 
 
 
-    def read_data(self, fReader, subReader, **kwargs)->list:
-        """
-        Read the data of the specified columns of a file opened with a reader.
-
-        Iter through the rows of a file and extracts its data with respect to
-        the specified columns.
-
-        Parameters
-        ----------
-        fReader : csv.Reader
-            The file to read is opened with that reader.
-        xColumn : int
-            The index of the column which contains the x values of the data.
-        yColumn : int
-            The index of the column which contains the y values of the data.
-
-        Returns
-        -------
-        data : list
-            Contains the x- and y-data. First entry in each element is the x-
-            value, second is the y-value.
-
-        """
-        data = []
-        subReader.preprocess(fReader, **kwargs)
-        xColumn, yColumn = subReader.xyColumn
-        timeFormat = subReader.subKwargs.get("timeFormat")
-
-        for row in fReader:
-            try:
-                xData = read_x_data(row[xColumn], timeFormat)
-                yData = float(row[yColumn])
-                data.append([xData, yData])
-            except IndexError:
-                break
+    #     return ERR.OK
 
 
-        return data
+    # def extract_header(self, fReader, subReader):
+    #     """
+    #     Extracts the header information of a file.
+
+    #     Parameters
+    #     ----------
+    #     fReader : csv.Reader
+    #         The file to read is opened with that reader.
+    #     subReader :
+
+    #     Returns
+    #     -------
+    #     ERROR_CODE
+
+    #     """
+    #     marker = self.MARKER["HEADER"]
+
+    #     for row in fReader:
+    #         try:
+    #             cell = row[0]
+    #         except IndexError:
+    #             # Skip blank rows/lines.
+    #             continue
+
+    #         if marker in cell:
+    #             self.date, self.time = subReader.get_header(row)
+    #             # Gets the set of parameter of the file if available.
+    #             self.parameter = self.read_parameter(fReader, subReader)
+    #             return ERR.OK;
+
+    #     self.logger.error(f"No valid header, marker not found '{marker}'")
+    #     return ERR.INVALID_HEADER
 
 
-    def read_parameter(self, fReader, subReader):
-        # TODO: docstring
-        parameter = {}
-        try:
-            parameter = subReader.get_parameter(fReader)
-        except AttributeError:
-            self.logger.debug("Could not find parameter method.")
-        return parameter
+    # def extract_header_n(self, information:set, subReader):
+    #     marker = self.MARKER["HEADER"]
+    #     markerWildcard = marker + "*"
 
-    def read_parameter_n(self, subReader, parameterContainer:set):
-        parameter = {}
-        try:
-            parameter = subReader.get_parameter_n(parameterContainer)
-        except AttributeError:
-            self.logger.debug("Could not find parameter method.")
-        return parameter
+    #     headerContainer = fnmatch.filter(information, markerWildcard)
+    #     try:
+    #         self.date, self.time = subReader.get_header(headerContainer)
+    #     except IndexError:
+    #         self.logger.error(f"No valid header, marker not found '{marker}'")
+    #         return ERR.INVALID_HEADER
+
+    #     parameterContainer = information.copy()
+    #     parameterContainer.difference_update(headerContainer)
+    #     self.parameter = self.read_parameter_n(subReader, parameterContainer)
+
+    #     return ERR.OK
+
+
+
+    # def read_data(self, fReader, subReader, **kwargs)->list:
+    #     """
+    #     Read the data of the specified columns of a file opened with a reader.
+
+    #     Iter through the rows of a file and extracts its data with respect to
+    #     the specified columns.
+
+    #     Parameters
+    #     ----------
+    #     fReader : csv.Reader
+    #         The file to read is opened with that reader.
+    #     xColumn : int
+    #         The index of the column which contains the x values of the data.
+    #     yColumn : int
+    #         The index of the column which contains the y values of the data.
+
+    #     Returns
+    #     -------
+    #     data : list
+    #         Contains the x- and y-data. First entry in each element is the x-
+    #         value, second is the y-value.
+
+    #     """
+    #     data = []
+    #     subReader.preprocess(fReader, **kwargs)
+    #     xColumn, yColumn = subReader.xyColumn
+    #     timeFormat = subReader.subKwargs.get("timeFormat")
+
+    #     for row in fReader:
+    #         try:
+    #             xData = read_x_data(row[xColumn], timeFormat)
+    #             yData = float(row[yColumn])
+    #             data.append([xData, yData])
+    #         except IndexError:
+    #             break
+
+
+    #     return data
+
+
+    # def read_parameter(self, fReader, subReader):
+    #     # TODO: docstring
+    #     parameter = {}
+    #     try:
+    #         parameter = subReader.get_parameter(fReader)
+    #     except AttributeError:
+    #         self.logger.debug("Could not find parameter method.")
+    #     return parameter
+
+    # def read_parameter_n(self, subReader, parameterContainer:set):
+    #     parameter = {}
+    #     try:
+    #         parameter = subReader.get_parameter_n(parameterContainer)
+    #     except AttributeError:
+    #         self.logger.debug("Could not find parameter method.")
+    #     return parameter
 
 
 ### Module-level methods
 
-def read_x_data(value:str, timeFormat:datetime=None):
-    # TODO: docstring
-    try:
-        xValue = float(value)
-    except ValueError:
-        # batch analysis uses timestamp of files for plotting.
-        xValue = uni.timestamp_from_string(value, timeFormat)
-    return xValue
+# def read_x_data(value:str, timeFormat:datetime=None):
+#     # TODO: docstring
+#     try:
+#         xValue = float(value)
+#     except ValueError:
+#         # batch analysis uses timestamp of files for plotting.
+#         xValue = uni.timestamp_from_string(value, timeFormat)
+#     return xValue
 
 
-def is_data(value:str, timeFormat:datetime=None):
-    try:
-        xValue = float(value)
-        return xValue
-    except ValueError:
-        pass
+# def is_data(value:str, timeFormat:datetime=None):
+#     try:
+#         xValue = float(value)
+#         return xValue
+#     except ValueError:
+#         pass
 
     # batch analysis uses timestamp of files for plotting.
-    try:
-        xValue = uni.timestamp_from_string(value, timeFormat)
-        return xValue
-    except ValueError:
-        pass
+    # try:
+    #     xValue = uni.timestamp_from_string(value, timeFormat)
+    #     return xValue
+    # except ValueError:
+    #     pass

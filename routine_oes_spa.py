@@ -48,11 +48,11 @@ def main():
     #window.window.ddFitting.setCurrentIndex(3)
     if initialLoad:
         window.apply_data("./sample files/Asterix1059 1.Spk")
-        # window.apply_data("./sample files/SIF/testasc.asc")
-        # window.apply_data("./sample files/SIF/388nm_Spek1_reversed.asc")
-        # window.apply_data("./sample files/Asterix1059 1_raw.csv")
-        # window.apply_data("./sample files/Asterix1059 1_processed.csv")
-        # window.apply_data("./sample files/_batch.csv")
+        window.apply_data("./sample files/SIF/testasc.asc")
+        window.apply_data("./sample files/SIF/388nm_Spek1_reversed.asc")
+        window.apply_data("./sample files/Asterix1059 1_raw.csv")
+        window.apply_data("./sample files/Asterix1059 1_processed.csv")
+        window.apply_data("./sample files/_batch.csv")
 
     if exportSpectra:
         window.apply_data("./sample files/Asterix1059 1.Spk")

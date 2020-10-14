@@ -357,6 +357,7 @@ class BatchAnalysis(QDialog):
         self.logger.info("No. of files %i:"%(amount))
 
         for i in range(amount):
+            config = retrieve_batch_config()
 
             # Be responsive and process events to enable cancelation.
             QApplication.processEvents()
@@ -369,7 +370,7 @@ class BatchAnalysis(QDialog):
             # Read out the filename and the data.
             file = files[i]
             self.currentFile = FileReader(file)
-            config = retrieve_batch_config()
+
             if not self.currentFile.is_valid_spectrum() == ERR.OK:
                 skippedFiles.append(file)
                 continue
