@@ -56,14 +56,14 @@ class CsvReader(BaseReader):
 
         for line in fReader:
             try:
-                element = line[0]
+                markerElement = line[0]
             except IndexError:
                 # Skip blank lines
                 continue
 
-            if marker in element:
-                header = self.get_header(element)
-            elif self.MARKER["BATCH"] in element:
+            if marker in markerElement:
+                header = self.get_header(markerElement)
+            elif self.MARKER["BATCH"] in markerElement:
                 # A general issue might be to open the batchfile with excel or
                 # something similar, because the program may use a different
                 # dialect to save it again if changes were made.
@@ -75,7 +75,7 @@ class CsvReader(BaseReader):
                 yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
                 self.xColumn, self.yColumn = handle_batch_columns(line, xColumnName, yColumnName)
                 data = self.get_data(fReader)
-            elif self.MARKER["DATA"] in element:
+            elif self.MARKER["DATA"] in markerElement:
                 self.type = EXPORT_TYPE.SPECTRUM
                 data = self.get_data(fReader)
 

@@ -7,7 +7,6 @@ Created on Fri Sep  4 12:11:22 2020
 """
 
 # standard libs
-import numpy as np
 
 # third-party libs
 
@@ -16,7 +15,6 @@ from modules.BaseReader import BaseReader, is_floatable, select_xyData
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
 
 class SpkReader(BaseReader):
@@ -51,15 +49,22 @@ class SpkReader(BaseReader):
 
         for line in fReader:
             try:
-                element = line[0]
+                markerElement = line[0]
             except IndexError:
                 # Skip blank lines
                 continue
 
-            if is_floatable(element):
+            try:
+                xDataElement = line[self.xColumn]
+                yDataElement = line[self.yColumn]
+            except IndexError:
+                xDataElement = None
+                yDataElement = None
+
+            if is_floatable(xDataElement, yDataElement):
                 select_xyData(data, line, self.xColumn, self.yColumn)
-            elif marker in element:
-                _, date, time = element.split()
+            elif marker in markerElement:
+                _, date, time = markerElement.split()
                 header = (date, time)
 
         data = self.list_to_2column_array(data)

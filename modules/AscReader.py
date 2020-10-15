@@ -7,7 +7,6 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
-import numpy as np
 
 # third-party libs
 
@@ -56,13 +55,21 @@ class AscReader(BaseReader):
 
         for line in fReader:
             try:
-                element = line[0]
+                markerElement = line[0]
             except IndexError:
                 # Skip blank lines
                 continue
-            if is_floatable(element):
+
+            try:
+                xDataElement = line[self.xColumn]
+                yDataElement = line[self.yColumn]
+            except IndexError:
+                xDataElement = None
+                yDataElement = None
+
+            if is_floatable(xDataElement, yDataElement):
                 select_xyData(data, line, self.xColumn, self.yColumn)
-            elif marker in element:
+            elif marker in markerElement:
                 header = self.get_header(line)
             elif len(line) == 1:
                 try:

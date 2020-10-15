@@ -78,8 +78,10 @@ class BaseReader(FileFramework):
             xyData = np.array((xData, yData)).transpose()
         except IndexError:
             self.logger.warning("No valid x- and y-data given. Empty data?!")
-        finally:
-            return xyData
+        except:
+            return
+
+        return xyData
 
 
 def convert_to_float_or_time(dataColumn:np.ndarray):
@@ -89,8 +91,8 @@ def convert_to_float_or_time(dataColumn:np.ndarray):
         dataColumn = np.array(dataColumn, dtype=object)
         for idx, element in enumerate(dataColumn):
             dataColumn[idx] = uni.timestamp_from_string(element)
-    finally:
-        return dataColumn
+
+    return dataColumn
 
 
 def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:
@@ -101,9 +103,10 @@ def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:
         pass
 
 
-def is_floatable(element:str)->bool:
+def is_floatable(*elements:str)->bool:
     try:
-        float(element)
-        return True
-    except ValueError:
+        for element in elements:
+            float(element)
+    except (ValueError, TypeError):
         return False
+    return True

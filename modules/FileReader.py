@@ -169,6 +169,7 @@ class FileReader(FileFramework):
     ### Methods
 
     def set_defaults(self):
+        # TODO: Test None instead of 0
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
         self.parameter = {}
