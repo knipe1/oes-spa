@@ -61,7 +61,7 @@ class AscReader(BaseReader):
                 # Skip blank lines
                 continue
             if is_floatable(element):
-                data.append(select_xyData(line, self.xColumn, self.yColumn))
+                select_xyData(data, line, self.xColumn, self.yColumn)
             elif marker in element:
                 header = self.get_header(line)
             elif len(line) == 1:

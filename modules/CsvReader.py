@@ -9,13 +9,11 @@ Created on Fri Sep  4 12:11:22 2020
 # standard libs
 # fnmatch: Unix filename pattern matching (https://docs.python.org/3/library/fnmatch.html)
 import fnmatch
-import numpy as np
 
 # third-party libs
 
 # local modules/libs
 from modules.BaseReader import BaseReader, select_xyData
-import modules.Universal as uni
 
 # Enums
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
@@ -97,10 +95,8 @@ class CsvReader(BaseReader):
     def get_data(self, fReader):
         data = []
         for line in fReader:
-            data.append(select_xyData(line, self.xColumn, self.yColumn))
+            select_xyData(data, line, self.xColumn, self.yColumn)
         return data
-
-
 
 
 def handle_batch_columns(dataHeader:list, xColumnName:str, yColumnName:str)->(int, int):

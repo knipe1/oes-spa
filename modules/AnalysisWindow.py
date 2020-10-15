@@ -8,7 +8,7 @@
 """
 
 # standard libs
-from os import path
+from os import path, getcwd
 
 # third-party libs
 from PyQt5.QtWidgets import QMainWindow
@@ -80,6 +80,8 @@ class AnalysisWindow(QMainWindow):
             newDirectory = directory
         elif path.isfile(directory):
             newDirectory = path.dirname(directory)
+        elif not hasattr(self, "lastdir"):
+            newDirectory = getcwd()
         else:
             return
 

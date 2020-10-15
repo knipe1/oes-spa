@@ -57,7 +57,7 @@ class SpkReader(BaseReader):
                 continue
 
             if is_floatable(element):
-                data.append(select_xyData(line, self.xColumn, self.yColumn))
+                select_xyData(data, line, self.xColumn, self.yColumn)
             elif marker in element:
                 _, date, time = element.split()
                 header = (date, time)

@@ -93,8 +93,13 @@ def convert_to_float_or_time(dataColumn:np.ndarray):
         return dataColumn
 
 
-def select_xyData(line:list, xColumn:int, yColumn:int)->tuple:
-    return (line[xColumn], line[yColumn])
+def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:
+    try:
+        xyData = (line[xColumn], line[yColumn])
+        data.append(xyData)
+    except IndexError:
+        pass
+
 
 def is_floatable(element:str)->bool:
     try:
