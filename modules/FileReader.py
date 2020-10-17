@@ -199,15 +199,28 @@ class FileReader(FileFramework):
 
 
     def is_valid_spectrum(self)->ERR:
-        """
-        Checks whether the file contains valid data.
+        errorcode = self.has_valid_frame()
+        if not errorcode:
+            return errorcode
 
-        Returns
-        -------
-        ERROR_CODE
+        if not isinstance(self.xData[0], (float, int)):
+            return ERR.INVALID_DATA
 
-        """
+        return ERR.OK;
 
+
+    def is_valid_batchfile(self)->ERR:
+        errorcode = self.has_valid_frame()
+        if not errorcode:
+            return errorcode
+
+        if not isinstance(self.xData[0], datetime):
+            return ERR.INVALID_BATCHFILE
+
+        return ERR.OK
+
+
+    def has_valid_frame(self):
         # Filetype.
         if not self.subReader:
             return ERR.UNKNOWN_FILETYPE;
@@ -215,9 +228,6 @@ class FileReader(FileFramework):
         # Data in general.
         if not len(self.xData):
             return ERR.INVALID_DATA;
-        if not isinstance(self.xData[0], (float, int)):
-            # is not a spectrum, maybe a batchfile.
-            return ERR.INVALID_DATA
 
         # Data that have same length.
         if len(self.xData) != len(self.yData):
@@ -227,7 +237,8 @@ class FileReader(FileFramework):
         if not self.timestamp:
             return ERR.INVALID_FILEINFORMATION;
 
-        return ERR.OK;
+        return ERR.OK
+
 
 
     def read_file(self, **kwargs)->ERR:

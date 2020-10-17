@@ -40,7 +40,7 @@ class AnalysisWindow(QMainWindow):
     Usage:
         from modules.AnalysisWindow import AnalysisWindow
         window = AnalysisWindow()
-        window.apply_data("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
+        window.apply_file("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
 
     # Load the configuration for plotting, import and filesystem properties.
@@ -58,15 +58,15 @@ class AnalysisWindow(QMainWindow):
     @activeFile.setter
     def activeFile(self, file:FileReader)->None:
         """activeFile setter: Updating the ui"""
-        isFileReloaded = (self._activeFile == file)
-        self._activeFile = file
         self.window.set_fileinformation(file)
 
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
 
-        if not isFileReloaded:
-            self.set_wavelength_from_file(file)
+        # isFileReloaded = (self._activeFile == file)
+        self._activeFile = file
+        # if not isFileReloaded:
+            # self.set_wavelength_from_file(file)
 
 
     @property
@@ -163,7 +163,7 @@ class AnalysisWindow(QMainWindow):
         localUrl = uni.get_valid_local_url(url)
 
         if localUrl:
-            self.apply_data(localUrl)
+            self.apply_file(localUrl)
         else:
             dialog.critical_unknownSuffix(parent=self)
 
@@ -185,7 +185,7 @@ class AnalysisWindow(QMainWindow):
             self.batch.update_filelist(filelist)
         elif isSingleFile:
             filename = filelist[0];
-            self.apply_data(filename)
+            self.apply_file(filename)
 
         try:
             self.lastdir = filelist[0]
@@ -237,7 +237,7 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_data(self.activeFile.filename)
+            self.apply_file(self.activeFile.filename)
             self.logger.info("New value of setting:" + value)
         except:
             self.logger.warning("Redraw Failed")
@@ -258,7 +258,7 @@ class AnalysisWindow(QMainWindow):
 
     ### data analysis
 
-    def apply_data(self, filename:str):
+    def apply_file(self, filename:str):
         """read out a file and extract its information,
         then set header information and draw spectra"""
 
@@ -281,7 +281,33 @@ class AnalysisWindow(QMainWindow):
         self.update_spectra(specHandler)
         self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
+        isFileReloaded = (self.activeFile == file)
+        if not isFileReloaded:
+            self.set_wavelength_from_file(file)
+
         self.activeFile = file;
+
+
+    def apply_data(self, file:FileReader):
+        basicSetting = self.window.get_basic_setting()
+
+        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
+        errorcode = specHandler.analyse_data(file)
+        if not errorcode:
+            return
+
+        self.show_wavelength_difference_information(file, basicSetting)
+
+        peakName = basicSetting.fitting.peak.name
+        self.window.set_results(specHandler, peakName)
+
+        # Update the spectra.
+        self.update_spectra(specHandler)
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+
+        self.activeFile = file;
+
+
 
 
     def set_wavelength_from_file(self, file:FileReader):

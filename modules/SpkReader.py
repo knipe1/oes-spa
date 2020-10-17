@@ -64,8 +64,7 @@ class SpkReader(BaseReader):
             if is_floatable(xDataElement, yDataElement):
                 select_xyData(data, line, self.xColumn, self.yColumn)
             elif marker in markerElement:
-                _, date, time = markerElement.split()
-                header = (date, time)
+                header = self.get_header(markerElement)
 
         data = self.list_to_2column_array(data)
 
@@ -74,3 +73,21 @@ class SpkReader(BaseReader):
         information["data"] = data
         return information
 
+
+    def get_header(self, element:list)->tuple:
+        """
+        Extracts the header of the given list 'element'.
+
+        Returns
+        -------
+        date, time: (str, str)
+            The date and the time of the measurement of the spectrum.
+
+        """
+
+        try:
+            _, date, time = element.split()
+        except ValueError:
+            return (None, None)
+
+        return (date, time)

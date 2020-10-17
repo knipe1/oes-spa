@@ -41,3 +41,6 @@ class Watchdog():
             self.observer.join(1)
         except:
             print("No observer initialized.")
+
+    def is_alive(self)->bool:
+        return self.observer.is_alive()

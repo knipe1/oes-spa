@@ -266,18 +266,7 @@ class BatchAnalysis(QDialog):
 
     def toggle_watchdog(self, status:bool)->None:
         """
-        Activates or deactivates the Watchdog.
-
-
-        Parameters
-        ----------
-        status : bool
-            Activates the WD if True, deactivates otherwise.
-
-        Returns
-        -------
-        None.
-
+        Sets the Watchdog to the given status. (Activate if status is True).
         """
 
         if status:
@@ -329,7 +318,7 @@ class BatchAnalysis(QDialog):
     ### Methods/Analysis
 
     def analyze(self, singleFile=None):
-        self.logger.debug("Analyze file.")
+        self.logger.info("Analyze file.")
 
         # Reset the properties to have a clean setup.
         self.isScheduledCancel = False
@@ -371,9 +360,13 @@ class BatchAnalysis(QDialog):
             file = files[i]
             self.currentFile = FileReader(file)
 
-            if not self.currentFile.is_valid_spectrum() == ERR.OK:
-                skippedFiles.append(file)
-                continue
+            errorcode = self.currentFile.is_valid_spectrum()
+            if not errorcode:
+                if isSingleFile:
+                    return errorcode
+                else:
+                    skippedFiles.append(file)
+                    continue
 
             if isExportBatch:
                 # Get the data.
@@ -393,7 +386,7 @@ class BatchAnalysis(QDialog):
                 # spectra.
                 # TODO: Check more exlude conditions like characteristic value
                 # below some defined threshold.
-                # TODO: validate_results as method of specHandlaer? Would also omit
+                # TODO: validate_results as method of specHandler? Would also omit
                 # the assignemts above!?
                 if not peakHeight:
                     skippedFiles.append(file)
@@ -447,7 +440,7 @@ class BatchAnalysis(QDialog):
             return
 
         file = FileReader(filename, columnValue=columnValue)
-        if file.is_valid_spectrum() == ERR.OK:
+        if not file.is_valid_batchfile():
             return
 
         # TODO: Check sorting of 2D arrays make sense here.
@@ -573,12 +566,14 @@ class BatchAnalysis(QDialog):
             self.logger.debug("Open indexed file called programmatically.")
 
         try:
-            # HACK
-            # self.parent().apply_data(self._files[index])
             selectedFilename = self._files[index]
-            self.parent().apply_data(selectedFilename)
             selectedFile = FileReader(selectedFilename)
-            self.traceSpectrum.plot_recording(*selectedFile.fileinformation)
+            if selectedFile:
+                if self.dog.is_alive():
+                    self.parent().apply_data(selectedFile)
+                    self.traceSpectrum.plot_recording(*selectedFile.fileinformation)
+                else:
+                    self.parent().apply_file(selectedFilename)
         except IndexError:
             self.logger.info("Cannot open file, invalid index provided!")
 

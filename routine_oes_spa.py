@@ -30,13 +30,13 @@ def main():
     # True
     # False
 
-    initialLoad = True
+    initialLoad = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
+    showBatch = True
+    selectBatchfile = True
     selectBatchSpectra = False
     hideBatch = False
-    activateWD = False
+    activateWD = True
 
 
     # Setup GUI
@@ -47,26 +47,27 @@ def main():
     # window.export_raw()
     #window.window.ddFitting.setCurrentIndex(3)
     if initialLoad:
-        window.apply_data("./sample files/Asterix1059 1.Spk")
-        window.apply_data("./sample files/SIF/testasc.asc")
-        window.apply_data("./sample files/SIF/388nm_Spek1_reversed.asc")
-        window.apply_data("./sample files/Asterix1059 1_raw.csv")
-        window.apply_data("./sample files/Asterix1059 1_processed.csv")
-        window.apply_data("./sample files/_batch.csv")
+        window.apply_file("./sample files/SIF/388nm_Spek1_parameter only_header cut.asc")
+        window.apply_file("./sample files/Asterix1059 1.Spk")
+        window.apply_file("./sample files/SIF/testasc.asc")
+        window.apply_file("./sample files/SIF/388nm_Spek1_reversed.asc")
+        window.apply_file("./sample files/Asterix1059 1_raw.csv")
+        window.apply_file("./sample files/Asterix1059 1_processed.csv")
+        window.apply_file("./sample files/_batch.csv")
 
     if exportSpectra:
-        window.apply_data("./sample files/Asterix1059 1.Spk")
+        window.apply_file("./sample files/Asterix1059 1.Spk")
         accept_raw = THR.Thread(target=emu.key_accept)
         accept_raw.start()
         window.export_raw()
         accept_processed = THR.Thread(target=emu.key_accept)
         accept_processed.start()
         window.export_processed()
-        window.apply_data("./sample files/Asterix1059 1_raw.csv")
+        window.apply_file("./sample files/Asterix1059 1_raw.csv")
         reject_raw = THR.Thread(target=emu.key_accept)
         reject_raw.start()
         window.export_raw()
-        window.apply_data("./sample files/Asterix1059 1_processed.csv")
+        window.apply_file("./sample files/Asterix1059 1_processed.csv")
         reject_processed = THR.Thread(target=emu.key_accept)
         reject_processed.start()
         window.export_processed()

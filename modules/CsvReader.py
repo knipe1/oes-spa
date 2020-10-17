@@ -87,8 +87,22 @@ class CsvReader(BaseReader):
         return information
 
 
-    def get_header(self, element:str)->tuple:
-        _, date, time = element.split()
+    def get_header(self, element:list)->tuple:
+        """
+        Extracts the header of the given list 'element'.
+
+        Returns
+        -------
+        date, time: (str, str)
+            The date and the time of the measurement of the spectrum.
+
+        """
+
+        try:
+            _, date, time = element.split()
+        except ValueError:
+            return (None, None)
+
         return (date, time)
 
 
