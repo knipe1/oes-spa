@@ -30,10 +30,11 @@ def main():
     # True
     # False
 
-    initialLoad = False
+    initialSpkLoad = True
+    tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
+    showBatch = False
+    selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
@@ -46,7 +47,10 @@ def main():
     # automatic open and close routine
     # window.export_raw()
     #window.window.ddFitting.setCurrentIndex(3)
-    if initialLoad:
+    if initialSpkLoad:
+        window.apply_file("./sample files/Asterix1059 1.Spk")
+
+    if tryDifferentFiles:
         window.apply_file("./sample files/SIF/388nm_Spek1_parameter only_header cut.asc")
         window.apply_file("./sample files/Asterix1059 1.Spk")
         window.apply_file("./sample files/SIF/testasc.asc")

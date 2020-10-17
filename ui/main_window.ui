@@ -228,58 +228,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="boxFileInforamtion">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>File Information</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <property name="spacing">
-          <number>3</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lblDate">
-           <property name="text">
-            <string>Date:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="toutDate">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="lblTime">
-           <property name="text">
-            <string>Time:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="toutTime">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="QGroupBox" name="boxAddInformation">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -303,6 +251,20 @@
          <string>Additional Information</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QLabel" name="lblTimeInfo">
+           <property name="text">
+            <string>Time information of file:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="toutTimeInfo">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="lblDiffWavelength">
            <property name="enabled">
@@ -753,7 +715,7 @@ wavelength!</string>
            <property name="maximumSize">
             <size>
              <width>183</width>
-             <height>340</height>
+             <height>1000</height>
             </size>
            </property>
           </widget>

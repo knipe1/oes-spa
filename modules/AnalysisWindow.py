@@ -63,10 +63,7 @@ class AnalysisWindow(QMainWindow):
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
 
-        # isFileReloaded = (self._activeFile == file)
         self._activeFile = file
-        # if not isFileReloaded:
-            # self.set_wavelength_from_file(file)
 
 
     @property
@@ -314,8 +311,7 @@ class AnalysisWindow(QMainWindow):
         try:
             self.window.wavelength = file.WAVELENGTH
         except KeyError:
-            # Exception if a non-.asc file is loaded.
-            self.logger.debug("No Wavelength provided by: " + file.filename)
+            self.logger.debug(f"No Wavelength provided by: {file.filename}")
 
 
     def show_wavelength_difference_information(self, file:FileReader, basicSetting:BasicSetting):

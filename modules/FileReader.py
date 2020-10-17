@@ -82,12 +82,19 @@ class FileReader(FileFramework):
     @property
     def timestamp(self)->datetime:
         """Formats date and time as defined in the configuration."""
-        strTime = self.date + " " + self.time
+        strTime = self.strTimestamp
         try:
             time = uni.timestamp_from_string(strTime)
         except ValueError:
             time = None
         return time
+
+    @property
+    def strTimestamp(self)->str:
+        try:
+            return self.date + " " + self.time
+        except TypeError:
+            return ""
 
 
     @property
@@ -108,8 +115,8 @@ class FileReader(FileFramework):
 
     @property
     def header(self):
-        """Gather the information about the file itself(name, date, time)."""
-        return (self.filename, self.date, self.time)
+        """Gather the information about the file itself(name, strTimestamp)."""
+        return (self.filename, self.strTimestamp)
 
 
     @property

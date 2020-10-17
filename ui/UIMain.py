@@ -235,10 +235,9 @@ class UIMain(Ui_main):
 
 
     def set_fileinformation(self, filereader:FileReader)->None:
-        filename, date, time = filereader.header
+        filename, timeInfo = filereader.header
         self.toutFilename.setText(filename)
-        self.toutDate.setText(date)
-        self.toutTime.setText(time)
+        self.toutTimeInfo.setText(timeInfo)
 
 
     def retrieve_fittings(self) -> list:
