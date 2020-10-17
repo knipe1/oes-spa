@@ -43,4 +43,7 @@ class Watchdog():
             print("No observer initialized.")
 
     def is_alive(self)->bool:
-        return self.observer.is_alive()
+        try:
+            return self.observer.is_alive()
+        except AttributeError:
+            return False

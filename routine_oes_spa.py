@@ -36,7 +36,7 @@ def main():
     selectBatchfile = True
     selectBatchSpectra = False
     hideBatch = False
-    activateWD = True
+    activateWD = False
 
 
     # Setup GUI
