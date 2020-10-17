@@ -8,6 +8,7 @@ Created on Fri Sep  4 11:27:29 2020
 
 # standard libs
 import numpy as np
+from datetime import datetime
 
 # third-party libs
 
@@ -69,6 +70,60 @@ class BaseReader(FileFramework):
         # subKwargs
         self.subKwargs = {}
 
+    def readout_file(self, fReader, **kwargs)->dict:
+
+        marker = self.MARKER["HEADER"]
+
+        data = []
+        parameter = {}
+
+        for line in fReader:
+            markerElement, xDataElement, yDataElement = self.get_information(line)
+
+            if self.is_data(xDataElement, yDataElement):
+                data.append((xDataElement, yDataElement))
+            elif self.contain_marker(marker, markerElement):
+                timeInfo = self.get_time_info(markerElement)
+            else:
+                self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
+
+        information = self.join_information(timeInfo, data)
+        return information
+
+
+    def handle_additional_information(self, **kwargs):
+        # No additional information by default. Child classes can introduce specific methods.
+        return
+
+
+    def get_information(self, line)->(str, str, str):
+        try:
+            markerElement = line[0]
+        except IndexError:
+            # Skip blank lines
+            return (None, None, None)
+
+        try:
+            xDataElement = line[self.xColumn]
+            yDataElement = line[self.yColumn]
+        except IndexError:
+            xDataElement = None
+            yDataElement = None
+
+        return markerElement, xDataElement, yDataElement
+
+
+    def join_information(self, timeInfo:str, data:list, parameter:dict=None)->dict:
+
+        data = self.list_to_2column_array(data)
+
+        information = {}
+        information["timeInfo"] = timeInfo
+        information["data"] = data
+        information["parameter"] = parameter or {}
+        return information
+
+
 
     def list_to_2column_array(self, xyData:list)->np.ndarray:
         xyData = np.array(xyData)
@@ -83,6 +138,32 @@ class BaseReader(FileFramework):
 
         return xyData
 
+
+    def get_time_info(self, element:str)->datetime:
+        try:
+            _, date, time = element.split()
+            strTime = date + " " + time
+            timestamp = uni.timestamp_from_string(strTime)
+        except ValueError:
+            return None
+
+        return timestamp
+
+
+    def is_data(self, *elements:str)->bool:
+        try:
+            for element in elements:
+                float(element)
+        except (ValueError, TypeError):
+            return False
+        return True
+
+
+    def contain_marker(self, marker:str, element:str):
+        try:
+            return (marker in element)
+        except TypeError:
+            return False
 
 def convert_to_float_or_time(dataColumn:np.ndarray):
     try:
@@ -102,11 +183,3 @@ def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:
     except IndexError:
         pass
 
-
-def is_floatable(*elements:str)->bool:
-    try:
-        for element in elements:
-            float(element)
-    except (ValueError, TypeError):
-        return False
-    return True

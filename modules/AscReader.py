@@ -12,15 +12,12 @@ from datetime import datetime
 # third-party libs
 
 # local modules/libs
-from modules.BaseReader import BaseReader, is_floatable, select_xyData
+from modules.BaseReader import BaseReader
 import modules.Universal as uni
 
 # Enums
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
-from modules.Universal import EXPORT_TIMESTAMP
-EXPORT_DATE, EXPORT_TIME = EXPORT_TIMESTAMP.split(" ")
 ASC_TIMESTAMP = '%a %b %d %H:%M:%S.%f %Y'
 
 class AscReader(BaseReader):
@@ -41,62 +38,29 @@ class AscReader(BaseReader):
 
     ### Methods
 
-    def set_asc_defaults(self):
+    def set_asc_defaults(self)->None:
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["ASC_DATA_COLUMN"]
-        self.type = EXPORT_TYPE.SPECTRUM
 
 
-    def readout_file(self, fReader)->dict:
-
-        marker = self.MARKER["HEADER"]
-
-        data = []
-        parameter = {}
-
-        for line in fReader:
+    def handle_additional_information(self, **kwargs)->None:
+        line = kwargs.get("line", [])
+        if len(line) == 1:
             try:
-                markerElement = line[0]
-            except IndexError:
-                # Skip blank lines
-                continue
-
-            try:
-                xDataElement = line[self.xColumn]
-                yDataElement = line[self.yColumn]
-            except IndexError:
-                xDataElement = None
-                yDataElement = None
-
-            if is_floatable(xDataElement, yDataElement):
-                select_xyData(data, line, self.xColumn, self.yColumn)
-            elif marker in markerElement:
-                timeInfo = self.get_time_info(line)
-            elif len(line) == 1:
-                try:
-                    name, value = asc_separate_parameter(line)
-                except ValueError:
-                    continue
-                parameter[name] = value
-
-        data = self.list_to_2column_array(data)
-
-        information = {}
-        information["timeInfo"] = timeInfo
-        information["data"] = data
-        information["parameter"] = parameter
-        return information
+                name, value = asc_separate_parameter(line)
+            except ValueError:
+                return
+            parameter = kwargs.get("parameter")
+            parameter[name] = value
 
 
-    def get_time_info(self, element:list)->datetime:
+    def get_time_info(self, element:str)->datetime:
         try:
-            _, strTime = asc_separate_parameter(element)
+            _, strTime = asc_separate_parameter([element])
             timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
         except ValueError:
             return None
         return timestamp
-
-
 
 
 ### module-level functions

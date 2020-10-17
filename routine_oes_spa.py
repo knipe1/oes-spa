@@ -30,7 +30,7 @@ def main():
     # False
 
     initialSpkLoad = True
-    tryDifferentFiles = False
+    tryDifferentFiles = True
     exportSpectra = False
     showBatch = True
     selectBatchfile = True
@@ -93,6 +93,7 @@ def main():
         window.batch.window.btnSetFilename.click()
 
     if selectBatchSpectra:
+        window.window.wavelength = "433.1"
         selection = THR.Thread(target=emu.key_select_file, args=[10])
         selection.start()
         window.lastdir = window.lastdir+"/Obel276"

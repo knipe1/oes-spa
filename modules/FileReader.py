@@ -60,8 +60,6 @@ class FileReader(FileFramework):
         Date and Time formatted as defined in the configuration.
     data : nunpy.array
         Concats the x- & y-data. First column: x; second column: y.
-    header : tuple
-        Gather the information about the file itself(name, date, time).
     WAVELENGTH : str
         The wavelength if specified in the paramter of the file.
     GRATING : str

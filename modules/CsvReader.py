@@ -7,22 +7,21 @@ Created on Fri Sep  4 12:11:22 2020
 """
 
 # standard libs
-from datetime import datetime
 # fnmatch: Unix filename pattern matching (https://docs.python.org/3/library/fnmatch.html)
 import fnmatch
 
 # third-party libs
 
 # local modules/libs
-from modules.BaseReader import BaseReader, select_xyData
 import modules.Universal as uni
+from modules.BaseReader import BaseReader
 
 # Enums
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
 from modules.Universal import EXPORT_TIMESTAMP
+
 
 class CsvReader(BaseReader):
 
@@ -44,68 +43,37 @@ class CsvReader(BaseReader):
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["CSV_DATA_COLUMN"]
         self.subKwargs = {"timeFormat": EXPORT_TIMESTAMP}
-        self.type = EXPORT_TYPE.SPECTRUM
 
         # default batch columns must be the value of an CHC.element.
         self.defaultBatchYColumn = CHC.PEAK_AREA.value
         self.defaultBatchXColumn = CHC.HEADER_INFO.value
 
-    def readout_file(self, fReader, **kwargs)->dict:
 
-        marker = self.MARKER["HEADER"]
+    def handle_additional_information(self, **kwargs)->None:
+        batchMarker = self.MARKER["BATCH"]
+        markerElement = kwargs.get("markerElement")
+        if not self.contain_marker(batchMarker, markerElement):
+            return
 
-        data = []
-
-        for line in fReader:
-            try:
-                markerElement = line[0]
-            except IndexError:
-                # Skip blank lines
-                continue
-
-            if marker in markerElement:
-                timeInfo = self.get_time_info(markerElement)
-            elif self.MARKER["BATCH"] in markerElement:
-                # A general issue might be to open the batchfile with excel or
-                # something similar, because the program may use a different
-                # dialect to save it again if changes were made.
-                # Hint:
-                    # Raises IndexError if columnYData cannot find the header.
-                    # Can be handled by a different dialect (uses ',' as separator).
-                self.type = EXPORT_TYPE.BATCH
-                xColumnName = self.defaultBatchXColumn
-                yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
-                self.xColumn, self.yColumn = handle_batch_columns(line, xColumnName, yColumnName)
-                data = self.get_data(fReader)
-            elif self.MARKER["DATA"] in markerElement:
-                self.type = EXPORT_TYPE.SPECTRUM
-                data = self.get_data(fReader)
-
-        data = self.list_to_2column_array(data)
-
-        information = {}
-        information["timeInfo"] = timeInfo
-        information["data"] = data
-        return information
+        line = kwargs.get("line")
+        xColumnName = self.defaultBatchXColumn
+        yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
+        self.xColumn, self.yColumn = handle_batch_columns(line, xColumnName, yColumnName)
 
 
 
-    def get_time_info(self, element:str)->datetime:
+    def is_data(self, xDataElement:str, yDataElement:str)->bool:
         try:
-            _, date, time = element.split()
-            strTime = date + " " + time
-            timestamp = uni.timestamp_from_string(strTime)
-        except ValueError:
-            return None
+            uni.timestamp_from_string(xDataElement)
+            is_xData = True
+        except (TypeError, ValueError):
+            is_xData = super().is_data(xDataElement)
 
-        return timestamp
+        is_yData = super().is_data(yDataElement)
+
+        return (is_xData and is_yData)
 
 
-    def get_data(self, fReader):
-        data = []
-        for line in fReader:
-            select_xyData(data, line, self.xColumn, self.yColumn)
-        return data
 
 
 def handle_batch_columns(dataHeader:list, xColumnName:str, yColumnName:str)->(int, int):

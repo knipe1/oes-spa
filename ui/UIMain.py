@@ -109,7 +109,6 @@ class UIMain(Ui_main):
         self.tinCentralWavelength.setText(wl)
 
 
-
     @property
     def grating(self)->int:
         """Get the converted grating or None."""
@@ -170,7 +169,6 @@ class UIMain(Ui_main):
         self.logger = Logger(__name__)
 
         self.setupUi(parent)
-
 
         self.__post_init__()
 
