@@ -155,6 +155,12 @@
           <height>0</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="title">
          <string>Results</string>
         </property>
@@ -247,10 +253,20 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+          <kerning>true</kerning>
+         </font>
+        </property>
         <property name="title">
          <string>Additional Information</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
          <item>
           <widget class="QLabel" name="lblTimeInfo">
            <property name="text">
@@ -799,14 +815,14 @@ wavelength!</string>
       </property>
       <property name="minimumSize">
        <size>
-        <width>600</width>
-        <height>400</height>
+        <width>450</width>
+        <height>350</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>700</width>
-        <height>800</height>
+        <width>1000</width>
+        <height>1670</height>
        </size>
       </property>
       <property name="contextMenuPolicy">
@@ -815,7 +831,19 @@ wavelength!</string>
       <property name="title">
        <string>Raw Spectrum</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QHBoxLayout" name="horLayoutRaw">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="MatplotlibWidget" name="mplRaw" native="true">
          <property name="sizePolicy">
@@ -851,20 +879,32 @@ wavelength!</string>
       </property>
       <property name="minimumSize">
        <size>
-        <width>400</width>
-        <height>330</height>
+        <width>450</width>
+        <height>350</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>700</width>
+        <width>1000</width>
         <height>1670</height>
        </size>
       </property>
       <property name="title">
        <string>Processed Spectrum</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <layout class="QHBoxLayout" name="horLayoutProcessed">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="MatplotlibWidget" name="mplProcessed" native="true">
          <property name="enabled">
