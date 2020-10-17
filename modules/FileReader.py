@@ -20,7 +20,6 @@ Glossary:
 import csv
 import numpy as np
 from datetime import datetime
-import fnmatch
 
 # third-party libs
 
@@ -38,6 +37,9 @@ import modules.Universal as uni
 from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
 from custom_types.ERROR_CODE import ERROR_CODE as ERR
 from custom_types.SUFFICES import SUFFICES as SUFF
+
+# constants
+TIME_NOT_SET = "Not set!"
 
 
 class FileReader(FileFramework):
@@ -80,21 +82,14 @@ class FileReader(FileFramework):
     ### Properties
 
     @property
-    def timestamp(self)->datetime:
-        """Formats date and time as defined in the configuration."""
-        strTime = self.strTimestamp
-        try:
-            time = uni.timestamp_from_string(strTime)
-        except ValueError:
-            time = None
-        return time
+    def timeInfo(self):
+        return self._timestamp
 
-    @property
-    def strTimestamp(self)->str:
-        try:
-            return self.date + " " + self.time
-        except TypeError:
-            return ""
+    @timeInfo.setter
+    def timeInfo(self, timestamp:datetime):
+        if not timestamp:
+            timestamp = TIME_NOT_SET
+        self._timestamp = timestamp
 
 
     @property
@@ -114,14 +109,8 @@ class FileReader(FileFramework):
 
 
     @property
-    def header(self):
-        """Gather the information about the file itself(name, strTimestamp)."""
-        return (self.filename, self.strTimestamp)
-
-
-    @property
     def fileinformation(self):
-        return (self.filename, self.timestamp)
+        return (self.filename, self.timeInfo)
 
 
     @property
@@ -158,7 +147,7 @@ class FileReader(FileFramework):
 
     def __eq__(self, other):
         try:
-            isEqual = (self.header == other.header)
+            isEqual = (self.fileinformation == other.fileinformation)
         except AttributeError:
             # If compared with another type, that type has no header attribute.
             isEqual = False
@@ -167,7 +156,7 @@ class FileReader(FileFramework):
 
     def __repr__(self):
         info = {}
-        info["Header"] = self.header
+        info["filename"] = self.filename
         info["Timestamp"] = self.timestamp
         info["data length"] = "X:%i, Y:%i"%(len(self.xData), len(self.yData))
         return self.__module__ + ":\n" + str(info)
@@ -181,8 +170,7 @@ class FileReader(FileFramework):
         self.yData = np.zeros(0)
         self.parameter = {}
         # Init with "Not set!" to display the warning on the ui.
-        self.date = "Not set!"
-        self.time = "Not set!"
+        self.timeInfo = TIME_NOT_SET
         self.subReader = None
 
 
@@ -241,7 +229,7 @@ class FileReader(FileFramework):
             return ERR.DATA_UNEQUAL_LENGTH;
 
         # Check file information.
-        if not self.timestamp:
+        if not self.timeInfo:
             return ERR.INVALID_FILEINFORMATION;
 
         return ERR.OK
@@ -255,6 +243,6 @@ class FileReader(FileFramework):
             # because we use another dialect then).
             fReader = csv.reader(openFile, dialect=self.subReader.dialect)
             fileinformation = self.subReader.readout_file(fReader, **kwargs)
-            self.date, self.time = fileinformation["header"]
+            self.timeInfo = fileinformation["timeInfo"]
             self.data = fileinformation["data"]
             self.parameter = fileinformation.get("parameter", {})

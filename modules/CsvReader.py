@@ -7,6 +7,7 @@ Created on Fri Sep  4 12:11:22 2020
 """
 
 # standard libs
+from datetime import datetime
 # fnmatch: Unix filename pattern matching (https://docs.python.org/3/library/fnmatch.html)
 import fnmatch
 
@@ -14,6 +15,7 @@ import fnmatch
 
 # local modules/libs
 from modules.BaseReader import BaseReader, select_xyData
+import modules.Universal as uni
 
 # Enums
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
@@ -62,7 +64,7 @@ class CsvReader(BaseReader):
                 continue
 
             if marker in markerElement:
-                header = self.get_header(markerElement)
+                timeInfo = self.get_time_info(markerElement)
             elif self.MARKER["BATCH"] in markerElement:
                 # A general issue might be to open the batchfile with excel or
                 # something similar, because the program may use a different
@@ -82,28 +84,21 @@ class CsvReader(BaseReader):
         data = self.list_to_2column_array(data)
 
         information = {}
-        information["header"] = header
+        information["timeInfo"] = timeInfo
         information["data"] = data
         return information
 
 
-    def get_header(self, element:list)->tuple:
-        """
-        Extracts the header of the given list 'element'.
 
-        Returns
-        -------
-        date, time: (str, str)
-            The date and the time of the measurement of the spectrum.
-
-        """
-
+    def get_time_info(self, element:str)->datetime:
         try:
             _, date, time = element.split()
+            strTime = date + " " + time
+            timestamp = uni.timestamp_from_string(strTime)
         except ValueError:
-            return (None, None)
+            return None
 
-        return (date, time)
+        return timestamp
 
 
     def get_data(self, fReader):

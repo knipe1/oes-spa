@@ -7,10 +7,12 @@ Created on Fri Sep  4 12:11:22 2020
 """
 
 # standard libs
+from datetime import datetime
 
 # third-party libs
 
 # local modules/libs
+import modules.Universal as uni
 from modules.BaseReader import BaseReader, is_floatable, select_xyData
 
 # Enums
@@ -35,7 +37,6 @@ class SpkReader(BaseReader):
     ### Methods
 
     def set_spk_defaults(self):
-        # TODO: docstring
         self.dialect = self.DIALECT["name"]
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["SPK_DATA_COLUMN"]
@@ -64,30 +65,22 @@ class SpkReader(BaseReader):
             if is_floatable(xDataElement, yDataElement):
                 select_xyData(data, line, self.xColumn, self.yColumn)
             elif marker in markerElement:
-                header = self.get_header(markerElement)
+                timeInfo = self.get_time_info(markerElement)
 
         data = self.list_to_2column_array(data)
 
         information = {}
-        information["header"] = header
+        information["timeInfo"] = timeInfo
         information["data"] = data
         return information
 
 
-    def get_header(self, element:list)->tuple:
-        """
-        Extracts the header of the given list 'element'.
-
-        Returns
-        -------
-        date, time: (str, str)
-            The date and the time of the measurement of the spectrum.
-
-        """
-
+    def get_time_info(self, element:str)->datetime:
         try:
             _, date, time = element.split()
+            strTime = date + " " + time
+            timestamp = uni.timestamp_from_string(strTime)
         except ValueError:
-            return (None, None)
+            return None
 
-        return (date, time)
+        return timestamp

@@ -306,7 +306,6 @@ class AnalysisWindow(QMainWindow):
 
 
 
-
     def set_wavelength_from_file(self, file:FileReader):
         try:
             self.window.wavelength = file.WAVELENGTH

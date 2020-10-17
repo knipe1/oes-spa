@@ -380,7 +380,7 @@ class BatchAnalysis(QDialog):
                 peakArea = specHandler.peakArea
                 peakPosition = specHandler.peakPosition
                 characteristicValue = specHandler.characteristicValue
-                timestamp = self.currentFile.timestamp
+                timestamp = self.currentFile.timeInfo
 
                 # excluding file if no appropiate data given like in processed
                 # spectra.
@@ -388,7 +388,7 @@ class BatchAnalysis(QDialog):
                 # below some defined threshold.
                 # TODO: validate_results as method of specHandler? Would also omit
                 # the assignemts above!?
-                if not peakHeight:
+                if not (peakHeight > 0):
                     skippedFiles.append(file)
                     continue
 

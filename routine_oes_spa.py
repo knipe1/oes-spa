@@ -19,7 +19,6 @@ from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 from Logger import Logger
-from modules.Spectrum import Spectrum
 
 
 # set up the logger
@@ -33,9 +32,9 @@ def main():
     initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
-    selectBatchSpectra = False
+    showBatch = True
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
     activateWD = False
 

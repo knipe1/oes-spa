@@ -31,6 +31,7 @@ from ui.ui_main_window import Ui_main
 from ConfigLoader import ConfigLoader
 from modules.Fitting import Fitting
 from Logger import Logger
+import modules.Universal as uni
 from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
 from modules.SpectrumHandler import SpectrumHandler
@@ -235,9 +236,10 @@ class UIMain(Ui_main):
 
 
     def set_fileinformation(self, filereader:FileReader)->None:
-        filename, timeInfo = filereader.header
+        filename, timeInfo = filereader.fileinformation
+        strTimeInfo = uni.timestamp_to_string(timeInfo)
         self.toutFilename.setText(filename)
-        self.toutTimeInfo.setText(timeInfo)
+        self.toutTimeInfo.setText(strTimeInfo)
 
 
     def retrieve_fittings(self) -> list:

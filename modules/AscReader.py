@@ -7,6 +7,7 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
+from datetime import datetime
 
 # third-party libs
 
@@ -70,7 +71,7 @@ class AscReader(BaseReader):
             if is_floatable(xDataElement, yDataElement):
                 select_xyData(data, line, self.xColumn, self.yColumn)
             elif marker in markerElement:
-                header = self.get_header(line)
+                timeInfo = self.get_time_info(line)
             elif len(line) == 1:
                 try:
                     name, value = asc_separate_parameter(line)
@@ -81,39 +82,20 @@ class AscReader(BaseReader):
         data = self.list_to_2column_array(data)
 
         information = {}
-        information["header"] = header
+        information["timeInfo"] = timeInfo
         information["data"] = data
         information["parameter"] = parameter
         return information
 
 
-    def get_header(self, element:list)->tuple:
-        """
-        Extracts the header of an .asc file.
-
-        Parameters
-        ----------
-        row: list
-            The row of the file containing the header information.
-
-        Returns
-        -------
-        date, time: (str, str)
-            The date and the time of the measurement of the spectrum.
-
-        """
-
+    def get_time_info(self, element:list)->datetime:
         try:
             _, strTime = asc_separate_parameter(element)
             timestamp = uni.timestamp_from_string(strTime, ASC_TIMESTAMP)
         except ValueError:
-            return (None, None)
+            return None
+        return timestamp
 
-        # Format the timestamp according to the 'export' time format.
-        date = uni.timestamp_to_string(timestamp, EXPORT_DATE)
-        time = uni.timestamp_to_string(timestamp, EXPORT_TIME)
-
-        return (date, time)
 
 
 
