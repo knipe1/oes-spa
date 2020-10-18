@@ -133,6 +133,8 @@ def information_BatchAnalysisFinished(skippedFiles:list, parent:QMainWindow=None
     QMessageBox.information(parent, title, text);
 
 
+### Export
+
 def information_ExportFinished(filename:str, parent:QMainWindow=None)->None:
     title = "Successfully exported";
     text = f"Exported to: {filename}";
@@ -141,9 +143,16 @@ def information_ExportFinished(filename:str, parent:QMainWindow=None)->None:
 
 def information_ExportAborted(parent:QMainWindow=None)->None:
     title = "Export failed!";
-    text = "Export failed. Possible issues: No data found. Invalid file, "\
-    "could not export raw or processed spectra.";
+    text = "Possible issues: No data found. "\
+        "Could not export raw or processed spectra.";
     QMessageBox.information(parent, title, text);
+
+
+def information_ExportNoSpectrum(parent:QMainWindow=None)->None:
+    title = "No spectrum active!";
+    text = "No spectrum is active, so no spectrum can be exported!";
+    QMessageBox.information(parent, title, text);
+
 
 
 def information_NormalizationFactorUndefined(parent:QMainWindow=None)->None:

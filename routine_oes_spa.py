@@ -29,7 +29,7 @@ def main():
     # True
     # False
 
-    initialSpkLoad = True
+    initialSpkLoad = False
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = False

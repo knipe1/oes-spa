@@ -193,18 +193,18 @@ class AnalysisWindow(QMainWindow):
     ### Export
 
     def export_spectrum(self, spectrum:Spectrum, results:dict={}):
-        filename, timestamp = self.fileinformation_of_activeFile()
-        writer = SpectrumWriter(filename, timestamp)
 
         try:
-            exportedFilename = writer.export(spectrum, results)
+            writer = SpectrumWriter(*self.activeFile.fileinformation)
         except AttributeError:
-            exportedFilename = None
-        finally:
-            if exportedFilename:
-                dialog.information_ExportFinished(exportedFilename)
-            else:
-                dialog.information_ExportAborted()
+            dialog.information_ExportNoSpectrum()
+            return
+
+        exportedFilename = writer.export(spectrum, results)
+        if exportedFilename:
+            dialog.information_ExportFinished(exportedFilename)
+        else:
+            dialog.information_ExportAborted()
 
 
     def export_raw(self):
@@ -234,23 +234,10 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_file(self.activeFile.filename)
+            self.apply_data(self.activeFile)
             self.logger.info("New value of setting:" + value)
         except:
             self.logger.warning("Redraw Failed")
-
-
-    ### fileinformation
-
-    def fileinformation_of_activeFile(self):
-        try:
-            filename, timestamp = self.activeFile.fileinformation
-        except AttributeError:
-            self.logger.error("Could not get fileinformation.")
-            filename = None;
-            timestamp = None;
-        finally:
-            return filename, timestamp
 
 
     ### data analysis
@@ -265,7 +252,7 @@ class AnalysisWindow(QMainWindow):
 
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
         errorcode = specHandler.analyse_data(file)
-        if not errorcode == ERR.OK:
+        if not errorcode:
             dialog.critical_invalidSpectrum()
             return
 

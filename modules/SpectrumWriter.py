@@ -14,7 +14,6 @@ from os import path
 
 # local modules/libs
 from modules.FileWriter import FileWriter
-import dialog_messages as dialog
 import modules.Universal as uni
 import modules.Spectrum as Spectrum
 
