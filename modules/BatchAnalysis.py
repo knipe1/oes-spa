@@ -571,7 +571,7 @@ class BatchAnalysis(QDialog):
             if selectedFile:
                 if self.dog.is_alive():
                     self.parent().apply_data(selectedFile)
-                    self.traceSpectrum.plot_recording(*selectedFile.fileinformation)
+                    self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
                 else:
                     self.parent().apply_file(selectedFilename)
         except IndexError:
