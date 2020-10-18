@@ -30,7 +30,6 @@ NO_NAME_DEFINED = "No name provided!"
 
 class Fitting():
     """
-    # TODO: docstring
     Interface for properties of the currently active fitting.
 
     Contains information about characteristic values, names, peaks and the

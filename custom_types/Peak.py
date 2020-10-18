@@ -21,6 +21,7 @@ from custom_types.ERROR_CODE import ERROR_CODE as ERR
 
 # constants
 DEFAULT_NORM_FACTOR = 1.0
+DEFAULT_NORM_OFFSET = 0.0
 
 def default_norm_factor():
     """Prompt the user and set the default."""
@@ -29,7 +30,7 @@ def default_norm_factor():
 
 class Peak(BasePeak):
 
-    def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, **kwargs):
+    def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, normalizationOffset:float=None, **kwargs):
 
         super().__init__(centralWavelength, shiftUp, shiftDown)
         self.name = name
@@ -37,6 +38,8 @@ class Peak(BasePeak):
         if normalizationFactor is None:
             normalizationFactor = default_norm_factor()
         self.normalizationFactor = normalizationFactor
+
+        self.normalizationOffset = normalizationOffset or DEFAULT_NORM_OFFSET
 
         ref = kwargs.get("reference")
         self.set_reference(ref)
