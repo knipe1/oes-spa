@@ -138,6 +138,16 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QCheckBox" name="cbBaselineCorrection">
+           <property name="text">
+            <string>Baseline correction</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

@@ -17,6 +17,7 @@ import peakutils as pkus
 from Logger import Logger
 import  modules.Universal as uni
 from modules.FileReader import FileReader
+from custom_types.BasicSetting import BasicSetting
 
 # enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
@@ -98,7 +99,7 @@ class SpectrumHandler():
             return errorcode
 
         self.rawData = file.data
-        self.procData, self.baseline, self.avgbase = process_data(self.rawData, self.basicSetting.wavelength, self.dispersion)
+        self.procData, self.baseline, self.avgbase = process_data(self.rawData, self.basicSetting, self.dispersion)
 
         # Find Peak and obtain height, area, and position
         fitting = self.basicSetting.fitting
@@ -229,10 +230,10 @@ class SpectrumHandler():
 
 
 
-def process_data(rawData:np.ndarray, centralWavelength:float, dispersion:float):
+def process_data(rawData:np.ndarray, setting:BasicSetting, dispersion:float):
     """Processes the raw data with regard to the given wavelength and the dispersion."""
-    procXData = process_x_data(rawData[:, 0], centralWavelength, dispersion)
-    procYData, baseline, avgbase = process_y_data(rawData[:, 1])
+    procXData = process_x_data(rawData[:, 0], setting.wavelength, dispersion)
+    procYData, baseline, avgbase = process_y_data(rawData[:, 1], setting.baselineCorrection)
     return (procXData, procYData), baseline, avgbase
 
 
@@ -256,7 +257,7 @@ def process_x_data(rawXData:np.ndarray, centralWavelength:float, dispersion:floa
     return shiftedData
 
 
-def process_y_data(rawYData:np.ndarray):
+def process_y_data(rawYData:np.ndarray, baselineCorrection:bool):
     # Baseline fitting with peakutils.
     # TODO: what is calculated here? @knittel/@reinke
     # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
@@ -264,6 +265,9 @@ def process_y_data(rawYData:np.ndarray):
     avgbase = np.mean(baseline)
 
     # Shifting y data and normalization to average baseline intensity.
-    shiftedYdata = rawYData - baseline
+    if baselineCorrection:
+        shiftedYdata = rawYData - baseline
+    else:
+        shiftedYdata = rawYData
     processedYdata = shiftedYdata / abs(avgbase)
     return processedYdata, baseline, avgbase

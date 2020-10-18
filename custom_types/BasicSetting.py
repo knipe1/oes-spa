@@ -18,5 +18,6 @@ from modules.Fitting import Fitting
 @dataclass(frozen=True)
 class BasicSetting():
     wavelength: float;
-    grating: float; # TODO: int?
+    grating: float;
     fitting: Fitting;
+    baselineCorrection: bool;

@@ -231,6 +231,7 @@ class UIMain(Ui_main):
         self.tinCentralWavelength.textChanged.connect(fun)
         self.ddGrating.currentTextChanged.connect(fun)
         self.ddFitting.currentTextChanged.connect(fun)
+        self.cbBaselineCorrection.stateChanged.connect(fun)
 
 
     def set_fileinformation(self, filereader:FileReader)->None:
@@ -328,9 +329,9 @@ class UIMain(Ui_main):
 
     def get_basic_setting(self)->BasicSetting:
 
-        grating = self.grating
+        baselineCorrection = self.cbBaselineCorrection.isChecked()
         fitting = self.load_fitting(self.ddFitting.currentText())
-        setting = BasicSetting(self.wavelength, grating, fitting)
+        setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection)
 
         return setting;
 
