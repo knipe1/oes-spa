@@ -58,7 +58,7 @@ class CsvReader(BaseReader):
         line = kwargs.get("line")
         xColumnName = self.defaultBatchXColumn
         yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
-        self.xColumn, self.yColumn = handle_batch_columns(line, xColumnName, yColumnName)
+        self.xColumn, self.yColumn = determine_batch_column_indeces(line, xColumnName, yColumnName)
 
 
 
@@ -76,7 +76,7 @@ class CsvReader(BaseReader):
 
 
 
-def handle_batch_columns(dataHeader:list, xColumnName:str, yColumnName:str)->(int, int):
+def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName:str)->(int, int):
     """
 
 

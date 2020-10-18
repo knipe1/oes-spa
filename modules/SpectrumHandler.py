@@ -139,7 +139,7 @@ class SpectrumHandler():
         intAreas.append(integrationAreas[CHC.INTEGRATION_RAW])
         intAreas.append(integrationAreas[CHC.INTEGRATION_PROCESSED])
 
-        # TODO: @knittel validation?
+        # Validation
         if refHeight >= peak.reference.minimum:
             characteristicValue = peakArea / refHeight * peak.normalizationFactor
 

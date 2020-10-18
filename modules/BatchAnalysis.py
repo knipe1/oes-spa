@@ -384,11 +384,9 @@ class BatchAnalysis(QDialog):
 
                 # excluding file if no appropiate data given like in processed
                 # spectra.
-                # TODO: Check more exlude conditions like characteristic value
-                # below some defined threshold.
                 # TODO: validate_results as method of specHandler? Would also omit
                 # the assignemts above!?
-                if not (peakHeight > 0):
+                if not peakHeight:
                     skippedFiles.append(file)
                     continue
 
@@ -571,9 +569,9 @@ class BatchAnalysis(QDialog):
             if selectedFile:
                 if self.dog.is_alive():
                     self.parent().apply_data(selectedFile)
-                    self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
                 else:
                     self.parent().apply_file(selectedFilename)
+                self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
         except IndexError:
             self.logger.info("Cannot open file, invalid index provided!")
 
