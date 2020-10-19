@@ -29,13 +29,13 @@ import os
 # local modules/libs
 from ui.ui_main_window import Ui_main
 from ConfigLoader import ConfigLoader
-from modules.Fitting import Fitting
+from modules.dataanalysis.Fitting import Fitting
 from Logger import Logger
 import modules.Universal as uni
 from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
-from modules.SpectrumHandler import SpectrumHandler
-from modules.FileReader import FileReader
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.filehandling.filereading.FileReader import FileReader
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting

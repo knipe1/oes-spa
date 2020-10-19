@@ -14,7 +14,7 @@ import fnmatch
 
 # local modules/libs
 import modules.Universal as uni
-from modules.BaseReader import BaseReader
+from modules.filehandling.filereading.BaseReader import BaseReader
 
 # Enums
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC

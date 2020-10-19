@@ -11,7 +11,7 @@ Created on Mon Jan 27 11:02:13 2020
 # third-party libs
 
 # local modules/libs
-from modules.FileFramework import FileFramework
+from modules.filehandling.FileFramework import FileFramework
 import modules.Universal as uni
 
 # Enums

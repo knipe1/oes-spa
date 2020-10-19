@@ -20,13 +20,12 @@ from Logger import Logger
 import modules.Universal as uni
 import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
-from modules.SpectrumHandler import SpectrumHandler
-from modules.FileReader import FileReader
-from modules.Spectrum import Spectrum
-from modules.SpectrumWriter import SpectrumWriter
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.filehandling.filereading.FileReader import FileReader
+from modules.dataanalysis.Spectrum import Spectrum
+from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 
 # enums
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
 from custom_types.BasicSetting import BasicSetting
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 

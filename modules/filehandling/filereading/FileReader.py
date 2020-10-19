@@ -25,11 +25,11 @@ from datetime import datetime
 
 # local modules/libs
 # FileFramework: base class.
-from modules.FileFramework import FileFramework
+from modules.filehandling.FileFramework import FileFramework
 # specific subReader
-from modules.AscReader import AscReader
-from modules.CsvReader import CsvReader
-from modules.SpkReader import SpkReader
+from modules.filehandling.filereading.AscReader import AscReader
+from modules.filehandling.filereading.CsvReader import CsvReader
+from modules.filehandling.filereading.SpkReader import SpkReader
 # further modules
 import modules.Universal as uni
 

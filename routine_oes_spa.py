@@ -29,12 +29,12 @@ def main():
     # True
     # False
 
-    initialSpkLoad = False
-    tryDifferentFiles = False
-    exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
-    selectBatchSpectra = False
+    initialSpkLoad = True
+    tryDifferentFiles = True
+    exportSpectra = True
+    showBatch = True
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
     activateWD = False
 

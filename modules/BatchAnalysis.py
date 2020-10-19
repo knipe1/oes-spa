@@ -28,11 +28,11 @@ from ui.UIBatch import UIBatch
 # modules & universal
 import modules.Universal as uni
 import dialog_messages as dialog
-from modules.Spectrum import Spectrum
+from modules.dataanalysis.Spectrum import Spectrum
 from modules.Watchdog import Watchdog
-from modules.FileReader import FileReader
-from modules.BatchWriter import BatchWriter
-from modules.SpectrumHandler import SpectrumHandler
+from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filewriting.BatchWriter import BatchWriter
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 
 # Enums

@@ -13,9 +13,9 @@ from os import path
 # third-party libs
 
 # local modules/libs
-from modules.FileWriter import FileWriter
+from modules.filehandling.filewriting.FileWriter import FileWriter
 import modules.Universal as uni
-import modules.Spectrum as Spectrum
+import modules.dataanalysis.Spectrum as Spectrum
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE

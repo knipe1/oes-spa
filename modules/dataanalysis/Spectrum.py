@@ -30,7 +30,7 @@ class Spectrum():
     Concatenate properties of a spectrum to have data and plot abilities together.
 
     Usage:
-        from modules.Spectrum import Spectrum
+        from modules.dataanalysis.Spectrum import Spectrum
         spectrum = Spectrum(matplotlibwidget, EXPORT_TYPE)
         spectrum.update_data(data)
         spectrum.plot_spectrum()

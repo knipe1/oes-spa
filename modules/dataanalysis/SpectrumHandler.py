@@ -16,7 +16,7 @@ import peakutils as pkus
 # local modules/libs
 from Logger import Logger
 import  modules.Universal as uni
-from modules.FileReader import FileReader
+from modules.filehandling.filereading.FileReader import FileReader
 from custom_types.BasicSetting import BasicSetting
 
 # enums
