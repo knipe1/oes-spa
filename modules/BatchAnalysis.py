@@ -245,7 +245,7 @@ class BatchAnalysis(QDialog):
 
     def watchdog_event_handler(self, path:str)->None:
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
-        eventPath, _ = uni.extract_path_and_basename(path)
+        eventPath, _, _ = uni.extract_path_basename_suffix(path)
 
         # Distinguish between modified batch- and spectrum-file.
         if self.batchFile == path:
@@ -407,9 +407,8 @@ class BatchAnalysis(QDialog):
             header = assemble_header(config, peakName=peakName)
             if isSingleFile:
                 data = assemble_row(config)
-                self.export_batch(data, header, isUpdate=True)
-            else:
-                self.export_batch(data, header)
+
+            self.export_batch(data, header, isUpdate=isSingleFile)
 
         if isPlotTrace:
             self.import_batchfile(takeCurrentBatchfile=True)
@@ -454,7 +453,8 @@ class BatchAnalysis(QDialog):
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
-            filename = dialog.dialog_openBatchFile(self.lastdir)
+            filename = dialog.dialog_openBatchFile()
+            # filename = dialog.dialog_openBatchFile(self.lastdir)
             self.lastdir = filename
         return filename
 
@@ -469,8 +469,6 @@ class BatchAnalysis(QDialog):
 
 
     def export_batch(self, data, header, isUpdate=False):
-
-        # Export in csv file.
         csvWriter = BatchWriter(self.batchFile)
         if isUpdate:
             csvWriter.extend_data(data, header)
@@ -496,7 +494,8 @@ class BatchAnalysis(QDialog):
 
         """
         # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_batchfile(self.lastdir)
+        filename = dialog.dialog_batchfile()
+        # filename = dialog.dialog_batchfile(self.lastdir)
 
         # Cancel or quit the dialog.
         if not filename:
@@ -512,7 +511,8 @@ class BatchAnalysis(QDialog):
 
 
     def specify_watchdog_directory(self):
-        directory = dialog.dialog_watchdogDirectory(self.lastdir)
+        directory = dialog.dialog_watchdogDirectory()
+        # directory = dialog.dialog_watchdogDirectory(self.lastdir)
 
         if directory:
             self.WDdirectory = directory

@@ -14,7 +14,6 @@ from datetime import datetime
 
 # local modules/libs
 from modules.filehandling.filewriting.FileWriter import FileWriter
-import modules.Universal as uni
 
 # Enums
 
@@ -41,56 +40,42 @@ class BatchWriter(FileWriter):
         return self.__module__ + ":\n" + str(info)
 
 
-    def export(self, data, columnTitles):
+    def export(self, data:list, columnTitles:list)->None:
         """
-        Writes the header, additional information, label and data into a csv file.
-
         Parameters
         ----------
-        data : List or tuple
-            List or tuple of data.
-        labels : list of strings
+        data : list
+            X- and y-data.
+        columnTitles : list
             Describes the column titles of the data.
 
         """
-
-        exportFilename = build_exp_filename(self.filename)
-
-        with open(exportFilename, 'w', newline='') as exportFile:
-            fWriter = csv.writer(exportFile, dialect=self.dialect)
-            super().write_header(fWriter, self.timestamp)
-            super().write_column_titles(fWriter, columnTitles)
-            fWriter.writerows(data)
+        super().export(self.filename, data, columnTitles)
 
 
-    def extend_data(self, data, columnTitles):
+    def extend_data(self, data:list, columnTitles:list=None)->None:
         if self.is_valid_batchfile():
             self.append_data(data)
         else:
             self.export([data], columnTitles)
 
 
-    def append_data(self, data):
+    def append_data(self, data:list)->None:
         with open(self.filename, 'a', newline='') as f:
             writer = csv.writer(f, dialect=self.dialect)
             writer.writerow(data)
 
 
-
-    def is_valid_batchfile(self):
+    def is_valid_batchfile(self)->None:
         isValid = False
         try:
             with open(self.filename, 'r', newline='') as f:
                 fReader = csv.reader(f, dialect=self.dialect)
-                for row in fReader:
-                    if self.MARKER["BATCH"] in row[0]:
+                for line in fReader:
+                    if self.MARKER["BATCH"] in line[0]:
                         isValid = True
                         break
         except FileNotFoundError:
-            isValid = False
+            pass
         return isValid
 
-
-def build_exp_filename(filename):
-    exportFilename = uni.replace_suffix(filename)
-    return exportFilename

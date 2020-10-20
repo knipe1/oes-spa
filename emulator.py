@@ -80,14 +80,18 @@ def key_select_file(iterations):
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)
-        # windows (next 2 linies outcommented)
+        # windows (next 2 linies not outcommented)
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
     # linux (next 3 linies not outcommented)
-    keyboard.press(Key.down)
-    keyboard.release(Key.down)
-    keyboard.press(Key.down)
-    keyboard.release(Key.down)
+    keyboard.press(Key.enter)
+    keyboard.release(Key.enter)
+    sleep(2*PAUSE)
+
+    # keyboard.press(Key.down)
+    # keyboard.release(Key.down)
+    # keyboard.press(Key.down)
+    # keyboard.release(Key.down)
     keyboard.press(Key.down)
     keyboard.release(Key.down)
     with keyboard.pressed(Key.shift_l):
@@ -101,6 +105,21 @@ def key_select_file(iterations):
         # keyboard.release(Key.up)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
+
+
+def select_first_directory():
+    keyboard = Controller()
+    sleep(PAUSE)
+    with keyboard.pressed(Key.shift_l):
+        keyboard.press(Key.tab)
+        keyboard.release(Key.tab)
+        # windows (next 2 linies not outcommented)
+        # keyboard.press(Key.tab)
+        # keyboard.release(Key.tab)
+    keyboard.press(Key.enter)
+    keyboard.release(Key.enter)
+
+
 
 def key_arbitrary(text):
     """

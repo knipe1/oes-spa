@@ -13,9 +13,10 @@ from os import path
 # third-party libs
 
 # local modules/libs
+# FileWriter: base class.
 from modules.filehandling.filewriting.FileWriter import FileWriter
 import modules.Universal as uni
-import modules.dataanalysis.Spectrum as Spectrum
+from modules.dataanalysis.Spectrum import Spectrum
 
 # Enums
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
@@ -40,72 +41,50 @@ class SpectrumWriter(FileWriter):
         return self.__module__ + ":\n" + str(info)
 
 
-    def export(self, spectrum:Spectrum, additionalInformation:dict={}):
+    def export(self, spectrum:Spectrum, extraInformation:dict=None)->str:
         """
-        Writes the header, additional information, label and data into a csv file.
-
         Parameters
         ----------
-        data : List or tuple
-            List or tuple of x- and y-data. Does not take the values itself into account, so it do not matter whether these data is pixel, intensity or wavelength
-        titles : list of strings
-            Describes the properties of the data.
-        additionalInformation : dict, optional
-            A dictionary that uses the Key and value as entries. Used for additional characteristic values. The default is {}.
-        exportType : enum EXPORT_TYPE
-            Adding an appendix to the filename according to the spectrum that is exported.
+        spectrum : Spectrum
+            Information about the spectrum to export.
+        extraInformation : dict, optional (default {})
+            Used for characteristic values like peak height,...
         """
-
-        # Note: If the appendices are in the directory name, this is treated like an exported spectrum.
         if is_exported_spectrum(self.filename):
             return
 
-        exportFilename = build_exp_filename(self.filename, spectrum.exportType)
+        exportFilename = self.assemble_export_filename(spectrum.exportType)
 
-        with open(exportFilename, 'w', newline='') as exportFile:
-            fWriter = csv.writer(exportFile, dialect=self.dialect)
-            super().write_header(fWriter, self.timestamp)
-            self.write_information(fWriter, additionalInformation)
-            super().write_column_titles(fWriter, spectrum.labels.values())
-            self.write_data(fWriter, spectrum.data)
+        data = spectrum.data
+        columnTitles = spectrum.labels.values()
+        super().export(exportFilename, data, columnTitles, extraInformation)
 
         return exportFilename
 
 
-    def write_column_titles(self, fWriter, titles):
-        fWriter.writerow(titles)
-
-
-    def write_information(self, fWriter:csv.writer, information:dict):
-        for key, value in information.items():
-            fWriter.writerow(key + ": " + value)
-
-    def write_data(self, fWriter:csv.writer, data):
+    def write_data(self, fWriter:csv.writer, data:list)->None:
         fWriter.writerow([self.MARKER["DATA"]])
         fWriter.writerows(data)
 
 
-def build_exp_filename(filename, exportType):
-    """Alters the current filename to a standard processed export filename"""
-    filepath, baseName = uni.extract_path_and_basename(filename)
+    def assemble_export_filename(self, exportType:EXPORT_TYPE)->str:
+        """Alters the current filename to a standard processed export filename"""
+        appendix = determine_appendix(exportType)
 
-    appendix = determine_appendix(exportType)
-
-    exportFilename = path.join(filepath, baseName + appendix)
-    exportFilename = uni.replace_suffix(exportFilename)
-
-    return exportFilename
+        filepath, baseName, suffix = uni.extract_path_basename_suffix(self.filename)
+        exportFilename = path.join(filepath, baseName + appendix + '.' + suffix)
+        return exportFilename
 
 
-def is_exported_spectrum(filename):
-    isRawSpectrum = (filename.rfind(RAW_APPENDIX) >= 0)
-    isProccessedSpectrum = filename.rfind(PROCESSED_APPENDIX) >= 0
+def is_exported_spectrum(filename:str)->bool:
+    baseName = path.basename(filename)
+    isRawSpectrum = (baseName.rfind(RAW_APPENDIX) >= 0)
+    isProccessedSpectrum = (baseName.rfind(PROCESSED_APPENDIX) >= 0)
     isExported = (isRawSpectrum or isProccessedSpectrum)
     return isExported
 
 
-def determine_appendix(exportType):
-    appendix = ""
+def determine_appendix(exportType:EXPORT_TYPE)->str:
     if exportType == EXPORT_TYPE.RAW:
         appendix = RAW_APPENDIX
     elif exportType == EXPORT_TYPE.PROCESSED:

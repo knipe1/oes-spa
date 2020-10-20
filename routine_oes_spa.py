@@ -30,13 +30,13 @@ def main():
     # False
 
     initialSpkLoad = True
-    tryDifferentFiles = True
-    exportSpectra = True
+    tryDifferentFiles = False
+    exportSpectra = False
     showBatch = True
     selectBatchfile = True
     selectBatchSpectra = True
     hideBatch = False
-    activateWD = True
+    activateWD = False
 
 
     # Setup GUI
@@ -96,7 +96,7 @@ def main():
         window.window.wavelength = "433.1"
         selection = THR.Thread(target=emu.key_select_file, args=[10])
         selection.start()
-        window.lastdir = window.lastdir+"/Obel276"
+        # window.lastdir = window.lastdir+"/Obel276"
         window.batch.browse_spectra()
         window.batch.window.radTrace.click()
         window.batch.window.btnCalculate.click()

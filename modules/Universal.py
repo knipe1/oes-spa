@@ -34,11 +34,12 @@ EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
 EXPORT_SUFFIX = "." + SUFF.CSV.value
 
 
-def extract_path_and_basename(filename):
+def extract_path_basename_suffix(filename):
     fileInfo = QFileInfo(filename)
     absolutePath = fileInfo.absolutePath()
     baseName = fileInfo.baseName()
-    return absolutePath, baseName
+    suffix = fileInfo.completeSuffix()
+    return absolutePath, baseName, suffix
 
 
 def data_are_pixel(data:np.ndarray)->bool:
@@ -126,7 +127,7 @@ def replace_suffix(filename, suffix=None):
 
     fileSuffix = get_suffix(filename)
     if not fileSuffix == suffix:
-        path, baseName = extract_path_and_basename(filename)
+        path, baseName, _ = extract_path_basename_suffix(filename)
         newFilename = os.path.join(path, baseName + newSuffix)
 
     return newFilename
