@@ -525,7 +525,8 @@ class BatchAnalysis(QDialog):
 
     def browse_spectra(self):
         """Opens a dialog to browse for spectra and updates the filelist."""
-        filelist = dialog.dialog_openSpectra(self.lastdir)
+        filelist = dialog.dialog_spectra()
+        # filelist = dialog.dialog_spectra(self.lastdir)
         self.update_filelist(filelist)
         try:
             filename = filelist[0]

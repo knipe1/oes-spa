@@ -172,7 +172,8 @@ class AnalysisWindow(QMainWindow):
         # Browse
 
         # Cancel/Quit dialog --> [].
-        filelist = dialog.dialog_openSpectra(self.lastdir);
+        # filelist = dialog.dialog_spectra(self.lastdir);
+        filelist = dialog.dialog_spectra();
         isSingleFile = (len(filelist) == 1)
         isMultipleFiles = (len(filelist) > 1)
 
