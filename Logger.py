@@ -45,7 +45,11 @@ import logging
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from dialog_messages import dialog_LogFileNotFound
+from dialog_messages import dialog_logFile
+
+# constants
+DEF_LOG_FILE = "../debug.log"
+
 
 class Logger():
     """
@@ -136,7 +140,7 @@ class Logger():
                                            mode = self.mode)
         except (FileNotFoundError, IsADirectoryError, TypeError, PermissionError, OSError):
             # Request a new location of the logfile.
-            dialogFile = dialog_LogFileNotFound()
+            dialogFile = dialog_logFile(defaultFile=DEF_LOG_FILE)
             # Use the URL. Default if cancelled.
             self.filename = dialogFile
             fhandler = logging.FileHandler(filename = self.filename,

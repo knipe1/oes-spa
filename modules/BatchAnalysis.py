@@ -211,7 +211,7 @@ class BatchAnalysis(QDialog):
         event.accept();
 
 
-    def dropEvent(self, event):
+    def dropEvent(self, event)->None:
         """
         Filter the dropped urls to update the files with only valid urls.
 
@@ -219,10 +219,6 @@ class BatchAnalysis(QDialog):
         ----------
         event : event
             The event itself.
-
-        Returns
-        -------
-        None.
 
         """
 
@@ -421,7 +417,7 @@ class BatchAnalysis(QDialog):
 
         # Prompt the user with information about the skipped files.
         if not isSingleFile:
-            dialog.information_BatchAnalysisFinished(skippedFiles)
+            dialog.information_batchAnalysisFinished(skippedFiles)
             self._files.difference_update(skippedFiles)
 
         return ERR.OK
@@ -500,7 +496,7 @@ class BatchAnalysis(QDialog):
 
         """
         # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_saveBatchfile(self.lastdir)
+        filename = dialog.dialog_batchfile(self.lastdir)
 
         # Cancel or quit the dialog.
         if not filename:
@@ -516,7 +512,7 @@ class BatchAnalysis(QDialog):
 
 
     def specify_watchdog_directory(self):
-        directory = dialog.dialog_getWatchdogDirectory(self.lastdir)
+        directory = dialog.dialog_watchdogDirectory(self.lastdir)
 
         if directory:
             self.WDdirectory = directory

@@ -197,14 +197,14 @@ class AnalysisWindow(QMainWindow):
         try:
             writer = SpectrumWriter(*self.activeFile.fileinformation)
         except AttributeError:
-            dialog.information_ExportNoSpectrum()
+            dialog.information_exportNoSpectrum()
             return
 
         exportedFilename = writer.export(spectrum, results)
         if exportedFilename:
-            dialog.information_ExportFinished(exportedFilename)
+            dialog.information_exportFinished(exportedFilename)
         else:
-            dialog.information_ExportAborted()
+            dialog.information_exportAborted()
 
 
     def export_raw(self):

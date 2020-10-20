@@ -14,7 +14,7 @@ Created on Thu Apr 16 09:48:04 2020
 # local modules/libs
 from custom_types.BasePeak import BasePeak
 from custom_types.ReferencePeak import ReferencePeak
-from dialog_messages import information_NormalizationFactorUndefined
+from dialog_messages import information_normalizationFactorUndefined
 
 # Enums
 from custom_types.ERROR_CODE import ERROR_CODE as ERR
@@ -25,7 +25,7 @@ DEFAULT_NORM_OFFSET = 0.0
 
 def default_norm_factor():
     """Prompt the user and set the default."""
-    information_NormalizationFactorUndefined()
+    information_normalizationFactorUndefined()
     return DEFAULT_NORM_FACTOR
 
 class Peak(BasePeak):

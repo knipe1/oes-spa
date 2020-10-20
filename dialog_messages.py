@@ -9,6 +9,9 @@ Hints:
     definitions of functions:
         first, the type is given and
         second, after the underscore the name is followed in camelCase
+    documentation:
+        https://doc.qt.io/qt-5/qfiledialog.html (20.10.2020)
+        https://doc.qt.io/qt-5/qmessagebox.html (20.10.2020)
 
 Created on Tue Feb 18 10:10:29 2020
 
@@ -18,18 +21,14 @@ Created on Tue Feb 18 10:10:29 2020
 # standard libs
 from os import path
 
-
 # third-party libs
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
-
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
 from custom_types.SUFFICES import SUFFICES as SUFF
 
 # constants
-DEF_LOG_FILE = "../debug.log"
-DEF_WD_DIR = "./"
 IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
                "SpexHex File (*.spk)",
                "Exported Raw spectrum (*.csv)",
@@ -37,10 +36,12 @@ IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
                ]
 EXPORT_FILTER = ["Batch files (*.csv)",]
 
-# Load the configuration for import, export and filesystem properties.
+# Load the configuration.
 config = ConfigLoader()
 BATCH = config.BATCH;
 
+# Message box
+## critical
 
 def critical_invalidSpectrum(parent:QWidget=None)->None:
     """
@@ -78,6 +79,47 @@ def critical_unknownSuffix(suffices:list=None, parent:QWidget=None)->None:
     QMessageBox.critical(parent, title, text);
 
 
+## information
+
+def information_batchAnalysisFinished(skippedFiles:list, parent:QWidget=None)->None:
+    title = "Batch Analysis finished";
+    skippedFiles.insert(0, "Skipped Files:")
+    text = "\n".join(skippedFiles);
+    QMessageBox.information(parent ,title, text);
+
+
+def information_normalizationFactorUndefined(parent:QWidget=None)->None:
+    title = "No Normalization Factor defined!";
+    text = "In the currently selected Fitting is no normalization factor of the peak defined. "\
+    "Please find an example in the example_fitting.yml. "\
+    "The normalization factor maps the area-relation to a characteristic value, "\
+    "which may be used to determine the concentration.";
+    QMessageBox.information(parent, title, text);
+
+
+### Export
+
+def information_exportFinished(filename:str, parent:QWidget=None)->None:
+    title = "Successfully exported!";
+    text = f"Exported to: {filename}";
+    QMessageBox.information(parent, title, text);
+
+
+def information_exportAborted(parent:QWidget=None)->None:
+    title = "Export failed!";
+    text = "Possible issues: No data found. "\
+        "Could not export raw or processed spectra.";
+    QMessageBox.information(parent, title, text);
+
+
+def information_exportNoSpectrum(parent:QWidget=None)->None:
+    title = "No spectrum active!";
+    text = "No spectrum is active, so no spectrum can be exported!";
+    QMessageBox.information(parent, title, text);
+
+
+# Dialogs
+
 def dialog_spectra(directory:str=None, parent:QWidget=None)->list:
     """
     Opens a native dialog to open one or multiple spectra.
@@ -92,7 +134,7 @@ def dialog_spectra(directory:str=None, parent:QWidget=None)->list:
     Returns
     -------
     filenames: list
-        Return the files selected. Empty list if dialog is cancelled.
+        Return one or more existing files selected by the user. Empty list if cancelled.
 
     """
     caption = "Load spectra";
@@ -103,62 +145,95 @@ def dialog_spectra(directory:str=None, parent:QWidget=None)->list:
     return filenames;
 
 
-def information_BatchAnalysisFinished(skippedFiles:list, parent:QWidget=None)->None:
-    title = "Batch Analysis finished";
-    text = "Skipped Files: \n" + "\n".join(skippedFiles);
-    QMessageBox.information(parent, title, text);
+def dialog_logFile(defaultFile:str, parent:QWidget=None)->str:
+    """
+    Native dialog to select a new log file.
 
+    Parameters
+    ----------
+    defaultFile : str
+        Default name of the log file.
+    parent : QWidget, optional (default None)
+        Used to determine the location the dialog is placed on the screen.
 
-### Export
+    Returns
+    -------
+    logfilename: str
+        The filename of the log.
 
-def information_ExportFinished(filename:str, parent:QWidget=None)->None:
-    title = "Successfully exported";
-    text = f"Exported to: {filename}";
-    QMessageBox.information(parent, title, text);
-
-
-def information_ExportAborted(parent:QWidget=None)->None:
-    title = "Export failed!";
-    text = "Possible issues: No data found. "\
-        "Could not export raw or processed spectra.";
-    QMessageBox.information(parent, title, text);
-
-
-def information_ExportNoSpectrum(parent:QWidget=None)->None:
-    title = "No spectrum active!";
-    text = "No spectrum is active, so no spectrum can be exported!";
-    QMessageBox.information(parent, title, text);
-
-
-
-def information_NormalizationFactorUndefined(parent:QWidget=None)->None:
-    title = "No Normalization Factor defined!";
-    text = "In the currently selected Fitting is no normalization factor of the peak defined. "\
-    "Please find an example in the example_fitting.yml. "\
-    "The normalization factor maps the area-relation to a characteristic value, "\
-    "which may be used to determine the concentration.";
-    QMessageBox.information(parent, title, text);
-
-
-def dialog_LogFileNotFound(parent:QWidget=None)->None:
-    # Prompt the user.
-    title = "Log file could not be found";
+    """
+    title = "Unable to find log file.";
     text = """Please select a new default path for the log file.""";
     QMessageBox.information(parent, title, text);
 
     # Select a new log file.
     caption = "Please select a log file";
-    url, _ = QFileDialog.getSaveFileUrl(parent = parent,
-                                        caption = caption,
-                                        directory = DEF_LOG_FILE,);
+    url, _ = QFileDialog.getSaveFileUrl(parent=parent, caption=caption,
+                                        directory=defaultFile,);
 
     localFilename = url.toLocalFile()
-    logfile = localFilename if localFilename else DEF_LOG_FILE
+    logfilename = localFilename if localFilename else defaultFile
 
-    update_logfile_in_configuration(logfile)
+    update_logfile_in_configuration(logfilename)
+    return logfilename
 
-    return logfile
 
+def dialog_batchfile(directory:str=None, parent:QWidget=None)->str:
+    """
+    Native dialog to select the location of the batchfile.
+
+    Parameters
+    ----------
+    directory : str, optional (default None)
+        Entry directory of the dialog.
+    parent : QWidget, optional (default None)
+        Used to determine the location the dialog is placed on the screen.
+
+    Returns
+    -------
+    filename: str
+        Path of the filename.
+
+    """
+    caption = "Set the filename of the batchfile:";
+    filefilter = filefilter_from_list(EXPORT_FILTER)
+    defaultFilename = BATCH["DEF_FILENAME"];
+
+    try:
+        pathWithFilename = path.join(directory, defaultFilename)
+    except TypeError:
+        # No directory given
+        pathWithFilename = defaultFilename
+
+    filename, _ = QFileDialog.getSaveFileName(parent=parent, caption=caption,
+                                              directory=pathWithFilename, filter=filefilter);
+    return filename;
+
+
+def dialog_watchdogDirectory(directory:str=None, parent:QWidget=None)->str:
+    """
+    Native dialog to select an existing directory.
+
+    Parameters
+    ----------
+    directory : str, optional (default None)
+        Entry directory of the dialog.
+    parent : QWidget, optional (default None)
+        Used to determine the location the dialog is placed on the screen.
+
+    Returns
+    -------
+    selectedDir : string
+        Path of the selected directory.
+
+    """
+    caption = 'Enable live tracking of ...'
+    selectedDir = QFileDialog.getExistingDirectory(parent=parent, caption=caption,
+                                                   directory=directory)
+    return selectedDir
+
+
+# Helper
 
 def filefilter_from_list(filterlist:list)->str:
     filterSeparator = ";;"
@@ -177,57 +252,3 @@ def update_logfile_in_configuration(logfile:str)->None:
     config.logFile = logfile
     config.save_config()
 
-
-def dialog_saveBatchfile(directory:str, presetFilename:str=None, parent:QWidget=None)->str:
-    """
-
-    Parameters
-    ----------
-    directory : path as a string
-        Path of the default directory.
-    presetFilename : string, optional
-        Override the default filename for batch analysis. The default is defined in config.
-    parent : QWidget (also other windows/widgets possible)
-        The window is given to place the messagebox on the screen. The default is None.
-
-    Returns
-    -------
-    string
-        Path of the filename.
-
-    """
-
-    # default properties of the dialog
-    title = "Set filename of the batchfile";
-    filefilter = filefilter_from_list(EXPORT_FILTER)
-    presetFilename = presetFilename or BATCH["DEF_FILENAME"];
-
-    directoryWithPreset = path.join(directory, presetFilename)
-
-    filename, _ = QFileDialog.getSaveFileName(parent, title, directoryWithPreset, filefilter);
-    return filename;
-
-
-def dialog_getWatchdogDirectory(directory:str=None, parent:QWidget=None)->None:
-    """
-
-    Parameters
-    ----------
-    directory : path as a string
-        Path of the default directory.
-    parent : QWidget (also other windows/widgets possible)
-        The window is given to place the messagebox on the screen. The default is None.
-
-    Returns
-    -------
-    selectedDir : string
-        Path of the selected directory.
-
-    """
-    caption = 'Enable live tracking of ...'
-    directory = directory or DEF_WD_DIR
-
-    selectedDir = QFileDialog.getExistingDirectory(parent=parent,
-                                                   caption=caption,
-                                                   directory=directory)
-    return selectedDir

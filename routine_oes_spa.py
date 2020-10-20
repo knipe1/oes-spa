@@ -30,13 +30,13 @@ def main():
     # False
 
     initialSpkLoad = True
-    tryDifferentFiles = False
-    exportSpectra = False
+    tryDifferentFiles = True
+    exportSpectra = True
     showBatch = True
     selectBatchfile = True
     selectBatchSpectra = True
     hideBatch = False
-    activateWD = False
+    activateWD = True
 
 
     # Setup GUI
