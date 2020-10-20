@@ -191,6 +191,15 @@ class AnalysisWindow(QMainWindow):
 
     ### Export
 
+    def export_raw(self):
+        self.export_spectrum(self.rawSpectrum)
+
+
+    def export_processed(self):
+        results = self.window.get_results();
+        self.export_spectrum(self.processedSpectrum, results)
+
+
     def export_spectrum(self, spectrum:Spectrum, results:dict={}):
 
         try:
@@ -206,22 +215,6 @@ class AnalysisWindow(QMainWindow):
             dialog.information_exportAborted()
 
 
-    def export_raw(self):
-        self.export_spectrum(self.rawSpectrum)
-
-
-    def export_processed(self):
-        results = self.window.get_results();
-        self.export_spectrum(self.processedSpectrum, results)
-
-
-    ### Draw Plots.
-
-    def draw_spectra(self, *spectra):
-        for spectrum in spectra:
-            spectrum.plot_spectrum()
-
-
     def redraw(self, value:str=None):
         """
         Redraw the plots with the currently opened file.
@@ -233,65 +226,44 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.logger.info("New value of setting:" + value)
-            self.logger.info("Redraw:" + self.activeFile.filename)
-            self.apply_file(self.activeFile.filename)
-        except:
+            self.logger.info(f"New value of setting: {value}. Redraw of {self.activeFile.filename}.")
+            self.apply_data(self.activeFile)
+        except AttributeError:
             self.logger.warning("Redraw Failed")
 
 
     ### data analysis
 
-    def apply_file(self, filename:str):
-        """read out a file and extract its information,
-        then set header information and draw spectra"""
+    def apply_file(self, filename:(str, FileReader), silent:bool=False)->None:
+        """read out a file and extract its information, then set header information and draw spectra"""
+        try:
+            file = FileReader(filename)
+        except TypeError:
+            file = filename
 
-        file = FileReader(filename)
-        # Hint: set wavelength triggers a redraw loop. If wavelength is set after basicSetting is loaded, the analysis will not update the setting.
-        isFileReloaded = (self.activeFile == file)
-        if not isFileReloaded:
-            self.set_wavelength_from_file(file)
+        if not silent:
+            # Hint: set wavelength triggers a redraw loop. If wavelength is set after basicSetting is loaded, the analysis will not update the setting.
+            isFileReloaded = (self.activeFile == file)
+            if not isFileReloaded:
+                self.set_wavelength_from_file(file)
 
         basicSetting = self.window.get_basic_setting()
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
         errorcode = specHandler.analyse_data(file)
         if not errorcode:
-            dialog.critical_invalidSpectrum()
+            if not silent:
+                dialog.critical_invalidSpectrum()
             return
 
         self.show_wavelength_difference_information(file, basicSetting)
 
-        peakName = basicSetting.fitting.peak.name
-        self.window.set_results(specHandler, peakName)
+        self.window.set_results(specHandler)
 
         self.update_spectra(specHandler)
-        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-
-
         self.activeFile = file;
 
 
-    def apply_data(self, file:FileReader):
-        basicSetting = self.window.get_basic_setting()
-
-        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
-        errorcode = specHandler.analyse_data(file)
-        if not errorcode:
-            return
-
-        self.show_wavelength_difference_information(file, basicSetting)
-
-        peakName = basicSetting.fitting.peak.name
-        self.window.set_results(specHandler, peakName)
-
-        # Update the spectra.
-        self.update_spectra(specHandler)
-        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-
-        self.activeFile = file;
-
-
-    def set_wavelength_from_file(self, file:FileReader):
+    def set_wavelength_from_file(self, file:FileReader)->None:
         try:
             self.window.wavelength = file.WAVELENGTH
         except KeyError:
@@ -315,3 +287,12 @@ class AnalysisWindow(QMainWindow):
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
         self.processedSpectrum.update_data(processedData, procIntegration)
+
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+
+
+    ### Draw Plots.
+
+    def draw_spectra(self, *spectra):
+        for spectrum in spectra:
+            spectrum.plot_spectrum()

@@ -192,11 +192,12 @@ class UIMain(Ui_main):
         return results
 
 
-    def set_results(self, spectrumHandler:SpectrumHandler, peakName:str):
+    def set_results(self, spectrumHandler:SpectrumHandler):
         self.toutPeakHeight.setText(str(spectrumHandler.peakHeight))
         self.toutPeakArea.setText(str(spectrumHandler.peakArea))
         self.toutBaseline.setText(str(spectrumHandler.avgbase))
         self.toutCharacteristicValue.setText(str(spectrumHandler.characteristicValue))
+        peakName = spectrumHandler.basicSetting.fitting.peak.name
         self.lblCharacteristicValue.setText(str(peakName))
 
 

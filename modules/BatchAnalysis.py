@@ -565,7 +565,7 @@ class BatchAnalysis(QDialog):
             selectedFile = FileReader(selectedFilename)
             if selectedFile:
                 if self.dog.is_alive():
-                    self.parent().apply_data(selectedFile)
+                    self.parent().apply_file(selectedFile, silent=True)
                 else:
                     self.parent().apply_file(selectedFilename)
                 self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
