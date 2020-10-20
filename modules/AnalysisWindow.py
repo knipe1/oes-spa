@@ -183,7 +183,6 @@ class AnalysisWindow(QMainWindow):
         elif isSingleFile:
             filename = filelist[0];
             self.apply_file(filename)
-
         try:
             self.lastdir = filelist[0]
         except IndexError:
@@ -234,8 +233,9 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_data(self.activeFile)
             self.logger.info("New value of setting:" + value)
+            self.logger.info("Redraw:" + self.activeFile.filename)
+            self.apply_file(self.activeFile.filename)
         except:
             self.logger.warning("Redraw Failed")
 
@@ -246,10 +246,13 @@ class AnalysisWindow(QMainWindow):
         """read out a file and extract its information,
         then set header information and draw spectra"""
 
-        # Prepare file.
         file = FileReader(filename)
-        basicSetting = self.window.get_basic_setting()
+        # Hint: set wavelength triggers a redraw loop. If wavelength is set after basicSetting is loaded, the analysis will not update the setting.
+        isFileReloaded = (self.activeFile == file)
+        if not isFileReloaded:
+            self.set_wavelength_from_file(file)
 
+        basicSetting = self.window.get_basic_setting()
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
         errorcode = specHandler.analyse_data(file)
         if not errorcode:
@@ -261,13 +264,9 @@ class AnalysisWindow(QMainWindow):
         peakName = basicSetting.fitting.peak.name
         self.window.set_results(specHandler, peakName)
 
-        # Update the spectra.
         self.update_spectra(specHandler)
         self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
-        isFileReloaded = (self.activeFile == file)
-        if not isFileReloaded:
-            self.set_wavelength_from_file(file)
 
         self.activeFile = file;
 
@@ -290,7 +289,6 @@ class AnalysisWindow(QMainWindow):
         self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
 
         self.activeFile = file;
-
 
 
     def set_wavelength_from_file(self, file:FileReader):

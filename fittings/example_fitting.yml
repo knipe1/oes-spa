@@ -14,7 +14,7 @@ PEAKS:
     # to the value of 1 (characteristic Value)
     normalizationFactor: 100
     # normalizationOffset can compensate for background comtamination
-    normalizationOffset: 200
+    normalizationOffset: -11.123
     reference:
         # central wavelength of the reference peak
         centralWavelength: 434.5

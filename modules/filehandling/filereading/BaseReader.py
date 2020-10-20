@@ -87,7 +87,7 @@ class BaseReader(FileFramework):
             else:
                 self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
 
-        information = self.join_information(timeInfo, data)
+        information = self.join_information(timeInfo, data, parameter)
         return information
 
 

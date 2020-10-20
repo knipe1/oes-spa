@@ -155,7 +155,7 @@ class FileReader(FileFramework):
     def __repr__(self):
         info = {}
         info["filename"] = self.filename
-        info["Timestamp"] = self.timestamp
+        info["timeInfo"] = self.timeInfo
         info["data length"] = "X:%i, Y:%i"%(len(self.xData), len(self.yData))
         return self.__module__ + ":\n" + str(info)
 
