@@ -65,6 +65,22 @@ def key_alt_j():
         keyboard.press("y")
         keyboard.release("y")
 
+def key_alt_s():
+    """
+    Emulates a alt+s press after a pause.
+    Often used as a thread to accept a native file dialog.
+
+    Returns
+    -------
+    None.
+
+    """
+    keyboard = Controller()
+    sleep(2*PAUSE)
+    with keyboard.pressed(Key.alt):
+        keyboard.press("s")
+        keyboard.release("s")
+
 def key_select_file(iterations):
     """
     Emulates a alt+j press after a pause.
@@ -107,15 +123,19 @@ def key_select_file(iterations):
     keyboard.release(Key.enter)
 
 
-def select_first_directory():
+def select_directory():
     keyboard = Controller()
-    sleep(PAUSE)
+    sleep(0.2*PAUSE)
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)
         # windows (next 2 linies not outcommented)
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
+    sleep(0.2*PAUSE)
+    for i in range(6):
+        keyboard.press(Key.down)
+        keyboard.release(Key.down)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
 

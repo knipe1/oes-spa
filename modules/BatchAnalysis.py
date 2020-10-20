@@ -368,7 +368,7 @@ class BatchAnalysis(QDialog):
                 # Get the data.
                 specHandler = SpectrumHandler(basicSetting)
                 errorcode = specHandler.analyse_data(self.currentFile)
-                if not errorcode == ERR.OK:
+                if not errorcode:
                     return errorcode
 
                 avg = specHandler.avgbase

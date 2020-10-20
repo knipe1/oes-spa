@@ -313,7 +313,7 @@ class AnalysisWindow(QMainWindow):
         data = SpectrumHandler.rawData.transpose()
         baseline = SpectrumHandler.baseline
         processedData = SpectrumHandler.procData.transpose()
-        rawIntegration, procIntegration = SpectrumHandler.get_integration_area()
+        rawIntegration, procIntegration = SpectrumHandler.get_integration_areas()
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
         self.processedSpectrum.update_data(processedData, procIntegration)

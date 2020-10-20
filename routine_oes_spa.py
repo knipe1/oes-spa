@@ -9,6 +9,7 @@ Single and batch analysis of OES spectra
 import sys
 import time
 
+
 # third-party libs
 import emulator as emu
 import threading as THR
@@ -44,7 +45,6 @@ def main():
     window = AnalysisWindow()
 
     # automatic open and close routine
-    # window.export_raw()
     #window.window.ddFitting.setCurrentIndex(3)
     if initialSpkLoad:
         window.apply_file("./sample files/Asterix1059 1.Spk")
@@ -85,7 +85,9 @@ def main():
 
     if selectBatchfile:
         # Set the Filename
-        enter = THR.Thread(target=emu.key_accept)
+        test = THR.Thread(target=emu.select_directory)
+        test.start()
+        enter = THR.Thread(target=emu.key_alt_s)
         enter.start()
         # # in case of file already exists
         # yes = THR.Thread(target=emu.key_alt_j)
