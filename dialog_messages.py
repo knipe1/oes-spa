@@ -210,6 +210,24 @@ def dialog_batchfile(directory:str=None, parent:QWidget=None)->str:
     return filename;
 
 
+def dialog_importBatchfile(directory:str=None, parent:QWidget=None)->None:
+    """
+    Parameters
+    ----------
+    directory : str, optional (default None)
+        Entry directory of the dialog.
+    parent : QWidget, optional (default None)
+        Used to determine the location the dialog is placed on the screen.
+    """
+    caption = "Open batchfile"
+    filefilter = filefilter_from_list(EXPORT_FILTER)
+
+    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption,
+                                              directory=directory, filter=filefilter,)
+    return filename
+
+
+
 def dialog_watchdogDirectory(directory:str=None, parent:QWidget=None)->str:
     """
     Native dialog to select an existing directory.
