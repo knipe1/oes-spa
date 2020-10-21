@@ -453,8 +453,8 @@ class BatchAnalysis(QDialog):
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
-            filename = dialog.dialog_openBatchFile()
-            # filename = dialog.dialog_openBatchFile(self.lastdir)
+            filename = dialog.dialog_importBatchfile()
+            # filename = dialog.dialog_batchfile(self.lastdir)
             self.lastdir = filename
         return filename
 
