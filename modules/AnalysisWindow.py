@@ -227,7 +227,7 @@ class AnalysisWindow(QMainWindow):
         """
         try:
             self.logger.info(f"New value of setting: {value}. Redraw of {self.activeFile.filename}.")
-            self.apply_data(self.activeFile)
+            self.apply_file(self.activeFile)
         except AttributeError:
             self.logger.warning("Redraw Failed")
 
