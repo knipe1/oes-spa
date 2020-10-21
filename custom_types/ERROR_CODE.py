@@ -17,6 +17,7 @@ class ERROR_CODE(Enum):
     UNKNOWN_ERROR = auto()
     UNKNOWN_FILETYPE = auto()
     INVALID_DATA = auto()
+    INVALID_BATCHFILE = auto()
     DATA_UNEQUAL_LENGTH = auto()
     INVALID_FILEINFORMATION = auto()
     INVALID_HEADER = auto()
@@ -24,3 +25,6 @@ class ERROR_CODE(Enum):
     INVALID_LIMIT = auto()
     INVALID_MINIMUM = auto()
     INVALID_NORM_FACTOR = auto()
+
+    def __bool__(self):
+        return (self == self.OK)

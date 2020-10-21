@@ -29,11 +29,13 @@ import os
 # local modules/libs
 from ui.ui_main_window import Ui_main
 from ConfigLoader import ConfigLoader
-from modules.Fitting import Fitting
+from modules.dataanalysis.Fitting import Fitting
 from Logger import Logger
+import modules.Universal as uni
 from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
-from modules.SpectrumHandler import SpectrumHandler
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.filehandling.filereading.FileReader import FileReader
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
@@ -107,7 +109,6 @@ class UIMain(Ui_main):
         self.tinCentralWavelength.setText(wl)
 
 
-
     @property
     def grating(self)->int:
         """Get the converted grating or None."""
@@ -169,7 +170,6 @@ class UIMain(Ui_main):
 
         self.setupUi(parent)
 
-
         self.__post_init__()
 
 
@@ -192,11 +192,12 @@ class UIMain(Ui_main):
         return results
 
 
-    def set_results(self, spectrumHandler:SpectrumHandler, peakName:str):
+    def set_results(self, spectrumHandler:SpectrumHandler):
         self.toutPeakHeight.setText(str(spectrumHandler.peakHeight))
         self.toutPeakArea.setText(str(spectrumHandler.peakArea))
         self.toutBaseline.setText(str(spectrumHandler.avgbase))
         self.toutCharacteristicValue.setText(str(spectrumHandler.characteristicValue))
+        peakName = spectrumHandler.basicSetting.fitting.peak.name
         self.lblCharacteristicValue.setText(str(peakName))
 
 
@@ -231,12 +232,14 @@ class UIMain(Ui_main):
         self.tinCentralWavelength.textChanged.connect(fun)
         self.ddGrating.currentTextChanged.connect(fun)
         self.ddFitting.currentTextChanged.connect(fun)
+        self.cbBaselineCorrection.stateChanged.connect(fun)
 
 
-    def set_fileinformation(self, filename:str, date:str, time:str)->None:
+    def set_fileinformation(self, filereader:FileReader)->None:
+        filename, timeInfo = filereader.fileinformation
+        strTimeInfo = uni.timestamp_to_string(timeInfo)
         self.toutFilename.setText(filename)
-        self.toutDate.setText(date)
-        self.toutTime.setText(time)
+        self.toutTimeInfo.setText(strTimeInfo)
 
 
     def retrieve_fittings(self) -> list:
@@ -327,9 +330,9 @@ class UIMain(Ui_main):
 
     def get_basic_setting(self)->BasicSetting:
 
-        grating = self.grating
+        baselineCorrection = self.cbBaselineCorrection.isChecked()
         fitting = self.load_fitting(self.ddFitting.currentText())
-        setting = BasicSetting(self.wavelength, grating, fitting)
+        setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection)
 
         return setting;
 

@@ -9,6 +9,7 @@ Created on Sat Apr 25 2020
 
 # standard libs
 import numpy as np
+from datetime import datetime
 
 # third-party libs
 
@@ -19,6 +20,7 @@ import modules.Universal as uni
 
 
 # Enums
+from custom_types.Integration import Integration
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 
@@ -28,7 +30,7 @@ class Spectrum():
     Concatenate properties of a spectrum to have data and plot abilities together.
 
     Usage:
-        from modules.Spectrum import Spectrum
+        from modules.dataanalysis.Spectrum import Spectrum
         spectrum = Spectrum(matplotlibwidget, EXPORT_TYPE)
         spectrum.update_data(data)
         spectrum.plot_spectrum()
@@ -129,10 +131,11 @@ class Spectrum():
         if not baselineData is None:
             self.add_baseline(baselineData)
 
-        if uni.data_are_pixel(self.xData):
-            self.labels = self.get_labels(EXPORT_TYPE.RAW)
-        else:
-            self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
+        if self.exportType == EXPORT_TYPE.RAW :
+            if uni.data_are_pixel(self.xData):
+                self.labels = self.get_labels(EXPORT_TYPE.RAW)
+            else:
+                self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
 
     def set_custom_y_label(self, label):
@@ -183,26 +186,55 @@ class Spectrum():
         try:
             self.ui.axes.plot(self.xData, self.baseline, **self.baselineMarkup);
         except:
-            self.logger.warning("Could not plot baseline.")
+            self.logger.info("Could not plot baseline.")
 
 
     def plot_integration_areas(self):
+        for intArea in self.integrationAreas:
+            col = self.determine_color(intArea)
+            self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
+
+
+    def determine_color(self, integrationArea:Integration):
         peakColor = self.PLOT["INT_PEAK_COLOR"]
         referenceColor = self.PLOT["INT_REF_COLOR"]
 
-        for intArea in self.integrationAreas:
-            col = peakColor if intArea.peakType == CHC.TYPE_PEAK else referenceColor
-            self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
+        col = peakColor if integrationArea.peakType == CHC.TYPE_PEAK else referenceColor
+        return col
 
+
+    ## Recording
+
+
+    def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime):
+        relativeTime = self.get_timediff_H(timestamp)
+        reducedFilename = ''.join(uni.reduce_path([filename]))
+        self.remove_recording()
+        markup = {"color": self.PLOT["REFERENCE_COLOR"],
+                  "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
+                  "label": reducedFilename,}
+        self.recordingPlot = self.ui.axes.axvline(x=relativeTime, **markup)
+        self.ui.draw()
+
+
+    def remove_recording(self):
+        try:
+            self.recordingPlot.remove()
+        except AttributeError:
+            pass
+
+
+    ## Calculation
 
 
     def get_timediff_H(self, timestamp):
         try:
             refTime = self.referenceTime
-        except:
+        except AttributeError:
             refTime = timestamp
             self.referenceTime = refTime
 
         diffTime = uni.convert_to_hours(timestamp - refTime)
 
         return diffTime
+

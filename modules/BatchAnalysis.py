@@ -16,7 +16,7 @@ import numpy as np
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, QModelIndex
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence as QKeys
 
@@ -28,11 +28,11 @@ from ui.UIBatch import UIBatch
 # modules & universal
 import modules.Universal as uni
 import dialog_messages as dialog
-from modules.Spectrum import Spectrum
+from modules.dataanalysis.Spectrum import Spectrum
 from modules.Watchdog import Watchdog
-from modules.FileReader import FileReader
-from modules.BatchWriter import BatchWriter
-from modules.SpectrumHandler import SpectrumHandler
+from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filewriting.BatchWriter import BatchWriter
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 
 # Enums
@@ -163,11 +163,11 @@ class BatchAnalysis(QDialog):
         self.window.connect_cancel(self.schedule_cancel_routine)
         self.window.connect_change_csvfile(self.enable_analysis)
         self.window.connect_clear(self.reset_files)
-        self.window.connect_import_batch(self.import_batch)
+        self.window.connect_import_batch(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_select_file(self.enable_analysis)
         self.window.connect_set_filename(self.specify_batchfile)
-        self.window.connect_change_trace(self.import_batch)
+        self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_set_directory(self.specify_watchdog_directory)
         self.window.connect_watchdog(self.toggle_watchdog)
 
@@ -211,7 +211,7 @@ class BatchAnalysis(QDialog):
         event.accept();
 
 
-    def dropEvent(self, event):
+    def dropEvent(self, event)->None:
         """
         Filter the dropped urls to update the files with only valid urls.
 
@@ -219,10 +219,6 @@ class BatchAnalysis(QDialog):
         ----------
         event : event
             The event itself.
-
-        Returns
-        -------
-        None.
 
         """
 
@@ -249,12 +245,12 @@ class BatchAnalysis(QDialog):
 
     def watchdog_event_handler(self, path:str)->None:
         # Checks absolute paths to avoid issues due to relative vs absolute paths.
-        eventPath, _ = uni.extract_path_and_basename(path)
+        eventPath, _, _ = uni.extract_path_basename_suffix(path)
 
         # Distinguish between modified batch- and spectrum-file.
         if self.batchFile == path:
             self.logger.info("WD: Batchfile modified.")
-            self.import_batch(takeCurrentBatchfile=True)
+            self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added: %s"%(path))
             errorcode = self.analyze(path)
@@ -266,18 +262,7 @@ class BatchAnalysis(QDialog):
 
     def toggle_watchdog(self, status:bool)->None:
         """
-        Activates or deactivates the Watchdog.
-
-
-        Parameters
-        ----------
-        status : bool
-            Activates the WD if True, deactivates otherwise.
-
-        Returns
-        -------
-        None.
-
+        Sets the Watchdog to the given status. (Activate if status is True).
         """
 
         if status:
@@ -329,7 +314,7 @@ class BatchAnalysis(QDialog):
     ### Methods/Analysis
 
     def analyze(self, singleFile=None):
-        self.logger.debug("Analyze file.")
+        self.logger.info("Analyze file.")
 
         # Reset the properties to have a clean setup.
         self.isScheduledCancel = False
@@ -357,6 +342,7 @@ class BatchAnalysis(QDialog):
         self.logger.info("No. of files %i:"%(amount))
 
         for i in range(amount):
+            config = retrieve_batch_config()
 
             # Be responsive and process events to enable cancelation.
             QApplication.processEvents()
@@ -369,15 +355,20 @@ class BatchAnalysis(QDialog):
             # Read out the filename and the data.
             file = files[i]
             self.currentFile = FileReader(file)
-            if not self.currentFile.is_valid_spectrum() == ERR.OK:
-                skippedFiles.append(file)
-                continue
+
+            errorcode = self.currentFile.is_valid_spectrum()
+            if not errorcode:
+                if isSingleFile:
+                    return errorcode
+                else:
+                    skippedFiles.append(file)
+                    continue
 
             if isExportBatch:
                 # Get the data.
                 specHandler = SpectrumHandler(basicSetting)
                 errorcode = specHandler.analyse_data(self.currentFile)
-                if not errorcode == ERR.OK:
+                if not errorcode:
                     return errorcode
 
                 avg = specHandler.avgbase
@@ -385,19 +376,16 @@ class BatchAnalysis(QDialog):
                 peakArea = specHandler.peakArea
                 peakPosition = specHandler.peakPosition
                 characteristicValue = specHandler.characteristicValue
-                timestamp = self.currentFile.timestamp
+                timestamp = self.currentFile.timeInfo
 
                 # excluding file if no appropiate data given like in processed
                 # spectra.
-                # TODO: Check more exlude conditions like characteristic value
-                # below some defined threshold.
-                # TODO: validate_results as method of specHandlaer? Would also omit
+                # TODO: validate_results as method of specHandler? Would also omit
                 # the assignemts above!?
                 if not peakHeight:
                     skippedFiles.append(file)
                     continue
 
-                config = retrieve_batch_config()
                 config[CHC.FILENAME] = file
                 config[CHC.BASELINE] = avg
                 config[CHC.CHARACTERISTIC_VALUE] = characteristicValue
@@ -419,24 +407,23 @@ class BatchAnalysis(QDialog):
             header = assemble_header(config, peakName=peakName)
             if isSingleFile:
                 data = assemble_row(config)
-                self.export_batch(data, header, isUpdate=True)
-            else:
-                self.export_batch(data, header)
+
+            self.export_batch(data, header, isUpdate=isSingleFile)
 
         if isPlotTrace:
-            self.import_batch(takeCurrentBatchfile=True)
+            self.import_batchfile(takeCurrentBatchfile=True)
 
 
         # Prompt the user with information about the skipped files.
         if not isSingleFile:
-            dialog.information_BatchAnalysisFinished(skippedFiles)
+            dialog.information_batchAnalysisFinished(skippedFiles)
             self._files.difference_update(skippedFiles)
 
         return ERR.OK
 
 
 
-    def import_batch(self, takeCurrentBatchfile=False):
+    def import_batchfile(self, takeCurrentBatchfile=False):
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTraceValue
 
@@ -446,7 +433,7 @@ class BatchAnalysis(QDialog):
             return
 
         file = FileReader(filename, columnValue=columnValue)
-        if file.is_valid_spectrum() == ERR.OK:
+        if not file.is_valid_batchfile():
             return
 
         # TODO: Check sorting of 2D arrays make sense here.
@@ -466,7 +453,8 @@ class BatchAnalysis(QDialog):
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
-            filename = dialog.dialog_openBatchFile(self.lastdir)
+            filename = dialog.dialog_openBatchFile()
+            # filename = dialog.dialog_openBatchFile(self.lastdir)
             self.lastdir = filename
         return filename
 
@@ -481,8 +469,6 @@ class BatchAnalysis(QDialog):
 
 
     def export_batch(self, data, header, isUpdate=False):
-
-        # Export in csv file.
         csvWriter = BatchWriter(self.batchFile)
         if isUpdate:
             csvWriter.extend_data(data, header)
@@ -508,7 +494,8 @@ class BatchAnalysis(QDialog):
 
         """
         # Retrieve the filename and the corresponding info
-        filename = dialog.dialog_saveBatchfile(self.lastdir)
+        filename = dialog.dialog_batchfile()
+        # filename = dialog.dialog_batchfile(self.lastdir)
 
         # Cancel or quit the dialog.
         if not filename:
@@ -524,7 +511,8 @@ class BatchAnalysis(QDialog):
 
 
     def specify_watchdog_directory(self):
-        directory = dialog.dialog_getWatchdogDirectory(self.lastdir)
+        directory = dialog.dialog_watchdogDirectory()
+        # directory = dialog.dialog_watchdogDirectory(self.lastdir)
 
         if directory:
             self.WDdirectory = directory
@@ -533,7 +521,8 @@ class BatchAnalysis(QDialog):
 
     def browse_spectra(self):
         """Opens a dialog to browse for spectra and updates the filelist."""
-        filelist = dialog.dialog_openSpectra(self.lastdir)
+        filelist = dialog.dialog_spectra()
+        # filelist = dialog.dialog_spectra(self.lastdir)
         self.update_filelist(filelist)
         try:
             filename = filelist[0]
@@ -557,17 +546,11 @@ class BatchAnalysis(QDialog):
         self.window.enable_analysis(enable)
 
 
-    def open_indexed_file(self, index):
+    def open_indexed_file(self, index:(QModelIndex, int)):
         """
         Retrieve the data of the selected file of the list.
 
         Used for applying the data after clicking on the list.
-
-        Parameters
-        ----------
-        index : QModelIndex or int
-            Transmitted by the list. Or programmatically.
-
         """
 
         # Distinguish given index by numerical value (from another method) or
@@ -578,7 +561,14 @@ class BatchAnalysis(QDialog):
             self.logger.debug("Open indexed file called programmatically.")
 
         try:
-            self.parent().apply_data(self._files[index])
+            selectedFilename = self._files[index]
+            selectedFile = FileReader(selectedFilename)
+            if selectedFile:
+                if self.dog.is_alive():
+                    self.parent().apply_file(selectedFile, silent=True)
+                else:
+                    self.parent().apply_file(selectedFilename)
+                self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
         except IndexError:
             self.logger.info("Cannot open file, invalid index provided!")
 

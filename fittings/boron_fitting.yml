@@ -1,12 +1,12 @@
-NAME: "Boron Peak Fitting"
+NAME: "Boron Peak Fitting-PK"
 PEAKS:
     name: "BH Peak"
-    centralWavelength: 383.5
-    shiftDown: .2
-    shiftUp:  .2
+    centralWavelength: 433.16
+    shiftDown: .1
+    shiftUp:  .15
     normalizationFactor: 1
     reference:
-        centralWavelength: 384.4
-        shiftDown: .2
-        shiftUp:  .2
-        minimum: 0.00002
+        centralWavelength: 434.05
+        shiftDown: .05
+        shiftUp:  .05
+        minimum: 0.1

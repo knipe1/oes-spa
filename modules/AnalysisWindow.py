@@ -8,7 +8,7 @@
 """
 
 # standard libs
-from os import path
+from os import path, getcwd
 
 # third-party libs
 from PyQt5.QtWidgets import QMainWindow
@@ -20,13 +20,12 @@ from Logger import Logger
 import modules.Universal as uni
 import dialog_messages as dialog
 from modules.BatchAnalysis import BatchAnalysis
-from modules.SpectrumHandler import SpectrumHandler
-from modules.FileReader import FileReader
-from modules.Spectrum import Spectrum
-from modules.SpectrumWriter import SpectrumWriter
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.filehandling.filereading.FileReader import FileReader
+from modules.dataanalysis.Spectrum import Spectrum
+from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 
 # enums
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
 from custom_types.BasicSetting import BasicSetting
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
@@ -40,7 +39,7 @@ class AnalysisWindow(QMainWindow):
     Usage:
         from modules.AnalysisWindow import AnalysisWindow
         window = AnalysisWindow()
-        window.apply_data("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
+        window.apply_file("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
 
     # Load the configuration for plotting, import and filesystem properties.
@@ -58,15 +57,12 @@ class AnalysisWindow(QMainWindow):
     @activeFile.setter
     def activeFile(self, file:FileReader)->None:
         """activeFile setter: Updating the ui"""
-        isFileReloaded = (self._activeFile == file)
-        self._activeFile = file
-        self.set_fileinformation(file)
+        self.window.set_fileinformation(file)
 
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
 
-        if not isFileReloaded:
-            self.set_wavelength_from_file(file)
+        self._activeFile = file
 
 
     @property
@@ -80,6 +76,8 @@ class AnalysisWindow(QMainWindow):
             newDirectory = directory
         elif path.isfile(directory):
             newDirectory = path.dirname(directory)
+        elif not hasattr(self, "lastdir"):
+            newDirectory = getcwd()
         else:
             return
 
@@ -161,7 +159,7 @@ class AnalysisWindow(QMainWindow):
         localUrl = uni.get_valid_local_url(url)
 
         if localUrl:
-            self.apply_data(localUrl)
+            self.apply_file(localUrl)
         else:
             dialog.critical_unknownSuffix(parent=self)
 
@@ -174,7 +172,8 @@ class AnalysisWindow(QMainWindow):
         # Browse
 
         # Cancel/Quit dialog --> [].
-        filelist = dialog.dialog_openSpectra(self.lastdir);
+        # filelist = dialog.dialog_spectra(self.lastdir);
+        filelist = dialog.dialog_spectra();
         isSingleFile = (len(filelist) == 1)
         isMultipleFiles = (len(filelist) > 1)
 
@@ -183,8 +182,7 @@ class AnalysisWindow(QMainWindow):
             self.batch.update_filelist(filelist)
         elif isSingleFile:
             filename = filelist[0];
-            self.apply_data(filename)
-
+            self.apply_file(filename)
         try:
             self.lastdir = filelist[0]
         except IndexError:
@@ -192,21 +190,6 @@ class AnalysisWindow(QMainWindow):
 
 
     ### Export
-
-    def export_spectrum(self, spectrum:Spectrum, results:dict={}):
-        filename, timestamp = self.get_fileinformation()
-        writer = SpectrumWriter(filename, timestamp)
-
-        try:
-            exportedFilename = writer.export(spectrum, results)
-        except AttributeError:
-            exportedFilename = None
-        finally:
-            if exportedFilename:
-                dialog.information_ExportFinished(exportedFilename)
-            else:
-                dialog.information_ExportAborted()
-
 
     def export_raw(self):
         self.export_spectrum(self.rawSpectrum)
@@ -217,11 +200,19 @@ class AnalysisWindow(QMainWindow):
         self.export_spectrum(self.processedSpectrum, results)
 
 
-    ### Draw Plots.
+    def export_spectrum(self, spectrum:Spectrum, results:dict={}):
 
-    def draw_spectra(self, *spectra):
-        for spectrum in spectra:
-            spectrum.plot_spectrum()
+        try:
+            writer = SpectrumWriter(*self.activeFile.fileinformation)
+        except AttributeError:
+            dialog.information_exportNoSpectrum()
+            return
+
+        exportedFilename = writer.export(spectrum, results)
+        if exportedFilename:
+            dialog.information_exportFinished(exportedFilename)
+        else:
+            dialog.information_exportAborted()
 
 
     def redraw(self, value:str=None):
@@ -235,69 +226,48 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.apply_data(self.activeFile.filename)
-            self.logger.info("New value of setting:" + value)
-        except:
+            self.logger.info(f"New value of setting: {value}. Redraw of {self.activeFile.filename}.")
+            self.apply_data(self.activeFile)
+        except AttributeError:
             self.logger.warning("Redraw Failed")
-
-
-    ### fileinformation
-
-    def get_fileinformation(self):
-        try:
-            filename = self.activeFile.filename
-            timestamp = self.activeFile.timestamp
-        except:
-            self.logger.error("Could not get filename/fileinformation.")
-            filename = None;
-            timestamp = None;
-
-        return filename, timestamp
-
-
-    def set_fileinformation(self, filereader:FileReader):
-        filename, date, time = filereader.header
-        self.window.set_fileinformation(filename, date, time)
 
 
     ### data analysis
 
-    def apply_data(self, filename:str):
-        """read out a file and extract its information,
-        then set header information and draw spectra"""
+    def apply_file(self, filename:(str, FileReader), silent:bool=False)->None:
+        """read out a file and extract its information, then set header information and draw spectra"""
+        try:
+            file = FileReader(filename)
+        except TypeError:
+            file = filename
 
-        # Prepare file.
-        file = FileReader(filename)
-        if not file.is_valid_spectrum():
-            return
+        if not silent:
+            # Hint: set wavelength triggers a redraw loop. If wavelength is set after basicSetting is loaded, the analysis will not update the setting.
+            isFileReloaded = (self.activeFile == file)
+            if not isFileReloaded:
+                self.set_wavelength_from_file(file)
 
         basicSetting = self.window.get_basic_setting()
+        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
+        errorcode = specHandler.analyse_data(file)
+        if not errorcode:
+            if not silent:
+                dialog.critical_invalidSpectrum()
+            return
 
         self.show_wavelength_difference_information(file, basicSetting)
 
-        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
+        self.window.set_results(specHandler)
 
-        errorcode = specHandler.analyse_data(file)
-        if not errorcode == ERR.OK:
-            dialog.critical_invalidSpectrum()
-            return
-
-        peakName = basicSetting.fitting.peak.name
-        self.window.set_results(specHandler, peakName)
-
-        # Update the spectra.
         self.update_spectra(specHandler)
-        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-
         self.activeFile = file;
 
 
-    def set_wavelength_from_file(self, file:FileReader):
+    def set_wavelength_from_file(self, file:FileReader)->None:
         try:
             self.window.wavelength = file.WAVELENGTH
         except KeyError:
-            # Exception if a non-.asc file is loaded.
-            self.logger.debug("No Wavelength provided by: " + file.filename)
+            self.logger.debug(f"No Wavelength provided by: {file.filename}")
 
 
     def show_wavelength_difference_information(self, file:FileReader, basicSetting:BasicSetting):
@@ -313,7 +283,16 @@ class AnalysisWindow(QMainWindow):
         data = SpectrumHandler.rawData.transpose()
         baseline = SpectrumHandler.baseline
         processedData = SpectrumHandler.procData.transpose()
-        rawIntegration, procIntegration = SpectrumHandler.get_integration_area()
+        rawIntegration, procIntegration = SpectrumHandler.get_integration_areas()
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
         self.processedSpectrum.update_data(processedData, procIntegration)
+
+        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
+
+
+    ### Draw Plots.
+
+    def draw_spectra(self, *spectra):
+        for spectrum in spectra:
+            spectrum.plot_spectrum()

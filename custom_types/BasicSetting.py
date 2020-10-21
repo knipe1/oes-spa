@@ -13,10 +13,11 @@ from dataclasses import dataclass
 # third-party libs
 
 # local modules/libs
-from modules.Fitting import Fitting
+from modules.dataanalysis.Fitting import Fitting
 
 @dataclass(frozen=True)
 class BasicSetting():
     wavelength: float;
-    grating: float; # TODO: int?
+    grating: float;
     fitting: Fitting;
+    baselineCorrection: bool;
