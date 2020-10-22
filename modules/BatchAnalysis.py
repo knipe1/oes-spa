@@ -107,16 +107,12 @@ class BatchAnalysis(QDialog):
 
 
 
-    def __init__(self, parent):
+    def __init__(self, parent)->None:
         """
         Parameters
         ----------
         parent : AnalysisWindow
             Important for the interplay between the two windows.
-
-        Returns
-        -------
-        None.
 
         """
 
@@ -254,7 +250,7 @@ class BatchAnalysis(QDialog):
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added: %s"%(path))
             errorcode = self.analyze(path)
-            if not errorcode ==ERR.OK:
+            if not errorcode:
                 return
             self.update_filelist([path])
             self._files.select_row_by_filename(path)
@@ -446,7 +442,6 @@ class BatchAnalysis(QDialog):
         self.traceSpectrum.update_data(traceData)
         self.traceSpectrum.plot_spectrum()
 
-        return
 
 
     def determine_batchfile(self, takeCurrentBatchfile):
@@ -480,7 +475,7 @@ class BatchAnalysis(QDialog):
     ### UI-interactions
 
 
-    def specify_batchfile(self):
+    def specify_batchfile(self)->str:
         """
         Specifies the filename through a dialog.
 
@@ -499,7 +494,7 @@ class BatchAnalysis(QDialog):
 
         # Cancel or quit the dialog.
         if not filename:
-            return
+            return None
 
         filename = uni.replace_suffix(filename)
 
@@ -576,7 +571,7 @@ class BatchAnalysis(QDialog):
     ### Interaction with the FileSet self._files.
 
 
-    def update_filelist(self, filelist:list):
+    def update_filelist(self, filelist:list)->None:
         """
         Updates the filelist and refreshes the ui.
 
@@ -586,10 +581,6 @@ class BatchAnalysis(QDialog):
         ----------
         filelist : list of strings
             List of strings including valid urls/filenames.
-
-        Returns
-        -------
-        None.
 
         """
 

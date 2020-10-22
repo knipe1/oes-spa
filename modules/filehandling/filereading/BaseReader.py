@@ -91,7 +91,7 @@ class BaseReader(FileFramework):
         return information
 
 
-    def handle_additional_information(self, **kwargs):
+    def handle_additional_information(self, **kwargs)->None:
         # No additional information by default. Child classes can introduce specific methods.
         return
 
@@ -134,7 +134,7 @@ class BaseReader(FileFramework):
         except IndexError:
             self.logger.warning("No valid x- and y-data given. Empty data?!")
         except:
-            return
+            return None
 
         return xyData
 

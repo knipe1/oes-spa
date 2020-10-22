@@ -104,7 +104,7 @@ class Logger():
     mode = "w"
 
 
-    def __init__(self, name: str):
+    def __init__(self, name: str)->None:
         """
         Parameters
         ----------
@@ -112,11 +112,6 @@ class Logger():
             The name used to determine the logger object. Please consider
             __name__ as common name to distinguish the different entries
             of the different modules. They are then named in the logs.
-
-        Returns
-        -------
-        None.
-
         """
         # Load the configuration for filesystem properties.
         config = ConfigLoader()

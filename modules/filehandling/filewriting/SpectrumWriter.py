@@ -51,7 +51,7 @@ class SpectrumWriter(FileWriter):
             Used for characteristic values like peak height,...
         """
         if is_exported_spectrum(self.filename):
-            return
+            return None
 
         exportFilename = self.assemble_export_filename(spectrum.exportType)
 

@@ -151,7 +151,7 @@ class UIMain(Ui_main):
 
     ### methods
 
-    def __init__(self, parent):
+    def __init__(self, parent)->None:
         """
 
         Parameters
@@ -159,11 +159,6 @@ class UIMain(Ui_main):
         parent : QMainWindow
             The "parent" of this GUI. It is used for connections to other GUIs
             other (rather general) functions.
-
-        Returns
-        -------
-        None.
-
         """
         # set up the logger
         self.logger = Logger(__name__)
@@ -296,7 +291,7 @@ class UIMain(Ui_main):
         return activeFitting
 
 
-    def update_information(self, info:dict):
+    def update_information(self, info:dict)->None:
         """
         Resets the information box and update it with the given information.
 
@@ -304,10 +299,6 @@ class UIMain(Ui_main):
         ----------
         info : dict
             Information of the form: description->value.
-
-        Returns
-        -------
-        None.
 
         """
         # Init Format and clear.

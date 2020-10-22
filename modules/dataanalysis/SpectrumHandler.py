@@ -157,12 +157,11 @@ class SpectrumHandler():
         procXData, procYData = self.procData[:, 0], self.procData[:, 1]
 
         integrationRange = self.get_integration_range(procXData, peak)
-        xPeak, yPeak, peakArea = self.get_peak_characteristics(procXData, procYData, integrationRange)
+        xPeak, yPeak, peakArea = self.get_peak_characteristics(integrationRange)
 
-        characteristics = {}
-        characteristics[CHC.PEAK_POSITION] = xPeak
-        characteristics[CHC.PEAK_HEIGHT] = yPeak
-        characteristics[CHC.PEAK_AREA] = peakArea
+        characteristics = {CHC.PEAK_POSITION: xPeak,
+                           CHC.PEAK_HEIGHT: yPeak,
+                           CHC.PEAK_AREA: peakArea,}
 
         # Determine integration areas.
         integrationRaw = Integration(self.rawData[integrationRange])
@@ -189,7 +188,9 @@ class SpectrumHandler():
         return integrationRange
 
 
-    def get_peak_characteristics(self, procXData:np.ndarray, procYData:np.ndarray, integrationRange:range):
+    def get_peak_characteristics(self, integrationRange:range):
+
+        procXData, procYData = self.procData[:, 0], self.procData[:, 1]
 
         # Get the highest Peak in the integration area.
         try:

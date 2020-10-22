@@ -69,17 +69,15 @@ def get_valid_local_url(url:QUrl)->str:
         The local url of given url if valid. None otherwise.
 
     """
-
-    if not url.isValid():
-        return
-
+    isValid = url.isValid();
     localUrl = url.toLocalFile();
-    if is_valid_suffix(localUrl):
+    isValidSuffix = is_valid_suffix(localUrl)
+    if isValid and isValidSuffix:
         return localUrl
-    return
+    return None
 
 
-def convert_to_hours(timedifference:timedelta):
+def convert_to_hours(timedifference:timedelta)->float:
     """
     Converts the difference of datetimes into hours.
 
@@ -133,7 +131,7 @@ def replace_suffix(filename, suffix=None):
     return newFilename
 
 
-def reduce_path(urls:list):
+def reduce_path(urls:list)->str:
     """
     Reduces the url to the filename and the parent directory.
 
@@ -149,7 +147,7 @@ def reduce_path(urls:list):
         yield relativeFilepath
 
 
-def add_index_to_text(texts):
+def add_index_to_text(texts:list)->str:
     """
     Adding the index of a list item in front of the item.
     May the 44th item be "Datei", then the returning element would be "  44:Datei"

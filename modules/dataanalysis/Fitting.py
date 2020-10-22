@@ -53,14 +53,13 @@ class Fitting():
     ### Properties
 
     @property
-    def peak(self) -> Peak:
+    def peak(self)->Peak:
         return self._peak
 
     @peak.setter
-    def peak(self, peak):
+    def peak(self, peak)->None:
         self.set_peak_reference(peak)
         self._peak = peak
-        return
 
 
     @property
