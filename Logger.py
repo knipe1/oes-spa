@@ -166,7 +166,7 @@ class Logger():
         return self.__module__ + ":\n" + str(info)
 
 
-    def debug(self, msg: str, extra=None):
+    def debug(self, msg: str, extra=None)->None:
         """
         Writing the message to the log with level DEBUG.
 
@@ -178,15 +178,10 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
 
-        Returns
-        -------
-        None.
-
         """
-
         self.logger.debug(msg, extra = extra)
 
-    def info(self, msg: str, extra=None):
+    def info(self, msg: str, extra=None)->None:
         """
         Writing the message to the log with level INFO.
 
@@ -198,15 +193,11 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
 
-        Returns
-        -------
-        None.
-
         """
 
         self.logger.info(msg, extra = extra)
 
-    def warning(self, msg: str, extra=None):
+    def warning(self, msg: str, extra=None)->None:
         """
         Writing the message to the log with level WARNING.
 
@@ -218,15 +209,11 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
 
-        Returns
-        -------
-        None.
-
         """
 
         self.logger.warning(msg, extra = extra)
 
-    def error(self, msg, extra=None):
+    def error(self, msg, extra=None)->None:
         """
         Writing the message to the log with level ERROR.
 
@@ -238,15 +225,11 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
 
-        Returns
-        -------
-        None.
-
         """
 
         self.logger.error(msg, extra = extra)
 
-    def critical(self, msg: str, extra=None):
+    def critical(self, msg: str, extra=None)->None:
         """
         Writing the message to the log with level CRITICAL.
 
@@ -258,15 +241,11 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
 
-        Returns
-        -------
-        None.
-
         """
 
         self.logger.critical(msg, extra = extra)
 
-    def exception(self, msg, extra=None):
+    def exception(self, msg, extra=None)->None:
         """
         Writing the message to the log with level ERROR inclusive Traceback.
 
@@ -277,11 +256,6 @@ class Logger():
         extra : TYPE, optional
             Additional arguments according to the docs of the logging module.
             The default is None.
-
-        Returns
-        -------
-        None.
-
         """
 
         self.logger.exception(msg, extra = extra)
