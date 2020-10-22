@@ -64,6 +64,14 @@ class SpectrumHandler():
     def procData(self, xyData:tuple)->None:
         self._processedData = tuple_to_array(xyData)
 
+    @property
+    def procXData(self)->np.ndarray:
+        return self.procData[:, 0]
+
+    @property
+    def procYData(self)->np.ndarray:
+        return self.procData[:, 1]
+
 
     ### dunder methods
 
@@ -154,9 +162,7 @@ class SpectrumHandler():
             Defines the values for the analysis of the peak.
 
         """
-        procXData, procYData = self.procData[:, 0], self.procData[:, 1]
-
-        integrationRange = self.get_integration_range(procXData, peak)
+        integrationRange = self.get_integration_range(peak)
         xPeak, yPeak, peakArea = self.get_peak_characteristics(integrationRange)
 
         characteristics = {CHC.PEAK_POSITION: xPeak,
@@ -172,15 +178,16 @@ class SpectrumHandler():
         return characteristics, integrationAreas
 
 
-    def get_integration_range(self, procXData:np.ndarray, peak:Peak):
+    def get_integration_range(self, peak:Peak)->range:
         lowerLimit = peak.centralWavelength - peak.shiftDown
         upperLimit = peak.centralWavelength + peak.shiftUp
 
-        idxBorderRight = np.abs(procXData - upperLimit).argmin()
-        idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
+        xData = self.procXData
+        idxBorderRight = np.abs(xData - upperLimit).argmin()
+        idxBorderLeft = np.abs(xData - lowerLimit).argmin()
 
         isBelowSpectrum = (idxBorderRight == 0)
-        isAboveSpectrum = (idxBorderLeft == 0)
+        isAboveSpectrum = (idxBorderLeft == idxBorderRight)
         if isBelowSpectrum or isAboveSpectrum:
             return range(0)
 
@@ -190,7 +197,7 @@ class SpectrumHandler():
 
     def get_peak_characteristics(self, integrationRange:range):
 
-        procXData, procYData = self.procData[:, 0], self.procData[:, 1]
+        procXData, procYData = self.procXData, self.procYData
 
         # Get the highest Peak in the integration area.
         try:
