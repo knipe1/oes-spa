@@ -176,6 +176,7 @@ class Logger():
         """
         self.logger.debug(msg, extra = extra)
 
+
     def info(self, msg: str, extra=None)->None:
         """
         Writing the message to the log with level INFO.
@@ -187,10 +188,9 @@ class Logger():
         extra : TYPE, optional
             Additional arguments according to the docs of the logging module.
             The default is None.
-
         """
-
         self.logger.info(msg, extra = extra)
+
 
     def warning(self, msg: str, extra=None)->None:
         """
@@ -203,10 +203,9 @@ class Logger():
         extra : TYPE, optional
             Additional arguments according to the docs of the logging module.
             The default is None.
-
         """
-
         self.logger.warning(msg, extra = extra)
+
 
     def error(self, msg, extra=None)->None:
         """
@@ -219,10 +218,9 @@ class Logger():
         extra : TYPE, optional
             Additional arguments according to the docs of the logging module.
             The default is None.
-
         """
-
         self.logger.error(msg, extra = extra)
+
 
     def critical(self, msg: str, extra=None)->None:
         """
@@ -235,10 +233,9 @@ class Logger():
         extra : TYPE, optional
             Additional arguments according to the docs of the logging module.
             The default is None.
-
         """
-
         self.logger.critical(msg, extra = extra)
+
 
     def exception(self, msg, extra=None)->None:
         """
@@ -252,6 +249,4 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
         """
-
         self.logger.exception(msg, extra = extra)
-
