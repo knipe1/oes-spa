@@ -367,28 +367,19 @@ class BatchAnalysis(QDialog):
                 if not errorcode:
                     return errorcode
 
-                avg = specHandler.avgbase
-                peakHeight = specHandler.peakHeight
-                peakArea = specHandler.peakArea
-                peakPosition = specHandler.peakPosition
-                characteristicValue = specHandler.characteristicValue
-                timestamp = self.currentFile.timeInfo
-
-                # excluding file if no appropiate data given like in processed
-                # spectra.
-                # TODO: validate_results as method of specHandler? Would also omit
-                # the assignemts above!?
-                if not peakHeight:
+                # excluding file if no appropiate data given like in processed spectra.
+                if specHandler.hashas_valid_peak():
                     skippedFiles.append(file)
                     continue
 
                 config[CHC.FILENAME] = file
-                config[CHC.BASELINE] = avg
-                config[CHC.CHARACTERISTIC_VALUE] = characteristicValue
-                config[CHC.PEAK_AREA] = peakArea
-                config[CHC.PEAK_HEIGHT] = peakHeight
-                config[CHC.PEAK_POSITION] = peakPosition
+                config[CHC.BASELINE] = specHandler.avgbase
+                config[CHC.CHARACTERISTIC_VALUE] = specHandler.characteristicValue
+                config[CHC.PEAK_AREA] = specHandler.peakArea
+                config[CHC.PEAK_HEIGHT] = specHandler.peakHeight
+                config[CHC.PEAK_POSITION] = specHandler.peakPosition
                 # Convert to string for proper presentation.
+                timestamp = self.currentFile.timeInfo
                 config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
 
                 data.append(assemble_row(config))
@@ -403,12 +394,10 @@ class BatchAnalysis(QDialog):
             header = assemble_header(config, peakName=peakName)
             if isSingleFile:
                 data = assemble_row(config)
-
             self.export_batch(data, header, isUpdate=isSingleFile)
 
         if isPlotTrace:
             self.import_batchfile(takeCurrentBatchfile=True)
-
 
         # Prompt the user with information about the skipped files.
         if not isSingleFile:

@@ -9,7 +9,6 @@ Single and batch analysis of OES spectra
 import sys
 import sif_reader
 da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
-import mne
 
 # third-party libs
 import emulator as emu

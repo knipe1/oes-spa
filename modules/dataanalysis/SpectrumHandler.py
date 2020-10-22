@@ -246,6 +246,13 @@ class SpectrumHandler():
         return dispersion
 
 
+    def has_valid_peak(self):
+        try:
+            return (self.peakHeight != 0.0)
+        except AttributeError:
+            return False
+
+
 def process_data(rawData:np.ndarray, setting:BasicSetting, dispersion:float):
     """Processes the raw data with regard to the given wavelength and the dispersion."""
     procXData = process_x_data(rawData[:, 0], setting.wavelength, dispersion)
