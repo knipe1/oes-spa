@@ -407,7 +407,6 @@ class BatchAnalysis(QDialog):
         return ERR.OK
 
 
-
     def import_batchfile(self, takeCurrentBatchfile=False):
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTraceValue
@@ -421,7 +420,7 @@ class BatchAnalysis(QDialog):
         if not file.is_valid_batchfile():
             return
 
-        # TODO: Check sorting of 2D arrays make sense here.
+        # See #98
         timestamps, values = file.data
         diffTimes = self.calculate_time_differences(timestamps)
         traceData = (diffTimes, values)
