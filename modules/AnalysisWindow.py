@@ -11,18 +11,19 @@
 from os import path, getcwd
 
 # third-party libs
+# base class: QMainWindow
 from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
 from ui.UIMain import UIMain
 from ConfigLoader import ConfigLoader
 from Logger import Logger
-import modules.Universal as uni
 import dialog_messages as dialog
+import modules.Universal as uni
 from modules.BatchAnalysis import BatchAnalysis
+from modules.dataanalysis.Spectrum import Spectrum
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.filehandling.filereading.FileReader import FileReader
-from modules.dataanalysis.Spectrum import Spectrum
 from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 
 # enums
@@ -44,8 +45,8 @@ class AnalysisWindow(QMainWindow):
 
     # Load the configuration for plotting, import and filesystem properties.
     config = ConfigLoader()
-    PLOT = config.PLOT;
     GENERAL = config.GENERAL
+
 
     ### Properties
 
@@ -58,7 +59,6 @@ class AnalysisWindow(QMainWindow):
     def activeFile(self, file:FileReader)->None:
         """activeFile setter: Updating the ui"""
         self.window.set_fileinformation(file)
-
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
 
@@ -71,7 +71,7 @@ class AnalysisWindow(QMainWindow):
         return self._lastdir
 
     @lastdir.setter
-    def lastdir(self, directory:str):
+    def lastdir(self, directory:str)->None:
         if path.isdir(directory):
             newDirectory = directory
         elif path.isfile(directory):
@@ -104,8 +104,8 @@ class AnalysisWindow(QMainWindow):
         self.show()
 
 
-    def __post_init__(self):
-        self.init_connections()
+    def __post_init__(self)->None:
+        self.connect_ui_events()
         self.init_spectra()
 
 
@@ -116,30 +116,29 @@ class AnalysisWindow(QMainWindow):
         return self.__module__ + ":\n" + str(info)
 
 
-    def init_spectra(self):
+    def init_spectra(self)->None:
         """Set up the Spectrum elements with the corresponding ui elements."""
         self.rawSpectrum = Spectrum(self.window.plotRawSpectrum, EXPORT_TYPE.RAW)
         self.processedSpectrum = Spectrum(self.window.plotProcessedSpectrum, EXPORT_TYPE.PROCESSED);
 
 
-    def init_connections(self):
+    def connect_ui_events(self)->None:
         win = self.window
+        win.connect_change_basic_settings(self.redraw)
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
-        win.connect_show_batch(self.batch.show)
         win.connect_open_file(self.file_open)
-        win.connect_change_basic_settings(self.redraw)
+        win.connect_show_batch(self.batch.show)
 
 
     ### Events
 
-    def closeEvent(self, event):
+    def closeEvent(self, event)->None:
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
-        self.batch.schedule_cancel_routine()
         self.batch.close()
 
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event)->None:
         # Handle the urls. Multiple urls are handled by BatchAnalysis.
         urls = event.mimeData().urls();
         isSingleFile = (len(urls) == 1)
@@ -151,7 +150,7 @@ class AnalysisWindow(QMainWindow):
             event.accept()
 
 
-    def dropEvent(self, event):
+    def dropEvent(self, event)->None:
         event.accept();
 
         # Can only be one single file.
@@ -166,7 +165,7 @@ class AnalysisWindow(QMainWindow):
 
     ### Methods
 
-    def file_open(self):
+    def file_open(self)->None:
         """Open FileDialog to select one or multiple spectra."""
         # File-->Open
         # Browse
@@ -183,24 +182,24 @@ class AnalysisWindow(QMainWindow):
         elif isSingleFile:
             filename = filelist[0];
             self.apply_file(filename)
-        try:
-            self.lastdir = filelist[0]
-        except IndexError:
-            pass
+        else:
+            return
+
+        self.lastdir = filelist[0]
 
 
     ### Export
 
-    def export_raw(self):
+    def export_raw(self)->None:
         self.export_spectrum(self.rawSpectrum)
 
 
-    def export_processed(self):
+    def export_processed(self)->None:
         results = self.window.get_results();
         self.export_spectrum(self.processedSpectrum, results)
 
 
-    def export_spectrum(self, spectrum:Spectrum, results:dict={}):
+    def export_spectrum(self, spectrum:Spectrum, results:dict={})->None:
 
         try:
             writer = SpectrumWriter(*self.activeFile.fileinformation)
@@ -215,18 +214,18 @@ class AnalysisWindow(QMainWindow):
             dialog.information_exportAborted()
 
 
-    def redraw(self, value:str=None):
+    def redraw(self, changedValue:str=None)->None:
         """
-        Redraw the plots with the currently opened file.
+        Redraw the plots with data of the active file.
 
         Parameters
         ----------
-        value : str
-            The text of the new selected option. Informative in the logger.
+        changedValue : str
+            The value of the new selected option. Informative in the logger.
 
         """
         try:
-            self.logger.info(f"New value of setting: {value}. Redraw of {self.activeFile.filename}.")
+            self.logger.info(f"New value of setting: {changedValue}. Redraw of {self.activeFile.filename}.")
             self.apply_file(self.activeFile)
         except AttributeError:
             self.logger.warning("Redraw Failed")
@@ -256,9 +255,7 @@ class AnalysisWindow(QMainWindow):
             return
 
         self.show_wavelength_difference_information(file, basicSetting)
-
         self.window.set_results(specHandler)
-
         self.update_spectra(specHandler)
         self.activeFile = file;
 
@@ -270,12 +267,15 @@ class AnalysisWindow(QMainWindow):
             self.logger.debug(f"No Wavelength provided by: {file.filename}")
 
 
-    def show_wavelength_difference_information(self, file:FileReader, basicSetting:BasicSetting):
+    def show_wavelength_difference_information(self, file:FileReader, setting:BasicSetting)->None:
+        settingWavelength = setting.wavelength
         try:
-            hasDifferentWl = (float(file.WAVELENGTH) != basicSetting.wavelength)
+            fileWavelength = float(file.WAVELENGTH)
         except KeyError:
-            hasDifferentWl = False
+            fileWavelength = None
+            settingWavelength = None
         finally:
+            hasDifferentWl = (fileWavelength != settingWavelength)
             self.window.show_diff_wavelength(hasDifferentWl)
 
 

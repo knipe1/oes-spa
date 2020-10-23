@@ -172,6 +172,7 @@ class BatchAnalysis(QDialog):
 
     def closeEvent(self, event):
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
+        self.schedule_cancel_routine()
         self.deactivate_watchdog()
 
 
@@ -368,7 +369,7 @@ class BatchAnalysis(QDialog):
                     return errorcode
 
                 # excluding file if no appropiate data given like in processed spectra.
-                if specHandler.hashas_valid_peak():
+                if not specHandler.has_valid_peak():
                     skippedFiles.append(file)
                     continue
 

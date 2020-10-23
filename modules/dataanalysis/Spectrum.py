@@ -128,7 +128,7 @@ class Spectrum():
         """
         self.data = xyData
         self.integrationAreas = integrationAreas or []
-        if not baselineData is None:
+        if baselineData is not None:
             self.add_baseline(baselineData)
 
         if self.exportType == EXPORT_TYPE.RAW :

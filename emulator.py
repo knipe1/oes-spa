@@ -14,7 +14,7 @@ Created on Fri Feb 21 09:14:12 2020
 from pynput.keyboard import Key, Controller
 from time import sleep
 
-PAUSE = 2.;
+PAUSE = 2.5;
 
 
 def key_accept():
@@ -125,7 +125,7 @@ def key_select_file(iterations):
 
 def select_directory():
     keyboard = Controller()
-    sleep(0.2*PAUSE)
+    sleep(0.6*PAUSE)
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)

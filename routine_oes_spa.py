@@ -10,6 +10,7 @@ import sys
 import sif_reader
 da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 
+
 # third-party libs
 import emulator as emu
 import threading as THR
@@ -33,8 +34,8 @@ def main():
     initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
+    showBatch = True
+    selectBatchfile = True
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
