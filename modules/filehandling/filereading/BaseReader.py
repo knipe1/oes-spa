@@ -87,7 +87,11 @@ class BaseReader(FileFramework):
             else:
                 self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
 
-        information = self.join_information(timeInfo, data, parameter)
+        try:
+            information = self.join_information(timeInfo, data, parameter)
+        except UnboundLocalError:
+            information = self.join_information(None, None)
+
         return information
 
 
