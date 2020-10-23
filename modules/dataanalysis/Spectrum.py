@@ -206,7 +206,7 @@ class Spectrum():
     ## Recording
 
 
-    def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime):
+    def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
         relativeTime = self.get_timediff_H(timestamp)
         reducedFilename = ''.join(uni.reduce_path([filename]))
         self.remove_recording()
@@ -217,7 +217,7 @@ class Spectrum():
         self.ui.draw()
 
 
-    def remove_recording(self):
+    def remove_recording(self)->None:
         try:
             self.recordingPlot.remove()
         except AttributeError:
@@ -226,8 +226,11 @@ class Spectrum():
 
     ## Calculation
 
+    def reset_time(self)->None:
+        del self.traceSpectrum.referenceTime
 
-    def get_timediff_H(self, timestamp):
+
+    def get_timediff_H(self, timestamp:datetime)->None:
         try:
             refTime = self.referenceTime
         except AttributeError:

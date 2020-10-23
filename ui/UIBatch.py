@@ -130,7 +130,7 @@ class UIBatch(Ui_batch):
         return self.listFiles.hasFocus()
 
 
-    def enable_analysis(self, enable):
+    def enable_analysis(self, enable:bool):
         self.btnCalculate.setEnabled(enable)
 
 

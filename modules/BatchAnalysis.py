@@ -449,6 +449,7 @@ class BatchAnalysis(QDialog):
 
     def calculate_time_differences(self, timestamps):
         diffTimes = np.zeros((len(timestamps),))
+        self.traceSpectrum.reset_time()
 
         for idx, timestamp in enumerate(timestamps):
             diffTime = self.traceSpectrum.get_timediff_H(timestamp)
