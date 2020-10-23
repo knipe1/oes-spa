@@ -417,7 +417,11 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
 
-        file = FileReader(filename, columnValue=columnValue)
+        try:
+            file = FileReader(filename, columnValue=columnValue)
+        except FileNotFoundError:
+            return
+
         if not file.is_valid_batchfile():
             return
 
