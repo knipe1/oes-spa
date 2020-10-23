@@ -76,7 +76,7 @@ def key_alt_s():
 
     """
     keyboard = Controller()
-    sleep(3*PAUSE)
+    sleep(PAUSE)
     with keyboard.pressed(Key.alt):
         keyboard.press("s")
         keyboard.release("s")

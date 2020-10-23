@@ -428,7 +428,7 @@ class BatchAnalysis(QDialog):
         # See #98
         timestamps, values = file.data
         diffTimes = self.calculate_time_differences(timestamps)
-        traceData = (diffTimes, values)
+        traceData = np.array((diffTimes, values)).transpose()
 
         # Plot the trace.
         self.traceSpectrum.set_custom_y_label(columnValue)

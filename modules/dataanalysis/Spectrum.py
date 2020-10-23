@@ -48,7 +48,7 @@ class Spectrum():
 
     @data.setter
     def data(self, xyData):
-        self._data = np.array(xyData).transpose()
+        self._data = np.array(xyData)
 
     @property
     def xData(self):
@@ -120,7 +120,7 @@ class Spectrum():
         self.baselineMarkup = self.get_markup(self.BASELINE)
 
 
-    def update_data(self, xyData, integrationAreas:list=None, baselineData=None):
+    def update_data(self, xyData:np.ndarray, integrationAreas:list=None, baselineData=None)->None:
         """
         Updates the data of the spectrum.
 

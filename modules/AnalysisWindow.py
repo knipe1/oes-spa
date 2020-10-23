@@ -280,9 +280,9 @@ class AnalysisWindow(QMainWindow):
 
 
     def update_spectra(self, SpectrumHandler:SpectrumHandler):
-        data = SpectrumHandler.rawData.transpose()
+        data = SpectrumHandler.rawData
         baseline = SpectrumHandler.baseline
-        processedData = SpectrumHandler.procData.transpose()
+        processedData = SpectrumHandler.procData
         rawIntegration, procIntegration = SpectrumHandler.get_integration_areas()
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
