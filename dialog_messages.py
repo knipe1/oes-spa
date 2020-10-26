@@ -89,10 +89,19 @@ def information_batchAnalysisFinished(skippedFiles:list, parent:QWidget=None)->N
 
 
 def information_normalizationFactorUndefined(parent:QWidget=None)->None:
-    title = "No Normalization Factor defined!";
+    title = "Invalid Normalization Factor defined!";
     text = "In the currently selected Fitting is no normalization factor of the peak defined. "\
     "Please find an example in the example_fitting.yml. "\
     "The normalization factor maps the area-relation to a characteristic value, "\
+    "which may be used to determine the concentration.";
+    QMessageBox.information(parent, title, text);
+
+
+def information_normalizationOffsetUndefined(parent:QWidget=None)->None:
+    title = "Invalid Normalization Offet defined!";
+    text = "In the currently selected Fitting is valid normalization offset of the peak defined. "\
+    "Please find an example in the example_fitting.yml. "\
+    "The normalization offset shifts the characteristic value, "\
     "which may be used to determine the concentration.";
     QMessageBox.information(parent, title, text);
 

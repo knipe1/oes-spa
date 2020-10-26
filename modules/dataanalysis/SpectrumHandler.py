@@ -135,6 +135,7 @@ class SpectrumHandler():
 
         refCharacteristic, refIntegrationAreas = self.analyse_peak(peak.reference)
         refHeight = refCharacteristic[CHC.PEAK_HEIGHT]
+        refArea = refCharacteristic[CHC.PEAK_AREA]
 
         # Set the type for these integration areas.
         integrationAreas = self.set_type_to_reference(refIntegrationAreas)
@@ -142,7 +143,7 @@ class SpectrumHandler():
 
         # Validation
         if refHeight >= peak.reference.minimum:
-            ratio = peakArea / refHeight
+            ratio = peakArea / refArea
             characteristicValue = ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
             characteristicValue = 0.0

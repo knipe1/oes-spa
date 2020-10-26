@@ -14,12 +14,12 @@ PEAKS:
     # to the value of 1 (characteristic Value)
     normalizationFactor: 100
     # normalizationOffset can compensate for background comtamination
-    normalizationOffset: -11.123
+    normalizationOffset: "asdf"
     reference:
         # central wavelength of the reference peak
         centralWavelength: 434.5
         # limits of integration for that reference peak
         shiftDown: .3
         shiftUp:  .4
-        # Minimum to use the peak. Peak height is used for evaluation.
+        # Minimum to use the peak.
         minimum: 0.00002
