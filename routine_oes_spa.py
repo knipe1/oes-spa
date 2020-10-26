@@ -16,6 +16,7 @@ import emulator as emu
 import threading as THR
 from PyQt5.QtWidgets import QApplication
 
+
 # local modules/libs
 from ConfigLoader import ConfigLoader
 import modules.Universal as uni
