@@ -55,6 +55,14 @@ class SpectrumHandler():
     def rawData(self, xyData:tuple)->None:
         self._rawData = tuple_to_array(xyData)
 
+    @property
+    def rawXData(self)->np.ndarray:
+        return self.rawData[:, 0]
+
+    @property
+    def rawYData(self)->np.ndarray:
+        return self.rawData[:, 1]
+
 
     @property
     def procData(self)->np.ndarray:
@@ -103,7 +111,7 @@ class SpectrumHandler():
             return errorcode
 
         self.rawData = file.data
-        self.procData, self.baseline, self.avgbase = process_data(self.rawData, self.basicSetting, self.dispersion)
+        self.process_data()
 
         # Find Peak and obtain height, area, and position
         peak = self.basicSetting.fitting.peak
@@ -254,47 +262,51 @@ class SpectrumHandler():
             return False
 
 
-def process_data(rawData:np.ndarray, setting:BasicSetting, dispersion:float):
-    """Processes the raw data with regard to the given wavelength and the dispersion."""
-    procXData = process_x_data(rawData[:, 0], setting.wavelength, dispersion)
-    procYData, baseline, avgbase = process_y_data(rawData[:, 1], setting.baselineCorrection)
-    return (procXData, procYData), baseline, avgbase
+    def process_data(self)->None:
+        """Processes the raw data with regard to the given wavelength and the dispersion."""
+        procXData = self.process_x_data()
+        procYData, self.baseline, self.avgbase = self.process_y_data()
+        self.procData = (procXData, procYData)
 
 
-def process_x_data(rawXData:np.ndarray, centralWavelength:float, dispersion:float):
-    """Assigns wavelength to the recorded Pixels """
+    def process_x_data(self)->np.ndarray:
+        """Assigns wavelength to the recorded Pixels """
 
-    # Center of the xData. Used for shifting the data.
-    center = rawXData[len(rawXData) // 2 - 1]     # offset of python lists.
+        # Center of the xData. Used for shifting the data.
+        rawXData = self.rawXData
+        center = rawXData[len(rawXData) // 2 - 1]     # offset of python lists.
 
-    xDataArePixel = uni.data_are_pixel(rawXData)
-    # The difference is 1 if pixels are recorded. Data with a smaller difference contain wavelength data.
-    if xDataArePixel:
-        # Employs the dispersion to convert pixel to wavelength
-        start = centralWavelength - center*dispersion
-        shiftedData = rawXData*dispersion + start
-    else:
-        # Only shift the original data to the given centralWavelength
-        shift = centralWavelength - center
-        shiftedData = rawXData + shift
+        centralWavelength = self.basicSetting.wavelength
+        xDataArePixel = uni.data_are_pixel(rawXData)
+        if xDataArePixel:
+            # Employs the dispersion to convert pixel to wavelength
+            start = centralWavelength - center*self.dispersion
+            shiftedData = rawXData*self.dispersion + start
+        else:
+            # Only shift the original data to the given centralWavelength
+            shift = centralWavelength - center
+            shiftedData = rawXData + shift
 
-    return shiftedData
+        return shiftedData
 
 
-def process_y_data(rawYData:np.ndarray, baselineCorrection:bool):
-    # Baseline fitting with peakutils.
-    # TODO: what is calculated here? @knittel/@reinke
-    # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
-    baseline = pkus.baseline(rawYData)
-    avgbase = np.mean(baseline)
+    def process_y_data(self):
+        # Baseline fitting with peakutils.
+        # TODO: what is calculated here? @knittel/@reinke
+        # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
+        rawYData = self.rawYData
+        baseline = pkus.baseline(rawYData)
+        avgbase = np.mean(baseline)
 
-    # Shifting y data and normalization to average baseline intensity.
-    if baselineCorrection:
-        shiftedYdata = rawYData - baseline
-    else:
-        shiftedYdata = rawYData
-    processedYdata = shiftedYdata / abs(avgbase)
-    return processedYdata, baseline, avgbase
+        # Shifting y data and normalization to average baseline intensity.
+        correctBaseline = self.basicSetting.baselineCorrection
+        if correctBaseline:
+            shiftedYdata = rawYData - baseline
+        else:
+            shiftedYdata = rawYData
+        processedYdata = shiftedYdata / abs(avgbase)
+
+        return processedYdata, baseline, avgbase
 
 
 def tuple_to_array(data:tuple)->np.ndarray:
