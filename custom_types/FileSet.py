@@ -10,6 +10,7 @@ Created on Thu May  7 14:40:11 2020
 # standard libs
 
 # third-party libs
+from dependencies.natsort.natsort import natsorted
 
 # local modules/libs
 import modules.Universal as uni
@@ -98,7 +99,7 @@ class FileSet(set):
         """Convert the set to a sorted/indexed list."""
         files = list(self)
         if naturalSort:
-            files.sort(key=uni.natural_keys)
+            files = natsorted(files)
 
         if indexed:
             files = uni.add_index_to_text(uni.reduce_path(files))
