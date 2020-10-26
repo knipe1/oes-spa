@@ -21,14 +21,14 @@ PEAKS:
                 wavelength: 455
                 lower_limit: 454
                 upper_limit:  456
-                minimum: 1
+                minimumHeight: 1
     -
         # another example for a second example peak
         label: "CN Peak"
         wavelength: 580
         lower_limit: 578.5
         upper_limit:  58.2
-        minimum: 1
+        minimumHeight: 1
         reference:
             -
                 wavelength: 133

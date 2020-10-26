@@ -13,6 +13,7 @@ PEAKS:
     # normalizationFactor may be used to fit a specific concentration
     # to the value of 1 (characteristic Value)
     normalizationFactor: 12
+    normalizationOffset: 1
     reference:
         # central wavelength of the reference peak
         # centralWavelength: 434.51
@@ -20,4 +21,4 @@ PEAKS:
         shiftDown: .3
         # shiftUp:  .41
         # Minimum to use the peak. Peak height is used for evaluation.
-        minimum: 0.00002
+        minimumHeight: 0.00002

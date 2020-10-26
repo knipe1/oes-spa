@@ -24,9 +24,6 @@ DEFAULT_NORM_FACTOR = 1.0
 DEFAULT_NORM_OFFSET = 0.0
 
 
-
-
-
 class Peak(BasePeak):
 
     def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, normalizationOffset:float=None, **kwargs):

@@ -5,8 +5,9 @@ PEAKS:
     shiftDown: .1
     shiftUp:  .15
     normalizationFactor: 1
+    normalizationOffset: 1
     reference:
         centralWavelength: 434.05
         shiftDown: .05
         shiftUp:  .05
-        minimum: 0.1
+        minimumHeight: 0.1

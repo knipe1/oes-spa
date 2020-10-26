@@ -35,7 +35,7 @@ class ReferencePeak(BasePeak):
     Methods
     -------
     """
-    minimum: float = 0.0;           # minimum for a valid Peak
+    minimumHeight: float = 0.0;           # minimum for a valid Peak
 
 
     @property

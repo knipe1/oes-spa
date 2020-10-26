@@ -142,7 +142,7 @@ class SpectrumHandler():
         intAreas = integrationAreas.values()
 
         # Validation
-        if refHeight >= peak.reference.minimum:
+        if refHeight >= peak.reference.minimumHeight:
             ratio = peakArea / refArea
             characteristicValue = ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
