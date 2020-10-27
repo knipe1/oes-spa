@@ -83,7 +83,7 @@ class SpectrumHandler():
 
     ### dunder methods
 
-    def __init__(self, basicSetting, **kwargs):
+    def __init__(self, basicSetting:BasicSetting, **kwargs):
         # Set up the logger.
         self.logger = Logger(__name__)
 
@@ -172,11 +172,11 @@ class SpectrumHandler():
 
         """
         integrationRange = self.get_integration_range(peak)
-        xPeak, yPeak, peakArea = self.get_peak_characteristics(integrationRange)
+        self.analyze_peak_characteristics(integrationRange)
 
-        characteristics = {CHC.PEAK_POSITION: xPeak,
-                           CHC.PEAK_HEIGHT: yPeak,
-                           CHC.PEAK_AREA: peakArea,}
+        characteristics = {CHC.PEAK_POSITION: self.peakPosition,
+                           CHC.PEAK_HEIGHT: self.peakHeight,
+                           CHC.PEAK_AREA: self.peakArea,}
 
         # Determine integration areas.
         integrationRaw = Integration(self.rawData[integrationRange])
@@ -204,7 +204,7 @@ class SpectrumHandler():
         return integrationRange
 
 
-    def get_peak_characteristics(self, integrationRange:range):
+    def analyze_peak_characteristics(self, integrationRange:range)->None:
 
         procXData, procYData = self.procXData, self.procYData
 
@@ -212,18 +212,20 @@ class SpectrumHandler():
         try:
             idxPeak = procYData[integrationRange].argmax() + integrationRange[0]
         except ValueError:
-            return 0.0, 0.0, 0.0
+            self.peakArea = 0.0
+            self.peakHeight = 0.0
+            self.peakPosition = 0.0
+            return
 
-        xPeak = procXData[idxPeak]
-        yPeak = procYData[idxPeak]
+        self.peakPosition = procXData[idxPeak]
+        self.peakHeight = procYData[idxPeak]
 
         # getting all wavelength(x) and the intensities(y)
         peakAreaX = procXData[integrationRange]
         peakAreaY = procYData[integrationRange]
         # Integrate along the given axis using the composite trapezoidal rule.
-        peakArea = np.trapz(peakAreaY, peakAreaX)
-
-        return xPeak, yPeak, peakArea
+        self.peakArea = np.trapz(peakAreaY, peakAreaX)
+        return
 
 
     def get_integration_areas(self):
