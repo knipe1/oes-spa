@@ -58,12 +58,20 @@ class ConfigLoader():
     # Set indiviual props to update them properly.
     @property
     def logFile(self):
-        """batchFile getter"""
         return self.FILE["LOG_FILE"]
 
     @logFile.setter
     def logFile(self, logfile):
         self.config["FILE"]["LOG_FILE"] = logfile
+
+
+    @property
+    def fittingName(self):
+        return self.FITTING["fittingName"]
+
+    @fittingName.setter
+    def fittingName(self, fittingName:str)->None:
+        self.config["FITTING"]["fittingName"] = fittingName
 
 
     ### Methods

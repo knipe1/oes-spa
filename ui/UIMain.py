@@ -152,6 +152,7 @@ class UIMain(Ui_main):
     def plotProcessedSpectrum(self)->MatplotlibWidget:
         return self.mplProcessed
 
+
     ### methods
 
     def __init__(self, parent)->None:
@@ -167,7 +168,6 @@ class UIMain(Ui_main):
         self.logger = Logger(__name__)
 
         self.setupUi(parent)
-
         self.__post_init__()
 
 
@@ -177,6 +177,10 @@ class UIMain(Ui_main):
 
         self.fittings = self.retrieve_fittings()
         self.ddFitting.currentTextChanged.connect(self.load_fitting)
+        try:
+            self.ddFitting.setCurrentText(self.FITTING["fittingName"])
+        except KeyError:
+            pass
         # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
 
@@ -341,11 +345,21 @@ class UIMain(Ui_main):
             if fitName == fittingName:
                 return fitFilename
 
+
     def get_fitting_configuration(self, filename:str):
         path = os.path.join(self.FITTING["DIR"], filename)
         fitConfig = ConfigLoader(path)
         return fitConfig
 
+
     def set_fittings_errorcode(self, fit:Fitting):
         label = mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
         self.lblFitting.setText(label)
+
+
+    def save_selected_fitting(self):
+        fitName = self.ddFitting.currentText()
+        self.logger.info(f"Save fitting: {fitName}.")
+        self.config = ConfigLoader()
+        self.config.fittingName = fitName
+        self.config.save_config()
