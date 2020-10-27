@@ -25,6 +25,7 @@ Created on Fri Jan 27 2020
 import os
 
 # third-party libs
+from dependencies.natsort.natsort import natsorted
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -137,9 +138,11 @@ class UIMain(Ui_main):
         try:
             uiElement = self.ddFitting
             uiElement.clear()
-            uiElement.addItems(fits.values())
+            sortedFits = natsorted(fits.values())
+            uiElement.addItems(sortedFits)
         except:
             pass
+
 
     @property
     def plotRawSpectrum(self)->MatplotlibWidget:
