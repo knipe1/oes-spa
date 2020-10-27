@@ -32,6 +32,7 @@ from modules.dataanalysis.Spectrum import Spectrum
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
+from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 
@@ -351,6 +352,13 @@ class BatchAnalysis(QDialog):
 
             # Read out the filename and the data.
             file = files[i]
+            if is_exported_spectrum(file):
+                if isSingleFile:
+                    return ERR.INVALID_DATA
+                else:
+                    skippedFiles.append(file)
+                    continue
+
             self.currentFile = FileReader(file)
 
             errorcode = self.currentFile.is_valid_spectrum()
