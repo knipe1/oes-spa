@@ -228,6 +228,7 @@ class UIMain(Ui_main):
         self.ddGrating.currentTextChanged.connect(fun)
         self.ddFitting.currentTextChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
+        self.cbNormalizeData.stateChanged.connect(fun)
 
 
     def set_fileinformation(self, filereader:FileReader)->None:
@@ -320,10 +321,10 @@ class UIMain(Ui_main):
 
 
     def get_basic_setting(self)->BasicSetting:
-
         baselineCorrection = self.cbBaselineCorrection.isChecked()
+        normalizeData = self.cbNormalizeData.isChecked()
         fitting = self.load_fitting(self.ddFitting.currentText())
-        setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection)
+        setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection, normalizeData)
 
         return setting;
 

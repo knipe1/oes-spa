@@ -306,7 +306,13 @@ class SpectrumHandler():
             shiftedYdata = rawYData - baseline
         else:
             shiftedYdata = rawYData
-        processedYdata = shiftedYdata / abs(avgbase)
+
+        normalizeData = self.basicSetting.normalizeData
+        if normalizeData:
+            processedYdata = shiftedYdata / abs(avgbase)
+        else:
+            processedYdata = shiftedYdata
+
 
         return processedYdata, baseline, avgbase
 

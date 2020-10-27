@@ -148,6 +148,16 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QCheckBox" name="cbNormalizeData">
+           <property name="text">
+            <string>Normalize data</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

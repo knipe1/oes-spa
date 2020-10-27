@@ -21,3 +21,4 @@ class BasicSetting():
     grating: float;
     fitting: Fitting;
     baselineCorrection: bool;
+    normalizeData: bool;
