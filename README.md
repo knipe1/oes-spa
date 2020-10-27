@@ -13,3 +13,10 @@ batch-analysis files (default: _batch.csv) including characteristic values of mu
 Active developments:
 - Evaluation of Boron concentration
 
+
+## Installation of dependencies
+Using the console, navigate to the home directory of the application. Now navigate to /dependencies. You can run the command `python setup.py install` in each subdirectory, so each package, e.g.
+1. cd natsort
+1. python setup.py install
+1. cd ..
+
