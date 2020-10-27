@@ -311,13 +311,17 @@ class UIMain(Ui_main):
             self.listInformation.addItem(entry)
 
 
-
     def show_diff_wavelength(self, show:bool):
         uiElement = self.lblDiffWavelength
         if show:
             uiElement.show()
         else:
             uiElement.hide()
+
+
+    def enable_export(self, enable:bool)->None:
+        self.actSaveRaw.setEnabled(enable)
+        self.actSaveProcessed.setEnabled(enable)
 
 
     def get_basic_setting(self)->BasicSetting:

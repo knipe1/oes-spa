@@ -61,6 +61,7 @@ class AnalysisWindow(QMainWindow):
         self.window.set_fileinformation(file)
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
+        self.window.enable_export(bool(file))
 
         self._activeFile = file
 

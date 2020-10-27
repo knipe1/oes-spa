@@ -973,7 +973,7 @@ wavelength!</string>
       <bool>true</bool>
      </property>
      <property name="title">
-      <string>Save...</string>
+      <string>Export...</string>
      </property>
      <addaction name="actSaveRaw"/>
      <addaction name="actSaveProcessed"/>
@@ -1017,11 +1017,17 @@ wavelength!</string>
    </property>
   </action>
   <action name="actSaveRaw">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Raw Data</string>
    </property>
   </action>
   <action name="actSaveProcessed">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Fitted result</string>
    </property>
