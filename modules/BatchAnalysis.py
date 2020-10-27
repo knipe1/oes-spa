@@ -441,8 +441,6 @@ class BatchAnalysis(QDialog):
         # Plot the trace.
         self.traceSpectrum.set_custom_yLabel(columnValue)
         self.traceSpectrum.update_data(traceData)
-        self.traceSpectrum.plot_spectrum()
-
 
 
     def determine_batchfile(self, takeCurrentBatchfile):

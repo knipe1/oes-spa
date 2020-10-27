@@ -34,7 +34,6 @@ class Spectrum():
         from modules.dataanalysis.Spectrum import Spectrum
         spectrum = Spectrum(matplotlibwidget, EXPORT_TYPE)
         spectrum.update_data(data)
-        spectrum.plot_spectrum()
 
     """
     # Load the configuration for plotting properties.
@@ -142,6 +141,8 @@ class Spectrum():
                 self.labels = self.get_labels(EXPORT_TYPE.RAW)
             else:
                 self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
+
+        self.plot_spectrum()
 
 
     def set_custom_yLabel(self, label:str)->None:

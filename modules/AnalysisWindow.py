@@ -288,12 +288,3 @@ class AnalysisWindow(QMainWindow):
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
         self.processedSpectrum.update_data(processedData, procIntegration)
-
-        self.draw_spectra(self.rawSpectrum, self.processedSpectrum)
-
-
-    ### Draw Plots.
-
-    def draw_spectra(self, *spectra):
-        for spectrum in spectra:
-            spectrum.plot_spectrum()
