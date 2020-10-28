@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
 from ui.ui_batch_dialog import Ui_batch
+from ui.matplotlibwidget import MatplotlibWidget
 
 # enums and dataclasses
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
@@ -30,7 +31,6 @@ class UIBatch(Ui_batch):
     ### Properties
 
     # Interface for the batchfile.
-    # TODO: To be evaluated.
     @property
     def batchFile(self):
         """batchFile getter"""
@@ -77,6 +77,11 @@ class UIBatch(Ui_batch):
             uiElement.addItems(traceValues.values())
         except:
             pass
+
+
+    @property
+    def plotTraceSpectrum(self)->MatplotlibWidget:
+        return self.mplTrace
 
 
     ### Methods

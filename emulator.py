@@ -100,6 +100,8 @@ def key_select_file(iterations):
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
     # linux (next 3 linies not outcommented)
+    keyboard.press(Key.down)
+    keyboard.release(Key.down)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
     sleep(2*PAUSE)
@@ -133,7 +135,7 @@ def select_directory():
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
     sleep(0.2*PAUSE)
-    for i in range(6):
+    for i in range(7):
         keyboard.press(Key.down)
         keyboard.release(Key.down)
     keyboard.press(Key.enter)

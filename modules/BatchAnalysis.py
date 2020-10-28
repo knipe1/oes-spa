@@ -59,50 +59,46 @@ class BatchAnalysis(QDialog):
 
     """
 
-    # Load the configuration for batch analysis and export.
-    config = ConfigLoader()
-    BATCH = config.BATCH;
+    BATCH = ConfigLoader().BATCH
 
 
     ### Properties
 
     @property
-    def batchFile(self):
-        """batchFile getter"""
+    def batchFile(self)->str:
         return self._batchFile
 
     @batchFile.setter
-    def batchFile(self, filename:str):
+    def batchFile(self, filename:str)->None:
         """batchFile setter: Updating the ui"""
+        filename = uni.replace_suffix(filename)
         self._batchFile = filename
         try:
             self.window.batchFile = filename
         except AttributeError:
-            pass
+            self.logger.debug("Could not set the filename in the ui.")
 
 
     @property
-    def WDdirectory(self):
-        """WDdirectory getter"""
+    def WDdirectory(self)->str:
         return self._WDdirectory
 
     @WDdirectory.setter
-    def WDdirectory(self, path:str):
+    def WDdirectory(self, path:str)->None:
         """WDdirectory setter: Updating the ui"""
         self._WDdirectory = path
         try:
             self.window.WDdirectory = path
         except AttributeError:
-            pass
+            self.logger.debug("Could not set the WD directory in the ui.")
 
 
     @property
-    def lastdir(self):
-        """lastdir getter"""
+    def lastdir(self)->str:
         return self.parent().lastdir
 
     @lastdir.setter
-    def lastdir(self, path:str):
+    def lastdir(self, path:str)->None:
         """lastdir setter: Updating the parent"""
         self.parent().lastdir = path
 
@@ -116,15 +112,12 @@ class BatchAnalysis(QDialog):
             Important for the interplay between the two windows.
 
         """
-
-        # Set up the logger.
         self.logger = Logger(__name__)
-        self.logger.info("Init BatchAnalysis")
 
         # Initialize the parent class ( == QDialog.__init__(self).
         super().__init__(parent)
 
-        # Init the props to prevent errors in the ui-init routine.
+        # Init the props to prevent errors in the ui-init routine. (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
         self.batchFile = None
         self.WDdirectory = None
 
@@ -140,7 +133,7 @@ class BatchAnalysis(QDialog):
         self.batchFile = self.window.batchFile
         self.WDdirectory = self.window.WDdirectory
         self.dog = Watchdog(self.watchdog_event_handler)
-        self.traceSpectrum = Spectrum(self.window.mplTrace, EXPORT_TYPE.BATCH)
+        self.traceSpectrum = Spectrum(self.window.plotTraceSpectrum, EXPORT_TYPE.BATCH)
 
         # Link events of the ui to methods of this class.
         self.set_connections()
@@ -154,30 +147,30 @@ class BatchAnalysis(QDialog):
         return self.__module__ + ":\n" + str(info)
 
 
-    def set_connections(self):
+    def set_connections(self)->None:
         self.window.connect_browse_files(self.browse_spectra)
         self.window.connect_calculate(self.analyze)
         self.window.connect_cancel(self.schedule_cancel_routine)
         self.window.connect_change_csvfile(self.enable_analysis)
+        self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_clear(self.reset_files)
         self.window.connect_import_batch(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_select_file(self.enable_analysis)
-        self.window.connect_set_filename(self.specify_batchfile)
-        self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_set_directory(self.specify_watchdog_directory)
+        self.window.connect_set_filename(self.specify_batchfile)
         self.window.connect_watchdog(self.toggle_watchdog)
 
     ### Events
     ### UI-interactions
 
-    def closeEvent(self, event):
+    def closeEvent(self, event)->None:
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
         self.schedule_cancel_routine()
         self.deactivate_watchdog()
 
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event)->None:
         """
         Key handling.
 
@@ -198,29 +191,17 @@ class BatchAnalysis(QDialog):
             self.schedule_cancel_routine()
 
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event)->None:
         """
         Drag file over window event.
 
-        Always accepted, validation takes place in dropEvent-handler.
+        Validation takes place in dropEvent-handler.
         """
-
-        # Accept event, validation takes place in dropEvent-handler.
         event.accept();
 
 
     def dropEvent(self, event)->None:
-        """
-        Filter the dropped urls to update the files with only valid urls.
-
-        Parameters
-        ----------
-        event : event
-            The event itself.
-
-        """
-
-        # Set up a list to append valid files.
+        """Filter the dropped urls to update the files with only valid urls."""
         valid_urls = set()
 
         # Get the urls and check their validity.
@@ -235,7 +216,6 @@ class BatchAnalysis(QDialog):
         except KeyError:
             self.logger.debug("No invalid url found.")
 
-        # Updates the filelist with the valid urls.
         self.update_filelist(valid_urls)
 
 
@@ -251,57 +231,47 @@ class BatchAnalysis(QDialog):
             self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added: %s"%(path))
-            errorcode = self.analyze(path)
-            if not errorcode:
+            isOk = self.analyze(path)
+            if not isOk:
                 return
             self.update_filelist([path])
             self._files.select_row_by_filename(path)
 
 
     def toggle_watchdog(self, status:bool)->None:
-        """
-        Sets the Watchdog to the given status. (Activate if status is True).
-        """
-
+        """Sets the Watchdog to the given status. (Activate if status is True)."""
         if status:
             self.activate_watchdog()
         else:
             self.deactivate_watchdog()
 
 
+    def has_valid_WD_settings(self)->bool:
+        isWDdir = path.isdir(self.WDdirectory) or self.logger.info("Invalid WD directory!")
+        batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
+        isBatchdir = path.isdir(batchPath) or self.logger.info("Invalid batch directory!")
+        return (isWDdir and isBatchdir)
+
+
     def activate_watchdog(self)->None:
-        """
-        Activates the WD if corresponding paths are valid.
-
-        """
-
-        isValid = True
-        # Prequerities given if WDpath and batchpath are defined.
-        WDpath = self.WDdirectory
-        if not path.isdir(WDpath):
-            self.logger.warning("WDpath not defined: %s"%(WDpath))
-            isValid = False
-
-        batchPath = QFileInfo(self.batchFile).path()
-        if not path.isdir(batchPath):
-            self.logger.warning("batchPath not defined: %s"%(batchPath))
-            isValid = False
-
-        if not isValid:
+        """Activates the WD if corresponding paths are valid."""
+        if not self.has_valid_WD_settings():
             self.window.btnWatchdog.setChecked(False)
             return
 
+        WDpath = self.WDdirectory
+        batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
         try:
-            # Start WD for batchfile
+            # Start WD for WDdirectory
             self.dog.start(WDpath)
-
-            # Start WD for spectra directory (if they differ).
-            if not (WDpath == batchPath):
-                self.dog.start(batchPath)
-
-            self.window.enable_WD(False)
         except AttributeError:
             self.logger.error("Error: No dog initialized!")
+
+        isSameDirectory = (WDpath == batchPath)
+        if not isSameDirectory:
+            self.dog.start(batchPath)
+
+        self.window.enable_WD(False)
 
 
     def deactivate_watchdog(self)->None:
@@ -311,7 +281,10 @@ class BatchAnalysis(QDialog):
 
     ### Methods/Analysis
 
-    def analyze(self, singleFile=None):
+    def analyze_single_file(self, singleFile:str)->None:
+        pass
+
+    def analyze(self, singleFile=None)->None:
         self.logger.info("Analyze file.")
 
         # Reset the properties to have a clean setup.
@@ -417,14 +390,14 @@ class BatchAnalysis(QDialog):
 
 
     def import_batchfile(self, takeCurrentBatchfile=False):
-        # Define the specific value which shall be plotted.
-        columnValue = self.window.currentTraceValue
 
         # Select the file from which the data shall be imported.
         filename = self.determine_batchfile(takeCurrentBatchfile)
         if not filename:
             return
 
+        # Define the specific value which shall be plotted.
+        columnValue = self.window.currentTraceValue
         try:
             file = FileReader(filename, columnValue=columnValue)
         except FileNotFoundError:
@@ -443,7 +416,8 @@ class BatchAnalysis(QDialog):
         self.traceSpectrum.update_data(traceData)
 
 
-    def determine_batchfile(self, takeCurrentBatchfile):
+    def determine_batchfile(self, takeCurrentBatchfile:bool)->str:
+        """Takes either the current batchdile or opens a dialog to select one."""
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
@@ -453,7 +427,7 @@ class BatchAnalysis(QDialog):
         return filename
 
 
-    def calculate_time_differences(self, timestamps):
+    def calculate_time_differences(self, timestamps:np.ndarray)->np.ndarray:
         diffTimes = np.zeros((len(timestamps),))
         self.traceSpectrum.reset_time()
 
@@ -463,19 +437,19 @@ class BatchAnalysis(QDialog):
         return diffTimes
 
 
-    def export_batch(self, data, header, isUpdate=False):
-        csvWriter = BatchWriter(self.batchFile)
+    def export_batch(self, data:list, header:list, isUpdate:bool=False)->None:
+        exportWriter = BatchWriter(self.batchFile)
         if isUpdate:
-            csvWriter.extend_data(data, header)
+            exportWriter.extend_data(data, header)
         else:
-            csvWriter.export(data, header)
+            exportWriter.export(data, header)
 
 
 
     ### UI-interactions
 
 
-    def specify_batchfile(self)->str:
+    def specify_batchfile(self)->None:
         """
         Specifies the filename through a dialog.
 
@@ -491,30 +465,20 @@ class BatchAnalysis(QDialog):
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_batchfile()
         # filename = dialog.dialog_batchfile(self.lastdir)
-
-        # Cancel or quit the dialog.
-        if not filename:
-            return None
-
-        filename = uni.replace_suffix(filename)
-
-        # Change interface and preset for further dialogs (lastdir)
-        self.lastdir = filename
-        self.batchFile = filename
-
-        return filename
+        if filename:
+            self.lastdir = filename
+            self.batchFile = filename
 
 
-    def specify_watchdog_directory(self):
+    def specify_watchdog_directory(self)->None:
         directory = dialog.dialog_watchdogDirectory()
         # directory = dialog.dialog_watchdogDirectory(self.lastdir)
-
         if directory:
             self.WDdirectory = directory
             self.lastdir = directory
 
 
-    def browse_spectra(self):
+    def browse_spectra(self)->None:
         """Opens a dialog to browse for spectra and updates the filelist."""
         filelist = dialog.dialog_spectra()
         # filelist = dialog.dialog_spectra(self.lastdir)
@@ -526,13 +490,10 @@ class BatchAnalysis(QDialog):
             self.logger.info("Browse Spectra: Could not update directory.")
 
 
-    def enable_analysis(self):
-        """
-        Enables the ui if configureation is set accordingly.
-        """
+    def enable_analysis(self)->None:
+        """Enables the ui if configuration is set accordingly."""
         enable = True;
 
-        # Check for specified batchFile
         if not self.batchFile:
             enable = False
         elif not self._files:
@@ -541,19 +502,20 @@ class BatchAnalysis(QDialog):
         self.window.enable_analysis(enable)
 
 
-    def open_indexed_file(self, index:(QModelIndex, int)):
+    def open_indexed_file(self, index:(QModelIndex, int))->None:
         """
-        Retrieve the data of the selected file of the list.
+        Retrieve the data of the file of the list.
 
-        Used for applying the data after clicking on the list.
+        Parameters
+        ----------
+        index : QModelIndex, int
+            Transmitted by a QListModel or by another method.
         """
-
-        # Distinguish given index by numerical value (from another method) or
-        # is given by the ListModel (by an event)
         try:
             index = index.row()
+            self.logger.debug("Open indexed file called by an event.")
         except AttributeError:
-            self.logger.debug("Open indexed file called programmatically.")
+            self.logger.debug("Open indexed file called by another method.")
 
         try:
             selectedFilename = self._files[index]
@@ -572,18 +534,7 @@ class BatchAnalysis(QDialog):
 
 
     def update_filelist(self, filelist:list)->None:
-        """
-        Updates the filelist and refreshes the ui.
-
-        Provides the interface for other modules.
-
-        Parameters
-        ----------
-        filelist : list of strings
-            List of strings including valid urls/filenames.
-
-        """
-
+        """Updates the filelist and refreshes the ui."""
         for filename in filelist:
             if not uni.is_valid_suffix(filename):
                 filelist.remove(filename)
@@ -591,24 +542,23 @@ class BatchAnalysis(QDialog):
         self.logger.debug("Filelist updated.")
 
 
-    def reset_files(self):
+    def reset_files(self)->None:
         """Resets the filelist."""
         self._files.clear()
 
 
-    def schedule_cancel_routine(self):
+    def schedule_cancel_routine(self)->None:
         """Demands a cancellation. Processed in corresponing methods."""
         self.isScheduledCancel = True
 
 
 
-def assemble_header(config:dict, peakName="")->list:
-    characteristicLabel = CHC.CHARACTERISTIC_VALUE.value
-
+def assemble_header(config:dict, peakName:str=None)->list:
     header = [label.value for label in config.keys()]
 
     # Replace 'Characteristic value' with proper name.
     if peakName:
+        characteristicLabel = CHC.CHARACTERISTIC_VALUE.value
         idx = header.index(characteristicLabel)
         header[idx] = characteristicLabel + " (%s)"%(peakName)
 

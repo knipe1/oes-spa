@@ -96,7 +96,7 @@ class FileReader(FileFramework):
         return (self.xData, self.yData)
 
     @data.setter
-    def data(self, xyData):
+    def data(self, xyData:list):
         """Sets the x- & y-data. First column: x; second column: y."""
         xyData = np.array(xyData)
         try:

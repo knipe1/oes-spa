@@ -152,6 +152,8 @@ class Logger():
         streamHandler.setFormatter(formatter)
         self.logger.addHandler(streamHandler)
 
+        self.info("Initialize: %s"%(name))
+
 
     def __repr__(self):
         info = {}
