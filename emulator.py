@@ -132,11 +132,7 @@ def select_directory():
         # windows (next 2 linies not outcommented)
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
-<<<<<<< HEAD
-    sleep(0.2*PAUSE)
-=======
     sleep(0.4*PAUSE)
->>>>>>> mult_fittings
     for i in range(7):
         keyboard.press(Key.down)
         keyboard.release(Key.down)

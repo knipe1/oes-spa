@@ -35,10 +35,6 @@ def main():
     initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
-<<<<<<< HEAD
-    showBatch = True
-=======
->>>>>>> mult_fittings
     selectBatchfile = True
     selectBatchSpectra = True
     hideBatch = False

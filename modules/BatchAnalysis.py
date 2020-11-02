@@ -398,14 +398,11 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
 
-<<<<<<< HEAD
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTraceValue
-=======
         # Get characteristic values.
         basicSetting = self.parent().window.get_basic_setting()
         peakName = basicSetting.selectedFitting.peak.name
->>>>>>> mult_fittings
         try:
             file = FileReader(filename, columnValue=columnValue, peakName=peakName)
         except FileNotFoundError:
@@ -561,20 +558,8 @@ class BatchAnalysis(QDialog):
 
 
 
-<<<<<<< HEAD
-def assemble_header(config:dict, peakName:str=None)->list:
-    header = [label.value for label in config.keys()]
-
-    # Replace 'Characteristic value' with proper name.
-    if peakName:
-        characteristicLabel = CHC.CHARACTERISTIC_VALUE.value
-        idx = header.index(characteristicLabel)
-        header[idx] = characteristicLabel + " (%s)"%(peakName)
-
-=======
 def assemble_header(config:dict)->list:
     header = [label.value for label in config.keys()]
->>>>>>> mult_fittings
     return header
 
 
