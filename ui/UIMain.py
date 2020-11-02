@@ -143,6 +143,8 @@ class UIMain(Ui_main):
         except:
             pass
 
+        self.clistFitting.addItems(fits.values())
+
 
     @property
     def plotRawSpectrum(self)->MatplotlibWidget:
@@ -199,7 +201,7 @@ class UIMain(Ui_main):
         self.toutPeakArea.setText(str(spectrumHandler.peakArea))
         self.toutBaseline.setText(str(spectrumHandler.avgbase))
         self.toutCharacteristicValue.setText(str(spectrumHandler.characteristicValue))
-        peakName = spectrumHandler.basicSetting.fitting.peak.name
+        peakName = spectrumHandler.fitting.peak.name
         self.lblCharacteristicValue.setText(str(peakName))
 
 
@@ -236,6 +238,7 @@ class UIMain(Ui_main):
         self.ddFitting.currentTextChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
+        self.clistFitting.itemClicked.connect(fun)
 
 
     def set_fileinformation(self, filereader:FileReader)->None:
@@ -335,7 +338,11 @@ class UIMain(Ui_main):
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
         fitting = self.load_fitting(self.ddFitting.currentText())
-        setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection, normalizeData)
+        selectedFitting = self.load_fitting(self.clistFitting.currentText())
+        checkedFittings = self.clistFitting.checkedItems()
+        checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
+        # setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection, normalizeData)
+        setting = BasicSetting(self.wavelength, self.grating, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
 
         return setting;
 

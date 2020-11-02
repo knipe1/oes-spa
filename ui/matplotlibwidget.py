@@ -9,8 +9,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT\
                                             as NavigationToolbar
 
 # third-party libs
-from PyQt5.QtWidgets import QSizePolicy, QWidget, QVBoxLayout
-from PyQt5.QtCore import QSize
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 # local modules/libs
 from ConfigLoader import ConfigLoader

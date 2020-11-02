@@ -71,6 +71,18 @@ class Ui_main(object):
         self.ddFitting.setFont(font)
         self.ddFitting.setObjectName("ddFitting")
         self.verticalLayout.addWidget(self.ddFitting)
+        self.clistFitting = CheckableListWidget(self.boxBasic)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.clistFitting.sizePolicy().hasHeightForWidth())
+        self.clistFitting.setSizePolicy(sizePolicy)
+        self.clistFitting.setMinimumSize(QtCore.QSize(0, 100))
+        self.clistFitting.setMaximumSize(QtCore.QSize(16777215, 160))
+        self.clistFitting.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.clistFitting.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerItem)
+        self.clistFitting.setObjectName("clistFitting")
+        self.verticalLayout.addWidget(self.clistFitting)
         self.cbBaselineCorrection = QtWidgets.QCheckBox(self.boxBasic)
         self.cbBaselineCorrection.setChecked(True)
         self.cbBaselineCorrection.setObjectName("cbBaselineCorrection")
@@ -473,4 +485,5 @@ class Ui_main(object):
         self.actSaveProcessed.setText(_translate("main", "Fitted result"))
         self.actionAuthor.setText(_translate("main", "Author"))
 
+from ui.checkablelistwidget import CheckableListWidget
 from ui.matplotlibwidget import MatplotlibWidget

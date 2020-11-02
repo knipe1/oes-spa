@@ -372,26 +372,29 @@ class BatchAnalysis(QDialog):
             if isExportBatch:
                 # Get the data.
                 specHandler = SpectrumHandler(basicSetting)
-                errorcode = specHandler.analyse_data(self.currentFile)
-                if not errorcode:
-                    return errorcode
 
-                # excluding file if no appropiate data given like in processed spectra.
-                if not specHandler.has_valid_peak():
-                    skippedFiles.append(file)
-                    continue
+                for fitting in basicSetting.checkedFittings:
+                    errorcode = specHandler.analyse_data(self.currentFile, fitting)
+                    if not errorcode:
+                        return errorcode
 
-                config[CHC.FILENAME] = file
-                config[CHC.BASELINE] = specHandler.avgbase
-                config[CHC.CHARACTERISTIC_VALUE] = specHandler.characteristicValue
-                config[CHC.PEAK_AREA] = specHandler.peakArea
-                config[CHC.PEAK_HEIGHT] = specHandler.peakHeight
-                config[CHC.PEAK_POSITION] = specHandler.peakPosition
-                # Convert to string for proper presentation.
-                timestamp = self.currentFile.timeInfo
-                config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+                    # excluding file if no appropiate data given like in processed spectra.
+                    if not specHandler.has_valid_peak():
+                        skippedFiles.append(file)
+                        continue
 
-                data.append(assemble_row(config))
+                    config[CHC.FILENAME] = file
+                    config[CHC.BASELINE] = specHandler.avgbase
+                    config[CHC.CHARACTERISTIC_VALUE] = specHandler.characteristicValue
+                    config[CHC.PEAK_NAME] = specHandler.peakName
+                    config[CHC.PEAK_AREA] = specHandler.peakArea
+                    config[CHC.PEAK_HEIGHT] = specHandler.peakHeight
+                    config[CHC.PEAK_POSITION] = specHandler.peakPosition
+                    # Convert to string for proper presentation.
+                    timestamp = self.currentFile.timeInfo
+                    config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+
+                    data.append(assemble_row(config))
 
             # Select by filename to trigger event based update of the plot.
             if isUpdatePlot:
@@ -399,8 +402,7 @@ class BatchAnalysis(QDialog):
 
         if isExportBatch:
             # Get the name of the peak for proper description.
-            peakName = basicSetting.fitting.peak.name
-            header = assemble_header(config, peakName=peakName)
+            header = assemble_header(config)
             if isSingleFile:
                 data = assemble_row(config)
             self.export_batch(data, header, isUpdate=isSingleFile)
@@ -425,8 +427,11 @@ class BatchAnalysis(QDialog):
         if not filename:
             return
 
+        # Get characteristic values.
+        basicSetting = self.parent().window.get_basic_setting()
+        peakName = basicSetting.selectedFitting.peak.name
         try:
-            file = FileReader(filename, columnValue=columnValue)
+            file = FileReader(filename, columnValue=columnValue, peakName=peakName)
         except FileNotFoundError:
             return
 
@@ -602,16 +607,8 @@ class BatchAnalysis(QDialog):
 
 
 
-def assemble_header(config:dict, peakName="")->list:
-    characteristicLabel = CHC.CHARACTERISTIC_VALUE.value
-
+def assemble_header(config:dict)->list:
     header = [label.value for label in config.keys()]
-
-    # Replace 'Characteristic value' with proper name.
-    if peakName:
-        idx = header.index(characteristicLabel)
-        header[idx] = characteristicLabel + " (%s)"%(peakName)
-
     return header
 
 
@@ -635,5 +632,6 @@ def retrieve_batch_config()->dict:
               CHC.BASELINE: None,
               CHC.CHARACTERISTIC_VALUE: None,
               CHC.HEADER_INFO: None,
-              CHC.PEAK_POSITION: None,}
+              CHC.PEAK_POSITION: None,
+              CHC.PEAK_NAME: None,}
     return config

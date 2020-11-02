@@ -32,13 +32,13 @@ def main():
     # True
     # False
 
-    initialSpkLoad = False
+    initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
-    selectBatchSpectra = False
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
+    showBatch = False or exportSpectra or selectBatchfile or selectBatchSpectra
     activateWD = False
 
 
@@ -46,19 +46,14 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
+    window.window.clistFitting.setCurrentRow(5)
+    window.window.clistFitting.item(5).setCheckState(2)
+    window.window.clistFitting.item(0).setCheckState(2)
+
     # automatic open and close routine
     #window.window.ddFitting.setCurrentIndex(3)
     if initialSpkLoad:
         window.apply_file("./sample files/Asterix1059 1.Spk")
-
-    if tryDifferentFiles:
-        window.apply_file("./sample files/SIF/388nm_Spek1_parameter only_header cut.asc")
-        window.apply_file("./sample files/Asterix1059 1.Spk")
-        window.apply_file("./sample files/SIF/testasc.asc")
-        window.apply_file("./sample files/SIF/388nm_Spek1_reversed.asc")
-        window.apply_file("./sample files/Asterix1059 1_raw.csv")
-        window.apply_file("./sample files/Asterix1059 1_processed.csv")
-        window.apply_file("./sample files/_batch.csv")
 
     if exportSpectra:
         window.apply_file("./sample files/Asterix1059 1.Spk")

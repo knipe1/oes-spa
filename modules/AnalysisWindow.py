@@ -250,7 +250,7 @@ class AnalysisWindow(QMainWindow):
 
         basicSetting = self.window.get_basic_setting()
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
-        errorcode = specHandler.analyse_data(file)
+        errorcode = specHandler.analyse_data(file, basicSetting.selectedFitting)
         if not errorcode:
             if not silent:
                 dialog.critical_invalidSpectrum()

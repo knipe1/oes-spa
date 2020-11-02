@@ -19,6 +19,7 @@ from modules.dataanalysis.Fitting import Fitting
 class BasicSetting():
     wavelength: float;
     grating: float;
-    fitting: Fitting;
+    selectedFitting: Fitting;
+    checkedFittings:list;
     baselineCorrection: bool;
     normalizeData: bool;
