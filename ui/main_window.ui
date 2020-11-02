@@ -139,6 +139,34 @@
           </widget>
          </item>
          <item>
+          <widget class="CheckableListWidget" name="clistFitting">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>160</height>
+            </size>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::ExtendedSelection</enum>
+           </property>
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerItem</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="cbBaselineCorrection">
            <property name="text">
             <string>Baseline correction</string>
@@ -1043,6 +1071,11 @@ wavelength!</string>
    <class>MatplotlibWidget</class>
    <extends>QWidget</extends>
    <header>ui.matplotlibwidget</header>
+  </customwidget>
+  <customwidget>
+   <class>CheckableListWidget</class>
+   <extends>QListWidget</extends>
+   <header location="global">ui.checkablelistwidget</header>
   </customwidget>
  </customwidgets>
  <tabstops>

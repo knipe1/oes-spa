@@ -92,7 +92,7 @@ def key_select_file(iterations):
 
     """
     keyboard = Controller()
-    sleep(PAUSE)
+    sleep(2*PAUSE)
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)
@@ -106,8 +106,6 @@ def key_select_file(iterations):
     keyboard.release(Key.enter)
     sleep(2*PAUSE)
 
-    # keyboard.press(Key.down)
-    # keyboard.release(Key.down)
     # keyboard.press(Key.down)
     # keyboard.release(Key.down)
     keyboard.press(Key.down)
@@ -134,7 +132,11 @@ def select_directory():
         # windows (next 2 linies not outcommented)
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
+<<<<<<< HEAD
     sleep(0.2*PAUSE)
+=======
+    sleep(0.4*PAUSE)
+>>>>>>> mult_fittings
     for i in range(7):
         keyboard.press(Key.down)
         keyboard.release(Key.down)

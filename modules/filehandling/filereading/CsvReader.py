@@ -74,6 +74,17 @@ class CsvReader(BaseReader):
         return (is_xData and is_yData)
 
 
+    def get_information(self, line, **kwargs)->(str, str, str):
+
+        markerElement, xDataElement, yDataElement = super().get_information(line)
+
+        peakName = kwargs.get("peakName")
+        if (not peakName is None) and (not peakName in line):
+            xDataElement = None
+            yDataElement = None
+        return markerElement, xDataElement, yDataElement
+
+
 
 
 def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName:str)->(int, int):

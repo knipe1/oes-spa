@@ -78,7 +78,7 @@ class BaseReader(FileFramework):
         parameter = {}
 
         for line in fReader:
-            markerElement, xDataElement, yDataElement = self.get_information(line)
+            markerElement, xDataElement, yDataElement = self.get_information(line, **kwargs)
 
             if self.is_data(xDataElement, yDataElement):
                 data.append((xDataElement, yDataElement))
@@ -105,7 +105,7 @@ class BaseReader(FileFramework):
             markerElement = line[0]
         except IndexError:
             # Skip blank lines
-            return (None, None, None)
+            markerElement = None
 
         try:
             xDataElement = line[self.xColumn]

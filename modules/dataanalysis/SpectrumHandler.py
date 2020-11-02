@@ -20,6 +20,7 @@ import peakutils as pkus
 # local modules/libs
 from Logger import Logger
 import modules.Universal as uni
+from modules.dataanalysis.Fitting import Fitting
 from modules.filehandling.filereading.FileReader import FileReader
 from custom_types.BasicSetting import BasicSetting
 
@@ -103,7 +104,7 @@ class SpectrumHandler():
         return self.__module__ + ":\n" + str(info)
 
 
-    def analyse_data(self, file:FileReader)->ERR:
+    def analyse_data(self, file:FileReader, fitting:Fitting)->ERR:
         # Get raw data. Process data and calculate characteristic values.
         errorcode = file.is_valid_spectrum()
         if not errorcode:
@@ -114,7 +115,9 @@ class SpectrumHandler():
         self.process_data()
 
         # Find Peak and obtain height, area, and position
-        peak = self.basicSetting.fitting.peak
+        self.fitting = fitting
+        peak = fitting.peak
+        self.peakName = peak.name
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
