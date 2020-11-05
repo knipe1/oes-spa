@@ -5,7 +5,7 @@ BATCH:
 FITTING:
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  fittingName: Boron Peak Fitting
+  fittingName: Example (No peak)
 GENERAL:
   INITIAL_DIR: ./sample files
   LOG_FILE: debug.log
