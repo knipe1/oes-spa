@@ -125,7 +125,7 @@ def key_select_file(iterations):
 
 def select_directory():
     keyboard = Controller()
-    sleep(0.6*PAUSE)
+    sleep(0.5*PAUSE)
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)

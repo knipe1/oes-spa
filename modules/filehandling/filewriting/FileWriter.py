@@ -25,7 +25,6 @@ import modules.Universal as uni
 class FileWriter(FileFramework):
 
     def __init__(self, filename):
-        filename = uni.replace_suffix(filename)
         FileFramework.__init__(self, filename)
         self.dialect = self.csvDialect
 

@@ -34,7 +34,7 @@ IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
                "Exported Raw spectrum (*.csv)",
                "Full information spectrum (*.asc)",
                ]
-EXPORT_FILTER = ["Batch files (*.csv)",]
+BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.
 config = ConfigLoader()
@@ -205,7 +205,7 @@ def dialog_batchfile(directory:str=None, parent:QWidget=None)->str:
 
     """
     caption = "Set the filename of the batchfile:";
-    filefilter = filefilter_from_list(EXPORT_FILTER)
+    filefilter = filefilter_from_list(BATCH_FILTER)
     defaultFilename = BATCH["DEF_FILENAME"];
 
     try:
@@ -229,7 +229,7 @@ def dialog_importBatchfile(directory:str=None, parent:QWidget=None)->None:
         Used to determine the location the dialog is placed on the screen.
     """
     caption = "Open batchfile"
-    filefilter = filefilter_from_list(EXPORT_FILTER)
+    filefilter = filefilter_from_list(BATCH_FILTER)
 
     filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption,
                                               directory=directory, filter=filefilter,)

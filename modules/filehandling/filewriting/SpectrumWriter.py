@@ -29,6 +29,7 @@ RAW_APPENDIX = "_raw"
 class SpectrumWriter(FileWriter):
 
     def __init__(self, filename, timestamp):
+        filename = uni.replace_suffix(filename)
         super().__init__(filename)
         self.timestamp = timestamp
         self.dialect = self.csvDialect

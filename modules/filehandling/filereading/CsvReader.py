@@ -49,41 +49,6 @@ class CsvReader(BaseReader):
         self.defaultBatchXColumn = CHC.HEADER_INFO.value
 
 
-    def readout_batchfile(self, fReader, **kwargs)->dict:
-
-        marker = self.MARKER["HEADER"]
-
-        data = []
-        testData = {}
-        parameter = {}
-
-        for line in fReader:
-            try:
-                markerElement, xDataElement, yDataElement, peakName = self.get_information(line, **kwargs)
-            except ValueError:
-                markerElement, xDataElement, yDataElement = self.get_information(line, **kwargs)
-                peakName = None
-
-            if self.is_data(xDataElement, yDataElement):
-                data.append((xDataElement, yDataElement))
-                if peakName and peakName in testData.keys():
-                    testData[peakName].append((xDataElement, yDataElement))
-                else:
-                    testData[peakName] = [xDataElement, yDataElement]
-
-            elif self.contain_marker(marker, markerElement):
-                timeInfo = self.get_time_info(markerElement)
-            else:
-                self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
-
-        try:
-            information = self.join_information(timeInfo, data, parameter)
-        except UnboundLocalError:
-            information = self.join_information(None, None)
-
-        return information
-
-
     def handle_additional_information(self, **kwargs)->None:
         batchMarker = self.MARKER["BATCH"]
         markerElement = kwargs.get("markerElement")
@@ -97,27 +62,27 @@ class CsvReader(BaseReader):
 
 
 
-    def is_data(self, xDataElement:str, yDataElement:str)->bool:
-        try:
-            uni.timestamp_from_string(xDataElement)
-            is_xData = True
-        except (TypeError, ValueError):
-            is_xData = super().is_data(xDataElement)
+    # def is_data(self, xDataElement:str, yDataElement:str)->bool:
+    #     try:
+    #         uni.timestamp_from_string(xDataElement)
+    #         is_xData = True
+    #     except (TypeError, ValueError):
+    #         is_xData = super().is_data(xDataElement)
 
-        is_yData = super().is_data(yDataElement)
+    #     is_yData = super().is_data(yDataElement)
 
-        return (is_xData and is_yData)
+    #     return (is_xData and is_yData)
 
 
-    def get_information(self, line, **kwargs)->(str, str, str):
+    # def get_information(self, line, **kwargs)->(str, str, str):
 
-        markerElement, xDataElement, yDataElement = super().get_information(line)
+    #     markerElement, xDataElement, yDataElement = super().get_information(line)
 
-        peakName = kwargs.get("peakName")
-        if (not peakName is None) and (peakName in line):
-            return markerElement, xDataElement, yDataElement, peakName
-        else:
-            return markerElement, xDataElement, yDataElement
+    #     peakName = kwargs.get("peakName")
+    #     if (not peakName is None) and (peakName in line):
+    #         return markerElement, xDataElement, yDataElement, peakName
+    #     else:
+    #         return markerElement, xDataElement, yDataElement
 
 
 

@@ -28,6 +28,7 @@ from datetime import datetime
 from modules.filehandling.FileFramework import FileFramework
 # specific subReader
 from modules.filehandling.filereading.AscReader import AscReader
+from modules.filehandling.filereading.BaReader import BaReader
 from modules.filehandling.filereading.CsvReader import CsvReader
 from modules.filehandling.filereading.SpkReader import SpkReader
 # further modules
@@ -50,6 +51,7 @@ class FileReader(FileFramework):
         *.spk/*.Spk
         *.asc
         *.csv
+        *.ba
 
     Usage:
 
@@ -90,20 +92,20 @@ class FileReader(FileFramework):
         self._timestamp = timestamp
 
 
-    @property
-    def data(self)->tuple:
-        """Concats the x- & y-data. First column: x; second column: y."""
-        return (self.xData, self.yData)
+    # @property
+    # def data(self)->tuple:
+    #     """Concats the x- & y-data. First column: x; second column: y."""
+    #     return (self.xData, self.yData)
 
-    @data.setter
-    def data(self, xyData:list):
-        """Sets the x- & y-data. First column: x; second column: y."""
-        xyData = np.array(xyData)
-        try:
-            self.xData = xyData[:, 0]
-            self.yData = xyData[:, 1]
-        except IndexError:
-            self.logger.warning("No valid data given.")
+    # @data.setter
+    # def data(self, xyData:list):
+    #     """Sets the x- & y-data. First column: x; second column: y."""
+    #     xyData = np.array(xyData)
+    #     try:
+    #         self.xData = xyData[:, 0]
+    #         self.yData = xyData[:, 1]
+    #     except IndexError:
+    #         self.logger.warning("No valid data given.")
 
 
     @property
@@ -184,6 +186,9 @@ class FileReader(FileFramework):
         elif suffix == SUFF.ASC.value:
             subReader = AscReader()
 
+        elif suffix == SUFF.BATCH.value:
+            subReader = BaReader()
+
         else:
             self.logger.warning(f"Unknown suffix: {suffix}")
             return None
@@ -196,21 +201,22 @@ class FileReader(FileFramework):
         if not errorcode:
             return errorcode
 
-        if not isinstance(self.xData[0], (float, int)):
+        if not isinstance(self.data[0, 0], (float, int)):
             return ERR.INVALID_DATA
 
         return ERR.OK;
 
 
     def is_valid_batchfile(self)->ERR:
-        errorcode = self.has_valid_frame()
-        if not errorcode:
-            return errorcode
+        return self.has_valid_frame()
+        # errorcode = self.has_valid_frame()
+        # if not errorcode:
+        #     return errorcode
 
-        if not isinstance(self.xData[0], datetime):
-            return ERR.INVALID_BATCHFILE
+        # # if not isinstance(self.xData[0], datetime):
+        # #     return ERR.INVALID_BATCHFILE
 
-        return ERR.OK
+        # return ERR.OK
 
 
     def has_valid_frame(self):
@@ -219,12 +225,8 @@ class FileReader(FileFramework):
             return ERR.UNKNOWN_FILETYPE;
 
         # Data in general.
-        if not len(self.xData):
+        if not len(self.data):
             return ERR.INVALID_DATA;
-
-        # Data that have same length.
-        if len(self.xData) != len(self.yData):
-            return ERR.DATA_UNEQUAL_LENGTH;
 
         # Check file information.
         if not self.timeInfo:

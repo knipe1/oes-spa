@@ -15,6 +15,7 @@ class SUFFICES(Enum):
     ASC = "asc"
     CSV = "csv"
     SPK = "spk"
+    BATCH = "ba"
 
     @classmethod
     def has_value(cls, value):

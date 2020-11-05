@@ -29,6 +29,16 @@ from custom_types.EXPORT_TYPE import EXPORT_TYPE
 
 class Trace(Spectrum):
 
+    @property
+    def data(self)->np.ndarray:
+        return self._data
+
+    @data.setter
+    def data(self, xyData)->None:
+        self._data = xyData
+
+
+
     @classmethod
     def get_markup(cls, exportType:EXPORT_TYPE)->dict:
         """Override parent method to have no specific markup."""
@@ -43,9 +53,13 @@ class Trace(Spectrum):
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
 
-        self.ui.axes.plot(self.xData, self.yData, **self.markup);
+        for peak in self.data.keys():
+            self.markup["label"] = peak
+            xData = self.data[peak][:, 0]
+            yData = self.data[peak][:, 1]
+            self.ui.axes.plot(xData, yData, **self.markup);
 
-        self.center_plot()
+        # self.center_plot()
         self.ui.draw()
 
 

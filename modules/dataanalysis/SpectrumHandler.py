@@ -54,7 +54,8 @@ class SpectrumHandler():
 
     @rawData.setter
     def rawData(self, xyData:tuple)->None:
-        self._rawData = tuple_to_array(xyData)
+        self._rawData = xyData
+        # self._rawData = tuple_to_array(xyData)
 
     @property
     def rawXData(self)->np.ndarray:

@@ -31,7 +31,6 @@ import dialog_messages as dialog
 from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
-from modules.filehandling.filereading.BatchReader import BatchReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
 from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
@@ -42,9 +41,11 @@ from custom_types.FileSet import FileSet
 from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
 from custom_types.EXPORT_TYPE import EXPORT_TYPE
 from custom_types.ERROR_CODE import ERROR_CODE as ERR
+from custom_types.SUFFICES import SUFFICES as SUFF
 
 
 # constants
+BATCH_SUFFIX = "." + SUFF.BATCH.value
 
 
 class BatchAnalysis(QDialog):
@@ -72,7 +73,9 @@ class BatchAnalysis(QDialog):
     @batchFile.setter
     def batchFile(self, filename:str)->None:
         """batchFile setter: Updating the ui"""
-        filename = uni.replace_suffix(filename)
+        if not filename:
+            return
+        filename = uni.replace_suffix(filename, suffix=BATCH_SUFFIX)
         self._batchFile = filename
         try:
             self.window.batchFile = filename
@@ -354,7 +357,7 @@ class BatchAnalysis(QDialog):
 
                     # excluding file if no appropiate data given like in processed spectra.
                     if not specHandler.has_valid_peak():
-                        skippedFiles.append(file)
+                        # skippedFiles.append(file)
                         continue
 
                     config[CHC.FILENAME] = file
@@ -406,8 +409,8 @@ class BatchAnalysis(QDialog):
         peakName = basicSetting.selectedFitting.peak.name
         try:
             # file = BatchReader(filename, columnValue=columnValue)
-            file = BatchReader(filename, columnValue=columnValue, peakName=peakName)
-            # file = FileReader(filename, columnValue=columnValue, peakName=peakName)
+            # file = BatchReader(filename, columnValue=columnValue, peakName=peakName)
+            file = FileReader(filename, columnValue=columnValue, peakName=peakName)
         except FileNotFoundError:
             return
 
@@ -415,13 +418,18 @@ class BatchAnalysis(QDialog):
             return
 
         # See #98
-        timestamps, values = file.data
-        diffTimes = self.calculate_time_differences(timestamps)
-        traceData = np.array((diffTimes, values)).transpose()
+        for peak in file.data.keys():
+            timestamps, values = file.data[peak][:,0], file.data[peak][:,1]
+            diffTimes = self.calculate_time_differences(timestamps)
+            traceData = np.array((diffTimes, values)).transpose()
+            file.data[peak] = traceData
+        # timestamps, values = file.data
+        # diffTimes = self.calculate_time_differences(timestamps)
+        # traceData = np.array((diffTimes, values)).transpose()
 
         # Plot the trace.
         self.traceSpectrum.set_custom_yLabel(columnValue)
-        self.traceSpectrum.update_data(traceData)
+        self.traceSpectrum.update_data(file.data)
 
 
     def determine_batchfile(self, takeCurrentBatchfile:bool)->str:

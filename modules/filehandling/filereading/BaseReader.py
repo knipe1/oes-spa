@@ -69,26 +69,33 @@ class BaseReader(FileFramework):
         self.yColumn = None
         # subKwargs
         self.subKwargs = {}
+        self.data = []
+
+
+    def add_xy_to_data(self, xy):
+        self.data.append(xy)
 
     def readout_file(self, fReader, **kwargs)->dict:
 
         marker = self.MARKER["HEADER"]
 
-        data = []
+        # data = []
         parameter = {}
 
         for line in fReader:
-            markerElement, xDataElement, yDataElement = self.get_information(line, **kwargs)
+            markerElement, xDataElement, yDataElement = self.get_information(line)
 
             if self.is_data(xDataElement, yDataElement):
-                data.append((xDataElement, yDataElement))
+                # data.append((xDataElement, yDataElement))
+                self.add_xy_to_data((xDataElement, yDataElement))
             elif self.contain_marker(marker, markerElement):
                 timeInfo = self.get_time_info(markerElement)
             else:
                 self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
 
         try:
-            information = self.join_information(timeInfo, data, parameter)
+            information = self.join_information(timeInfo, self.data, parameter)
+            # information = self.join_information(timeInfo, data, parameter)
         except UnboundLocalError:
             information = self.join_information(None, None)
 
