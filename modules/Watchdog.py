@@ -6,6 +6,8 @@ Created on Fri Jul 24 22:44:59 2020
 @author: Hauke Wernecke
 """
 
+from time import sleep
+
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -20,6 +22,7 @@ class SpectrumHandler(FileSystemEventHandler):
         if event.is_directory:
             return
 
+        sleep(1) # Wait for processes to run and prevent early-reading
         self.onModifiedMethod(event.src_path)
 
 
