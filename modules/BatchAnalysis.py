@@ -28,9 +28,10 @@ from ui.UIBatch import UIBatch
 # modules & universal
 import modules.Universal as uni
 import dialog_messages as dialog
-from modules.dataanalysis.Spectrum import Spectrum
+from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filereading.BatchReader import BatchReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
 from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
@@ -133,7 +134,7 @@ class BatchAnalysis(QDialog):
         self.batchFile = self.window.batchFile
         self.WDdirectory = self.window.WDdirectory
         self.dog = Watchdog(self.watchdog_event_handler)
-        self.traceSpectrum = Spectrum(self.window.plotTraceSpectrum, EXPORT_TYPE.BATCH)
+        self.traceSpectrum = Trace(self.window.plotTraceSpectrum)
 
         # Link events of the ui to methods of this class.
         self.set_connections()
@@ -404,7 +405,9 @@ class BatchAnalysis(QDialog):
         basicSetting = self.parent().window.get_basic_setting()
         peakName = basicSetting.selectedFitting.peak.name
         try:
-            file = FileReader(filename, columnValue=columnValue, peakName=peakName)
+            # file = BatchReader(filename, columnValue=columnValue)
+            file = BatchReader(filename, columnValue=columnValue, peakName=peakName)
+            # file = FileReader(filename, columnValue=columnValue, peakName=peakName)
         except FileNotFoundError:
             return
 

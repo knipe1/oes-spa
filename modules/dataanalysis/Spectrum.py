@@ -89,6 +89,7 @@ class Spectrum():
         elif exportType == cls.BASELINE:
             color = cls.PLOT["RAW_BASELINE_COLOR"]
             label = cls.PLOT["RAW_BASELINE_LABEL"]
+        # markup = {"label": label}
         markup = {"color": color, "label": label}
         return markup
 
@@ -145,12 +146,6 @@ class Spectrum():
         self.plot_spectrum()
 
 
-    def set_custom_yLabel(self, label:str)->None:
-        arbitraryUnit = " / a. u."
-        self.labels["yLabel"] = label + arbitraryUnit
-        self.markup["label"] = label
-
-
     def plot_spectrum(self)->None:
         self.init_plot()
         self.update_plot()
@@ -205,45 +200,4 @@ class Spectrum():
         isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
         col = peakColor if isPeakType else referenceColor
         return col
-
-
-    ## Recording
-
-    def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
-        relativeTime = self.get_timediff_H(timestamp)
-        reducedFilename = ''.join(uni.reduce_path([filename]))
-        self.remove_recording()
-        markup = {"color": self.PLOT["REFERENCE_COLOR"],
-                  "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
-                  "label": reducedFilename,}
-        self.recordingPlot = self.ui.axes.axvline(x=relativeTime, **markup)
-        self.ui.draw()
-
-
-    def remove_recording(self)->None:
-        try:
-            self.recordingPlot.remove()
-        except AttributeError:
-            pass
-
-
-    ## Calculation
-
-    def reset_time(self)->None:
-        try:
-            del self.referenceTime
-        except AttributeError:
-            pass
-
-
-    def get_timediff_H(self, timestamp:datetime)->None:
-        try:
-            refTime = self.referenceTime
-        except AttributeError:
-            refTime = timestamp
-            self.referenceTime = refTime
-
-        diffTime = uni.convert_to_hours(timestamp - refTime)
-
-        return diffTime
 

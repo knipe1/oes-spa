@@ -34,7 +34,7 @@ def main():
 
     initialSpkLoad = True
     tryDifferentFiles = False
-    exportSpectra = False
+    exportSpectra = True
     selectBatchfile = True
     selectBatchSpectra = True
     hideBatch = False
