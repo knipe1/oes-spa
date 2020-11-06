@@ -8,10 +8,7 @@ Input files:
 Output files:
 *_raw.csv (Raw data of a spectrum),
 *_processed.csv (processed data of a spectrum),
-batch-analysis files (default: _batch.csv) including characteristic values of multiple files
-
-Active developments:
-- Evaluation of Boron concentration
+batch-analysis files (default: _batch.ba) including characteristic values of multiple files
 
 
 ## Installation of dependencies
@@ -20,3 +17,7 @@ Using the console, navigate to the home directory of the application. Now naviga
 1. python setup.py install
 1. cd ..
 
+
+## Fitting
+
+Please note, that the filename of a fitting has to end with '_fitting.yml'. This ending can be edited in the config.yml-file.
