@@ -8,7 +8,10 @@ Single and batch analysis of OES spectra
 # standard libs
 import sys
 import sif_reader
-da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+try:
+    da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+except FileNotFoundError:
+    pass
 import mne
 
 # third-party libs
@@ -48,7 +51,7 @@ def main():
     # automatic open and close routine
     #window.window.ddFitting.setCurrentIndex(3)
     if initialSpkLoad:
-        window.apply_file("./sample files/Asterix1059 1.Spk")
+        window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 
     if tryDifferentFiles:
         window.apply_file("./sample files/SIF/388nm_Spek1_parameter only_header cut.asc")

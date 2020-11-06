@@ -99,8 +99,13 @@ def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName
     # the specific name of that peak is added to the static value.
     wildcard = "*"
     wildColumnName = yColumnName + wildcard
-    yColumn = dataHeader.index(fnmatch.filter(dataHeader, wildColumnName)[0])
-    xColumn = dataHeader.index(xColumnName)
+    try:
+        yColumn = dataHeader.index(fnmatch.filter(dataHeader, wildColumnName)[0])
+        xColumn = dataHeader.index(xColumnName)
+    except ValueError:
+        xColumn = 0
+        yColumn = 0
+
 
     return xColumn, yColumn
 
