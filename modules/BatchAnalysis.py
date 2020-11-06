@@ -408,8 +408,6 @@ class BatchAnalysis(QDialog):
         basicSetting = self.parent().window.get_basic_setting()
         peakName = basicSetting.selectedFitting.peak.name
         try:
-            # file = BatchReader(filename, columnValue=columnValue)
-            # file = BatchReader(filename, columnValue=columnValue, peakName=peakName)
             file = FileReader(filename, columnValue=columnValue, peakName=peakName)
         except FileNotFoundError:
             return
@@ -423,9 +421,6 @@ class BatchAnalysis(QDialog):
             diffTimes = self.calculate_time_differences(timestamps)
             traceData = np.array((diffTimes, values)).transpose()
             file.data[peak] = traceData
-        # timestamps, values = file.data
-        # diffTimes = self.calculate_time_differences(timestamps)
-        # traceData = np.array((diffTimes, values)).transpose()
 
         # Plot the trace.
         self.traceSpectrum.set_custom_yLabel(columnValue)

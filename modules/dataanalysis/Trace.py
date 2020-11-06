@@ -39,10 +39,10 @@ class Trace(Spectrum):
 
 
 
-    @classmethod
-    def get_markup(cls, exportType:EXPORT_TYPE)->dict:
-        """Override parent method to have no specific markup."""
-        return {}
+    # @classmethod
+    # def get_markup(cls, exportType:EXPORT_TYPE)->dict:
+    #     """Override parent method to have no specific markup."""
+    #     return {}
 
     def __init__(self, uiElement:MatplotlibWidget):
         super().__init__(uiElement, EXPORT_TYPE.BATCH)

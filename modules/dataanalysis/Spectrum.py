@@ -84,12 +84,11 @@ class Spectrum():
             color = cls.PLOT["PROCESSED_DATA_COLOR"]
             label = cls.PLOT["PROCESSED_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.BATCH:
-            color = cls.PLOT["BATCH_DATA_COLOR"]
+            color = None
             label = cls.PLOT["BATCH_DATA_LABEL"]
         elif exportType == cls.BASELINE:
             color = cls.PLOT["RAW_BASELINE_COLOR"]
             label = cls.PLOT["RAW_BASELINE_LABEL"]
-        # markup = {"label": label}
         markup = {"color": color, "label": label}
         return markup
 
