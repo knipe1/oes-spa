@@ -56,7 +56,7 @@ class MplCanvas(Canvas):
 
 
     def update_layout(self, title=None, xLabel=None, yLabel=None, xLimit=None,
-                      yLimit=None):
+                      yLimit=None, auto=False):
         """Updates the general layout with (optional) properties."""
 
         axes = self.axes;
@@ -69,10 +69,16 @@ class MplCanvas(Canvas):
         if not yLabel == None:
             axes.set_ylabel(yLabel)
 
+        if auto:
+            axes.set_xlim(auto=True)
+            axes.set_ylim(auto=True)
+
         if not xLimit == None:
             axes.set_xlim(*xLimit)
         if not yLimit == None:
             axes.set_ylim(*yLimit)
+
+
 
 
 

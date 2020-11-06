@@ -416,6 +416,7 @@ class BatchAnalysis(QDialog):
             return
 
         # See #98
+        self.traceSpectrum.reset_time()
         for peak in file.data.keys():
             timestamps, values = file.data[peak][:,0], file.data[peak][:,1]
             diffTimes = self.calculate_time_differences(timestamps)
@@ -440,7 +441,7 @@ class BatchAnalysis(QDialog):
 
     def calculate_time_differences(self, timestamps:np.ndarray)->np.ndarray:
         diffTimes = np.zeros((len(timestamps),))
-        self.traceSpectrum.reset_time()
+        # self.traceSpectrum.reset_time()
 
         for idx, timestamp in enumerate(timestamps):
             diffTime = self.traceSpectrum.get_timediff_H(timestamp)

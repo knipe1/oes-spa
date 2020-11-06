@@ -59,8 +59,16 @@ class Trace(Spectrum):
             yData = self.data[peak][:, 1]
             self.ui.axes.plot(xData, yData, **self.markup);
 
-        # self.center_plot()
+        self.center_plot(xData)
         self.ui.draw()
+
+
+    def center_plot(self, xData)->None:
+        leftLimit = xData[0]
+        rightLimit = xData[-1]
+        isSingleValue = (leftLimit == rightLimit)
+        if not isSingleValue:
+            self.ui.axes.update_layout(xLimit=(leftLimit, rightLimit));
 
 
     ## Calculation
