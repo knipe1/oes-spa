@@ -8,15 +8,16 @@ Single and batch analysis of OES spectra
 # standard libs
 import sys
 import sif_reader
-da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
-
-
+try:
+    da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+except FileNotFoundError:
+    pass
+import mne
 
 # third-party libs
 import emulator as emu
 import threading as THR
 from PyQt5.QtWidgets import QApplication
-
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
@@ -36,10 +37,10 @@ def main():
     initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
+    showBatch = True
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
-    showBatch = False or exportSpectra or selectBatchfile or selectBatchSpectra
     activateWD = False
 
 
@@ -47,12 +48,18 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
-    # window.window.clistFitting.setCurrentRow(5)
-    # window.window.clistFitting.item(5).setCheckState(2)
-    # window.window.clistFitting.item(0).setCheckState(2)
-
+    # automatic open and close routine
     if initialSpkLoad:
+        window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
+
+    if tryDifferentFiles:
+        window.apply_file("./sample files/SIF/388nm_Spek1_parameter only_header cut.asc")
         window.apply_file("./sample files/Asterix1059 1.Spk")
+        window.apply_file("./sample files/SIF/testasc.asc")
+        window.apply_file("./sample files/SIF/388nm_Spek1_reversed.asc")
+        window.apply_file("./sample files/Asterix1059 1_raw.csv")
+        window.apply_file("./sample files/Asterix1059 1_processed.csv")
+        window.apply_file("./sample files/_batch.csv")
 
     if exportSpectra:
         window.apply_file("./sample files/Asterix1059 1.Spk")
