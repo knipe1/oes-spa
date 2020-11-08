@@ -55,8 +55,9 @@ class BaseReader(FileFramework):
 
     ### __Methods__
 
-    def __init__(self):
-        super().__init__(filename=None)
+    def __init__(self, **kwargs):
+        name = kwargs.get("name", __name__)
+        super().__init__(filename=None, name=name)
         self.set_defaults()
 
     ### methods

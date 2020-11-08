@@ -95,9 +95,10 @@ class Spectrum():
 
     ## dunder methods
 
-    def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE)->None:
+    def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE, **kwargs)->None:
         # Set up the logger.
-        self.logger = Logger(__name__)
+        name = kwargs.get("name", __name__)
+        self.logger = Logger(name)
 
         self.ui = uiElement
         self.exportType = exportType

@@ -30,7 +30,7 @@ class SpectrumWriter(FileWriter):
 
     def __init__(self, filename, timestamp):
         filename = uni.replace_suffix(filename)
-        super().__init__(filename)
+        super().__init__(self, filename, name=__name__)
         self.timestamp = timestamp
         self.dialect = self.csvDialect
 

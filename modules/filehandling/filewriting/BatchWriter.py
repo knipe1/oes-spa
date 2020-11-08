@@ -28,7 +28,7 @@ class BatchWriter(FileWriter):
     """
 
     def __init__(self, filename):
-        super().__init__(filename)
+        super().__init__(filename, name=__name__)
         self.timestamp = datetime.now()
         self.dialect = self.csvDialect
 

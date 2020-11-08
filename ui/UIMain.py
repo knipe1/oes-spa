@@ -348,7 +348,6 @@ class UIMain(Ui_main):
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
         setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
-        # setting = BasicSetting(self.wavelength, self.grating, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
 
         return setting;
 

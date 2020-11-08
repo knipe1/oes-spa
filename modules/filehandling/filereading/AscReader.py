@@ -29,7 +29,7 @@ class AscReader(BaseReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        super().__init__()
+        super().__init__(name=__name__)
         self.__post_init__()
 
     def __post_init__(self):

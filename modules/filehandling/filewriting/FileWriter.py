@@ -24,8 +24,9 @@ import modules.Universal as uni
 
 class FileWriter(FileFramework):
 
-    def __init__(self, filename):
-        FileFramework.__init__(self, filename)
+    def __init__(self, filename, **kwargs):
+        name = kwargs.get("name", __name__)
+        super().__init__(self, filename, name=name)
         self.dialect = self.csvDialect
 
 

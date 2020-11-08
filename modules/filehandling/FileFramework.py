@@ -39,9 +39,10 @@ class FileFramework:
                    "quoting": csv.QUOTE_MINIMAL,}
 
 
-    def __init__(self, filename):
+    def __init__(self, filename, **kwargs):
         # Set up the logger.
-        self.logger = Logger(__name__)
+        name = kwargs.get("name", __name__)
+        self.logger = Logger(name)
 
         self.filename = filename
         self.register_dialects()

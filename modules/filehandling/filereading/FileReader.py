@@ -129,7 +129,7 @@ class FileReader(FileFramework):
 
     def __init__(self, filename, **kwargs):
         # FileFramework provides the dialect and config etc.
-        super().__init__(filename)
+        super().__init__(filename, name=__name__)
         self.set_defaults()
         self.subReader = self.determine_subReader()
 
