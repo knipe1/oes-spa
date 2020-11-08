@@ -17,7 +17,7 @@ Created on Thu Apr  9 10:51:31 2020
 # local modules/libs
 from ConfigLoader import ConfigLoader
 from Logger import Logger
-from custom_types.Peak import Peak
+from c_types.Peak import Peak
 
 # Enums
 from c_enum.ERROR_FITTING import ERROR_FITTING as ERR_FIT

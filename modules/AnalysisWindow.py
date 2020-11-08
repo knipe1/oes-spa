@@ -27,7 +27,7 @@ from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 
 # enums
-from custom_types.BasicSetting import BasicSetting
+from c_types.BasicSetting import BasicSetting
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 # constants

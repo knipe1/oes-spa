@@ -22,11 +22,11 @@ from Logger import Logger
 import modules.Universal as uni
 from modules.dataanalysis.Fitting import Fitting
 from modules.filehandling.filereading.FileReader import FileReader
-from custom_types.BasicSetting import BasicSetting
+from c_types.BasicSetting import BasicSetting
 
 # enums
-from custom_types.Integration import Integration
-from custom_types.Peak import Peak
+from c_types.Integration import Integration
+from c_types.Peak import Peak
 from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR

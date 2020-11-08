@@ -37,7 +37,7 @@ from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 
 # Enums
-from custom_types.FileSet import FileSet
+from c_types.FileSet import FileSet
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 from c_enum.ERROR_CODE import ERROR_CODE as ERR

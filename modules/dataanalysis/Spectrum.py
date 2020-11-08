@@ -21,7 +21,7 @@ from ui.matplotlibwidget import MatplotlibWidget
 
 
 # Enums
-from custom_types.Integration import Integration
+from c_types.Integration import Integration
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
