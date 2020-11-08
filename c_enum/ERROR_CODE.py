@@ -26,6 +26,7 @@ class ERROR_CODE(Enum):
     INVALID_MINIMUM = auto()
     INVALID_NORM_FACTOR = auto()
     INVALID_NORM_OFFSET = auto()
+    NO_FITTING = auto()
 
     def __bool__(self):
         return (self == self.OK)

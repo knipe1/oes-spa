@@ -66,12 +66,21 @@ class ConfigLoader():
 
 
     @property
-    def fittingName(self):
-        return self.FITTING["fittingName"]
+    def PRESELECT_FITTING(self):
+        return self.FITTING["PRESELECT_FITTING"]
 
-    @fittingName.setter
-    def fittingName(self, fittingName:str)->None:
-        self.config["FITTING"]["fittingName"] = fittingName
+    @PRESELECT_FITTING.setter
+    def PRESELECT_FITTING(self, fittingName:str)->None:
+        self.config["FITTING"]["PRESELECT_FITTING"] = fittingName
+
+
+    @property
+    def CHECKED_FITTINGS(self):
+        return self.FITTING["CHECKED_FITTINGS"]
+
+    @CHECKED_FITTINGS.setter
+    def CHECKED_FITTINGS(self, fittingNames:list)->None:
+        self.config["FITTING"]["CHECKED_FITTINGS"] = fittingNames
 
 
     ### Methods

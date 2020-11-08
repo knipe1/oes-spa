@@ -93,6 +93,7 @@ class SpectrumHandler():
         self.basicSetting = basicSetting
 
         self.dispersion = self.determine_dispersion(parameter)
+        self.integration = []
 
 
     def __repr__(self):
@@ -117,7 +118,12 @@ class SpectrumHandler():
 
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
-        peak = fitting.peak
+        try:
+            peak = fitting.peak
+        except AttributeError:
+            # No peak was defined or no fitting available.
+            return ERR.NO_FITTING
+
         self.peakName = peak.name
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
@@ -257,7 +263,8 @@ class SpectrumHandler():
             dispersion = 12.04391 / parameter[ASC.GRAT]
         except KeyError:
             # 12.042204 -> analysed with asc-data
-            dispersion = 12.042204 / self.basicSetting.grating
+            # dispersion = 12.042204 / self.basicSetting.grating
+            dispersion = 0.005017585
         return dispersion
 
 

@@ -178,11 +178,11 @@ class UIMain(Ui_main):
         self.DEF_LBL_FITTING = self.lblFitting.text()
 
         self.fittings = self.retrieve_fittings()
-        self.ddFitting.currentTextChanged.connect(self.load_fitting)
-        try:
-            self.ddFitting.setCurrentText(self.FITTING["fittingName"])
-        except KeyError:
-            pass
+        # self.ddFitting.currentTextChanged.connect(self.load_fitting)
+        # try:
+        #     self.ddFitting.setCurrentText(self.FITTING["fittingName"])
+        # except KeyError:
+        #     pass
         # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
 
@@ -234,8 +234,8 @@ class UIMain(Ui_main):
     def connect_change_basic_settings(self, fun):
         """Interface to connect fun to changes of the basic setting."""
         self.tinCentralWavelength.textChanged.connect(fun)
-        self.ddGrating.currentTextChanged.connect(fun)
-        self.ddFitting.currentTextChanged.connect(fun)
+        # self.ddGrating.currentTextChanged.connect(fun)
+        # self.ddFitting.currentTextChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
         self.clistFitting.itemClicked.connect(fun)
@@ -296,8 +296,12 @@ class UIMain(Ui_main):
         self.logger.info("Load fitting: " + fittingName)
 
         filename = self.get_filename_of_fitting(fittingName)
-        fitConfig = self.get_fitting_configuration(filename)
-        activeFitting = Fitting(fitConfig.config)
+        fitConfig = self.load_fitting_configuration(filename)
+        try:
+            activeFitting = Fitting(fitConfig.config)
+        except AttributeError:
+            # If no config was loaded.
+            return None
         self.set_fittings_errorcode(activeFitting)
         return activeFitting
 
@@ -337,12 +341,13 @@ class UIMain(Ui_main):
     def get_basic_setting(self)->BasicSetting:
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
-        fitting = self.load_fitting(self.ddFitting.currentText())
+        # fitting = self.load_fitting(self.ddFitting.currentText())
         selectedFitting = self.load_fitting(self.clistFitting.currentText())
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
         # setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection, normalizeData)
-        setting = BasicSetting(self.wavelength, self.grating, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
+        setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
+        # setting = BasicSetting(self.wavelength, self.grating, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
 
         return setting;
 
@@ -353,8 +358,12 @@ class UIMain(Ui_main):
                 return fitFilename
 
 
-    def get_fitting_configuration(self, filename:str):
-        path = os.path.join(self.FITTING["DIR"], filename)
+    def load_fitting_configuration(self, filename:str):
+        try:
+            path = os.path.join(self.FITTING["DIR"], filename)
+        except TypeError:
+            # E.g. if no filename is given (no fitting is selected.)
+            return None
         fitConfig = ConfigLoader(path)
         return fitConfig
 
@@ -365,8 +374,12 @@ class UIMain(Ui_main):
 
 
     def save_selected_fitting(self):
-        fitName = self.ddFitting.currentText()
-        self.logger.info(f"Save fitting: {fitName}.")
+        selectedFitting = self.clistFitting.currentText()
+        self.logger.info(f"Save selected fitting: {selectedFitting}.")
+        checkedFittings = self.clistFitting.checkedItems()
+        checkedFittings = [t.text() for t in checkedFittings]
+        self.logger.info(f"Save checked fittings: {checkedFittings}.")
         self.config = ConfigLoader()
-        self.config.fittingName = fitName
+        self.config.PRESELECT_FITTING = selectedFitting
+        self.config.CHECKED_FITTINGS = checkedFittings
         self.config.save_config()

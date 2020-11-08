@@ -11,6 +11,7 @@ import sif_reader
 da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 
 
+
 # third-party libs
 import emulator as emu
 import threading as THR
@@ -35,8 +36,8 @@ def main():
     initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
-    selectBatchfile = True
-    selectBatchSpectra = True
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
     showBatch = False or exportSpectra or selectBatchfile or selectBatchSpectra
     activateWD = False
@@ -46,9 +47,9 @@ def main():
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
-    window.window.clistFitting.setCurrentRow(5)
-    window.window.clistFitting.item(5).setCheckState(2)
-    window.window.clistFitting.item(0).setCheckState(2)
+    # window.window.clistFitting.setCurrentRow(5)
+    # window.window.clistFitting.item(5).setCheckState(2)
+    # window.window.clistFitting.item(0).setCheckState(2)
 
     # automatic open and close routine
     #window.window.ddFitting.setCurrentIndex(3)

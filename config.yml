@@ -3,9 +3,10 @@ BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
 FITTING:
+  CHECKED_FITTINGS: []
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  fittingName: Example (No peak)
+  PRESELECT_FITTING: Example Fitting
 GENERAL:
   INITIAL_DIR: ./sample files
   LOG_FILE: debug.log

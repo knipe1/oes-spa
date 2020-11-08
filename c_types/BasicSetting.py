@@ -18,7 +18,7 @@ from modules.dataanalysis.Fitting import Fitting
 @dataclass(frozen=True)
 class BasicSetting():
     wavelength: float;
-    grating: float;
+    # grating: float;
     selectedFitting: Fitting;
     checkedFittings:list;
     baselineCorrection: bool;

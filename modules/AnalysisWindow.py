@@ -29,6 +29,7 @@ from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 # enums
 from c_types.BasicSetting import BasicSetting
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
 
 # constants
 
@@ -251,15 +252,16 @@ class AnalysisWindow(QMainWindow):
         basicSetting = self.window.get_basic_setting()
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
         errorcode = specHandler.analyse_data(file, basicSetting.selectedFitting)
+        self.update_spectra(specHandler)
+        self.activeFile = file;
         if not errorcode:
-            if not silent:
-                dialog.critical_invalidSpectrum()
+            if errorcode != ERR.NO_FITTING:
+                if not silent:
+                    dialog.critical_invalidSpectrum()
             return
 
         self.show_wavelength_difference_information(file, basicSetting)
         self.window.set_results(specHandler)
-        self.update_spectra(specHandler)
-        self.activeFile = file;
 
 
     def set_wavelength_from_file(self, file:FileReader)->None:

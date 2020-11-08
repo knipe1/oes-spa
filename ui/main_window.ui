@@ -106,35 +106,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="lblGrating">
-           <property name="text">
-            <string>Grating (l/mm):</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="ddGrating">
-           <item>
-            <property name="text">
-             <string>2400</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="lblFitting">
            <property name="text">
             <string>Fitting:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="ddFitting">
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
            </property>
           </widget>
          </item>
@@ -155,7 +129,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>160</height>
+             <height>140</height>
             </size>
            </property>
            <property name="selectionMode">
