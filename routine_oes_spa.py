@@ -23,11 +23,8 @@ from PyQt5.QtWidgets import QApplication
 from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
-from Logger import Logger
 
 
-# set up the logger
-# logger = Logger(__name__)
 
 def main():
     """Main program """
