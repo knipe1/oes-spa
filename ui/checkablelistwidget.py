@@ -50,3 +50,10 @@ class CheckableListWidget(QListWidget):
         except IndexError:
             text = ""
         return text
+
+
+    def allTexts(self)->list:
+        texts = []
+        for i in range(self.count()):
+            texts.append(self.item(i).text())
+        return texts

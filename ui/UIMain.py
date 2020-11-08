@@ -135,14 +135,6 @@ class UIMain(Ui_main):
         Updating the ui
         """
         self._fittings = fits
-        try:
-            uiElement = self.ddFitting
-            uiElement.clear()
-            sortedFits = natsorted(fits.values())
-            uiElement.addItems(sortedFits)
-        except:
-            pass
-
         self.clistFitting.addItems(fits.values())
 
 
@@ -178,11 +170,23 @@ class UIMain(Ui_main):
         self.DEF_LBL_FITTING = self.lblFitting.text()
 
         self.fittings = self.retrieve_fittings()
-        # self.ddFitting.currentTextChanged.connect(self.load_fitting)
-        # try:
-        #     self.ddFitting.setCurrentText(self.FITTING["fittingName"])
-        # except KeyError:
-        #     pass
+        allTexts  = self.clistFitting.allTexts()
+        PRESELECT_FITTING = self.config.PRESELECT_FITTING
+        try:
+            preIdx = allTexts.index(PRESELECT_FITTING)
+            self.clistFitting.setCurrentRow(preIdx)
+        except ValueError:
+            self.logger.info("No preselected Fitting found.")
+
+        CHECKED_FITTINGS = self.config.CHECKED_FITTINGS
+        for fit in CHECKED_FITTINGS:
+            try:
+                ckdIdx = allTexts.index(fit)
+                self.clistFitting.item(ckdIdx).setCheckState(2)
+            except ValueError:
+                self.logger.info("Checked fitting not found.")
+
+
         # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
 
@@ -234,8 +238,6 @@ class UIMain(Ui_main):
     def connect_change_basic_settings(self, fun):
         """Interface to connect fun to changes of the basic setting."""
         self.tinCentralWavelength.textChanged.connect(fun)
-        # self.ddGrating.currentTextChanged.connect(fun)
-        # self.ddFitting.currentTextChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
         self.clistFitting.itemClicked.connect(fun)
@@ -281,7 +283,7 @@ class UIMain(Ui_main):
         return fitDict
 
 
-    def load_fitting(self, fittingName:str)->Fitting:
+    def load_fitting(self, fittingName:str, showError:bool=False)->Fitting:
         """
         Parameters
         ----------
@@ -302,7 +304,8 @@ class UIMain(Ui_main):
         except AttributeError:
             # If no config was loaded.
             return None
-        self.set_fittings_errorcode(activeFitting)
+        if showError:
+            self.set_fittings_errorcode(activeFitting)
         return activeFitting
 
 
@@ -341,11 +344,9 @@ class UIMain(Ui_main):
     def get_basic_setting(self)->BasicSetting:
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
-        # fitting = self.load_fitting(self.ddFitting.currentText())
-        selectedFitting = self.load_fitting(self.clistFitting.currentText())
+        selectedFitting = self.load_fitting(self.clistFitting.currentText(), showError=True)
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
-        # setting = BasicSetting(self.wavelength, self.grating, fitting, baselineCorrection, normalizeData)
         setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
         # setting = BasicSetting(self.wavelength, self.grating, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
 
@@ -358,7 +359,7 @@ class UIMain(Ui_main):
                 return fitFilename
 
 
-    def load_fitting_configuration(self, filename:str):
+    def load_fitting_configuration(self, filename:str)->Fitting:
         try:
             path = os.path.join(self.FITTING["DIR"], filename)
         except TypeError:

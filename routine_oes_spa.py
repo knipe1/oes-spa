@@ -51,8 +51,6 @@ def main():
     # window.window.clistFitting.item(5).setCheckState(2)
     # window.window.clistFitting.item(0).setCheckState(2)
 
-    # automatic open and close routine
-    #window.window.ddFitting.setCurrentIndex(3)
     if initialSpkLoad:
         window.apply_file("./sample files/Asterix1059 1.Spk")
 

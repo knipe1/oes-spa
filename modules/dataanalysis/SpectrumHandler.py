@@ -120,11 +120,11 @@ class SpectrumHandler():
         self.fitting = fitting
         try:
             peak = fitting.peak
+            self.peakName = peak.name
         except AttributeError:
             # No peak was defined or no fitting available.
             return ERR.NO_FITTING
 
-        self.peakName = peak.name
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
