@@ -252,12 +252,12 @@ class AnalysisWindow(QMainWindow):
         basicSetting = self.window.get_basic_setting()
         specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
         errorcode = specHandler.analyse_data(file, basicSetting.selectedFitting)
-        self.update_spectra(specHandler)
-        self.activeFile = file;
-        if not errorcode:
-            if errorcode != ERR.NO_FITTING:
-                if not silent:
-                    dialog.critical_invalidSpectrum()
+        if errorcode or errorcode == ERR.NO_FITTING:
+            self.update_spectra(specHandler)
+            self.activeFile = file;
+        else:
+            if not silent:
+                dialog.critical_invalidSpectrum()
             return
 
         self.show_wavelength_difference_information(file, basicSetting)

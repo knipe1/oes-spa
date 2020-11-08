@@ -88,7 +88,10 @@ class Trace(Spectrum):
     ## Recording
 
     def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
-        relativeTime = self.get_timediff_H(timestamp)
+        try:
+            relativeTime = self.get_timediff_H(timestamp)
+        except TypeError:
+            return
         reducedFilename = ''.join(uni.reduce_path([filename]))
         self.remove_recording()
         markup = {"color": self.PLOT["REFERENCE_COLOR"],

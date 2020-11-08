@@ -168,6 +168,7 @@ class FileReader(FileFramework):
         # TODO: Test None instead of 0
         self.xData = np.zeros(0)
         self.yData = np.zeros(0)
+        self.data = None
         self.parameter = {}
         # Init with "Not set!" to display the warning on the ui.
         self.timeInfo = TIME_NOT_SET
@@ -225,7 +226,7 @@ class FileReader(FileFramework):
             return ERR.UNKNOWN_FILETYPE;
 
         # Data in general.
-        if not len(self.data):
+        if self.data is None or not len(self.data):
             return ERR.INVALID_DATA;
 
         # Check file information.

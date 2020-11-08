@@ -68,7 +68,10 @@ class BatchAnalysis(QDialog):
 
     @property
     def batchFile(self)->str:
-        return self._batchFile
+        try:
+            return self._batchFile
+        except AttributeError:
+            return None
 
     @batchFile.setter
     def batchFile(self, filename:str)->None:
@@ -531,15 +534,14 @@ class BatchAnalysis(QDialog):
 
         try:
             selectedFilename = self._files[index]
-            selectedFile = FileReader(selectedFilename)
-            if selectedFile:
-                if self.dog.is_alive():
-                    self.parent().apply_file(selectedFile, silent=True)
-                else:
-                    self.parent().apply_file(selectedFilename)
-                self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
         except IndexError:
             self.logger.info("Cannot open file, invalid index provided!")
+            return
+        if selectedFilename:
+            selectedFile = FileReader(selectedFilename)
+            dogAlive = self.dog.is_alive()
+            self.parent().apply_file(selectedFile, silent=dogAlive)
+            self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
 
 
     ### Interaction with the FileSet self._files.

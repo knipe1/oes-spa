@@ -32,6 +32,7 @@ def key_accept():
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
 
+
 def key_reject():
     """
     Emulates a esc-key press after a pause.
@@ -46,6 +47,7 @@ def key_reject():
     sleep(PAUSE)
     keyboard.press(Key.esc)
     keyboard.release(Key.esc)
+
 
 def key_alt_j():
     """
@@ -65,6 +67,7 @@ def key_alt_j():
         keyboard.press("y")
         keyboard.release("y")
 
+
 def key_alt_s():
     """
     Emulates a alt+s press after a pause.
@@ -80,6 +83,7 @@ def key_alt_s():
     with keyboard.pressed(Key.alt):
         keyboard.press("s")
         keyboard.release("s")
+
 
 def key_select_file(iterations):
     """
@@ -100,8 +104,8 @@ def key_select_file(iterations):
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
     # linux (next 3 linies not outcommented)
-    keyboard.press(Key.down)
-    keyboard.release(Key.down)
+    # keyboard.press(Key.down)
+    # keyboard.release(Key.down)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
     sleep(2*PAUSE)

@@ -127,7 +127,8 @@ class BaseReader(FileFramework):
 
     def join_information(self, timeInfo:str, data:list, parameter:dict=None)->dict:
 
-        data = self.list_to_2column_array(data)
+        if data is not None:
+            data = self.list_to_2column_array(data)
 
         information = {}
         information["timeInfo"] = timeInfo
