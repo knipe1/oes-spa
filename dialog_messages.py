@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from custom_types.SUFFICES import SUFFICES as SUFF
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
 IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",

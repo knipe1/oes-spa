@@ -20,7 +20,7 @@ from Logger import Logger
 from custom_types.Peak import Peak
 
 # Enums
-from custom_types.ERROR_FITTING import ERROR_FITTING as ERR_FIT
+from c_enum.ERROR_FITTING import ERROR_FITTING as ERR_FIT
 
 
 # constants

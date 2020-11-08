@@ -35,9 +35,9 @@ from modules.filehandling.filereading.SpkReader import SpkReader
 import modules.Universal as uni
 
 # enums (alphabetical order)
-from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
-from custom_types.SUFFICES import SUFFICES as SUFF
+from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
 TIME_NOT_SET = "Not set!"

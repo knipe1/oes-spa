@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from custom_types.BasePeak import BasePeak
 
 # Enums
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
 
 @dataclass(frozen=True)
 class ReferencePeak(BasePeak):

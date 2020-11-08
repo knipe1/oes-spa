@@ -17,7 +17,7 @@ from custom_types.ReferencePeak import ReferencePeak
 from dialog_messages import information_normalizationFactorUndefined, information_normalizationOffsetUndefined
 
 # Enums
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
 
 # constants
 DEFAULT_NORM_FACTOR = 1.0

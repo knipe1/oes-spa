@@ -40,7 +40,7 @@ from modules.filehandling.filereading.FileReader import FileReader
 
 # enums and dataclasses
 from custom_types.BasicSetting import BasicSetting
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 class UIMain(Ui_main):
     """

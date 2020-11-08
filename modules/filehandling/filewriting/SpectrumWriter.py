@@ -19,7 +19,7 @@ import modules.Universal as uni
 from modules.dataanalysis.Spectrum import Spectrum
 
 # Enums
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
 PROCESSED_APPENDIX = "_processed"

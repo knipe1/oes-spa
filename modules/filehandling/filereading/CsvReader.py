@@ -17,7 +17,7 @@ import modules.Universal as uni
 from modules.filehandling.filereading.BaseReader import BaseReader
 
 # Enums
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 # constants
 from modules.Universal import EXPORT_TIMESTAMP

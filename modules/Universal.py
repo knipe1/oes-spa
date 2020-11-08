@@ -18,9 +18,8 @@ from PyQt5.QtCore import QFileInfo, QUrl
 # local modules/libs
 from ConfigLoader import ConfigLoader
 
-
 # Enums
-from custom_types.SUFFICES import SUFFICES as SUFF
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 # Load the configuration for import and batch properties.
 config = ConfigLoader()

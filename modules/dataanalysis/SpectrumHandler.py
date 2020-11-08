@@ -27,10 +27,10 @@ from custom_types.BasicSetting import BasicSetting
 # enums
 from custom_types.Integration import Integration
 from custom_types.Peak import Peak
-from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 
 class SpectrumHandler():

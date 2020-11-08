@@ -38,10 +38,10 @@ from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 # Enums
 from custom_types.FileSet import FileSet
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
-from custom_types.SUFFICES import SUFFICES as SUFF
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 
 # constants

@@ -14,8 +14,8 @@ from dataclasses import dataclass
 # third-party libs
 
 # local modules/libs
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 # unsafe_hash=True allows to add Integration instance into a set
 @dataclass(unsafe_hash=True)

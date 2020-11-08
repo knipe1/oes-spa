@@ -14,7 +14,7 @@ from dataclasses import dataclass
 # local modules/libs
 
 # Enums
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
 
 @dataclass(frozen=True)
 class BasePeak():
