@@ -5,6 +5,7 @@
 Single and batch analysis of OES spectra
 """
 
+
 # standard libs
 import sys
 import sif_reader

@@ -7,6 +7,7 @@ Created on Fri Jul 24 22:44:59 2020
 """
 
 from time import sleep
+import csv
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -23,7 +24,16 @@ class SpectrumHandler(FileSystemEventHandler):
             return
 
         sleep(1) # Wait for processes to run and prevent early-reading
-        self.onModifiedMethod(event.src_path)
+        try:
+            self.onModifiedMethod(event.src_path)
+        except Exception as ex:
+            with open(".wderror", 'w', newline='') as f:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                fWriter = csv.writer(f)
+                fWriter.writerow([message])
+
+
 
 
 class Watchdog():
@@ -44,6 +54,7 @@ class Watchdog():
             self.observer.join(1)
         except:
             print("No observer initialized.")
+
 
     def is_alive(self)->bool:
         try:
