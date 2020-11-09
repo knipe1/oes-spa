@@ -16,7 +16,7 @@ import numpy as np
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, QModelIndex
+from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence as QKeys
 
@@ -39,7 +39,6 @@ from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 # Enums
 from c_types.FileSet import FileSet
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
-from c_enum.EXPORT_TYPE import EXPORT_TYPE
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
@@ -100,17 +99,6 @@ class BatchAnalysis(QDialog):
             self.logger.debug("Could not set the WD directory in the ui.")
 
 
-    @property
-    def lastdir(self)->str:
-        return self.parent().lastdir
-
-    @lastdir.setter
-    def lastdir(self, path:str)->None:
-        """lastdir setter: Updating the parent"""
-        self.parent().lastdir = path
-
-
-
     def __init__(self, parent)->None:
         """
         Parameters
@@ -150,7 +138,6 @@ class BatchAnalysis(QDialog):
         info = {}
         info["batchfile"] = self.batchFile
         info["files"] = self._files
-        info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
 
@@ -437,8 +424,6 @@ class BatchAnalysis(QDialog):
             filename = self.batchFile
         else:
             filename = dialog.dialog_importBatchfile()
-            # filename = dialog.dialog_batchfile(self.lastdir)
-            self.lastdir = filename
         return filename
 
 
@@ -479,30 +464,20 @@ class BatchAnalysis(QDialog):
         """
         # Retrieve the filename and the corresponding info
         filename = dialog.dialog_batchfile()
-        # filename = dialog.dialog_batchfile(self.lastdir)
         if filename:
-            self.lastdir = filename
             self.batchFile = filename
 
 
     def specify_watchdog_directory(self)->None:
         directory = dialog.dialog_watchdogDirectory()
-        # directory = dialog.dialog_watchdogDirectory(self.lastdir)
         if directory:
             self.WDdirectory = directory
-            self.lastdir = directory
 
 
     def browse_spectra(self)->None:
         """Opens a dialog to browse for spectra and updates the filelist."""
         filelist = dialog.dialog_spectra()
-        # filelist = dialog.dialog_spectra(self.lastdir)
         self.update_filelist(filelist)
-        try:
-            filename = filelist[0]
-            self.lastdir = filename
-        except IndexError:
-            self.logger.info("Browse Spectra: Could not update directory.")
 
 
     def enable_analysis(self)->None:

@@ -8,7 +8,6 @@
 """
 
 # standard libs
-from os import path, getcwd
 
 # third-party libs
 # base class: QMainWindow
@@ -67,25 +66,6 @@ class AnalysisWindow(QMainWindow):
         self._activeFile = file
 
 
-    @property
-    def lastdir(self)->str:
-        """Gets the directory which is preset for dialogs."""
-        return self._lastdir
-
-    @lastdir.setter
-    def lastdir(self, directory:str)->None:
-        if path.isdir(directory):
-            newDirectory = directory
-        elif path.isfile(directory):
-            newDirectory = path.dirname(directory)
-        elif not hasattr(self, "lastdir"):
-            newDirectory = getcwd()
-        else:
-            return
-
-        self._lastdir = newDirectory
-
-
     ### __Methods__
 
     def __init__(self)->None:
@@ -93,7 +73,6 @@ class AnalysisWindow(QMainWindow):
         self.logger = Logger(__name__)
 
         # Set defaults.
-        self.lastdir = self.GENERAL["INITIAL_DIR"];
         self._activeFile = None;
 
         ## Set up the user interfaces
@@ -114,7 +93,6 @@ class AnalysisWindow(QMainWindow):
     def __repr__(self):
         info = {}
         info["activeFile"] = self.activeFile
-        info["lastdir"] = self.lastdir
         return self.__module__ + ":\n" + str(info)
 
 
@@ -174,7 +152,6 @@ class AnalysisWindow(QMainWindow):
         # Browse
 
         # Cancel/Quit dialog --> [].
-        # filelist = dialog.dialog_spectra(self.lastdir);
         filelist = dialog.dialog_spectra();
         isSingleFile = (len(filelist) == 1)
         isMultipleFiles = (len(filelist) > 1)
@@ -185,10 +162,6 @@ class AnalysisWindow(QMainWindow):
         elif isSingleFile:
             filename = filelist[0];
             self.apply_file(filename)
-        else:
-            return
-
-        self.lastdir = filelist[0]
 
 
     ### Export
