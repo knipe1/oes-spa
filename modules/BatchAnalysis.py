@@ -38,6 +38,7 @@ from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 # Enums
 from c_types.FileSet import FileSet
+from c_types.BasicSetting import BasicSetting
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
@@ -276,30 +277,18 @@ class BatchAnalysis(QDialog):
     ### Methods/Analysis
 
     def analyze_single_file(self, filename:str)->None:
-        if is_exported_spectrum(filename):
-            return ERR.INVALID_DATA
 
         self.currentFile = FileReader(filename)
-        errorcode = self.currentFile.is_valid_spectrum()
+        errorcode = self.is_analyzable()
         if not errorcode:
             return errorcode
 
-        basicSetting = self.parent().window.get_basic_setting()
-        specHandler = SpectrumHandler(basicSetting)
+        basicSetting, specHandler = self.prepare_analysis()
 
-        data = []
-        for fitting in basicSetting.checkedFittings:
-            errorcode = specHandler.analyse_data(self.currentFile, fitting)
-            if not errorcode:
-                return errorcode
+        data, config = self.analyze_file(basicSetting, specHandler)
+        if not len(data):
+            return ERR.INVALID_DATA
 
-            # excluding file if no appropiate data given like in processed spectra.
-            if not specHandler.has_valid_peak():
-                continue
-
-            config = self.map_spectrum_characteristics(specHandler)
-
-            data.append(assemble_row(config))
         header = assemble_header(config)
         self.export_batch(data, header, isUpdate=True)
         self.import_batchfile(takeCurrentBatchfile=True)
@@ -319,7 +308,7 @@ class BatchAnalysis(QDialog):
         isExportBatch = self.window.get_export_batch() or isPlotTrace
 
         # Get characteristic values.
-        basicSetting = self.parent().window.get_basic_setting()
+        basicSetting, specHandler = self.prepare_analysis()
 
         data = []
         skippedFiles = []
@@ -340,33 +329,18 @@ class BatchAnalysis(QDialog):
 
             # Read out the filename and the data.
             file = files[i]
-            if is_exported_spectrum(file):
-                skippedFiles.append(file)
-                continue
-
             self.currentFile = FileReader(file)
 
-            errorcode = self.currentFile.is_valid_spectrum()
+            errorcode = self.is_analyzable()
             if not errorcode:
                 skippedFiles.append(file)
                 continue
 
             if isExportBatch:
-                # Get the data.
-                specHandler = SpectrumHandler(basicSetting)
-
-                for fitting in basicSetting.checkedFittings:
-                    errorcode = specHandler.analyse_data(self.currentFile, fitting)
-                    if not errorcode:
-                        return errorcode
-
-                    # excluding file if no appropiate data given like in processed spectra.
-                    if not specHandler.has_valid_peak():
-                        continue
-
-                    config = self.map_spectrum_characteristics(specHandler)
-
-                    data.append(assemble_row(config))
+                fileData, config = self.analyze_file(basicSetting, specHandler)
+                if not len(fileData):
+                    continue
+                data.extend(fileData)
 
             # Select by filename to trigger event based update of the plot.
             if isUpdatePlot:
@@ -399,6 +373,37 @@ class BatchAnalysis(QDialog):
         timestamp = self.currentFile.timeInfo
         config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
         return config
+
+
+    def is_analyzable(self)->ERR:
+        file = self.currentFile
+        filename = file.filename
+        if is_exported_spectrum(filename):
+            return ERR.INVALID_DATA
+
+        return file.is_valid_spectrum()
+
+
+    def prepare_analysis(self)->(BasicSetting, SpectrumHandler):
+        basicSetting = self.parent().window.get_basic_setting()
+        specHandler = SpectrumHandler(basicSetting)
+        return basicSetting, specHandler
+
+
+    def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->ERR:
+        data = []
+        for fitting in setting.checkedFittings:
+            isOk = specHandler.analyse_data(self.currentFile, fitting)
+            if not isOk:
+                break
+
+            # excluding file if no appropiate data given like in processed spectra.
+            if not specHandler.has_valid_peak():
+                continue
+
+            config = self.map_spectrum_characteristics(specHandler)
+            data.append(assemble_row(config))
+        return data, config
 
 
 
@@ -446,7 +451,6 @@ class BatchAnalysis(QDialog):
 
     def calculate_time_differences(self, timestamps:np.ndarray)->np.ndarray:
         diffTimes = np.zeros((len(timestamps),))
-        # self.traceSpectrum.reset_time()
 
         for idx, timestamp in enumerate(timestamps):
             diffTime = self.traceSpectrum.get_timediff_H(timestamp)
