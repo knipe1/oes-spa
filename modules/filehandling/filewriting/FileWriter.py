@@ -26,7 +26,7 @@ class FileWriter(FileFramework):
 
     def __init__(self, filename, **kwargs):
         name = kwargs.get("name", __name__)
-        super().__init__(self, filename, name=name)
+        super().__init__(filename, name=name)
         self.dialect = self.csvDialect
 
 

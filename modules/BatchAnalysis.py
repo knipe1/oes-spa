@@ -225,7 +225,7 @@ class BatchAnalysis(QDialog):
             self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
             self.logger.info("WD: Spectrum file modified/added: %s"%(path))
-            isOk = self.analyze(path)
+            isOk = self.analyze_single_file(path)
             if not isOk:
                 return
             self.update_filelist([path])
@@ -275,21 +275,45 @@ class BatchAnalysis(QDialog):
 
     ### Methods/Analysis
 
-    def analyze_single_file(self, singleFile:str)->None:
-        pass
+    def analyze_single_file(self, filename:str)->None:
+        if is_exported_spectrum(filename):
+            return ERR.INVALID_DATA
 
-    def analyze(self, singleFile=None)->None:
-        self.logger.info("Analyze file.")
+        self.currentFile = FileReader(filename)
+        errorcode = self.currentFile.is_valid_spectrum()
+        if not errorcode:
+            return errorcode
+
+        basicSetting = self.parent().window.get_basic_setting()
+        specHandler = SpectrumHandler(basicSetting)
+
+        data = []
+        for fitting in basicSetting.checkedFittings:
+            errorcode = specHandler.analyse_data(self.currentFile, fitting)
+            if not errorcode:
+                return errorcode
+
+            # excluding file if no appropiate data given like in processed spectra.
+            if not specHandler.has_valid_peak():
+                continue
+
+            config = self.map_spectrum_characteristics(specHandler)
+
+            data.append(assemble_row(config))
+        header = assemble_header(config)
+        self.export_batch(data, header, isUpdate=True)
+        self.import_batchfile(takeCurrentBatchfile=True)
+        return ERR.OK
+
+
+    def analyze(self)->None:
+        self.logger.info("Start batch analysis.")
 
         # Reset the properties to have a clean setup.
         self.isScheduledCancel = False
 
-        isSingleFile = bool(singleFile)
-        if isSingleFile:
-            singleFile = [singleFile]
-
         # Get the modus.
-        isUpdatePlot = self.window.get_update_plots() and not isSingleFile
+        isUpdatePlot = self.window.get_update_plots()
         isPlotTrace = self.window.get_plot_trace()
         # Export even if plot trace is selected(First export then import+plot).
         isExportBatch = self.window.get_export_batch() or isPlotTrace
@@ -300,9 +324,7 @@ class BatchAnalysis(QDialog):
         data = []
         skippedFiles = []
 
-        # Either singleFile is given by a filename, then the amount of files=1,
-        # Otherwise the filelist is used.
-        files = singleFile or self._files.to_list()
+        files = self._files.to_list()
         amount = len(files)
         self.logger.info("No. of files %i:"%(amount))
 
@@ -314,27 +336,20 @@ class BatchAnalysis(QDialog):
             if self.isScheduledCancel:
                 break
 
-            # Update process bar
             self.window.update_progressbar((i+1)/amount)
 
             # Read out the filename and the data.
             file = files[i]
             if is_exported_spectrum(file):
-                if isSingleFile:
-                    return ERR.INVALID_DATA
-                else:
-                    skippedFiles.append(file)
-                    continue
+                skippedFiles.append(file)
+                continue
 
             self.currentFile = FileReader(file)
 
             errorcode = self.currentFile.is_valid_spectrum()
             if not errorcode:
-                if isSingleFile:
-                    return errorcode
-                else:
-                    skippedFiles.append(file)
-                    continue
+                skippedFiles.append(file)
+                continue
 
             if isExportBatch:
                 # Get the data.
@@ -347,19 +362,9 @@ class BatchAnalysis(QDialog):
 
                     # excluding file if no appropiate data given like in processed spectra.
                     if not specHandler.has_valid_peak():
-                        # skippedFiles.append(file)
                         continue
 
-                    config[CHC.FILENAME] = file
-                    config[CHC.BASELINE] = specHandler.avgbase
-                    config[CHC.CHARACTERISTIC_VALUE] = specHandler.characteristicValue
-                    config[CHC.PEAK_NAME] = specHandler.peakName
-                    config[CHC.PEAK_AREA] = specHandler.peakArea
-                    config[CHC.PEAK_HEIGHT] = specHandler.peakHeight
-                    config[CHC.PEAK_POSITION] = specHandler.peakPosition
-                    # Convert to string for proper presentation.
-                    timestamp = self.currentFile.timeInfo
-                    config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+                    config = self.map_spectrum_characteristics(specHandler)
 
                     data.append(assemble_row(config))
 
@@ -368,21 +373,33 @@ class BatchAnalysis(QDialog):
                 self._files.select_row_by_filename(file)
 
         if isExportBatch:
-            # Get the name of the peak for proper description.
             header = assemble_header(config)
-            if isSingleFile:
-                data = assemble_row(config)
-            self.export_batch(data, header, isUpdate=isSingleFile)
+            self.export_batch(data, header)
 
         if isPlotTrace:
             self.import_batchfile(takeCurrentBatchfile=True)
 
         # Prompt the user with information about the skipped files.
-        if not isSingleFile:
-            dialog.information_batchAnalysisFinished(skippedFiles)
-            self._files.difference_update(skippedFiles)
+        dialog.information_batchAnalysisFinished(skippedFiles)
+        self._files.difference_update(skippedFiles)
 
         return ERR.OK
+
+
+    def map_spectrum_characteristics(self, specHandler:SpectrumHandler)->dict:
+        config = retrieve_batch_config()
+        config[CHC.FILENAME] = self.currentFile.filename
+        config[CHC.BASELINE] = specHandler.avgbase
+        config[CHC.CHARACTERISTIC_VALUE] = specHandler.characteristicValue
+        config[CHC.PEAK_NAME] = specHandler.peakName
+        config[CHC.PEAK_AREA] = specHandler.peakArea
+        config[CHC.PEAK_HEIGHT] = specHandler.peakHeight
+        config[CHC.PEAK_POSITION] = specHandler.peakPosition
+        # Convert to string for proper presentation.
+        timestamp = self.currentFile.timeInfo
+        config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+        return config
+
 
 
     def import_batchfile(self, takeCurrentBatchfile=False):

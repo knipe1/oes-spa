@@ -137,7 +137,7 @@ def select_directory():
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
     sleep(0.4*PAUSE)
-    for _ in range(8):
+    for _ in range(9):
         keyboard.press(Key.down)
         keyboard.release(Key.down)
     keyboard.press(Key.enter)

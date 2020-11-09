@@ -63,7 +63,7 @@ class BatchWriter(FileWriter):
     def append_data(self, data:list)->None:
         with open(self.filename, 'a', newline='') as f:
             writer = csv.writer(f, dialect=self.dialect)
-            writer.writerow(data)
+            writer.writerows(data)
 
 
     def is_valid_batchfile(self)->None:
