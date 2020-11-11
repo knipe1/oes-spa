@@ -23,7 +23,7 @@ class SpectrumHandler(FileSystemEventHandler):
         if event.is_directory:
             return
 
-        sleep(1) # Wait for processes to run and prevent early-reading
+        sleep(.1) # Wait for processes to run and prevent early-reading
         try:
             self.onModifiedMethod(event.src_path)
         except Exception as ex:
