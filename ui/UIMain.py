@@ -201,13 +201,25 @@ class UIMain(Ui_main):
 
 
     def set_results(self, spectrumHandler:SpectrumHandler):
-        self.toutPeakHeight.setText(str(spectrumHandler.peakHeight))
-        self.toutPeakArea.setText(str(spectrumHandler.peakArea))
-        self.toutBaseline.setText(str(spectrumHandler.avgbase))
-        self.toutCharacteristicValue.setText(str(spectrumHandler.characteristicValue))
-        peakName = spectrumHandler.fitting.peak.name
-        self.lblCharacteristicValue.setText(str(peakName))
+        if spectrumHandler.peakPosition:
+            cwl = spectrumHandler.peakPosition
+        else:
+             cwl = spectrumHandler.fitting.peak.centralWavelength
+        cwlInfo = f" (@{self.format_result(cwl)})"
 
+        self.toutPeakHeight.setText(self.format_result(spectrumHandler.peakHeight) + cwlInfo)
+        self.toutPeakArea.setText(self.format_result(spectrumHandler.peakArea))
+        self.toutBaseline.setText(self.format_result(spectrumHandler.avgbase))
+        self.toutCharacteristicValue.setText(self.format_result(spectrumHandler.characteristicValue))
+        peakName = spectrumHandler.fitting.peak.name
+        self.lblCharacteristicValue.setText(peakName)
+
+
+    def format_result(self, value:float)->str:
+        try:
+            return f"{value:8.4f}"
+        except TypeError:
+            return None
 
     # Connect methods: Provides at least one event (signal) to connect to a
     # function
