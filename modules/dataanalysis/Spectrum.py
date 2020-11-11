@@ -9,7 +9,6 @@ Created on Sat Apr 25 2020
 
 # standard libs
 import numpy as np
-from datetime import datetime
 
 # third-party libs
 
@@ -78,17 +77,17 @@ class Spectrum():
     def get_markup(cls, exportType:EXPORT_TYPE)->dict:
         """Get the markup according to the export type."""
         if exportType == EXPORT_TYPE.RAW:
-            color = cls.PLOT["RAW_DATA_COLOR"]
+            color = cls.PLOT["DATA_COLOR"]
             label = cls.PLOT["RAW_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.PROCESSED:
-            color = cls.PLOT["PROCESSED_DATA_COLOR"]
+            color = cls.PLOT["DATA_COLOR"]
             label = cls.PLOT["PROCESSED_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.BATCH:
             color = None
             label = cls.PLOT["BATCH_DATA_LABEL"]
         elif exportType == cls.BASELINE:
-            color = cls.PLOT["RAW_BASELINE_COLOR"]
-            label = cls.PLOT["RAW_BASELINE_LABEL"]
+            color = cls.PLOT["BASELINE_COLOR"]
+            label = cls.PLOT["BASELINE_LABEL"]
         markup = {"color": color, "label": label}
         return markup
 

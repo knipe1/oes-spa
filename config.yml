@@ -9,7 +9,7 @@ FITTING:
   - Methan Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Boron Peak Fitting
+  PRESELECT_FITTING: Example Fitting
 GENERAL:
   INITIAL_DIR: ./sample files
   LOG_FILE: debug.log
@@ -22,14 +22,12 @@ PLOT:
   DEF_LINEWIDTH: 0.8
   INT_PEAK_COLOR: g
   INT_REF_COLOR: b
-  PROCESSED_DATA_COLOR: r
+  DATA_COLOR: r
   PROCESSED_DATA_LABEL: Processed Spectrum
   PROCESSED_X_LABEL: Wavelength / nm
   PROCESSED_Y_LABEL: Intensity / a.u.
-  RAW_BASELINE_COLOR: b
-  RAW_BASELINE_LABEL: Baseline
-  RAW_BASELINE_STYLE: --
-  RAW_DATA_COLOR: r
+  BASELINE_COLOR: b
+  BASELINE_LABEL: Baseline
   RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.
