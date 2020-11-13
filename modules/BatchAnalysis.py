@@ -392,6 +392,7 @@ class BatchAnalysis(QDialog):
 
     def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->ERR:
         data = []
+        config = retrieve_batch_config()
         for fitting in setting.checkedFittings:
             isOk = specHandler.analyse_data(self.currentFile, fitting)
             if not isOk:
@@ -416,11 +417,8 @@ class BatchAnalysis(QDialog):
 
         # Define the specific value which shall be plotted.
         columnValue = self.window.currentTraceValue
-        # Get characteristic values.
-        basicSetting = self.parent().window.get_basic_setting()
-        peakName = basicSetting.selectedFitting.peak.name
         try:
-            file = FileReader(filename, columnValue=columnValue, peakName=peakName)
+            file = FileReader(filename, columnValue=columnValue)
         except FileNotFoundError:
             return
 

@@ -3,13 +3,10 @@ BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
 FITTING:
-  CHECKED_FITTINGS:
-  - Boron Peak Fitting
-  - Example Fitting
-  - Methan Peak Fitting
+  CHECKED_FITTINGS: []
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Methan Peak Fitting
+  PRESELECT_FITTING: Example Fitting
 GENERAL:
   INITIAL_DIR: ./sample files
   LOG_FILE: debug.log

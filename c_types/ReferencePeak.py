@@ -22,25 +22,18 @@ class ReferencePeak(BasePeak):
     """
     Describes the properties of a (reference) peak.
 
-    Usage:
-        TODO!
-
 
     Attributes
     ----------
-    minimum: float = 0.0
-        The minimum value(height?/area?) the peak needs to be valid.
-
-
-    Methods
-    -------
+    minimumHeight: float = 0.0
+        The minimum value the peak needs to be valid.
     """
-    minimumHeight: float = 0.0;           # minimum for a valid Peak
+    minimumHeight: float = 0.0
 
 
     @property
     def isValid(self):
-        error = super(ReferencePeak, self).isValid
-        if not self.minimum >= 0:
+        error = super().isValid
+        if not self.minimumHeight >= 0:
             error = ERR.INVALID_MINIMUM
         return error

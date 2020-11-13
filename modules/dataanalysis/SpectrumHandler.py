@@ -95,6 +95,13 @@ class SpectrumHandler():
         self.dispersion = self.determine_dispersion(parameter)
         self.integration = []
 
+        self.peakArea = None
+        self.peakHeight = None
+        self.peakName = None
+        self.peakPosition = None
+        self.avgbase = None
+        self.characteristicValue = None
+
 
     def __repr__(self):
         info = {}
@@ -118,12 +125,11 @@ class SpectrumHandler():
 
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
-        try:
-            peak = fitting.peak
-            self.peakName = peak.name
-        except AttributeError:
-            # No peak was defined or no fitting available.
-            return ERR.NO_FITTING
+        if fitting is None or fitting.peak is None:
+            return ERR.OK
+
+        peak = fitting.peak
+        self.peakName = peak.name
 
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)

@@ -165,9 +165,11 @@ class UIMain(Ui_main):
         self.__post_init__()
 
 
+
     def __post_init__(self):
         # Get default label for fittings, defined in Qt-designer.
         self.DEF_LBL_FITTING = self.lblFitting.text()
+        self.DEF_LBL_CHARACTERISTIC = self.lblCharacteristicValue.text()
 
         self.fittings = self.retrieve_fittings()
         allTexts  = self.clistFitting.allTexts()
@@ -204,22 +206,29 @@ class UIMain(Ui_main):
         if spectrumHandler.peakPosition:
             cwl = spectrumHandler.peakPosition
         else:
-             cwl = spectrumHandler.fitting.peak.centralWavelength
+            try:
+                cwl = spectrumHandler.fitting.peak.centralWavelength
+            except AttributeError:
+                cwl = 0.0
         cwlInfo = f" (@{self.format_result(cwl)})"
 
         self.toutPeakHeight.setText(self.format_result(spectrumHandler.peakHeight) + cwlInfo)
         self.toutPeakArea.setText(self.format_result(spectrumHandler.peakArea))
         self.toutBaseline.setText(self.format_result(spectrumHandler.avgbase))
         self.toutCharacteristicValue.setText(self.format_result(spectrumHandler.characteristicValue))
-        peakName = spectrumHandler.fitting.peak.name
+        try:
+            peakName = spectrumHandler.fitting.peak.name
+        except AttributeError:
+            peakName = self.DEF_LBL_CHARACTERISTIC
         self.lblCharacteristicValue.setText(peakName)
+
 
 
     def format_result(self, value:float)->str:
         try:
             return f"{value:8.4f}"
         except TypeError:
-            return None
+            return str(None)
 
     # Connect methods: Provides at least one event (signal) to connect to a
     # function

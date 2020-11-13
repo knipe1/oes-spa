@@ -29,6 +29,8 @@ class Peak(BasePeak):
     def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, normalizationOffset:float=None, **kwargs):
 
         super().__init__(centralWavelength, shiftUp, shiftDown)
+        if name is None:
+            raise ValueError ("Name cannot be None.")
         self.name = name
 
         self.set_normFactor(normalizationFactor)
