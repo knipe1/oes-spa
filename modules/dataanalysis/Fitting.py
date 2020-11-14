@@ -35,14 +35,6 @@ class Fitting():
     Contains information about characteristic values, names, peaks and the
     corresponding reference peaks.
 
-
-    Attributes
-    ----------
-
-
-    Methods
-    -------
-
     """
 
     # Load the configuration for fitting properties.

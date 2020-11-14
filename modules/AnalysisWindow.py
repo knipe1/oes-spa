@@ -32,6 +32,9 @@ from c_enum.ERROR_CODE import ERROR_CODE as ERR
 
 # constants
 
+# exceptions
+from exception.InvalidSpectrumError import InvalidSpectrumError
+
 
 class AnalysisWindow(QMainWindow):
     """
@@ -223,15 +226,16 @@ class AnalysisWindow(QMainWindow):
                 self.set_wavelength_from_file(file)
 
         basicSetting = self.window.get_basic_setting()
-        specHandler = SpectrumHandler(basicSetting, parameter=file.parameter)
-        errorcode = specHandler.analyse_data(file, basicSetting.selectedFitting)
-        if not errorcode:
+        try:
+            specHandler = SpectrumHandler(file, basicSetting, parameter=file.parameter)
+        except InvalidSpectrumError:
             if not silent:
                 dialog.critical_invalidSpectrum()
             return
 
+        specHandler.analyse_data(basicSetting.selectedFitting)
         self.update_spectra(specHandler)
-        self.activeFile = file;
+        self.activeFile = file
 
         self.show_wavelength_difference_information(file, basicSetting)
         self.window.set_results(specHandler)

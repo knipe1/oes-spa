@@ -32,6 +32,9 @@ from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
+# exceptions
+from exception.InvalidSpectrumError import InvalidSpectrumError
+
 
 class SpectrumHandler():
     """Handles and analyses spectra.
@@ -55,7 +58,7 @@ class SpectrumHandler():
     @rawData.setter
     def rawData(self, xyData:tuple)->None:
         self._rawData = xyData
-        # self._rawData = tuple_to_array(xyData)
+
 
     @property
     def rawXData(self)->np.ndarray:
@@ -85,15 +88,20 @@ class SpectrumHandler():
 
     ### dunder methods
 
-    def __init__(self, basicSetting:BasicSetting, **kwargs):
+    def __init__(self, file:FileReader, basicSetting:BasicSetting, **kwargs):
         # Set up the logger.
         self.logger = Logger(__name__)
 
-        parameter = kwargs.get("parameter", {})
+        if not file.is_valid_spectrum():
+            raise InvalidSpectrumError("File contain no valid spectrum.")
         self.basicSetting = basicSetting
+        parameter = kwargs.get("parameter", {})
 
         self.dispersion = self.determine_dispersion(parameter)
         self.integration = []
+
+        self.rawData = file.data
+        self.process_data()
 
         self.peakArea = None
         self.peakHeight = None
@@ -113,15 +121,15 @@ class SpectrumHandler():
         return self.__module__ + ":\n" + str(info)
 
 
-    def analyse_data(self, file:FileReader, fitting:Fitting)->ERR:
-        # Get raw data. Process data and calculate characteristic values.
-        errorcode = file.is_valid_spectrum()
-        if not errorcode:
-            self.logger.warning("Could not analyse spectrum.")
-            return errorcode
+    def analyse_data(self, fitting:Fitting)->ERR:
+        # # Get raw data. Process data and calculate characteristic values.
+        # errorcode = file.is_valid_spectrum()
+        # if not errorcode:
+        #     self.logger.warning("Could not analyse spectrum.")
+        #     return errorcode
 
-        self.rawData = file.data
-        self.process_data()
+        # # self.rawData = file.data
+        # self.process_data()
 
         # Find Peak and obtain height, area, and position
         self.fitting = fitting

@@ -47,6 +47,9 @@ from c_enum.SUFFICES import SUFFICES as SUFF
 # constants
 BATCH_SUFFIX = "." + SUFF.BATCH.value
 
+# exceptions
+from exception.InvalidSpectrumError import InvalidSpectrumError
+
 
 class BatchAnalysis(QDialog):
     """
@@ -279,16 +282,16 @@ class BatchAnalysis(QDialog):
     def analyze_single_file(self, filename:str)->None:
 
         self.currentFile = FileReader(filename)
-        errorcode = self.is_analyzable()
-        if not errorcode:
-            return errorcode
+        if not self.is_analyzable():
+            return
 
-        basicSetting, specHandler = self.prepare_analysis()
+        basicSetting = self.prepare_analysis()
+        try:
+            specHandler = SpectrumHandler(self.currentFile, basicSetting)
+        except InvalidSpectrumError:
+            return
 
         data, config = self.analyze_file(basicSetting, specHandler)
-        if not len(data):
-            return ERR.INVALID_DATA
-
         header = assemble_header(config)
         self.export_batch(data, header, isUpdate=True)
         self.import_batchfile(takeCurrentBatchfile=True)
@@ -308,7 +311,7 @@ class BatchAnalysis(QDialog):
         isExportBatch = self.window.get_export_batch() or isPlotTrace
 
         # Get characteristic values.
-        basicSetting, specHandler = self.prepare_analysis()
+        basicSetting = self.prepare_analysis()
 
         data = []
         skippedFiles = []
@@ -331,15 +334,18 @@ class BatchAnalysis(QDialog):
             file = files[i]
             self.currentFile = FileReader(file)
 
-            errorcode = self.is_analyzable()
-            if not errorcode:
-                skippedFiles.append(file)
-                continue
-
             if isExportBatch:
-                fileData, config = self.analyze_file(basicSetting, specHandler)
-                if not len(fileData):
+                if not self.is_analyzable():
+                    skippedFiles.append(file)
                     continue
+
+                try:
+                    specHandler = SpectrumHandler(self.currentFile, basicSetting)
+                except InvalidSpectrumError:
+                    skippedFiles.append(file)
+                    continue
+
+                fileData, config = self.analyze_file(basicSetting, specHandler)
                 data.extend(fileData)
 
             # Select by filename to trigger event based update of the plot.
@@ -378,23 +384,19 @@ class BatchAnalysis(QDialog):
     def is_analyzable(self)->ERR:
         file = self.currentFile
         filename = file.filename
-        if is_exported_spectrum(filename):
-            return ERR.INVALID_DATA
-
-        return file.is_valid_spectrum()
+        return not is_exported_spectrum(filename)
 
 
-    def prepare_analysis(self)->(BasicSetting, SpectrumHandler):
+    def prepare_analysis(self)->(BasicSetting):
         basicSetting = self.parent().window.get_basic_setting()
-        specHandler = SpectrumHandler(basicSetting)
-        return basicSetting, specHandler
+        return basicSetting
 
 
     def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->ERR:
         data = []
         config = retrieve_batch_config()
         for fitting in setting.checkedFittings:
-            isOk = specHandler.analyse_data(self.currentFile, fitting)
+            isOk = specHandler.analyse_data(fitting)
             if not isOk:
                 break
 
