@@ -121,16 +121,7 @@ class SpectrumHandler():
         return self.__module__ + ":\n" + str(info)
 
 
-    def analyse_data(self, fitting:Fitting)->ERR:
-        # # Get raw data. Process data and calculate characteristic values.
-        # errorcode = file.is_valid_spectrum()
-        # if not errorcode:
-        #     self.logger.warning("Could not analyse spectrum.")
-        #     return errorcode
-
-        # # self.rawData = file.data
-        # self.process_data()
-
+    def fit_data(self, fitting:Fitting)->ERR:
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
         if fitting is None or fitting.peak is None:
@@ -138,7 +129,6 @@ class SpectrumHandler():
 
         peak = fitting.peak
         self.peakName = peak.name
-
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
@@ -159,7 +149,7 @@ class SpectrumHandler():
         characteristicValue = None
         intAreas = []
 
-        if not hasattr(peak, "reference"):
+        if not hasattr(peak, "reference") or peak.reference is None:
             return characteristicValue, intAreas
 
         peakCharacteristics, _ = self.analyse_peak(peak)

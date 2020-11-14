@@ -25,7 +25,6 @@ Created on Fri Jan 27 2020
 import os
 
 # third-party libs
-from dependencies.natsort.natsort import natsorted
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -217,7 +216,7 @@ class UIMain(Ui_main):
         self.toutBaseline.setText(self.format_result(spectrumHandler.avgbase))
         self.toutCharacteristicValue.setText(self.format_result(spectrumHandler.characteristicValue))
         try:
-            peakName = spectrumHandler.fitting.peak.name
+            peakName = spectrumHandler.fitting.peak.name + ":"
         except AttributeError:
             peakName = self.DEF_LBL_CHARACTERISTIC
         self.lblCharacteristicValue.setText(peakName)

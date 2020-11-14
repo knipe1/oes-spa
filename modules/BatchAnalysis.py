@@ -383,8 +383,7 @@ class BatchAnalysis(QDialog):
 
     def is_analyzable(self)->ERR:
         file = self.currentFile
-        filename = file.filename
-        return not is_exported_spectrum(filename)
+        return not is_exported_spectrum(file.filename)
 
 
     def prepare_analysis(self)->(BasicSetting):
@@ -396,9 +395,7 @@ class BatchAnalysis(QDialog):
         data = []
         config = retrieve_batch_config()
         for fitting in setting.checkedFittings:
-            isOk = specHandler.analyse_data(fitting)
-            if not isOk:
-                break
+            specHandler.fit_data(fitting)
 
             # excluding file if no appropiate data given like in processed spectra.
             if not specHandler.has_valid_peak():
@@ -407,7 +404,6 @@ class BatchAnalysis(QDialog):
             config = self.map_spectrum_characteristics(specHandler)
             data.append(assemble_row(config))
         return data, config
-
 
 
     def import_batchfile(self, takeCurrentBatchfile=False):

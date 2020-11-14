@@ -233,7 +233,7 @@ class AnalysisWindow(QMainWindow):
                 dialog.critical_invalidSpectrum()
             return
 
-        specHandler.analyse_data(basicSetting.selectedFitting)
+        specHandler.fit_data(basicSetting.selectedFitting)
         self.update_spectra(specHandler)
         self.activeFile = file
 
