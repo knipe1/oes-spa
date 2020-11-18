@@ -37,7 +37,7 @@ def main():
     selectBatchfile = True
     selectBatchSpectra = True
     hideBatch = False
-    activateWD = False
+    activateWD = True
 
 
     # Setup GUI
@@ -99,7 +99,7 @@ def main():
         selection.start()
         window.batch.browse_spectra()
         window.batch.window.radTrace.click()
-        window.batch.window.btnCalculate.click()
+        # window.batch.window.btnCalculate.click()
 
     if hideBatch:
         window.batch.hide()

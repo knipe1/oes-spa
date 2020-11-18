@@ -10,6 +10,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 
+
 class SpectrumHandler(FileSystemEventHandler):
     def __init__(self, onModifiedMethod):
         super().__init__()

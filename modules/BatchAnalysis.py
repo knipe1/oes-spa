@@ -10,6 +10,8 @@ Created on Mon Jan 20 10:22:44 2020
 
 @author: Hauke Wernecke
 """
+from time import perf_counter
+
 
 # standard libs
 import numpy as np
@@ -233,7 +235,7 @@ class BatchAnalysis(QDialog):
             if not isOk:
                 return
             self.update_filelist([path])
-            self._files.select_row_by_filename(path)
+            # self._files.select_row_by_filename(path)
 
 
     def toggle_watchdog(self, status:bool)->None:
@@ -320,6 +322,8 @@ class BatchAnalysis(QDialog):
         amount = len(files)
         self.logger.info("No. of files %i:"%(amount))
 
+        before = perf_counter()
+
         for i in range(amount):
             config = retrieve_batch_config()
 
@@ -355,6 +359,13 @@ class BatchAnalysis(QDialog):
         if isExportBatch:
             header = assemble_header(config)
             self.export_batch(data, header)
+
+        after = perf_counter()
+        print()
+        print()
+        print("Elapsed: ", after-before)
+        print()
+        print()
 
         if isPlotTrace:
             self.import_batchfile(takeCurrentBatchfile=True)
