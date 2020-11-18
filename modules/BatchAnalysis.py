@@ -296,7 +296,7 @@ class BatchAnalysis(QDialog):
         data, config = self.analyze_file(basicSetting, specHandler)
         header = assemble_header(config)
         self.export_batch(data, header, isUpdate=True)
-        self.import_batchfile(takeCurrentBatchfile=True)
+        # self.import_batchfile(takeCurrentBatchfile=True)
         return ERR.OK
 
 
