@@ -108,6 +108,7 @@ class AnalysisWindow(QMainWindow):
     def connect_ui_events(self)->None:
         win = self.window
         win.connect_change_basic_settings(self.redraw)
+        win.connect_change_basic_settings(self.update_batch_setting)
         win.connect_export_raw(self.export_raw)
         win.connect_export_processed(self.export_processed)
         win.connect_open_file(self.file_open)
@@ -191,6 +192,11 @@ class AnalysisWindow(QMainWindow):
             dialog.information_exportFinished(exportedFilename)
         else:
             dialog.information_exportAborted()
+
+
+    def update_batch_setting(self)->None:
+        setting = self.window.get_basic_setting()
+        self.batch.set_setting(setting)
 
 
     def redraw(self, changedValue:str=None)->None:

@@ -398,7 +398,8 @@ class BatchAnalysis(QDialog):
 
 
     def prepare_analysis(self)->(BasicSetting):
-        basicSetting = self.parent().window.get_basic_setting()
+        # basicSetting = self.parent().window.get_basic_setting()
+        basicSetting = self.setting
         return basicSetting
 
 
@@ -471,6 +472,10 @@ class BatchAnalysis(QDialog):
             exportWriter.extend_data(data, header)
         else:
             exportWriter.export(data, header)
+
+
+    def set_setting(self, setting:BasicSetting)->None:
+        self.setting = setting
 
 
 
