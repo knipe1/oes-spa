@@ -39,10 +39,10 @@ def main():
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = True
-    selectBatchfile = False
-    selectBatchSpectra = False
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
-    activateWD = False
+    activateWD = True
 
 
     # Setup GUI

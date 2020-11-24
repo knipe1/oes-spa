@@ -271,39 +271,30 @@ class BatchAnalysis(QDialog):
             self.deactivate_watchdog()
 
 
+    def has_valid_WD_settings(self)->bool:
+        isWDdir = path.isdir(self.WDdirectory) or self.logger.info("Invalid WD directory!")
+        batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
+        isBatchdir = path.isdir(batchPath) or self.logger.info("Invalid batch directory!")
+        return (isWDdir and isBatchdir)
+
+
     def activate_watchdog(self)->None:
         """
         Activates the WD if corresponding paths are valid.
 
         """
-
-        isValid = True
-        # Prequerities given if WDpath and batchpath are defined.
-        WDpath = self.WDdirectory
-        if not path.isdir(WDpath):
-            self.logger.warning("WDpath not defined: %s"%(WDpath))
-            isValid = False
-
-        batchPath = QFileInfo(self.batchFile).path()
-        if not path.isdir(batchPath):
-            self.logger.warning("batchPath not defined: %s"%(batchPath))
-            isValid = False
-
-        if not isValid:
+        if not self.has_valid_WD_settings():
             self.window.btnWatchdog.setChecked(False)
             return
 
-        try:
-            # Start WD for batchfile
-            self.dog.start(WDpath)
-
-            # Start WD for spectra directory (if they differ).
-            if not (WDpath == batchPath):
-                self.dog.start(batchPath)
-
-            self.window.enable_WD(False)
-        except AttributeError:
-            self.logger.error("Error: No dog initialized!")
+        WDpath = self.WDdirectory
+        batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
+        paths = [WDpath]
+        isSameDirectory = (WDpath == batchPath)
+        if not isSameDirectory:
+            paths.append(batchPath)
+        self.dog.start(paths)
+        self.window.enable_WD(False)
 
 
     def deactivate_watchdog(self)->None:
