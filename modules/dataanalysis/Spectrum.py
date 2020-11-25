@@ -142,6 +142,7 @@ class Spectrum():
             else:
                 self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
+
         self.plot_spectrum()
 
 
@@ -154,6 +155,10 @@ class Spectrum():
         """Inits the plots in the ui element regarding e.g. labels."""
         self.reset_plot()
         self.ui.axes.update_layout(**self.labels)
+        import numpy as np; bande = np.loadtxt("./sample files/CH-Peaks2.dat");
+        bande[:,0] = bande[:,0]/10
+        # bande[:,1] = bande[:,1]/100
+        self.ui.axes.plot(bande[:,0], bande[:,1])
 
 
     def reset_plot(self)->None:

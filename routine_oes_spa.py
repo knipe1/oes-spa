@@ -31,21 +31,30 @@ def main():
     # False
 
     initialSpkLoad = True
+    initialAscLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    showBatch = False
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
-    activateWD = True
+    activateWD = False
+
+    test_calibration = True
 
 
     # Setup GUI
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
+    if test_calibration:
+        window.window.wavelength = "388"
+
+
     # automatic open and close routine
     if initialSpkLoad:
+        window.apply_file("./sample files/Obel276/Obelix276 40.Spk")
+    if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 
     if tryDifferentFiles:
