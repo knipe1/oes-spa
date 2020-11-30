@@ -13,7 +13,7 @@ try:
     da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 except FileNotFoundError:
     pass
-import mne
+
 
 # third-party libs
 import emulator as emu
@@ -38,11 +38,11 @@ def main():
     initialSpkLoad = True
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    showBatch = False
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
-    activateWD = True
+    activateWD = False
 
 
     # Setup GUI
