@@ -14,7 +14,7 @@ FITTING:
   - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Nitrogen Peak Fitting
+  PRESELECT_FITTING: Methan Peak Fitting
 GENERAL:
   LOG_FILE: debug.log
 PLOT:
