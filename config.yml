@@ -14,14 +14,8 @@ FITTING:
   - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-<<<<<<< HEAD
-  fittingName: Example (No peak)
-GENERAL:
-  INITIAL_DIR: ./sample files
-=======
   PRESELECT_FITTING: Methan Peak Fitting
 GENERAL:
->>>>>>> WER_overview
   LOG_FILE: debug.log
 PLOT:
   BASELINE_COLOR: b

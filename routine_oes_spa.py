@@ -54,7 +54,7 @@ def main():
 
     # automatic open and close routine
     if initialSpkLoad:
-        window.apply_file("./sample files/Obel276/Obelix276 40.Spk")
+        window.apply_file("./sample files/Obel276/Obelix276 1 .Spk")
     if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 
