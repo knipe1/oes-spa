@@ -282,12 +282,15 @@ class BatchAnalysis(QDialog):
     def analyze_single_file(self, filename:str)->None:
 
         self.currentFile = FileReader(filename)
+        print("TEST 1")
         if not self.is_analyzable():
             return
+        print("TEST 2")
 
         basicSetting = self.prepare_analysis()
         try:
             specHandler = SpectrumHandler(self.currentFile, basicSetting)
+            print("TEST 3")
         except InvalidSpectrumError:
             return
 

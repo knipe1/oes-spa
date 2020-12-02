@@ -23,8 +23,4 @@ PEAKS:
         shiftDown: .3
         shiftUp:  .4
         # Minimum to use the peak.
-<<<<<<< HEAD:fittings/example.yml
         minimumHeight: 0.00002
-=======
-        minimumHeight: 0.00002
->>>>>>> WER_overview:fittings/example_fitting.yml

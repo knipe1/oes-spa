@@ -21,15 +21,7 @@ class SpectrumHandler(FileSystemEventHandler):
         if event.is_directory:
             return
 
-        try:
-            self.onModifiedMethod(event.src_path)
-        except Exception as ex:
-            filename = ".wderror"
-            with open(filename, 'w') as f:
-                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-                message = template.format(type(ex).__name__, ex.args)
-                f.writerow([message])
-
+        self.onModifiedMethod(event.src_path)
 
 
 

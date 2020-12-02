@@ -132,6 +132,9 @@ class FileReader(FileFramework):
         super().__init__(filename, name=__name__)
         self.set_defaults()
         self.subReader = self.determine_subReader()
+        if self.subReader is None:
+            self.logger.info("No valid file: {self.filename}")
+            return
 
         self.__post_init__(**kwargs)
         self.logger.info("Read file: " + self.filename)
@@ -210,14 +213,6 @@ class FileReader(FileFramework):
 
     def is_valid_batchfile(self)->ERR:
         return self.has_valid_frame()
-        # errorcode = self.has_valid_frame()
-        # if not errorcode:
-        #     return errorcode
-
-        # # if not isinstance(self.xData[0], datetime):
-        # #     return ERR.INVALID_BATCHFILE
-
-        # return ERR.OK
 
 
     def has_valid_frame(self):
