@@ -3,29 +3,41 @@ BATCH:
   INDEX_FORMAT: 4d
   SEPARATOR: ':'
 FITTING:
+  CHECKED_FITTINGS:
+  - Boron Peak Fitting
+  - Example (Invalid Ref.)
+  - Example (Invalid peak)
+  - Example (No peak)
+  - Example (No reference)
+  - Example Fitting
+  - Methan Peak Fitting
+  - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
+<<<<<<< HEAD
   fittingName: Example (No peak)
 GENERAL:
   INITIAL_DIR: ./sample files
+=======
+  PRESELECT_FITTING: Methan Peak Fitting
+GENERAL:
+>>>>>>> WER_overview
   LOG_FILE: debug.log
 PLOT:
+  BASELINE_COLOR: b
+  BASELINE_LABEL: Baseline
   BATCH_DATA_COLOR: k
   BATCH_DATA_LABEL: Characteristic
   BATCH_X_LABEL: Time / h
   BATCH_Y_LABEL: Characteristic / a.u.
+  DATA_COLOR: r
   DEF_AXIS_COLOR: '0.2'
   DEF_LINEWIDTH: 0.8
   INT_PEAK_COLOR: g
   INT_REF_COLOR: b
-  PROCESSED_DATA_COLOR: r
   PROCESSED_DATA_LABEL: Processed Spectrum
   PROCESSED_X_LABEL: Wavelength / nm
   PROCESSED_Y_LABEL: Intensity / a.u.
-  RAW_BASELINE_COLOR: b
-  RAW_BASELINE_LABEL: Baseline
-  RAW_BASELINE_STYLE: --
-  RAW_DATA_COLOR: r
   RAW_DATA_LABEL: Raw Spectrum
   RAW_X_LABEL: Pixel
   RAW_Y_LABEL: Intensity / a.u.

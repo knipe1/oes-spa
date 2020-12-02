@@ -55,8 +55,9 @@ class BaseReader(FileFramework):
 
     ### __Methods__
 
-    def __init__(self):
-        super().__init__(filename=None)
+    def __init__(self, **kwargs):
+        name = kwargs.get("name", __name__)
+        super().__init__(filename=None, name=name)
         self.set_defaults()
 
     ### methods
@@ -69,33 +70,40 @@ class BaseReader(FileFramework):
         self.yColumn = None
         # subKwargs
         self.subKwargs = {}
+        self.data = []
+
+
+    def add_xy_to_data(self, xy):
+        self.data.append(xy)
 
     def readout_file(self, fReader, **kwargs)->dict:
 
         marker = self.MARKER["HEADER"]
 
-        data = []
+        # data = []
         parameter = {}
 
         for line in fReader:
             markerElement, xDataElement, yDataElement = self.get_information(line)
 
             if self.is_data(xDataElement, yDataElement):
-                data.append((xDataElement, yDataElement))
+                # data.append((xDataElement, yDataElement))
+                self.add_xy_to_data((xDataElement, yDataElement))
             elif self.contain_marker(marker, markerElement):
                 timeInfo = self.get_time_info(markerElement)
             else:
                 self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
 
         try:
-            information = self.join_information(timeInfo, data, parameter)
+            information = self.join_information(timeInfo, self.data, parameter)
+            # information = self.join_information(timeInfo, data, parameter)
         except UnboundLocalError:
             information = self.join_information(None, None)
 
         return information
 
 
-    def handle_additional_information(self, **kwargs):
+    def handle_additional_information(self, **kwargs)->None:
         # No additional information by default. Child classes can introduce specific methods.
         return
 
@@ -105,7 +113,7 @@ class BaseReader(FileFramework):
             markerElement = line[0]
         except IndexError:
             # Skip blank lines
-            return (None, None, None)
+            markerElement = None
 
         try:
             xDataElement = line[self.xColumn]
@@ -119,7 +127,8 @@ class BaseReader(FileFramework):
 
     def join_information(self, timeInfo:str, data:list, parameter:dict=None)->dict:
 
-        data = self.list_to_2column_array(data)
+        if data is not None:
+            data = self.list_to_2column_array(data)
 
         information = {}
         information["timeInfo"] = timeInfo
@@ -138,7 +147,7 @@ class BaseReader(FileFramework):
         except IndexError:
             self.logger.warning("No valid x- and y-data given. Empty data?!")
         except:
-            return
+            return None
 
         return xyData
 

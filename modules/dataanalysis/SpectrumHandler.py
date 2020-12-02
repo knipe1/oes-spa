@@ -20,16 +20,20 @@ import peakutils as pkus
 # local modules/libs
 from Logger import Logger
 import modules.Universal as uni
+from modules.dataanalysis.Fitting import Fitting
 from modules.filehandling.filereading.FileReader import FileReader
-from custom_types.BasicSetting import BasicSetting
+from c_types.BasicSetting import BasicSetting
 
 # enums
-from custom_types.Integration import Integration
-from custom_types.Peak import Peak
-from custom_types.ASC_PARAMETER import ASC_PARAMETER as ASC
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
-from custom_types.ERROR_CODE import ERROR_CODE as ERR
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from c_types.Integration import Integration
+from c_types.Peak import Peak
+from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
+
+# exceptions
+from exception.InvalidSpectrumError import InvalidSpectrumError
 
 
 class SpectrumHandler():
@@ -53,7 +57,16 @@ class SpectrumHandler():
 
     @rawData.setter
     def rawData(self, xyData:tuple)->None:
-        self._rawData = tuple_to_array(xyData)
+        self._rawData = xyData
+
+
+    @property
+    def rawXData(self)->np.ndarray:
+        return self.rawData[:, 0]
+
+    @property
+    def rawYData(self)->np.ndarray:
+        return self.rawData[:, 1]
 
 
     @property
@@ -64,17 +77,38 @@ class SpectrumHandler():
     def procData(self, xyData:tuple)->None:
         self._processedData = tuple_to_array(xyData)
 
+    @property
+    def procXData(self)->np.ndarray:
+        return self.procData[:, 0]
+
+    @property
+    def procYData(self)->np.ndarray:
+        return self.procData[:, 1]
+
 
     ### dunder methods
 
-    def __init__(self, basicSetting, **kwargs):
+    def __init__(self, file:FileReader, basicSetting:BasicSetting, **kwargs):
         # Set up the logger.
         self.logger = Logger(__name__)
 
-        parameter = kwargs.get("parameter", {})
+        if not file.is_valid_spectrum():
+            raise InvalidSpectrumError("File contain no valid spectrum.")
         self.basicSetting = basicSetting
+        parameter = kwargs.get("parameter", {})
 
         self.dispersion = self.determine_dispersion(parameter)
+        self.integration = []
+
+        self.rawData = file.data
+        self.process_data()
+
+        self.peakArea = None
+        self.peakHeight = None
+        self.peakName = None
+        self.peakPosition = None
+        self.avgbase = None
+        self.characteristicValue = None
 
 
     def __repr__(self):
@@ -87,18 +121,14 @@ class SpectrumHandler():
         return self.__module__ + ":\n" + str(info)
 
 
-    def analyse_data(self, file:FileReader)->ERR:
-        # Get raw data. Process data and calculate characteristic values.
-        errorcode = file.is_valid_spectrum()
-        if not errorcode:
-            self.logger.warning("Could not analyse spectrum.")
-            return errorcode
-
-        self.rawData = file.data
-        self.procData, self.baseline, self.avgbase = process_data(self.rawData, self.basicSetting, self.dispersion)
-
+    def fit_data(self, fitting:Fitting)->ERR:
         # Find Peak and obtain height, area, and position
-        peak = self.basicSetting.fitting.peak
+        self.fitting = fitting
+        if fitting is None or fitting.peak is None:
+            return ERR.OK
+
+        peak = fitting.peak
+        self.peakName = peak.name
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
@@ -119,7 +149,7 @@ class SpectrumHandler():
         characteristicValue = None
         intAreas = []
 
-        if not hasattr(peak, "reference"):
+        if not hasattr(peak, "reference") or peak.reference is None:
             return characteristicValue, intAreas
 
         peakCharacteristics, _ = self.analyse_peak(peak)
@@ -129,13 +159,12 @@ class SpectrumHandler():
         refHeight = refCharacteristic[CHC.PEAK_HEIGHT]
         refArea = refCharacteristic[CHC.PEAK_AREA]
 
-
         # Set the type for these integration areas.
         integrationAreas = self.set_type_to_reference(refIntegrationAreas)
         intAreas = integrationAreas.values()
 
         # Validation
-        if refHeight >= peak.reference.minimum:
+        if refHeight >= peak.reference.minimumHeight:
             ratio = peakArea / refArea
             characteristicValue = ratio * peak.normalizationFactor + peak.normalizationOffset
         else:
@@ -156,15 +185,12 @@ class SpectrumHandler():
             Defines the values for the analysis of the peak.
 
         """
-        procXData, procYData = self.procData[:, 0], self.procData[:, 1]
+        integrationRange = self.get_integration_range(peak)
+        self.analyze_peak_characteristics(integrationRange)
 
-        integrationRange = self.get_integration_range(procXData, peak)
-        xPeak, yPeak, peakArea = self.get_peak_characteristics(procXData, procYData, integrationRange)
-
-        characteristics = {}
-        characteristics[CHC.PEAK_POSITION] = xPeak
-        characteristics[CHC.PEAK_HEIGHT] = yPeak
-        characteristics[CHC.PEAK_AREA] = peakArea
+        characteristics = {CHC.PEAK_POSITION: self.peakPosition,
+                           CHC.PEAK_HEIGHT: self.peakHeight,
+                           CHC.PEAK_AREA: self.peakArea,}
 
         # Determine integration areas.
         integrationRaw = Integration(self.rawData[integrationRange])
@@ -175,15 +201,16 @@ class SpectrumHandler():
         return characteristics, integrationAreas
 
 
-    def get_integration_range(self, procXData:np.ndarray, peak:Peak):
+    def get_integration_range(self, peak:Peak)->range:
         lowerLimit = peak.centralWavelength - peak.shiftDown
         upperLimit = peak.centralWavelength + peak.shiftUp
 
-        idxBorderRight = np.abs(procXData - upperLimit).argmin()
-        idxBorderLeft = np.abs(procXData - lowerLimit).argmin()
+        xData = self.procXData
+        idxBorderRight = np.abs(xData - upperLimit).argmin()
+        idxBorderLeft = np.abs(xData - lowerLimit).argmin()
 
         isBelowSpectrum = (idxBorderRight == 0)
-        isAboveSpectrum = (idxBorderLeft == 0)
+        isAboveSpectrum = (idxBorderLeft == idxBorderRight)
         if isBelowSpectrum or isAboveSpectrum:
             return range(0)
 
@@ -191,24 +218,28 @@ class SpectrumHandler():
         return integrationRange
 
 
-    def get_peak_characteristics(self, procXData:np.ndarray, procYData:np.ndarray, integrationRange:range):
+    def analyze_peak_characteristics(self, integrationRange:range)->None:
+
+        procXData, procYData = self.procXData, self.procYData
 
         # Get the highest Peak in the integration area.
         try:
             idxPeak = procYData[integrationRange].argmax() + integrationRange[0]
         except ValueError:
-            return 0.0, 0.0, 0.0
+            self.peakArea = 0.0
+            self.peakHeight = 0.0
+            self.peakPosition = 0.0
+            return
 
-        xPeak = procXData[idxPeak]
-        yPeak = procYData[idxPeak]
+        self.peakPosition = procXData[idxPeak]
+        self.peakHeight = procYData[idxPeak]
 
         # getting all wavelength(x) and the intensities(y)
         peakAreaX = procXData[integrationRange]
         peakAreaY = procYData[integrationRange]
         # Integrate along the given axis using the composite trapezoidal rule.
-        peakArea = np.trapz(peakAreaY, peakAreaX)
-
-        return xPeak, yPeak, peakArea
+        self.peakArea = np.trapz(peakAreaY, peakAreaX)
+        return
 
 
     def get_integration_areas(self):
@@ -236,51 +267,69 @@ class SpectrumHandler():
             dispersion = 12.04391 / parameter[ASC.GRAT]
         except KeyError:
             # 12.042204 -> analysed with asc-data
-            dispersion = 12.042204 / self.basicSetting.grating
+            # dispersion = 12.042204 / self.basicSetting.grating
+            dispersion = 0.005017585
         return dispersion
 
 
-def process_data(rawData:np.ndarray, setting:BasicSetting, dispersion:float):
-    """Processes the raw data with regard to the given wavelength and the dispersion."""
-    procXData = process_x_data(rawData[:, 0], setting.wavelength, dispersion)
-    procYData, baseline, avgbase = process_y_data(rawData[:, 1], setting.baselineCorrection)
-    return (procXData, procYData), baseline, avgbase
+    def has_valid_peak(self):
+        try:
+            return (self.peakHeight != 0.0)
+        except AttributeError:
+            return False
 
 
-def process_x_data(rawXData:np.ndarray, centralWavelength:float, dispersion:float):
-    """Assigns wavelength to the recorded Pixels """
-
-    # Center of the xData. Used for shifting the data.
-    center = rawXData[len(rawXData) // 2 - 1]     # offset of python lists.
-
-    xDataArePixel = uni.data_are_pixel(rawXData)
-    # The difference is 1 if pixels are recorded. Data with a smaller difference contain wavelength data.
-    if xDataArePixel:
-        # Employs the dispersion to convert pixel to wavelength
-        start = centralWavelength - center*dispersion
-        shiftedData = rawXData*dispersion + start
-    else:
-        # Only shift the original data to the given centralWavelength
-        shift = centralWavelength - center
-        shiftedData = rawXData + shift
-
-    return shiftedData
+    def process_data(self)->None:
+        """Processes the raw data with regard to the given wavelength and the dispersion."""
+        procXData = self.process_x_data()
+        procYData, self.baseline, self.avgbase = self.process_y_data()
+        self.procData = (procXData, procYData)
 
 
-def process_y_data(rawYData:np.ndarray, baselineCorrection:bool):
-    # Baseline fitting with peakutils.
-    # TODO: what is calculated here? @knittel/@reinke
-    # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
-    baseline = pkus.baseline(rawYData)
-    avgbase = np.mean(baseline)
+    def process_x_data(self)->np.ndarray:
+        """Assigns wavelength to the recorded Pixels """
 
-    # Shifting y data and normalization to average baseline intensity.
-    if baselineCorrection:
-        shiftedYdata = rawYData - baseline
-    else:
-        shiftedYdata = rawYData
-    processedYdata = shiftedYdata / abs(avgbase)
-    return processedYdata, baseline, avgbase
+        # Center of the xData. Used for shifting the data.
+        rawXData = self.rawXData
+        center = rawXData[len(rawXData) // 2 - 1]     # offset of python lists.
+
+        centralWavelength = self.basicSetting.wavelength
+        xDataArePixel = uni.data_are_pixel(rawXData)
+        if xDataArePixel:
+            # Employs the dispersion to convert pixel to wavelength
+            start = centralWavelength - center*self.dispersion
+            shiftedData = rawXData*self.dispersion + start
+        else:
+            # Only shift the original data to the given centralWavelength
+            shift = centralWavelength - center
+            shiftedData = rawXData + shift
+
+        return shiftedData
+
+
+    def process_y_data(self):
+        # Baseline fitting with peakutils.
+        # TODO: what is calculated here? @knittel/@reinke
+        # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
+        rawYData = self.rawYData
+        baseline = pkus.baseline(rawYData)
+        avgbase = np.mean(baseline)
+
+        # Shifting y data and normalization to average baseline intensity.
+        correctBaseline = self.basicSetting.baselineCorrection
+        if correctBaseline:
+            shiftedYdata = rawYData - baseline
+        else:
+            shiftedYdata = rawYData
+
+        normalizeData = self.basicSetting.normalizeData
+        if normalizeData:
+            processedYdata = shiftedYdata / abs(avgbase)
+        else:
+            processedYdata = shiftedYdata
+
+
+        return processedYdata, baseline, avgbase
 
 
 def tuple_to_array(data:tuple)->np.ndarray:

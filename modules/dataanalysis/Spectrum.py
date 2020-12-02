@@ -9,7 +9,6 @@ Created on Sat Apr 25 2020
 
 # standard libs
 import numpy as np
-from datetime import datetime
 
 # third-party libs
 
@@ -17,12 +16,13 @@ from datetime import datetime
 from ConfigLoader import ConfigLoader
 from Logger import Logger
 import modules.Universal as uni
+from ui.matplotlibwidget import MatplotlibWidget
 
 
 # Enums
-from custom_types.Integration import Integration
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_types.Integration import Integration
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 
 class Spectrum():
@@ -33,7 +33,6 @@ class Spectrum():
         from modules.dataanalysis.Spectrum import Spectrum
         spectrum = Spectrum(matplotlibwidget, EXPORT_TYPE)
         spectrum.update_data(data)
-        spectrum.plot_spectrum()
 
     """
     # Load the configuration for plotting properties.
@@ -43,64 +42,68 @@ class Spectrum():
     BASELINE = "baseline"
 
     @property
-    def data(self):
+    def data(self)->np.ndarray:
         return self._data
 
     @data.setter
-    def data(self, xyData):
-        self._data = np.array(xyData).transpose()
+    def data(self, xyData)->None:
+        self._data = np.array(xyData)
 
     @property
-    def xData(self):
-        return self._data[:, 0]
+    def xData(self)->np.ndarray:
+        return self.data[:, 0]
 
     @property
-    def yData(self):
-        return self._data[:, 1]
+    def yData(self)->np.ndarray:
+        return self.data[:, 1]
 
     @classmethod
-    def get_labels(cls, exportType):
+    def get_labels(cls, exportType:EXPORT_TYPE)->dict:
         """Get the labels according to the export type."""
         if exportType == EXPORT_TYPE.RAW:
-            labels = {"xLabel":cls.PLOT["RAW_X_LABEL"],
-                      "yLabel":cls.PLOT["RAW_Y_LABEL"]}
+            xLabel = cls.PLOT["RAW_X_LABEL"]
+            yLabel = cls.PLOT["RAW_Y_LABEL"]
         elif exportType == EXPORT_TYPE.PROCESSED:
-            labels = {"xLabel":cls.PLOT["PROCESSED_X_LABEL"],
-                      "yLabel":cls.PLOT["PROCESSED_Y_LABEL"]}
+            xLabel = cls.PLOT["PROCESSED_X_LABEL"]
+            yLabel = cls.PLOT["PROCESSED_Y_LABEL"]
         elif exportType == EXPORT_TYPE.BATCH:
-            labels = {"xLabel":cls.PLOT["BATCH_X_LABEL"],
-                      "yLabel":cls.PLOT["BATCH_Y_LABEL"]}
+            xLabel = cls.PLOT["BATCH_X_LABEL"]
+            yLabel = cls.PLOT["BATCH_Y_LABEL"]
+        labels = {"xLabel": xLabel, "yLabel": yLabel}
         return labels
 
 
     @classmethod
-    def get_markup(cls, exportType):
+    def get_markup(cls, exportType:EXPORT_TYPE)->dict:
         """Get the markup according to the export type."""
         if exportType == EXPORT_TYPE.RAW:
-            markup = {"color": cls.PLOT["RAW_DATA_COLOR"],
-                      "label": cls.PLOT["RAW_DATA_LABEL"]}
+            color = cls.PLOT["DATA_COLOR"]
+            label = cls.PLOT["RAW_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.PROCESSED:
-            markup = {"color": cls.PLOT["PROCESSED_DATA_COLOR"],
-                      "label": cls.PLOT["PROCESSED_DATA_LABEL"]}
+            color = cls.PLOT["DATA_COLOR"]
+            label = cls.PLOT["PROCESSED_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.BATCH:
-            markup = {"color": cls.PLOT["BATCH_DATA_COLOR"],
-                      "label": cls.PLOT["BATCH_DATA_LABEL"]}
+            color = None
+            label = cls.PLOT["BATCH_DATA_LABEL"]
         elif exportType == cls.BASELINE:
-            markup = {"color": cls.PLOT["RAW_BASELINE_COLOR"],
-                      "linestyle": cls.PLOT["RAW_BASELINE_STYLE"],
-                      "label": cls.PLOT["RAW_BASELINE_LABEL"]}
+            color = cls.PLOT["BASELINE_COLOR"]
+            label = cls.PLOT["BASELINE_LABEL"]
+        markup = {"color": color, "label": label}
         return markup
 
 
-    def __init__(self, uiElement, exportType):
+    ## dunder methods
+
+    def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE, **kwargs)->None:
         # Set up the logger.
-        self.logger = Logger(__name__)
+        name = kwargs.get("name", __name__)
+        self.logger = Logger(name)
 
         self.ui = uiElement
         self.exportType = exportType
 
-        self.labels = self.get_labels(exportType)
-        self.markup = self.get_markup(exportType)
+        self.labels = self.get_labels(self.exportType)
+        self.markup = self.get_markup(self.exportType)
 
 
     def __repr__(self):
@@ -110,17 +113,19 @@ class Spectrum():
         info["labels"] = self.labels
         info["markup"] = self.markup
         info["has Baseline"] = self.hasattr("baseline")
-        info["data length"] = "X:{}, Y:{}".format(len(self.xData), len(self.yData))
+        info["data length"] = "X:%i, Y:%i"%(len(self.xData), len(self.yData))
         return self.__module__ + ":\n" + str(info)
 
 
-    def add_baseline(self, baseline):
+    ## methods
+
+    def add_baseline(self, baselineData:np.ndarray)->None:
         """Adds the baseline of a spectrum as property (to plot)."""
-        self.baseline = baseline;
+        self.baseline = baselineData;
         self.baselineMarkup = self.get_markup(self.BASELINE)
 
 
-    def update_data(self, xyData, integrationAreas:list=None, baselineData=None):
+    def update_data(self, xyData:np.ndarray, integrationAreas:list=None, baselineData:np.ndarray=None)->None:
         """
         Updates the data of the spectrum.
 
@@ -128,7 +133,7 @@ class Spectrum():
         """
         self.data = xyData
         self.integrationAreas = integrationAreas or []
-        if not baselineData is None:
+        if baselineData is not None:
             self.add_baseline(baselineData)
 
         if self.exportType == EXPORT_TYPE.RAW :
@@ -138,31 +143,27 @@ class Spectrum():
                 self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
 
-    def set_custom_y_label(self, label):
-        arbitraryUnit = " / a. u."
-        self.labels["yLabel"] = label + arbitraryUnit
-        self.markup["label"] = label
-        self.ui.axes.update_layout(**self.labels)
+        self.plot_spectrum()
 
 
-    def plot_spectrum(self):
+    def plot_spectrum(self)->None:
         self.init_plot()
         self.update_plot()
 
 
-    def init_plot(self):
+    def init_plot(self)->None:
         """Inits the plots in the ui element regarding e.g. labels."""
         self.reset_plot()
         self.ui.axes.update_layout(**self.labels)
 
 
-    def reset_plot(self):
+    def reset_plot(self)->None:
         self.ui.axes.clear()
         self.ui.axes.axhline()
         self.ui.axes.axvline()
 
 
-    def update_plot(self):
+    def update_plot(self)->None:
         """Updates the plots in the ui element."""
 
         self.ui.axes.plot(self.xData, self.yData, **self.markup);
@@ -172,69 +173,31 @@ class Spectrum():
         self.ui.draw()
 
 
-    def center_plot(self):
-        """Centers the plot"""
+    def center_plot(self)->None:
         leftLimit = self.xData[0]
         rightLimit = self.xData[-1]
-        try:
+        isSingleValue = (leftLimit == rightLimit)
+        if not isSingleValue:
             self.ui.axes.update_layout(xLimit=(leftLimit, rightLimit));
-        except:
-            pass
 
 
-    def plot_baseline(self):
+    def plot_baseline(self)->None:
         try:
             self.ui.axes.plot(self.xData, self.baseline, **self.baselineMarkup);
-        except:
+        except AttributeError:
             self.logger.info("Could not plot baseline.")
 
 
-    def plot_integration_areas(self):
+    def plot_integration_areas(self)->None:
         for intArea in self.integrationAreas:
             col = self.determine_color(intArea)
             self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
 
 
-    def determine_color(self, integrationArea:Integration):
+    def determine_color(self, integrationArea:Integration)->str:
         peakColor = self.PLOT["INT_PEAK_COLOR"]
         referenceColor = self.PLOT["INT_REF_COLOR"]
-
-        col = peakColor if integrationArea.peakType == CHC.TYPE_PEAK else referenceColor
+        isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
+        col = peakColor if isPeakType else referenceColor
         return col
-
-
-    ## Recording
-
-
-    def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime):
-        relativeTime = self.get_timediff_H(timestamp)
-        reducedFilename = ''.join(uni.reduce_path([filename]))
-        self.remove_recording()
-        markup = {"color": self.PLOT["REFERENCE_COLOR"],
-                  "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
-                  "label": reducedFilename,}
-        self.recordingPlot = self.ui.axes.axvline(x=relativeTime, **markup)
-        self.ui.draw()
-
-
-    def remove_recording(self):
-        try:
-            self.recordingPlot.remove()
-        except AttributeError:
-            pass
-
-
-    ## Calculation
-
-
-    def get_timediff_H(self, timestamp):
-        try:
-            refTime = self.referenceTime
-        except AttributeError:
-            refTime = timestamp
-            self.referenceTime = refTime
-
-        diffTime = uni.convert_to_hours(timestamp - refTime)
-
-        return diffTime
 

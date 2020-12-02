@@ -1,0 +1,13 @@
+NAME: "Methan Peak Fitting"
+PEAKS:
+    name: "CN Peak"
+    centralWavelength: 388.3
+    shiftDown: .4
+    shiftUp:  .2
+    normalizationFactor: 12.5
+    normalizationOffset: 1
+    reference:
+        centralWavelength: 388.86
+        shiftDown: .3
+        shiftUp:  .3
+        minimumHeight: 0.01

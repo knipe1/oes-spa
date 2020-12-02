@@ -17,10 +17,10 @@ Created on Thu Apr  9 10:51:31 2020
 # local modules/libs
 from ConfigLoader import ConfigLoader
 from Logger import Logger
-from custom_types.Peak import Peak
+from c_types.Peak import Peak
 
 # Enums
-from custom_types.ERROR_FITTING import ERROR_FITTING as ERR_FIT
+from c_enum.ERROR_FITTING import ERROR_FITTING as ERR_FIT
 
 
 # constants
@@ -35,14 +35,6 @@ class Fitting():
     Contains information about characteristic values, names, peaks and the
     corresponding reference peaks.
 
-
-    Attributes
-    ----------
-
-
-    Methods
-    -------
-
     """
 
     # Load the configuration for fitting properties.
@@ -53,14 +45,13 @@ class Fitting():
     ### Properties
 
     @property
-    def peak(self) -> Peak:
+    def peak(self)->Peak:
         return self._peak
 
     @peak.setter
-    def peak(self, peak):
+    def peak(self, peak)->None:
         self.set_peak_reference(peak)
         self._peak = peak
-        return
 
 
     @property

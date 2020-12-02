@@ -11,10 +11,10 @@ Created on Fri Feb 21 09:14:12 2020
 
 
 # third-party libs
-from pynput.keyboard import Key, Controller
 from time import sleep
+from pynput.keyboard import Key, Controller
 
-PAUSE = 2.;
+PAUSE = 3
 
 
 def key_accept():
@@ -32,6 +32,7 @@ def key_accept():
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
 
+
 def key_reject():
     """
     Emulates a esc-key press after a pause.
@@ -46,6 +47,7 @@ def key_reject():
     sleep(PAUSE)
     keyboard.press(Key.esc)
     keyboard.release(Key.esc)
+
 
 def key_alt_j():
     """
@@ -65,6 +67,7 @@ def key_alt_j():
         keyboard.press("y")
         keyboard.release("y")
 
+
 def key_alt_s():
     """
     Emulates a alt+s press after a pause.
@@ -76,10 +79,11 @@ def key_alt_s():
 
     """
     keyboard = Controller()
-    sleep(3*PAUSE)
+    sleep(PAUSE)
     with keyboard.pressed(Key.alt):
         keyboard.press("s")
         keyboard.release("s")
+
 
 def key_select_file(iterations):
     """
@@ -92,7 +96,7 @@ def key_select_file(iterations):
 
     """
     keyboard = Controller()
-    sleep(PAUSE)
+    sleep(2*PAUSE)
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)
@@ -100,18 +104,18 @@ def key_select_file(iterations):
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
     # linux (next 3 linies not outcommented)
+    # keyboard.press(Key.down)
+    # keyboard.release(Key.down)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
     sleep(2*PAUSE)
 
     # keyboard.press(Key.down)
     # keyboard.release(Key.down)
-    # keyboard.press(Key.down)
-    # keyboard.release(Key.down)
     keyboard.press(Key.down)
     keyboard.release(Key.down)
     with keyboard.pressed(Key.shift_l):
-        for i in range(iterations):
+        for _ in range(iterations):
             keyboard.press(Key.down)
             keyboard.release(Key.down)
         keyboard.press(Key.up)
@@ -125,15 +129,15 @@ def key_select_file(iterations):
 
 def select_directory():
     keyboard = Controller()
-    sleep(0.2*PAUSE)
+    sleep(0.5*PAUSE)
     with keyboard.pressed(Key.shift_l):
         keyboard.press(Key.tab)
         keyboard.release(Key.tab)
         # windows (next 2 linies not outcommented)
         # keyboard.press(Key.tab)
         # keyboard.release(Key.tab)
-    sleep(0.2*PAUSE)
-    for i in range(6):
+    sleep(0.4*PAUSE)
+    for _ in range(10):
         keyboard.press(Key.down)
         keyboard.release(Key.down)
     keyboard.press(Key.enter)

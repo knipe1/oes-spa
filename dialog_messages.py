@@ -19,14 +19,13 @@ Created on Tue Feb 18 10:10:29 2020
 """
 
 # standard libs
-from os import path
 
 # third-party libs
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from custom_types.SUFFICES import SUFFICES as SUFF
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
 IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
@@ -34,7 +33,7 @@ IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
                "Exported Raw spectrum (*.csv)",
                "Full information spectrum (*.asc)",
                ]
-EXPORT_FILTER = ["Batch files (*.csv)",]
+BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.
 config = ConfigLoader()
@@ -89,10 +88,19 @@ def information_batchAnalysisFinished(skippedFiles:list, parent:QWidget=None)->N
 
 
 def information_normalizationFactorUndefined(parent:QWidget=None)->None:
-    title = "No Normalization Factor defined!";
+    title = "Invalid Normalization Factor defined!";
     text = "In the currently selected Fitting is no normalization factor of the peak defined. "\
     "Please find an example in the example_fitting.yml. "\
     "The normalization factor maps the area-relation to a characteristic value, "\
+    "which may be used to determine the concentration.";
+    QMessageBox.information(parent, title, text);
+
+
+def information_normalizationOffsetUndefined(parent:QWidget=None)->None:
+    title = "Invalid Normalization Offet defined!";
+    text = "In the currently selected Fitting is valid normalization offset of the peak defined. "\
+    "Please find an example in the example_fitting.yml. "\
+    "The normalization offset shifts the characteristic value, "\
     "which may be used to determine the concentration.";
     QMessageBox.information(parent, title, text);
 
@@ -120,7 +128,7 @@ def information_exportNoSpectrum(parent:QWidget=None)->None:
 
 # Dialogs
 
-def dialog_spectra(directory:str=None, parent:QWidget=None)->list:
+def dialog_spectra(parent:QWidget=None)->list:
     """
     Opens a native dialog to open one or multiple spectra.
 
@@ -140,8 +148,7 @@ def dialog_spectra(directory:str=None, parent:QWidget=None)->list:
     caption = "Load spectra";
     filefilter = filefilter_from_list(IMPORT_FILTER)
 
-    filenames, _ = QFileDialog.getOpenFileNames(parent=parent, caption=caption,
-                                                directory=directory, filter=filefilter,)
+    filenames, _ = QFileDialog.getOpenFileNames(parent=parent, caption=caption, filter=filefilter,)
     return filenames;
 
 
@@ -151,8 +158,6 @@ def dialog_logFile(defaultFile:str, parent:QWidget=None)->str:
 
     Parameters
     ----------
-    defaultFile : str
-        Default name of the log file.
     parent : QWidget, optional (default None)
         Used to determine the location the dialog is placed on the screen.
 
@@ -178,14 +183,12 @@ def dialog_logFile(defaultFile:str, parent:QWidget=None)->str:
     return logfilename
 
 
-def dialog_batchfile(directory:str=None, parent:QWidget=None)->str:
+def dialog_batchfile(parent:QWidget=None)->str:
     """
     Native dialog to select the location of the batchfile.
 
     Parameters
     ----------
-    directory : str, optional (default None)
-        Entry directory of the dialog.
     parent : QWidget, optional (default None)
         Used to determine the location the dialog is placed on the screen.
 
@@ -196,21 +199,15 @@ def dialog_batchfile(directory:str=None, parent:QWidget=None)->str:
 
     """
     caption = "Set the filename of the batchfile:";
-    filefilter = filefilter_from_list(EXPORT_FILTER)
+    filefilter = filefilter_from_list(BATCH_FILTER)
     defaultFilename = BATCH["DEF_FILENAME"];
 
-    try:
-        pathWithFilename = path.join(directory, defaultFilename)
-    except TypeError:
-        # No directory given
-        pathWithFilename = defaultFilename
-
     filename, _ = QFileDialog.getSaveFileName(parent=parent, caption=caption,
-                                              directory=pathWithFilename, filter=filefilter);
+                                              directory=defaultFilename, filter=filefilter);
     return filename;
 
 
-def dialog_importBatchfile(directory:str=None, parent:QWidget=None)->None:
+def dialog_importBatchfile(parent:QWidget=None)->None:
     """
     Parameters
     ----------
@@ -220,22 +217,19 @@ def dialog_importBatchfile(directory:str=None, parent:QWidget=None)->None:
         Used to determine the location the dialog is placed on the screen.
     """
     caption = "Open batchfile"
-    filefilter = filefilter_from_list(EXPORT_FILTER)
+    filefilter = filefilter_from_list(BATCH_FILTER)
 
-    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption,
-                                              directory=directory, filter=filefilter,)
+    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption, filter=filefilter,)
     return filename
 
 
 
-def dialog_watchdogDirectory(directory:str=None, parent:QWidget=None)->str:
+def dialog_watchdogDirectory(parent:QWidget=None)->str:
     """
     Native dialog to select an existing directory.
 
     Parameters
     ----------
-    directory : str, optional (default None)
-        Entry directory of the dialog.
     parent : QWidget, optional (default None)
         Used to determine the location the dialog is placed on the screen.
 
@@ -246,8 +240,7 @@ def dialog_watchdogDirectory(directory:str=None, parent:QWidget=None)->str:
 
     """
     caption = 'Enable live tracking of ...'
-    selectedDir = QFileDialog.getExistingDirectory(parent=parent, caption=caption,
-                                                   directory=directory)
+    selectedDir = QFileDialog.getExistingDirectory(parent=parent, caption=caption,)
     return selectedDir
 
 

@@ -28,7 +28,7 @@ class BatchWriter(FileWriter):
     """
 
     def __init__(self, filename):
-        super().__init__(filename)
+        super().__init__(filename, name=__name__)
         self.timestamp = datetime.now()
         self.dialect = self.csvDialect
 
@@ -63,7 +63,7 @@ class BatchWriter(FileWriter):
     def append_data(self, data:list)->None:
         with open(self.filename, 'a', newline='') as f:
             writer = csv.writer(f, dialect=self.dialect)
-            writer.writerow(data)
+            writer.writerows(data)
 
 
     def is_valid_batchfile(self)->None:

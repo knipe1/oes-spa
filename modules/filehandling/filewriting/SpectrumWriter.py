@@ -19,7 +19,7 @@ import modules.Universal as uni
 from modules.dataanalysis.Spectrum import Spectrum
 
 # Enums
-from custom_types.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 # constants
 PROCESSED_APPENDIX = "_processed"
@@ -29,7 +29,9 @@ RAW_APPENDIX = "_raw"
 class SpectrumWriter(FileWriter):
 
     def __init__(self, filename, timestamp):
-        super().__init__(filename)
+        filename = uni.replace_suffix(filename)
+
+        super().__init__(filename, name=__name__)
         self.timestamp = timestamp
         self.dialect = self.csvDialect
 
@@ -51,7 +53,7 @@ class SpectrumWriter(FileWriter):
             Used for characteristic values like peak height,...
         """
         if is_exported_spectrum(self.filename):
-            return
+            return None
 
         exportFilename = self.assemble_export_filename(spectrum.exportType)
 

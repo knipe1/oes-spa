@@ -14,7 +14,6 @@ try:
 except FileNotFoundError:
     pass
 
-
 # third-party libs
 import emulator as emu
 import threading as THR
@@ -24,11 +23,8 @@ from PyQt5.QtWidgets import QApplication
 from ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
-from Logger import Logger
 
 
-# set up the logger
-# logger = Logger(__name__)
 
 def main():
     """Main program """
@@ -36,6 +32,7 @@ def main():
     # False
 
     initialSpkLoad = True
+    initialAscLoad = False
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = False
@@ -44,14 +41,21 @@ def main():
     hideBatch = False
     activateWD = False
 
+    test_calibration = True
+
 
     # Setup GUI
     app = QApplication(sys.argv)
     window = AnalysisWindow()
 
+    if test_calibration:
+        window.window.wavelength = "388"
+
+
     # automatic open and close routine
-    #window.window.ddFitting.setCurrentIndex(3)
     if initialSpkLoad:
+        window.apply_file("./sample files/Obel276/Obelix276 40.Spk")
+    if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 
     if tryDifferentFiles:
@@ -103,10 +107,9 @@ def main():
         window.window.wavelength = "433.1"
         selection = THR.Thread(target=emu.key_select_file, args=[10])
         selection.start()
-        # window.lastdir = window.lastdir+"/Obel276"
         window.batch.browse_spectra()
         window.batch.window.radTrace.click()
-        window.batch.window.btnCalculate.click()
+        # window.batch.window.btnCalculate.click()
 
     if hideBatch:
         window.batch.hide()

@@ -17,7 +17,7 @@ import modules.Universal as uni
 from modules.filehandling.filereading.BaseReader import BaseReader
 
 # Enums
-from custom_types.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 # constants
 from modules.Universal import EXPORT_TIMESTAMP
@@ -29,7 +29,7 @@ class CsvReader(BaseReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        super().__init__()
+        super().__init__(name=__name__)
         self.__post_init__()
 
     def __post_init__(self):
@@ -62,16 +62,27 @@ class CsvReader(BaseReader):
 
 
 
-    def is_data(self, xDataElement:str, yDataElement:str)->bool:
-        try:
-            uni.timestamp_from_string(xDataElement)
-            is_xData = True
-        except (TypeError, ValueError):
-            is_xData = super().is_data(xDataElement)
+    # def is_data(self, xDataElement:str, yDataElement:str)->bool:
+    #     try:
+    #         uni.timestamp_from_string(xDataElement)
+    #         is_xData = True
+    #     except (TypeError, ValueError):
+    #         is_xData = super().is_data(xDataElement)
 
-        is_yData = super().is_data(yDataElement)
+    #     is_yData = super().is_data(yDataElement)
 
-        return (is_xData and is_yData)
+    #     return (is_xData and is_yData)
+
+
+    # def get_information(self, line, **kwargs)->(str, str, str):
+
+    #     markerElement, xDataElement, yDataElement = super().get_information(line)
+
+    #     peakName = kwargs.get("peakName")
+    #     if (not peakName is None) and (peakName in line):
+    #         return markerElement, xDataElement, yDataElement, peakName
+    #     else:
+    #         return markerElement, xDataElement, yDataElement
 
 
 
