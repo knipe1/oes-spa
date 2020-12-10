@@ -268,7 +268,7 @@ class SpectrumHandler():
         except KeyError:
             # 12.042204 -> analysed with asc-data
             # dispersion = 12.042204 / self.basicSetting.grating
-            dispersion = 0.005017585
+            dispersion = 0.006115
         return dispersion
 
 
@@ -278,11 +278,41 @@ class SpectrumHandler():
         except AttributeError:
             return False
 
+    def calibration(self, procXData:np.ndarray, procYData:np.ndarray)->np.ndarray:
+        referencePeaks = np.loadtxt("./sample files/CH-Peaks2.dat")
+        noPeaks = referencePeaks.shape[0]
+
+        # stepwidth = 0;
+        wlShift = 0.4
+        # find indeces of the reference peaks in the proccessed data
+        wlIndex = np.zeros((noPeaks), dtype=int)
+        maxShift = 0
+        for i, wl in enumerate(referencePeaks[:, 0]):
+            wlIndex[i] = np.abs(procXData - wl).argmin()
+            idxShift = np.abs(procXData - (wl + wlShift)).argmin()
+            maxShift = max(idxShift-wlIndex[i], maxShift)
+
+        # maxShift = int(maxShift)
+        print(wlIndex)
+        print(maxShift)
+
+        calibrationIntensities = np.zeros(shape=(noPeaks, 2*maxShift+1))
+        for idx in range(-maxShift, maxShift+1):
+            for ref in range(noPeaks):
+                idxOffset = idx + maxShift
+                calibrationIntensities[ref, idxOffset] = procYData[wlIndex[ref] + idx]
+
+        print(procXData[0], procXData[-1],)
+        return
 
     def process_data(self)->None:
         """Processes the raw data with regard to the given wavelength and the dispersion."""
         procXData = self.process_x_data()
         procYData, self.baseline, self.avgbase = self.process_y_data()
+
+        self.calibration(procXData, procYData)
+        # procXData = self.calibration(procXData, procYData)
+
         self.procData = (procXData, procYData)
 
 

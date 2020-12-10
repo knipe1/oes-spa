@@ -48,12 +48,13 @@ def main():
     window = AnalysisWindow()
 
     if test_calibration:
-        window.window.wavelength = "388"
+        window.window.wavelength = "388.872"
 
 
     # automatic open and close routine
     if initialSpkLoad:
-        window.apply_file("./sample files/Obel276/Obelix276 40.Spk")
+        window.apply_file("./sample files/Asterix1059 1468.Spk")
+        # window.apply_file("./sample files/Obel276/Obelix276 40.Spk")
     if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 
