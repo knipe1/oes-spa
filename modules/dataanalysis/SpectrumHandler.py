@@ -283,7 +283,6 @@ class SpectrumHandler():
     def calibration(self, procXData:np.ndarray, procYData:np.ndarray)->np.ndarray:
         referencePeaks = np.loadtxt("./sample files/CH-Peaks2.dat")
 
-        before = perf_counter()
 
         noPeaks = referencePeaks.shape[0]
 
@@ -310,11 +309,6 @@ class SpectrumHandler():
         absShift = (referencePeaks[:, 0] - procXData[wlIndex-shift]).mean()
 
 
-        after = perf_counter()
-        print()
-        print()
-        print("Elapsed: ", after-before)
-        print()
         return procXData - absShift
 
 
@@ -323,10 +317,16 @@ class SpectrumHandler():
         procXData = self.process_x_data()
         procYData, self.baseline, self.avgbase = self.process_y_data()
 
+        before = perf_counter()
         # self.calibration(procXData, procYData)
         for i in range(3):
             procXData = self.calibration(procXData, procYData)
 
+        after = perf_counter()
+        print()
+        print()
+        print("Elapsed: ", after-before)
+        print()
         self.procData = (procXData, procYData)
 
     def get_center(self, data:np.ndarray)->float:
