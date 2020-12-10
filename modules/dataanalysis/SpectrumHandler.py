@@ -82,6 +82,10 @@ class SpectrumHandler():
     def procXData(self)->np.ndarray:
         return self.procData[:, 0]
 
+    @procXData.setter
+    def procXData(self, xData:np.ndarray)->None:
+        self.procData[:, 0] = xData
+
     @property
     def procYData(self)->np.ndarray:
         return self.procData[:, 1]
@@ -130,6 +134,17 @@ class SpectrumHandler():
 
         peak = fitting.peak
         self.peakName = peak.name
+
+        before = perf_counter()
+
+        for i in range(3):
+            self.procXData = self.calibration(*self.procData.transpose())
+
+        after = perf_counter()
+        print()
+        print()
+        print("Elapsed: ", after-before)
+        print()
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
@@ -281,16 +296,20 @@ class SpectrumHandler():
 
 
     def calibration(self, procXData:np.ndarray, procYData:np.ndarray)->np.ndarray:
-        referencePeaks = np.loadtxt("./sample files/CH-Peaks2.dat")
+        # Retrieve the filename of the fitting
+        calibrationFile = self.fitting.calibration
+        if calibrationFile is None:
+            return procXData
 
+        calibrationPeaks = np.loadtxt(calibrationFile)
 
-        noPeaks = referencePeaks.shape[0]
+        noPeaks = calibrationPeaks.shape[0]
 
         wlShift = 0.2
         # find indeces of the reference peaks in the proccessed data
         wlIndex = np.zeros((noPeaks), dtype=int)
         maxShift = 0
-        for i, wl in enumerate(referencePeaks[:, 0]):
+        for i, wl in enumerate(calibrationPeaks[:, 0]):
             # get the closest index of the processed data
             wlIndex[i] = np.abs(procXData - wl).argmin()
             # determine the range of the convolution
@@ -306,27 +325,16 @@ class SpectrumHandler():
         summedIntensities = calibrationIntensities.sum(axis=0)
 
         shift = summedIntensities.argmax() - (maxShift)
-        absShift = (referencePeaks[:, 0] - procXData[wlIndex-shift]).mean()
+        absShift = (calibrationPeaks[:, 0] - procXData[wlIndex-shift]).mean()
 
-
-        return procXData - absShift
+        shiftedData = procXData - absShift
+        return shiftedData
 
 
     def process_data(self)->None:
         """Processes the raw data with regard to the given wavelength and the dispersion."""
         procXData = self.process_x_data()
         procYData, self.baseline, self.avgbase = self.process_y_data()
-
-        before = perf_counter()
-        # self.calibration(procXData, procYData)
-        for i in range(3):
-            procXData = self.calibration(procXData, procYData)
-
-        after = perf_counter()
-        print()
-        print()
-        print("Elapsed: ", after-before)
-        print()
         self.procData = (procXData, procYData)
 
     def get_center(self, data:np.ndarray)->float:

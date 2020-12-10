@@ -171,7 +171,7 @@ class Spectrum():
         self.plot_integration_areas()
         self.center_plot()
 
-        referencePeaks = np.loadtxt("./sample files/CH-Peaks2.dat")
+        referencePeaks = np.loadtxt("./fittings/CH-Peaks2.dat")
         for peak in referencePeaks[:, 0]:
             self.ui.axes.axvline(peak)
         self.ui.draw()

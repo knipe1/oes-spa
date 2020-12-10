@@ -75,9 +75,10 @@ class Fitting():
         self.fitting = fitting
         self.errCode = ERR_FIT.OK.value
 
-        name, peakParameter = self.extract_parameter(fitting)
+        name, calibration, peakParameter = self.extract_parameter(fitting)
 
         self.name = name
+        self.calibration = calibration
         self.peak = self.set_peak(peakParameter)
 
 
@@ -92,14 +93,22 @@ class Fitting():
     def extract_parameter(self, fitting:dict)->dict:
 
         fittingName = self.extract_fitting_name(fitting)
+        calibration = self.extract_calibration(fitting)
         peakParameter = self.extract_peak_parameter(fitting)
 
-        return fittingName, peakParameter
+        return fittingName, calibration, peakParameter
 
 
     def extract_fitting_name(self, fitting:dict):
         name = fitting.get("NAME", NO_NAME_DEFINED)
         return name
+
+
+    def extract_calibration(self, fitting:dict):
+        calibration = fitting.get("CALIBRATION")
+        if calibration:
+            calibration = self.FITTING["DIR"] + calibration
+        return calibration
 
 
     def extract_peak_parameter(self, fitting:dict):
