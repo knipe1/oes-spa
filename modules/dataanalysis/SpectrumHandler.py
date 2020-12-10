@@ -305,7 +305,7 @@ class SpectrumHandler():
 
         summedIntensities = calibrationIntensities.sum(axis=0)
 
-        shift = summedIntensities.argmax() - (maxShift+1)
+        shift = summedIntensities.argmax() - (maxShift)
         absShift = (referencePeaks[:, 0] - procXData[wlIndex-shift]).mean()
 
 

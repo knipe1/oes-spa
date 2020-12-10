@@ -39,7 +39,7 @@ class Watchdog():
     def stop(self):
         try:
             self.observer.stop()
-            self.observer.join(1)
+            self.observer.join()
         except:
             print("No observer initialized.")
 
