@@ -57,6 +57,7 @@ def main():
     if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 
+
     if tryDifferentFiles:
         window.apply_file("./sample files/SIF/388nm_Spek1_parameter only_header cut.asc")
         window.apply_file("./sample files/Asterix1059 1.Spk")
@@ -65,6 +66,7 @@ def main():
         window.apply_file("./sample files/Asterix1059 1_raw.csv")
         window.apply_file("./sample files/Asterix1059 1_processed.csv")
         window.apply_file("./sample files/_batch.csv")
+
 
     if exportSpectra:
         window.apply_file("./sample files/Asterix1059 1.Spk")
