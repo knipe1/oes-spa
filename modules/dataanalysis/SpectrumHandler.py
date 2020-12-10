@@ -10,6 +10,7 @@ Glossary:
 
 @author: Peter Knittel, Hauke Wernecke
 """
+from time import perf_counter
 
 # standard libs
 import numpy as np
@@ -281,21 +282,21 @@ class SpectrumHandler():
 
     def calibration(self, procXData:np.ndarray, procYData:np.ndarray)->np.ndarray:
         referencePeaks = np.loadtxt("./sample files/CH-Peaks2.dat")
+
+        before = perf_counter()
+
         noPeaks = referencePeaks.shape[0]
 
-        # stepwidth = 0;
-        wlShift = 0.4
+        wlShift = 0.2
         # find indeces of the reference peaks in the proccessed data
         wlIndex = np.zeros((noPeaks), dtype=int)
         maxShift = 0
         for i, wl in enumerate(referencePeaks[:, 0]):
+            # get the closest index of the processed data
             wlIndex[i] = np.abs(procXData - wl).argmin()
+            # determine the range of the convolution
             idxShift = np.abs(procXData - (wl + wlShift)).argmin()
             maxShift = max(idxShift-wlIndex[i], maxShift)
-
-        # maxShift = int(maxShift)
-        print(wlIndex)
-        print(maxShift)
 
         calibrationIntensities = np.zeros(shape=(noPeaks, 2*maxShift+1))
         for idx in range(-maxShift, maxShift+1):
@@ -304,17 +305,27 @@ class SpectrumHandler():
                 calibrationIntensities[ref, idxOffset] = procYData[wlIndex[ref] + idx]
 
         summedIntensities = calibrationIntensities.sum(axis=0)
-        summedIntensities.argmax()
-        print(procXData[0], procXData[-1],)
-        return
+
+        shift = summedIntensities.argmax() - (maxShift+1)
+        absShift = (referencePeaks[:, 0] - procXData[wlIndex-shift]).mean()
+
+
+        after = perf_counter()
+        print()
+        print()
+        print("Elapsed: ", after-before)
+        print()
+        return procXData - absShift
+
 
     def process_data(self)->None:
         """Processes the raw data with regard to the given wavelength and the dispersion."""
         procXData = self.process_x_data()
         procYData, self.baseline, self.avgbase = self.process_y_data()
 
-        self.calibration(procXData, procYData)
-        # procXData = self.calibration(procXData, procYData)
+        # self.calibration(procXData, procYData)
+        for i in range(3):
+            procXData = self.calibration(procXData, procYData)
 
         self.procData = (procXData, procYData)
 
