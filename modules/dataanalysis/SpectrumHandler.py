@@ -278,6 +278,7 @@ class SpectrumHandler():
         except AttributeError:
             return False
 
+
     def calibration(self, procXData:np.ndarray, procYData:np.ndarray)->np.ndarray:
         referencePeaks = np.loadtxt("./sample files/CH-Peaks2.dat")
         noPeaks = referencePeaks.shape[0]
@@ -302,6 +303,8 @@ class SpectrumHandler():
                 idxOffset = idx + maxShift
                 calibrationIntensities[ref, idxOffset] = procYData[wlIndex[ref] + idx]
 
+        summedIntensities = calibrationIntensities.sum(axis=0)
+        summedIntensities.argmax()
         print(procXData[0], procXData[-1],)
         return
 
@@ -315,13 +318,16 @@ class SpectrumHandler():
 
         self.procData = (procXData, procYData)
 
+    def get_center(self, data:np.ndarray)->float:
+        center = data[len(data) // 2 - 1]            # offset of python lists.
+        return center
 
     def process_x_data(self)->np.ndarray:
         """Assigns wavelength to the recorded Pixels """
 
         # Center of the xData. Used for shifting the data.
         rawXData = self.rawXData
-        center = rawXData[len(rawXData) // 2 - 1]     # offset of python lists.
+        center = self.get_center(rawXData)
 
         centralWavelength = self.basicSetting.wavelength
         xDataArePixel = uni.data_are_pixel(rawXData)
