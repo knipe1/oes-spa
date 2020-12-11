@@ -21,6 +21,7 @@ import peakutils as pkus
 # local modules/libs
 from Logger import Logger
 import modules.Universal as uni
+from modules.dataanalysis.Calibration import Calibration
 from modules.dataanalysis.Fitting import Fitting
 from modules.filehandling.filereading.FileReader import FileReader
 from c_types.BasicSetting import BasicSetting
@@ -135,17 +136,10 @@ class SpectrumHandler():
         peak = fitting.peak
         self.peakName = peak.name
 
-
-        if self.basicSetting.calibration:
-            before = perf_counter()
-            for i in range(3):
-                self.procXData = self.calibration(*self.procData.transpose())
-
-            after = perf_counter()
-            print()
-            print()
-            print("Elapsed: ", after-before)
-            print()
+        calibrationFile = self.fitting.calibration
+        if self.basicSetting.calibration and calibrationFile:
+            calibration = Calibration(calibrationFile)
+            self.procXData = calibration.calibrate(*self.procData.transpose())
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
@@ -338,9 +332,11 @@ class SpectrumHandler():
         procYData, self.baseline, self.avgbase = self.process_y_data()
         self.procData = (procXData, procYData)
 
+
     def get_center(self, data:np.ndarray)->float:
         center = data[len(data) // 2 - 1]            # offset of python lists.
         return center
+
 
     def process_x_data(self)->np.ndarray:
         """Assigns wavelength to the recorded Pixels """

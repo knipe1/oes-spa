@@ -34,7 +34,7 @@ def main():
     initialAscLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
+    showBatch = False
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
@@ -48,7 +48,7 @@ def main():
     window = AnalysisWindow()
 
     if test_calibration:
-        window.window.wavelength = "388.872"
+        window.window.wavelength = "388.8"
 
 
     # automatic open and close routine
