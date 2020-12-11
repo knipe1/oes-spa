@@ -96,7 +96,7 @@ class MatplotlibWidget(QWidget):
         self.vbl.addWidget(self.canvas)
 
 
-    def add_toolbar(self, layout):
+    def add_toolbar(self):
         mplToolbar = Toolbar(self.canvas, self)
         self.vbl.addWidget(mplToolbar)
 
