@@ -51,7 +51,10 @@ class Trace(Spectrum):
             yData = self.data[peak][:, 1]
             self.ui.axes.plot(xData, yData, **self.markup);
 
-        self.center_plot(xData)
+        try:
+            self.center_plot(xData)
+        except UnboundLocalError:
+            pass
         self.ui.draw()
 
 

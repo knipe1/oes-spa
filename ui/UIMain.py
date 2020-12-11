@@ -260,6 +260,7 @@ class UIMain(Ui_main):
         self.tinCentralWavelength.textChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
+        self.cbCalibration.stateChanged.connect(fun)
         self.clistFitting.itemClicked.connect(fun)
 
 
@@ -362,12 +363,13 @@ class UIMain(Ui_main):
 
 
     def get_basic_setting(self)->BasicSetting:
-        baselineCorrection = self.cbBaselineCorrection.isChecked()
-        normalizeData = self.cbNormalizeData.isChecked()
         selectedFitting = self.load_fitting(self.clistFitting.currentText(), showError=True)
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
-        setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
+        baselineCorrection = self.cbBaselineCorrection.isChecked()
+        normalizeData = self.cbNormalizeData.isChecked()
+        calibration = self.cbCalibration.isChecked()
+        setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData, calibration)
 
         return setting;
 

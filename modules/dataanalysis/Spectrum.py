@@ -142,7 +142,6 @@ class Spectrum():
             else:
                 self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
-
         self.plot_spectrum()
 
 

@@ -105,15 +105,15 @@ class SpectrumHandler():
         self.dispersion = self.determine_dispersion(parameter)
         self.integration = []
 
-        self.rawData = file.data
-        self.process_data()
-
         self.peakArea = None
         self.peakHeight = None
         self.peakName = None
         self.peakPosition = None
         self.avgbase = None
         self.characteristicValue = None
+
+        self.rawData = file.data
+        self.process_data()
 
 
     def __repr__(self):
@@ -135,16 +135,17 @@ class SpectrumHandler():
         peak = fitting.peak
         self.peakName = peak.name
 
-        before = perf_counter()
 
-        for i in range(3):
-            self.procXData = self.calibration(*self.procData.transpose())
+        if self.basicSetting.calibration:
+            before = perf_counter()
+            for i in range(3):
+                self.procXData = self.calibration(*self.procData.transpose())
 
-        after = perf_counter()
-        print()
-        print()
-        print("Elapsed: ", after-before)
-        print()
+            after = perf_counter()
+            print()
+            print()
+            print("Elapsed: ", after-before)
+            print()
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
         self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
@@ -181,7 +182,7 @@ class SpectrumHandler():
 
         # Validation
         if refHeight >= peak.reference.minimumHeight:
-            ratio = peakArea / refArea
+            ratio = np.abs(peakArea) / np.abs(refArea)
             characteristicValue = ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
             characteristicValue = 0.0

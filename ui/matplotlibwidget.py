@@ -93,7 +93,8 @@ class MatplotlibWidget(QWidget):
 
     def draw(self):
         """Draw the plot immediately."""
-        self.axes.legend();
+        if self.axes.get_legend_handles_labels()[0]:
+            self.axes.legend();
         self.canvas.draw()
 
         # Refactored - events were flushed in BatchAnalysis also allow to

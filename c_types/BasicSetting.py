@@ -22,3 +22,4 @@ class BasicSetting():
     checkedFittings:list;
     baselineCorrection: bool;
     normalizeData: bool;
+    calibration: bool;

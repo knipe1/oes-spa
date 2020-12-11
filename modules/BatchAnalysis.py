@@ -153,7 +153,7 @@ class BatchAnalysis(QDialog):
         self.window.connect_cancel(self.schedule_cancel_routine)
         self.window.connect_change_csvfile(self.enable_analysis)
         self.window.connect_change_trace(self.import_batchfile)
-        self.window.connect_clear(self.reset_files)
+        self.window.connect_clear(self.reset_batch)
         self.window.connect_import_batch(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_select_file(self.enable_analysis)
@@ -567,6 +567,18 @@ class BatchAnalysis(QDialog):
     def reset_files(self)->None:
         """Resets the filelist."""
         self._files.clear()
+
+
+    def reset_trace(self)->None:
+        # self.traceSpectrum.update_data({})
+        self.traceSpectrum = Trace(self.window.plotTraceSpectrum)
+        self.traceSpectrum.update_data({})
+
+
+    def reset_batch(self)->None:
+        self.reset_files()
+        self.reset_trace()
+
 
 
     def schedule_cancel_routine(self)->None:
