@@ -5,13 +5,13 @@ Glossary:
     batchfile: The file in which the characteristic values are exported to.
     WDdirectory: Directory which is observed by the WatchDog (WD)
 
+Note:
+    When handling paths, absolute paths are used in comparisons.
 
 Created on Mon Jan 20 10:22:44 2020
 
 @author: Hauke Wernecke
 """
-from time import perf_counter
-
 
 # standard libs
 import numpy as np
@@ -30,12 +30,12 @@ from ui.UIBatch import UIBatch
 # modules & universal
 import modules.Universal as uni
 import dialog_messages as dialog
+from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
 from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
-from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 
 
 # Enums
@@ -47,6 +47,7 @@ from c_enum.SUFFICES import SUFFICES as SUFF
 
 
 # constants
+# BATCH_SUFFIX requires "." as prefix to the suffix-value
 BATCH_SUFFIX = "." + SUFF.BATCH.value
 
 # exceptions
@@ -73,10 +74,7 @@ class BatchAnalysis(QDialog):
 
     @property
     def batchFile(self)->str:
-        try:
-            return self._batchFile
-        except AttributeError:
-            return None
+        return self._batchFile
 
     @batchFile.setter
     def batchFile(self, filename:str)->None:
@@ -85,10 +83,11 @@ class BatchAnalysis(QDialog):
             return
         filename = uni.replace_suffix(filename, suffix=BATCH_SUFFIX)
         self._batchFile = filename
-        try:
-            self.window.batchFile = filename
-        except AttributeError:
-            self.logger.debug("Could not set the filename in the ui.")
+        self.window.batchFile = filename
+        # try:
+        #     self.window.batchFile = filename
+        # except AttributeError:
+        #     self.logger.debug("Could not set the filename in the ui.")
 
 
     @property
@@ -99,10 +98,11 @@ class BatchAnalysis(QDialog):
     def WDdirectory(self, path:str)->None:
         """WDdirectory setter: Updating the ui"""
         self._WDdirectory = path
-        try:
-            self.window.WDdirectory = path
-        except AttributeError:
-            self.logger.debug("Could not set the WD directory in the ui.")
+        self.window.WDdirectory = path
+        # try:
+        #     self.window.WDdirectory = path
+        # except AttributeError:
+        #     self.logger.debug("Could not set the WD directory in the ui.")
 
 
     def __init__(self, parent)->None:
@@ -119,8 +119,8 @@ class BatchAnalysis(QDialog):
         super().__init__(parent)
 
         # Init the props to prevent errors in the ui-init routine. (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
-        self.batchFile = None
-        self.WDdirectory = None
+        self._batchFile = None
+        self._WDdirectory = None
 
         # Set up ui.
         self.window = UIBatch(self)

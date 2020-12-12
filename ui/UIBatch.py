@@ -43,7 +43,7 @@ class UIBatch(Ui_batch):
 
 
     @property
-    def WDdirectory(self):
+    def WDdirectory(self)->str:
         """WDdirectory getter"""
         return self.foutWatchdog.text()
 
