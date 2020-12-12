@@ -40,7 +40,7 @@ def main():
     hideBatch = False
     activateWD = False
 
-    test_calibration = True
+    test_calibration = False
 
 
     # Setup GUI

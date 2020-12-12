@@ -99,14 +99,31 @@ class UIMain(Ui_main):
         try:
             wavelength = self.tinCentralWavelength.text()
             wavelength = float(wavelength)
-        except:
+        except ValueError:
             self.logger.error("Could not get valid value for wavelength!")
         return wavelength
 
     @wavelength.setter
-    def wavelength(self, wl):
+    def wavelength(self, wl:(float, str))->None:
         """Sets the given wavelenght wl to the ui-element."""
-        self.tinCentralWavelength.setText(wl)
+        self.tinCentralWavelength.setText(str(wl))
+
+
+    @property
+    def dispersion(self)->float:
+        """Get the converted dispersion or None."""
+        try:
+            dispersion = self.tinDispersion.text()
+            dispersion = float(dispersion)
+        except ValueError:
+            self.logger.error("Could not get valid value for dispersion!")
+            dispersion = None
+        return dispersion
+
+    @dispersion.setter
+    def dispersion(self, disp:(float, str))->None:
+        """Sets the given wavelenght dispersion to the ui-element."""
+        self.tinDispersion.setText(str(disp))
 
 
     @property
@@ -171,6 +188,20 @@ class UIMain(Ui_main):
         self.DEF_LBL_CHARACTERISTIC = self.lblCharacteristicValue.text()
 
         self.fittings = self.retrieve_fittings()
+        self.load_fitting_selection_from_config()
+        self.load_settings_from_config()
+
+
+        # initial hides. Cannot be set in designer.
+        self.show_diff_wavelength(False)
+
+
+    def load_settings_from_config(self)->None:
+        self.wavelength = self.config.wavelength
+        self.dispersion = self.config.dispersion
+
+
+    def load_fitting_selection_from_config(self)->None:
         allTexts  = self.clistFitting.allTexts()
         PRESELECT_FITTING = self.config.PRESELECT_FITTING
         try:
@@ -186,10 +217,6 @@ class UIMain(Ui_main):
                 self.clistFitting.item(ckdIdx).setCheckState(2)
             except ValueError:
                 self.logger.info("Checked fitting not found.")
-
-
-        # initial hides. Cannot be set in designer.
-        self.show_diff_wavelength(False)
 
 
     def get_results(self):
@@ -258,6 +285,7 @@ class UIMain(Ui_main):
     def connect_change_basic_settings(self, fun):
         """Interface to connect fun to changes of the basic setting."""
         self.tinCentralWavelength.textChanged.connect(fun)
+        self.tinDispersion.textChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
         self.cbCalibration.stateChanged.connect(fun)
@@ -369,7 +397,7 @@ class UIMain(Ui_main):
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
         calibration = self.cbCalibration.isChecked()
-        setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData, calibration)
+        setting = BasicSetting(self.wavelength, self.dispersion, selectedFitting, checkedFittings, baselineCorrection, normalizeData, calibration)
 
         return setting;
 
@@ -395,12 +423,28 @@ class UIMain(Ui_main):
         self.lblFitting.setText(label)
 
 
+    def save_settings(self)->None:
+        self.save_wavelength_and_dispersion()
+        self.save_selected_fitting()
+
+
+    def save_wavelength_and_dispersion(self)->None:
+        wl = self.wavelength
+        dp = self.dispersion
+
+        self.config = ConfigLoader()
+        self.config.wavelength = wl
+        self.config.dispersion = dp
+        self.config.save_config()
+
     def save_selected_fitting(self):
         selectedFitting = self.clistFitting.currentText()
         self.logger.info(f"Save selected fitting: {selectedFitting}.")
+
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [t.text() for t in checkedFittings]
         self.logger.info(f"Save checked fittings: {checkedFittings}.")
+
         self.config = ConfigLoader()
         self.config.PRESELECT_FITTING = selectedFitting
         self.config.CHECKED_FITTINGS = checkedFittings

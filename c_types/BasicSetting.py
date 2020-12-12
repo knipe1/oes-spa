@@ -18,6 +18,7 @@ from modules.dataanalysis.Fitting import Fitting
 @dataclass(frozen=True)
 class BasicSetting():
     wavelength: float;
+    dispersion: float;
     selectedFitting: Fitting;
     checkedFittings:list;
     baselineCorrection: bool;

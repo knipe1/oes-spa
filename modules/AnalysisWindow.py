@@ -120,7 +120,7 @@ class AnalysisWindow(QMainWindow):
     def closeEvent(self, event)->None:
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
         self.batch.close()
-        self.window.save_selected_fitting()
+        self.window.save_settings()
 
 
     def dragEnterEvent(self, event)->None:

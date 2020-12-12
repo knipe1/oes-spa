@@ -103,7 +103,6 @@ class SpectrumHandler():
         self.basicSetting = basicSetting
         parameter = kwargs.get("parameter", {})
 
-        self.dispersion = self.determine_dispersion(parameter)
         self.integration = []
 
         self.peakArea = None
@@ -271,16 +270,9 @@ class SpectrumHandler():
         return intAreas
 
 
-    def determine_dispersion(self, parameter:dict)->float:
-        # see #51 on git
-        try:
-            # 12.04391 -> delta wl
-            dispersion = 12.04391 / parameter[ASC.GRAT]
-        except KeyError:
-            # 12.042204 -> analysed with asc-data
-            # dispersion = 12.042204 / self.basicSetting.grating
-            dispersion = 0.006115
-        return dispersion
+    # def determine_dispersion(self, parameter:dict)->float:
+    #     dispersion = self.basicSetting.dispersion
+    #     return dispersion
 
 
     def has_valid_peak(self):
@@ -346,15 +338,24 @@ class SpectrumHandler():
         center = self.get_center(rawXData)
 
         centralWavelength = self.basicSetting.wavelength
+        dispersion = self.basicSetting.dispersion
         xDataArePixel = uni.data_are_pixel(rawXData)
         if xDataArePixel:
-            # Employs the dispersion to convert pixel to wavelength
-            start = centralWavelength - center*self.dispersion
-            shiftedData = rawXData*self.dispersion + start
+            try:
+                # Employs the dispersion to convert pixel to wavelength
+                start = centralWavelength - center*dispersion
+                shiftedData = rawXData*dispersion + start
+            except TypeError:
+                self.logger.info("Could not process data. Value of wavelength or dispersion is invalid!")
+                shiftedData = rawXData
         else:
-            # Only shift the original data to the given centralWavelength
-            shift = centralWavelength - center
-            shiftedData = rawXData + shift
+            try:
+                # Only shift the original data to the given centralWavelength
+                shift = centralWavelength - center
+                shiftedData = rawXData + shift
+            except TypeError:
+                self.logger.info("Could not process data. Value of wavelength is invalid!")
+                shiftedData = rawXData
 
         return shiftedData
 

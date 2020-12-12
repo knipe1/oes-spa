@@ -54,6 +54,11 @@ class ConfigLoader():
         """Get the PLOT-configuration."""
         return self.config["PLOT"]
 
+    @property
+    def SETTINGS(self) -> dict:
+        """Get the SETTINGS-configuration."""
+        return self.config["SETTINGS"]
+
 
     # Set indiviual props to update them properly.
     @property
@@ -63,6 +68,24 @@ class ConfigLoader():
     @logFile.setter
     def logFile(self, logfile):
         self.config["FILE"]["LOG_FILE"] = logfile
+
+
+    @property
+    def wavelength(self):
+        return self.SETTINGS["WL"]
+
+    @wavelength.setter
+    def wavelength(self, wl:float):
+        self.config["SETTINGS"]["WL"] = wl
+
+
+    @property
+    def dispersion(self):
+        return self.SETTINGS["DISPERSION"]
+
+    @dispersion.setter
+    def dispersion(self, dp:float):
+        self.config["SETTINGS"]["DISPERSION"] = dp
 
 
     @property
