@@ -46,8 +46,6 @@ class FileSet(set):
             The ui element in which to display the list.
         iterable : iterable, optional
             The initial set. The default is ().
-        updateOnChange : function/method, optional
-            The function is called when the set was changed. The default is None.
         """
         super().__init__(iterable)
         self.listWidget = listWidget
