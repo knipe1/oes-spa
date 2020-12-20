@@ -192,20 +192,14 @@ class BatchAnalysis(QDialog):
 
 
     def dragEnterEvent(self, event)->None:
-        """
-        Drag file over window event.
-
-        Validation takes place in dropEvent-handler.
-        """
+        """Note: Validation takes place in dropEvent-handler."""
         event.accept();
 
 
     def dropEvent(self, event)->None:
         """Filter the dropped urls to update the files with only valid urls."""
-        valid_urls = set()
-
-        # Get the urls and check their validity.
         urls = event.mimeData().urls();
+        valid_urls = set()
         for url in urls:
             localUrl = uni.get_valid_local_url(url)
             valid_urls.add(localUrl)
@@ -250,7 +244,8 @@ class BatchAnalysis(QDialog):
         isWDdir = path.isdir(self.WDdirectory) or self.logger.info("Invalid WD directory!")
         batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
         isBatchdir = path.isdir(batchPath) or self.logger.info("Invalid batch directory!")
-        return (isWDdir and isBatchdir)
+        isValid = (isWDdir and isBatchdir)
+        return isValid
 
 
     def activate_watchdog(self)->None:
