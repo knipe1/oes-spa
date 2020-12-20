@@ -58,11 +58,11 @@ class ConfigLoader():
     # Set indiviual props to update them properly.
     @property
     def logFile(self):
-        return self.FILE["LOG_FILE"]
+        return self.GENERAL["LOG_FILE"]
 
     @logFile.setter
     def logFile(self, logfile):
-        self.config["FILE"]["LOG_FILE"] = logfile
+        self.config["GENERAL"]["LOG_FILE"] = logfile
 
 
     @property

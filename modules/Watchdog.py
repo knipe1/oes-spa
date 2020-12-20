@@ -9,6 +9,7 @@ Created on Fri Jul 24 22:44:59 2020
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+from ConfigLoader import ConfigLoader
 
 
 class SpectrumHandler(FileSystemEventHandler):
@@ -16,9 +17,14 @@ class SpectrumHandler(FileSystemEventHandler):
         super().__init__()
         self.onModifiedMethod = onModifiedMethod or print
 
+        self.logfile = ConfigLoader().logFile
+
     def on_modified(self, event):
         # Only consider File events.
         if event.is_directory:
+            return
+
+        if self.logfile in event.src_path:
             return
 
         self.onModifiedMethod(event.src_path)

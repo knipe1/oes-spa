@@ -15,7 +15,7 @@ FITTING:
   FILE_PATTERN: fitting.yml
   PRESELECT_FITTING: Nitrogen Peak Fitting
 GENERAL:
-  LOG_FILE: debug.log
+  LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 PLOT:
   BASELINE_COLOR: b
   BASELINE_LABEL: Baseline
