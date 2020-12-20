@@ -256,10 +256,7 @@ class BatchAnalysis(QDialog):
 
         WDpath = self.WDdirectory
         batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
-        paths = [WDpath]
-        isSameDirectory = (WDpath == batchPath)
-        if not isSameDirectory:
-            paths.append(batchPath)
+        paths = set([WDpath, batchPath])
         self.dog.start(paths)
         self.window.enable_WD(False)
 
@@ -312,8 +309,6 @@ class BatchAnalysis(QDialog):
         amount = len(files)
         self.logger.info("No. of files %i:"%(amount))
 
-        before = perf_counter()
-
         for i in range(amount):
             config = retrieve_batch_config()
 
@@ -349,13 +344,6 @@ class BatchAnalysis(QDialog):
         if isExportBatch:
             header = assemble_header(config)
             self.export_batch(data, header)
-
-        after = perf_counter()
-        print()
-        print()
-        print("Elapsed: ", after-before)
-        print()
-        print()
 
         if isPlotTrace:
             self.import_batchfile(takeCurrentBatchfile=True)
