@@ -272,15 +272,14 @@ class BatchAnalysis(QDialog):
 
         self.currentFile = FileReader(filename)
         if not self.is_analyzable():
-            return
+            return None
 
-        basicSetting = self.prepare_analysis()
         try:
-            specHandler = SpectrumHandler(self.currentFile, basicSetting)
+            specHandler = SpectrumHandler(self.currentFile, self.setting)
         except InvalidSpectrumError:
-            return
+            return None
 
-        data, config = self.analyze_file(basicSetting, specHandler)
+        data, config = self.analyze_file(self.setting, specHandler)
         header = assemble_header(config)
         self.export_batch(data, header, isUpdate=True)
         # self.import_batchfile(takeCurrentBatchfile=True)

@@ -7,10 +7,10 @@ Single and batch analysis of OES spectra
 
 # standard libs
 import sys
-import sif_reader
 try:
+    import sif_reader
     da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
-except FileNotFoundError:
+except (FileNotFoundError, ModuleNotFoundError):
     pass
 
 # third-party libs

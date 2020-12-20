@@ -13,13 +13,13 @@ from ConfigLoader import ConfigLoader
 
 
 class SpectrumHandler(FileSystemEventHandler):
-    def __init__(self, onModifiedMethod):
+    def __init__(self, onModifiedMethod)->None:
         super().__init__()
         self.onModifiedMethod = onModifiedMethod or print
 
         self.logfile = ConfigLoader().logFile
 
-    def on_modified(self, event):
+    def on_modified(self, event)->None:
         # Only consider File events.
         if event.is_directory:
             return
@@ -33,18 +33,18 @@ class SpectrumHandler(FileSystemEventHandler):
 
 class Watchdog():
 
-    def __init__(self, onModifiedMethod=None):
+    def __init__(self, onModifiedMethod=None)->None:
         self.observer = Observer()
         self.handler = SpectrumHandler(onModifiedMethod)
 
 
-    def start(self, paths:list):
+    def start(self, paths:list)->None:
         for path in paths:
             self.observer.schedule(self.handler, path, recursive=False)
         self.observer.start()
 
 
-    def stop(self):
+    def stop(self)->None:
         try:
             self.observer.unschedule_all()
             self.observer.stop()
