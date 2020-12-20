@@ -35,7 +35,6 @@ from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
-from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 
 
 # Enums
@@ -274,7 +273,7 @@ class BatchAnalysis(QDialog):
     def analyze_single_file(self, filename:str)->None:
 
         self.currentFile = FileReader(filename)
-        if not self.is_analyzable():
+        if not self.currentFile.is_analyzable():
             return None
 
         try:
@@ -325,7 +324,7 @@ class BatchAnalysis(QDialog):
             self.currentFile = FileReader(file)
 
             if isExportBatch:
-                if not self.is_analyzable():
+                if not self.currentFile.is_analyzable():
                     skippedFiles.append(file)
                     continue
 
@@ -361,11 +360,6 @@ class BatchAnalysis(QDialog):
         timestamp = self.currentFile.timeInfo
         results[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
         return results
-
-
-    def is_analyzable(self)->ERR:
-        file = self.currentFile
-        return not is_exported_spectrum(file.filename)
 
 
     def prepare_analysis(self)->(BasicSetting):

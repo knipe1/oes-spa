@@ -31,6 +31,7 @@ from modules.filehandling.filereading.AscReader import AscReader
 from modules.filehandling.filereading.BaReader import BaReader
 from modules.filehandling.filereading.CsvReader import CsvReader
 from modules.filehandling.filereading.SpkReader import SpkReader
+from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 # further modules
 import modules.Universal as uni
 
@@ -235,6 +236,9 @@ class FileReader(FileFramework):
 
         return ERR.OK
 
+
+    def is_analyzable(self)->bool:
+        return not is_exported_spectrum(self.filename)
 
 
     def read_file(self, **kwargs)->ERR:
