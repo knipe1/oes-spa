@@ -256,16 +256,11 @@ class BatchAnalysis(QDialog):
 
         WDpath = self.WDdirectory
         batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
-        try:
-            # Start WD for WDdirectory
-            self.dog.start(WDpath)
-        except AttributeError:
-            self.logger.error("Error: No dog initialized!")
-
+        paths = [WDpath]
         isSameDirectory = (WDpath == batchPath)
         if not isSameDirectory:
-            self.dog.start(batchPath)
-
+            paths.append(batchPath)
+        self.dog.start(paths)
         self.window.enable_WD(False)
 
 
