@@ -96,6 +96,8 @@ class BatchAnalysis(QDialog):
     @WDdirectory.setter
     def WDdirectory(self, directory:str)->None:
         """WDdirectory setter: Updating the ui"""
+        if not path.isdir(directory):
+            return
         self._WDdirectory = directory
         self.window.WDdirectory = directory
         # try:
@@ -117,7 +119,8 @@ class BatchAnalysis(QDialog):
         # Initialize the parent class [equivalent to: QDialog.__init__(self)].
         super().__init__(parent)
 
-        # Init the props to prevent errors in the ui-init routine. (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
+        # Init the props to prevent errors in the ui-init routine.
+        # (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
         self._batchFile = None
         self._WDdirectory = None
         self.currentFile = None
@@ -133,8 +136,8 @@ class BatchAnalysis(QDialog):
     def __post_init__(self)->None:
         # Set the defaults.
         self._files = FileSet(listWidget = self.window.listFiles)
-        self.batchFile = self.window.batchFile
-        self.WDdirectory = self.window.WDdirectory
+        # self.batchFile = self.window.batchFile
+        # self.WDdirectory = self.window.WDdirectory
         self.dog = Watchdog(self.watchdog_event_handler)
         self.traceSpectrum = Trace(self.window.plotTraceSpectrum)
 
@@ -168,6 +171,7 @@ class BatchAnalysis(QDialog):
 
     def closeEvent(self, event)->None:
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
+        event.accept()
         self.schedule_cancel_routine()
         self.deactivate_watchdog()
 
@@ -178,6 +182,7 @@ class BatchAnalysis(QDialog):
 
         Regarding deletions, cancellations,...
         """
+        event.accept()
 
         isFocused = self.window.focussed_filelist()
         isDelete = event.matches(QKeys.Delete)
@@ -396,7 +401,7 @@ class BatchAnalysis(QDialog):
         self.traceSpectrum.reset_time()
         for peak in file.data.keys():
             timestamps, values = zip(*file.data[peak])
-            diffTimes = self.calculate_time_differences(timestamps)
+            diffTimes = self.traceSpectrum.calculate_time_differences(timestamps)
             traceData = np.array((diffTimes, values)).transpose()
             file.data[peak] = traceData
 
@@ -406,21 +411,12 @@ class BatchAnalysis(QDialog):
 
 
     def determine_batchfile(self, takeCurrentBatchfile:bool)->str:
-        """Takes either the current batchdile or opens a dialog to select one."""
+        """Takes either the current batchfile or opens a dialog to select one."""
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
             filename = dialog.dialog_importBatchfile()
         return filename
-
-
-    def calculate_time_differences(self, timestamps:np.ndarray)->np.ndarray:
-        diffTimes = np.zeros((len(timestamps),))
-
-        for idx, timestamp in enumerate(timestamps):
-            diffTime = self.traceSpectrum.get_timediff_H(timestamp)
-            diffTimes[idx] = diffTime
-        return diffTimes
 
 
     def export_batch(self, data:list, header:list, isUpdate:bool=False)->None:
@@ -445,28 +441,15 @@ class BatchAnalysis(QDialog):
 
 
     def specify_batchfile(self)->None:
-        """
-        Specifies the filename through a dialog.
-
-        Determines the batchfile, and updates the ui.
-
-        Returns
-        -------
-        filename : str
-            The filename selected by the user.
-            None if dialog was quit or cancelled.
-
-        """
-        # Retrieve the filename and the corresponding info
+        """Specifies the filename through a dialog."""
         filename = dialog.dialog_batchfile()
-        if filename:
-            self.batchFile = filename
+        self.batchFile = filename
 
 
     def specify_watchdog_directory(self)->None:
+        """Specifies the watchdog directory through a dialog."""
         directory = dialog.dialog_watchdogDirectory()
-        if directory:
-            self.WDdirectory = directory
+        self.WDdirectory = directory
 
 
     def browse_spectra(self)->None:
@@ -477,12 +460,12 @@ class BatchAnalysis(QDialog):
 
     def enable_analysis(self)->None:
         """Enables the ui if configuration is set accordingly."""
-        enable = True
-
         if not self.batchFile:
             enable = False
         elif not self._files:
             enable = False
+        else:
+            enable = True
 
         self.window.enable_analysis(enable)
 
@@ -496,22 +479,25 @@ class BatchAnalysis(QDialog):
         index : QModelIndex, int
             Transmitted by a QListModel or by another method.
         """
-        try:
-            index = index.row()
-            self.logger.debug("Open indexed file called by an event.")
-        except AttributeError:
-            self.logger.debug("Open indexed file called by another method.")
+        index, msg = get_numerical_index(index)
+        self.logger.debug(msg)
 
-        try:
-            selectedFilename = self._files[index]
-        except IndexError:
-            self.logger.info("Cannot open file, invalid index provided!")
-            return
-        if selectedFilename:
-            selectedFile = FileReader(selectedFilename)
+        filename = self.get_indexed_filename(index)
+
+        if filename:
+            selectedFile = FileReader(filename)
             dogAlive = self.dog.is_alive()
             self.parent().apply_file(selectedFile, silent=dogAlive)
             self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
+
+
+    def get_indexed_filename(self, index)->str:
+        try:
+            filename = self._files[index]
+        except IndexError:
+            filename = None
+            self.logger.info("Cannot open file, invalid index provided!")
+        return filename
 
 
     ### Interaction with the FileSet self._files.
@@ -557,21 +543,10 @@ def assemble_row(config:dict)->list:
     return row
 
 
-def retrieve_batch_config()->dict:
-    """
-    Returns
-    -------
-    config: dict
-        Containts the CHARACTERISTIC enum as dict with default values.
-
-    """
-
-    config = {CHC.FILENAME: None,
-              CHC.PEAK_HEIGHT: None,
-              CHC.PEAK_AREA: None,
-              CHC.BASELINE: None,
-              CHC.CHARACTERISTIC_VALUE: None,
-              CHC.HEADER_INFO: None,
-              CHC.PEAK_POSITION: None,
-              CHC.PEAK_NAME: None,}
-    return config
+def get_numerical_index(index:(QModelIndex, int))->tuple:
+    try:
+        index = index.row()
+        msg = "Open indexed file called by an event."
+    except AttributeError:
+        msg = "Open indexed file called by another method."
+    return index, msg
