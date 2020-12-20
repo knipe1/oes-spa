@@ -32,24 +32,20 @@ class UIBatch(Ui_batch):
 
     # Interface for the batchfile.
     @property
-    def batchFile(self):
-        """batchFile getter"""
-        return self.foutCSV.text()
+    def batchFile(self)->str:
+        return self.foutBatchfile.text()
 
     @batchFile.setter
-    def batchFile(self, filename:str):
-        """batchFile setter"""
-        self.foutCSV.setText(filename)
+    def batchFile(self, filename:str)->None:
+        self.foutBatchfile.setText(filename)
 
 
     @property
     def WDdirectory(self)->str:
-        """WDdirectory getter"""
         return self.foutWatchdog.text()
 
     @WDdirectory.setter
-    def WDdirectory(self, filename:str):
-        """WDdirectory setter"""
+    def WDdirectory(self, filename:str)->None:
         self.foutWatchdog.setText(filename)
 
 
@@ -147,57 +143,57 @@ class UIBatch(Ui_batch):
 
     ## Connect methods
 
-    def connect_browse_files(self, fun):
+    def connect_browse_spectra(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnBrowse.clicked.connect(fun)
 
 
-    def connect_calculate(self, fun):
+    def connect_analyze(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnCalculate.clicked.connect(fun)
 
 
-    def connect_cancel(self, fun):
+    def connect_cancel(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnCancel.clicked.connect(fun)
 
 
-    def connect_change_csvfile(self, fun):
+    def connect_change_batchfile(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
-        self.foutCSV.textChanged.connect(fun)
+        self.foutBatchfile.textChanged.connect(fun)
 
 
-    def connect_clear(self, fun):
+    def connect_clear(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnClear.clicked.connect(fun)
 
 
-    def connect_import_batch(self, fun):
+    def connect_import_batchfile(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnImport.clicked.connect(fun)
 
 
-    def connect_select_file(self, fun):
+    def connect_select_file(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.listFiles.currentRowChanged.connect(fun)
 
 
-    def connect_set_filename(self, fun):
+    def connect_set_batchfile(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnSetFilename.clicked.connect(fun)
 
 
-    def connect_change_trace(self, fun):
+    def connect_change_trace(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.cmbTrace.currentTextChanged.connect(fun)
 
 
-    def connect_set_directory(self, fun):
+    def connect_set_watchdog_directory(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnSetWatchdogDir.clicked.connect(fun)
 
 
-    def connect_watchdog(self, fun):
+    def connect_watchdog(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnWatchdog.clicked.connect(fun)
 

@@ -115,7 +115,7 @@ class BatchAnalysis(QDialog):
         """
         self.logger = Logger(__name__)
 
-        # Initialize the parent class ( == QDialog.__init__(self).
+        # Initialize the parent class [equivalent to: QDialog.__init__(self)].
         super().__init__(parent)
 
         # Init the props to prevent errors in the ui-init routine. (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
@@ -128,7 +128,7 @@ class BatchAnalysis(QDialog):
         self.__post_init__()
 
 
-    def __post_init__(self):
+    def __post_init__(self)->None:
         # Set the defaults.
         self._files = FileSet(listWidget = self.window.listFiles)
         self.batchFile = self.window.batchFile
@@ -140,7 +140,7 @@ class BatchAnalysis(QDialog):
         self.set_connections()
 
 
-    def __repr__(self):
+    def __repr__(self)->str:
         info = {}
         info["batchfile"] = self.batchFile
         info["files"] = self._files
@@ -148,17 +148,17 @@ class BatchAnalysis(QDialog):
 
 
     def set_connections(self)->None:
-        self.window.connect_browse_files(self.browse_spectra)
-        self.window.connect_calculate(self.analyze)
+        self.window.connect_browse_spectra(self.browse_spectra)
+        self.window.connect_analyze(self.analyze)
         self.window.connect_cancel(self.schedule_cancel_routine)
-        self.window.connect_change_csvfile(self.enable_analysis)
+        self.window.connect_change_batchfile(self.enable_analysis)
         self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_clear(self.reset_batch)
-        self.window.connect_import_batch(self.import_batchfile)
+        self.window.connect_import_batchfile(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
         self.window.connect_select_file(self.enable_analysis)
-        self.window.connect_set_directory(self.specify_watchdog_directory)
-        self.window.connect_set_filename(self.specify_batchfile)
+        self.window.connect_set_watchdog_directory(self.specify_watchdog_directory)
+        self.window.connect_set_batchfile(self.specify_batchfile)
         self.window.connect_watchdog(self.toggle_watchdog)
 
     ### Events

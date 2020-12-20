@@ -96,7 +96,7 @@ class TestBatchAnalysis(unittest.TestCase):
         esc.start()
         # the same filename as before, but empty for the return value
         self.assertEqual(self.batch.specify_batchfile(), r"", "Filename: Cancel")
-        self.assertEqual(self.form.foutCSV.text(), arbitraryFilename, "Filename: Cancel but old filename")
+        self.assertEqual(self.form.foutBatchfile.text(), arbitraryFilename, "Filename: Cancel but old filename")
 
 
         # """ Test falsy suffixes"""
@@ -139,7 +139,7 @@ class TestBatchAnalysis(unittest.TestCase):
         yes = THR.Thread(target=emu.key_alt_j)
         yes.start()
         self.assertEqual(self.batch.specify_batchfile(), expectedFilename, "Filename: issue text is "+text)
-        self.assertEqual(self.form.foutCSV.text(), expectedFilename, "Filename: issue text is "+text)
+        self.assertEqual(self.form.foutBatchfile.text(), expectedFilename, "Filename: issue text is "+text)
 
     def routine_browse_spectra(self, amount, msg="", clearAfter = True, isUpdate = False):
         # if update only, there is no clear before and the amount is halfed
