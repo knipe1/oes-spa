@@ -96,8 +96,8 @@ class BaReader(BaseReader):
 
     def handle_additional_information(self, **kwargs)->None:
         batchMarker = self.MARKER["BATCH"]
-        markerElement = kwargs.get("markerElement")
-        if not self.contain_marker(batchMarker, markerElement):
+        line = kwargs.get("line")
+        if not self.contain_marker(batchMarker, line):
             return
 
         line = kwargs.get("line")

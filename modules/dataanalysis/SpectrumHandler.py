@@ -6,11 +6,11 @@ Contains routines to convert raw data and obtain different parameters
 
 Glossary:
     rawData: the data that is originally in the spectrum file.
-    procData: 'processed' data-> the raw data somwhow processed like converting from pixel to wavelength or shift it to some wavelength.
+    procData: 'processed' data-> the raw data processed like converting from pixel to wavelength or shift it to some wavelength.
 
 @author: Peter Knittel, Hauke Wernecke
 """
-from time import perf_counter
+
 
 # standard libs
 import numpy as np
@@ -29,7 +29,6 @@ from c_types.BasicSetting import BasicSetting
 # enums
 from c_types.Integration import Integration
 from c_types.Peak import Peak
-from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
@@ -92,6 +91,18 @@ class SpectrumHandler():
         return self.procData[:, 1]
 
 
+    @property
+    def results(self)->dict:
+        result = {}
+        result[CHC.BASELINE] = self.avgbase
+        result[CHC.CHARACTERISTIC_VALUE] = self.characteristicValue
+        result[CHC.PEAK_NAME] = self.peakName
+        result[CHC.PEAK_AREA] = self.peakArea
+        result[CHC.PEAK_HEIGHT] = self.peakHeight
+        result[CHC.PEAK_POSITION] = self.peakPosition
+        return result
+
+
     ### dunder methods
 
     def __init__(self, file:FileReader, basicSetting:BasicSetting, **kwargs):
@@ -101,9 +112,9 @@ class SpectrumHandler():
         if not file.is_valid_spectrum():
             raise InvalidSpectrumError("File contain no valid spectrum.")
         self.basicSetting = basicSetting
-        parameter = kwargs.get("parameter", {})
 
         self.integration = []
+        self.fitting = None
 
         self.peakArea = None
         self.peakHeight = None
@@ -170,7 +181,7 @@ class SpectrumHandler():
         refArea = refCharacteristic[CHC.PEAK_AREA]
 
         # Set the type for these integration areas.
-        integrationAreas = self.set_type_to_reference(refIntegrationAreas)
+        integrationAreas = set_type_to_reference(refIntegrationAreas)
         intAreas = integrationAreas.values()
 
         # Validation
@@ -262,12 +273,6 @@ class SpectrumHandler():
                 procIntegration.append(intArea)
 
         return rawIntegration, procIntegration
-
-
-    def set_type_to_reference(self, intAreas:dict)->dict:
-        for intArea in intAreas.values():
-            intArea.peakType = CHC.TYPE_REFERENCE
-        return intAreas
 
 
     # def determine_dispersion(self, parameter:dict)->float:
@@ -383,6 +388,12 @@ class SpectrumHandler():
 
 
         return processedYdata, baseline, avgbase
+
+
+def set_type_to_reference(intAreas:dict)->dict:
+    for intArea in intAreas.values():
+        intArea.peakType = CHC.TYPE_REFERENCE
+    return intAreas
 
 
 def tuple_to_array(data:tuple)->np.ndarray:

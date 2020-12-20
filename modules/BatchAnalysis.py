@@ -45,13 +45,13 @@ from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
+# exceptions
+from exception.InvalidSpectrumError import InvalidSpectrumError
 
 # constants
 # BATCH_SUFFIX requires "." as prefix to the suffix-value
 BATCH_SUFFIX = "." + SUFF.BATCH.value
 
-# exceptions
-from exception.InvalidSpectrumError import InvalidSpectrumError
 
 
 class BatchAnalysis(QDialog):
@@ -95,12 +95,12 @@ class BatchAnalysis(QDialog):
         return self._WDdirectory
 
     @WDdirectory.setter
-    def WDdirectory(self, path:str)->None:
+    def WDdirectory(self, directory:str)->None:
         """WDdirectory setter: Updating the ui"""
-        self._WDdirectory = path
-        self.window.WDdirectory = path
+        self._WDdirectory = directory
+        self.window.WDdirectory = directory
         # try:
-        #     self.window.WDdirectory = path
+        #     self.window.WDdirectory = directory
         # except AttributeError:
         #     self.logger.debug("Could not set the WD directory in the ui.")
 
@@ -121,6 +121,9 @@ class BatchAnalysis(QDialog):
         # Init the props to prevent errors in the ui-init routine. (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
         self._batchFile = None
         self._WDdirectory = None
+        self.currentFile = None
+        self.isScheduledCancel = False
+        self.setting = None
 
         # Set up ui.
         self.window = UIBatch(self)
@@ -193,12 +196,12 @@ class BatchAnalysis(QDialog):
 
     def dragEnterEvent(self, event)->None:
         """Note: Validation takes place in dropEvent-handler."""
-        event.accept();
+        event.accept()
 
 
     def dropEvent(self, event)->None:
         """Filter the dropped urls to update the files with only valid urls."""
-        urls = event.mimeData().urls();
+        urls = event.mimeData().urls()
         valid_urls = set()
         for url in urls:
             localUrl = uni.get_valid_local_url(url)
@@ -215,21 +218,21 @@ class BatchAnalysis(QDialog):
 
     ### Watchdog routines
 
-    def watchdog_event_handler(self, path:str)->None:
-        # Checks absolute paths to avoid issues due to relative vs absolute paths.
-        eventPath, _, _ = uni.extract_path_basename_suffix(path)
+    def watchdog_event_handler(self, pathname:str)->None:
+        # Checks absolute pathnames to avoid issues due to relative vs absolute pathnames.
+        eventPath, _, _ = uni.extract_path_basename_suffix(pathname)
 
         # Distinguish between modified batch- and spectrum-file.
-        if self.batchFile == path:
+        if self.batchFile == pathname:
             self.logger.info("WD: Batchfile modified.")
             self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
-            self.logger.info("WD: Spectrum file modified/added: %s"%(path))
-            isOk = self.analyze_single_file(path)
+            self.logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+            isOk = self.analyze_single_file(pathname)
             if not isOk:
                 return
-            self.update_filelist([path])
-            # self._files.select_row_by_filename(path)
+            self.update_filelist([pathname])
+            # self._files.select_row_by_filename(pathname)
 
 
     def toggle_watchdog(self, status:bool)->None:
@@ -350,22 +353,14 @@ class BatchAnalysis(QDialog):
         dialog.information_batchAnalysisFinished(skippedFiles)
         self._files.difference_update(skippedFiles)
 
-        return ERR.OK
-
 
     def map_spectrum_characteristics(self, specHandler:SpectrumHandler)->dict:
-        config = retrieve_batch_config()
-        config[CHC.FILENAME] = self.currentFile.filename
-        config[CHC.BASELINE] = specHandler.avgbase
-        config[CHC.CHARACTERISTIC_VALUE] = specHandler.characteristicValue
-        config[CHC.PEAK_NAME] = specHandler.peakName
-        config[CHC.PEAK_AREA] = specHandler.peakArea
-        config[CHC.PEAK_HEIGHT] = specHandler.peakHeight
-        config[CHC.PEAK_POSITION] = specHandler.peakPosition
-        # Convert to string for proper presentation.
+        results = specHandler.results
+        results[CHC.FILENAME] = self.currentFile.filename
+
         timestamp = self.currentFile.timeInfo
-        config[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
-        return config
+        results[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+        return results
 
 
     def is_analyzable(self)->ERR:
@@ -491,7 +486,7 @@ class BatchAnalysis(QDialog):
 
     def enable_analysis(self)->None:
         """Enables the ui if configuration is set accordingly."""
-        enable = True;
+        enable = True
 
         if not self.batchFile:
             enable = False
@@ -556,11 +551,9 @@ class BatchAnalysis(QDialog):
         self.reset_trace()
 
 
-
     def schedule_cancel_routine(self)->None:
         """Demands a cancellation. Processed in corresponing methods."""
         self.isScheduledCancel = True
-
 
 
 def assemble_header(config:dict)->list:
@@ -569,7 +562,7 @@ def assemble_header(config:dict)->list:
 
 
 def assemble_row(config:dict)->list:
-    row = [value for value in config.values()]
+    row = config.values()
     return row
 
 

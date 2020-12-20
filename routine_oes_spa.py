@@ -35,8 +35,8 @@ def main():
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = True
-    selectBatchfile = False
-    selectBatchSpectra = False
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
     activateWD = False
 
@@ -46,6 +46,7 @@ def main():
     # Setup GUI
     app = QApplication(sys.argv)
     window = AnalysisWindow()
+
 
     if test_calibration:
         window.window.wavelength = "388.8"

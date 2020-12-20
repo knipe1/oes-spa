@@ -8,7 +8,7 @@ FITTING:
   - Methan Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Methan Peak Fitting
+  PRESELECT_FITTING: Example Fitting
 GENERAL:
   LOG_FILE: debug.log
 PLOT:
@@ -33,4 +33,4 @@ PLOT:
   REFERENCE_LINESTYLE: --
 SETTINGS:
   DISPERSION: 0.006110303
-  WL: 388.82
+  WL: 433.1
