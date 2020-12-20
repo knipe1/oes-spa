@@ -362,16 +362,21 @@ class BatchAnalysis(QDialog):
         return results
 
 
-    def prepare_analysis(self)->(BasicSetting):
-        # basicSetting = self.parent().window.get_basic_setting()
-        basicSetting = self.setting
-        return basicSetting
+    # def prepare_analysis(self)->(BasicSetting):
+    #     # basicSetting = self.parent().window.get_basic_setting()
+    #     basicSetting = self.setting
+    #     return basicSetting
 
 
-    def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->ERR:
+    def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->tuple:
         data = []
         config = retrieve_batch_config()
-        for fitting in setting.checkedFittings:
+        validFittings =  []
+        for fit in setting.checkedFittings:
+            if fit.is_valid():
+                validFittings.append(fit)
+
+        for fitting in validFittings:
             specHandler.fit_data(fitting)
 
             # excluding file if no appropiate data given like in processed spectra.

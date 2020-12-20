@@ -143,18 +143,23 @@ class Fitting():
             self.logger.info("No reference peak defined.")
 
 
-    ## update errorcode methods
+    ## update errorcode/validation methods
 
-    def update_errorcode_fitting(self):
+    def is_valid(self)->bool:
+        err = bool(self.errCode)
+        return not err
+
+
+    def update_errorcode_fitting(self)->None:
         self.errCode += ERR_FIT.FITTING.value
         self.logger.error("Error: Fitting has an error!")
 
 
-    def update_errorcode_peak(self):
+    def update_errorcode_peak(self)->None:
         self.errCode += ERR_FIT.PEAK.value
         self.logger.error("Error: Peak is not properly defined!")
 
 
-    def update_errorcode_reference(self):
+    def update_errorcode_reference(self)->None:
         self.errCode += ERR_FIT.REFERENCE.value
         self.logger.warning("Invalid reference peak defined.")
