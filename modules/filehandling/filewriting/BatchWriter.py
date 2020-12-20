@@ -72,7 +72,7 @@ class BatchWriter(FileWriter):
             with open(self.filename, 'r', newline='') as f:
                 fReader = csv.reader(f, dialect=self.dialect)
                 for line in fReader:
-                    if self.MARKER["BATCH"] in line[0]:
+                    if self.MARKER["BATCH"] in line:
                         isValid = True
                         break
         except FileNotFoundError:

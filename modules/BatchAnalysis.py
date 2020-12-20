@@ -281,8 +281,7 @@ class BatchAnalysis(QDialog):
         except InvalidSpectrumError:
             return None
 
-        data, config = self.analyze_file(self.setting, specHandler)
-        header = assemble_header(config)
+        data, header = self.analyze_file(self.setting, specHandler)
         self.export_batch(data, header, isUpdate=True)
         # self.import_batchfile(takeCurrentBatchfile=True)
         return ERR.OK
@@ -334,7 +333,7 @@ class BatchAnalysis(QDialog):
                     skippedFiles.append(file)
                     continue
 
-                fileData, config = self.analyze_file(basicSetting, specHandler)
+                fileData, header = self.analyze_file(basicSetting, specHandler)
                 data.extend(fileData)
 
             # Select by filename to trigger event based update of the plot.
@@ -342,7 +341,6 @@ class BatchAnalysis(QDialog):
                 self._files.select_row_by_filename(file)
 
         if isExportBatch:
-            header = assemble_header(config)
             self.export_batch(data, header)
 
         if isPlotTrace:
@@ -362,33 +360,22 @@ class BatchAnalysis(QDialog):
         return results
 
 
-    # def prepare_analysis(self)->(BasicSetting):
-    #     # basicSetting = self.parent().window.get_basic_setting()
-    #     basicSetting = self.setting
-    #     return basicSetting
-
-
     def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->tuple:
         data = []
-        config = retrieve_batch_config()
-        validFittings =  []
-        for fit in setting.checkedFittings:
-            if fit.is_valid():
-                validFittings.append(fit)
-
-        for fitting in validFittings:
+        for fitting in setting.checkedFittings:
             specHandler.fit_data(fitting)
+            results = self.map_spectrum_characteristics(specHandler)
 
             # excluding file if no appropiate data given like in processed spectra.
             if not specHandler.has_valid_peak():
                 continue
 
-            config = self.map_spectrum_characteristics(specHandler)
-            data.append(assemble_row(config))
-        return data, config
+            data.append(assemble_row(results))
+        header = assemble_header(results)
+        return data, header
 
 
-    def import_batchfile(self, takeCurrentBatchfile=False):
+    def import_batchfile(self, takeCurrentBatchfile:bool=False)->None:
 
         # Select the file from which the data shall be imported.
         filename = self.determine_batchfile(takeCurrentBatchfile)
@@ -408,7 +395,7 @@ class BatchAnalysis(QDialog):
         # See #98
         self.traceSpectrum.reset_time()
         for peak in file.data.keys():
-            timestamps, values = file.data[peak][:,0], file.data[peak][:,1]
+            timestamps, values = zip(*file.data[peak])
             diffTimes = self.calculate_time_differences(timestamps)
             traceData = np.array((diffTimes, values)).transpose()
             file.data[peak] = traceData
@@ -445,6 +432,11 @@ class BatchAnalysis(QDialog):
 
 
     def set_setting(self, setting:BasicSetting)->None:
+        validFittings =  []
+        for fit in setting.checkedFittings:
+            if fit.is_valid():
+                validFittings.append(fit)
+        setting.checkedFittings = validFittings
         self.setting = setting
 
 

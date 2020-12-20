@@ -4,7 +4,6 @@ BATCH:
   SEPARATOR: ':'
 FITTING:
   CHECKED_FITTINGS:
-  - Example (No peak)
   - Example (No reference)
   - Example Fitting
   - Methan Peak Fitting

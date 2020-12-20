@@ -15,7 +15,7 @@ from dataclasses import dataclass
 # local modules/libs
 from modules.dataanalysis.Fitting import Fitting
 
-@dataclass(frozen=True)
+@dataclass
 class BasicSetting():
     wavelength: float;
     dispersion: float;
