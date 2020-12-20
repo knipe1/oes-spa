@@ -313,7 +313,7 @@ class BatchAnalysis(QDialog):
         isExportBatch = self.window.get_export_batch() or isPlotTrace
 
         # Get characteristic values.
-        basicSetting = self.prepare_analysis()
+        basicSetting = self.setting
 
         data = []
         skippedFiles = []
@@ -325,9 +325,8 @@ class BatchAnalysis(QDialog):
         before = perf_counter()
 
         for i in range(amount):
-            config = retrieve_batch_config()
-
             # Be responsive and process events to enable cancelation.
+            # HINT: QApplication.processEvents() slows down the analysis massively.
             QApplication.processEvents()
             if self.isScheduledCancel:
                 break
@@ -353,7 +352,7 @@ class BatchAnalysis(QDialog):
                 data.extend(fileData)
 
             # Select by filename to trigger event based update of the plot.
-            if isUpdatePlot:
+            elif isUpdatePlot:
                 self._files.select_row_by_filename(file)
 
         if isExportBatch:
