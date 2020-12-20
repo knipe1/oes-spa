@@ -28,12 +28,12 @@ class FileSet(set):
     """
 
     @property
-    def selected_row(self):
+    def selected_row(self)->str:
         row = self.listWidget.currentRow()
         return row
 
     @selected_row.setter
-    def selected_row(self, i):
+    def selected_row(self, i:int)->None:
         self.listWidget.setCurrentRow(i)
 
 
@@ -46,14 +46,12 @@ class FileSet(set):
             The ui element in which to display the list.
         iterable : iterable, optional
             The initial set. The default is ().
-        updateOnChange : function/method, optional
-            The function is called when the set was changed. The default is None.
         """
         super().__init__(iterable)
         self.listWidget = listWidget
 
 
-    def __getitem__(self, i):
+    def __getitem__(self, i:int)->str:
         """Gets the i-th item of the unsorted list."""
         if i < 0:
             raise IndexError
@@ -61,13 +59,13 @@ class FileSet(set):
         return files[i]
 
 
-    def clear(self):
+    def clear(self)->None:
         """Clears the set AND updates the ui."""
         super().clear()
         self.update_ui()
 
 
-    def update(self, s):
+    def update(self, s:set)->None:
         """Updates the set AND updates the ui."""
 
         # Get the current selection.
@@ -82,26 +80,24 @@ class FileSet(set):
         self.update_ui(index=index, filename=filename)
 
 
-    def remove(self, t):
+    def remove(self, t:str)->None:
         """Removes an item AND updates the ui."""
         super().remove(t)
         idx = self.selected_row - 1
         self.update_ui(index=idx)
 
 
-    def difference_update(self, iterables):
+    def difference_update(self, iterables:set)->None:
         """Removes an item AND updates the ui."""
         super().difference_update(iterables)
         self.update_ui(index=0)
 
 
-    def to_list(self, naturalSort=True, indexed=False):
+    def to_list(self, naturalSort:bool=True, indexed:bool=False)->None:
         """Convert the set to a sorted/indexed list."""
         files = list(self)
         if naturalSort:
-            # files.sort(key=uni.natural_keys)
             files = natsorted(files)
-
 
         if indexed:
             files = uni.add_index_to_text(uni.reduce_path(files))
@@ -109,7 +105,7 @@ class FileSet(set):
         return files
 
 
-    def update_ui(self, index=None, filename=None):
+    def update_ui(self, index:int=None, filename:str=None)->None:
         """Update ui with converted and sorted/indexed list."""
         files = self.to_list(indexed=True)
 
@@ -123,7 +119,7 @@ class FileSet(set):
             self.select_row_by_filename(filename)
 
 
-    def select_row_by_filename(self, filename):
+    def select_row_by_filename(self, filename:str)->None:
         """Gets the i-th item of the sorted list by the filename."""
         files = self.to_list()
         i = files.index(filename)

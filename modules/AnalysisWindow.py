@@ -91,6 +91,7 @@ class AnalysisWindow(QMainWindow):
     def __post_init__(self)->None:
         self.connect_ui_events()
         self.init_spectra()
+        self.update_batch_setting()
 
 
     def __repr__(self):

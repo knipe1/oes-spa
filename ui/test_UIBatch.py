@@ -59,7 +59,7 @@ class TestUIBatch(unittest.TestCase):
         """
         self.assertTrue(self.form.btnSetFilename.isEnabled())
         self.assertTrue(self.form.btnBrowse.isEnabled())
-        self.assertTrue(self.form.foutCSV.isEnabled())
+        self.assertTrue(self.form.foutBatchfile.isEnabled())
         self.assertTrue(self.form.listFiles.isEnabled())
 
         self.assertTrue(self.form.btnClear.isEnabled())
@@ -91,7 +91,7 @@ class TestUIBatch(unittest.TestCase):
         self.assertEqual(self.form.cbHead.isChecked(), False)
         #file list
         self.assertEqual(self.form.parent.model.stringList(), [])
-        self.assertEqual(self.form.foutCSV.text(), "")
+        self.assertEqual(self.form.foutBatchfile.text(), "")
 
     def test_propUpdatePlots_default(self):
         """Testing the default values of property and ui"""

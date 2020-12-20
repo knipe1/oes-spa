@@ -9,42 +9,50 @@ Created on Fri Jul 24 22:44:59 2020
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+from ConfigLoader import ConfigLoader
 
 
 class SpectrumHandler(FileSystemEventHandler):
-    def __init__(self, onModifiedMethod):
+    def __init__(self, onModifiedMethod)->None:
         super().__init__()
         self.onModifiedMethod = onModifiedMethod or print
 
-    def on_modified(self, event):
+        self.logfile = ConfigLoader().logFile
+
+    def on_modified(self, event)->None:
         # Only consider File events.
         if event.is_directory:
+            return
+
+        if self.logfile in event.src_path:
             return
 
         self.onModifiedMethod(event.src_path)
 
 
+
 class Watchdog():
 
-    def __init__(self, onModifiedMethod=None):
+    def __init__(self, onModifiedMethod=None)->None:
+        self.observer = Observer()
         self.handler = SpectrumHandler(onModifiedMethod)
 
 
-    def start(self, path):
-        self.observer = Observer()
-        self.observer.schedule(self.handler, path, recursive=False)
+    def start(self, paths:list)->None:
+        for path in paths:
+            self.observer.schedule(self.handler, path, recursive=False)
         self.observer.start()
 
 
-    def stop(self):
+    def stop(self)->None:
         try:
+            self.observer.unschedule_all()
             self.observer.stop()
             self.observer.join()
-        except:
+            print("Observation stopped.")
+        except RuntimeError:
             print("No observer initialized.")
 
+
     def is_alive(self)->bool:
-        try:
-            return self.observer.is_alive()
-        except AttributeError:
-            return False
+        return self.observer.is_alive()

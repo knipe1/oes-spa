@@ -191,7 +191,6 @@ class UIMain(Ui_main):
         self.load_fitting_selection_from_config()
         self.load_settings_from_config()
 
-
         # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
 
