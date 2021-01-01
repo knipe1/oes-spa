@@ -49,6 +49,7 @@ class Watchdog():
             self.observer.unschedule_all()
             self.observer.stop()
             self.observer.join()
+            self.observer = Observer()
             print("Observation stopped.")
         except RuntimeError:
             print("No observer initialized.")

@@ -71,7 +71,7 @@ class TestUIBatch(unittest.TestCase):
         self.assertTrue(self.form.cbHead.isEnabled())
         self.assertTrue(self.form.barProgress.isEnabled())
 
-        self.assertFalse(self.form.btnCalculate.isEnabled())
+        self.assertFalse(self.form.btnAnalyze.isEnabled())
 
 
     def test_defaults(self):
@@ -152,7 +152,7 @@ class TestUIBatch(unittest.TestCase):
         esc.start()
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
         #check if the button "Calculate" is not enabled
-        self.assertFalse(self.form.btnCalculate.isEnabled(), "btnCalculate is enabled")
+        self.assertFalse(self.form.btnAnalyze.isEnabled(), "btnAnalyze is enabled")
 
     def test_setFilename_accept(self):
         """
@@ -174,7 +174,7 @@ class TestUIBatch(unittest.TestCase):
         QTest.mouseClick(self.form.btnSetFilename, Qt.LeftButton)
         # TODO: Check if a file is actually selected or batch.csv (preserved name) is acutally saved?
         #check if the button "Calculate" is enabled
-        #self.assertTrue(self.form.btnCalculate.isEnabled(), "btnCalculate is not enabled")
+        #self.assertTrue(self.form.btnAnalyze.isEnabled(), "btnAnalyze is not enabled")
 
     def checkboxesEnabled(self, enabled=True):
         """

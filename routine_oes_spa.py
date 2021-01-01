@@ -30,12 +30,12 @@ def main():
     # True
     # False
 
-    initialSpkLoad = True
+    initialSpkLoad = False
     initialAscLoad = False
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = True
-    selectBatchfile = True
+    selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
@@ -112,7 +112,7 @@ def main():
         selection.start()
         window.batch.browse_spectra()
         window.batch.window.radTrace.click()
-        window.batch.window.btnCalculate.click()
+        window.batch.window.btnAnalyze.click()
 
     if hideBatch:
         window.batch.hide()
