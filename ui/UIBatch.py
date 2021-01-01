@@ -122,16 +122,15 @@ class UIBatch(Ui_batch, QObject):
         return trace
 
 
-    # TODO: use properties here?
-    def get_update_plots(self):
+    def get_update_plots(self)->bool:
         return self.radSpectra.isChecked()
 
 
-    def get_plot_trace(self):
+    def get_plot_trace(self)->bool:
         return self.radTrace.isChecked()
 
 
-    def get_export_batch(self):
+    def get_export_batch(self)->bool:
         return self.radExport.isChecked()
 
 
@@ -139,15 +138,12 @@ class UIBatch(Ui_batch, QObject):
         return self.listFiles.currentRow()
 
 
-    def set_fileselection(self, index):
+    def set_fileselection(self, index:int)->None:
         self.listFiles.setCurrentRow(index)
 
 
-    def focussed_filelist(self):
+    def focussed_filelist(self)->bool:
         return self.listFiles.hasFocus()
-
-
-
 
 
     ## Connect methods

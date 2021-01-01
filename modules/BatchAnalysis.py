@@ -121,8 +121,6 @@ class BatchAnalysis(QDialog):
 
         # Init the props to prevent errors in the ui-init routine.
         # (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
-        self._batchFile = None
-        self._WDdirectory = ""
         self.currentFile = None
         self.isScheduledCancel = False
         self.setting = None
@@ -137,9 +135,9 @@ class BatchAnalysis(QDialog):
 
     def __post_init__(self)->None:
         # Set the defaults.
+        self._batchFile = None
+        self._WDdirectory = ""
         self._files = FileSet(listWidget = self.window.listFiles)
-        # self.batchFile = self.window.batchFile
-        # self.WDdirectory = self.window.WDdirectory
         self.dog = Watchdog(self.watchdog_event_handler)
         self.traceSpectrum = Trace(self.window.plotTraceSpectrum)
 
@@ -528,7 +526,6 @@ class BatchAnalysis(QDialog):
 
 
     def reset_trace(self)->None:
-        # self.traceSpectrum.update_data({})
         self.traceSpectrum = Trace(self.window.plotTraceSpectrum)
         self.traceSpectrum.update_data({})
 
