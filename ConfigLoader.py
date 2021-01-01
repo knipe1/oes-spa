@@ -109,7 +109,7 @@ class ConfigLoader():
     ### Methods
 
     def __init__(self, path:str = "./config.yml"):
-        self.path = path;
+        self.path = path
         self.config = self.load_config()
 
 

@@ -18,7 +18,7 @@ import numpy as np
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import Signal, Slot, QModelIndex
+from PyQt5.QtCore import Signal, QModelIndex
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence as QKeys
 
@@ -118,9 +118,10 @@ class BatchAnalysis(QDialog):
         # Initialize the parent class [equivalent to: QDialog.__init__(self)].
         super().__init__(parent)
 
-
         # Init the props to prevent errors in the ui-init routine.
         # (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
+        self._batchFile = None
+        self._WDdirectory = ""
         self.currentFile = None
         self.isScheduledCancel = False
         self.setting = None
@@ -130,14 +131,8 @@ class BatchAnalysis(QDialog):
         self.__post_init__()
 
 
-
-
-
     def __post_init__(self)->None:
-        # Set the defaults.
-        self._batchFile = None
-        self._WDdirectory = ""
-        self._files = FileSet(listWidget = self.window.listFiles)
+        self._files = FileSet(listWidget=self.window.listFiles)
         self.dog = Watchdog(self.watchdog_event_handler)
         self.traceSpectrum = Trace(self.window.plotTraceSpectrum)
 
@@ -192,7 +187,7 @@ class BatchAnalysis(QDialog):
         """
         event.accept()
 
-        isFocused = self.window.focussed_filelist()
+        isFocused = self.window.is_focussed_filelist()
         isDelete = event.matches(QKeys.Delete)
         isCancel = event.matches(QKeys.Cancel)
 
@@ -234,6 +229,13 @@ class BatchAnalysis(QDialog):
         # Checks absolute pathnames to avoid issues due to relative vs absolute pathnames.
         eventPath, _, _ = uni.extract_path_basename_suffix(pathname)
 
+        self.logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+        isOk = self.analyze_single_file(pathname)
+        if not isOk:
+            return
+        self.update_filelist([pathname])
+        return
+
         # Distinguish between modified batch- and spectrum-file.
         if self.batchFile == pathname:
             self.logger.info("WD: Batchfile modified.")
@@ -271,7 +273,7 @@ class BatchAnalysis(QDialog):
 
         WDpath = self.WDdirectory
         batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
-        paths = set([WDpath, batchPath])
+        paths = [WDpath]
         self.dog.start(paths)
         self.signal_enableWD.emit(False)
 
@@ -296,7 +298,7 @@ class BatchAnalysis(QDialog):
 
         data, header = self.analyze_file(self.setting, specHandler)
         self.export_batch(data, header, isUpdate=True)
-        # self.import_batchfile(takeCurrentBatchfile=True)
+        self.import_batchfile(takeCurrentBatchfile=True)
         return ERR.OK
 
 
@@ -333,7 +335,11 @@ class BatchAnalysis(QDialog):
 
             # Read out the filename and the data.
             file = files[i]
-            self.currentFile = FileReader(file)
+            try:
+                self.currentFile = FileReader(file)
+            except FileNotFoundError:
+                skippedFiles.append(file)
+                continue
 
             if isExportBatch:
                 if not self.currentFile.is_analyzable():

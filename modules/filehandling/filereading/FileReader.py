@@ -93,22 +93,6 @@ class FileReader(FileFramework):
         self._timestamp = timestamp
 
 
-    # @property
-    # def data(self)->tuple:
-    #     """Concats the x- & y-data. First column: x; second column: y."""
-    #     return (self.xData, self.yData)
-
-    # @data.setter
-    # def data(self, xyData:list):
-    #     """Sets the x- & y-data. First column: x; second column: y."""
-    #     xyData = np.array(xyData)
-    #     try:
-    #         self.xData = xyData[:, 0]
-    #         self.yData = xyData[:, 1]
-    #     except IndexError:
-    #         self.logger.warning("No valid data given.")
-
-
     @property
     def fileinformation(self):
         return (self.filename, self.timeInfo)
@@ -203,22 +187,17 @@ class FileReader(FileFramework):
         if not errorcode:
             return errorcode
 
+        if isinstance(self.data, dict):
+            return ERR.INVALID_DATA
+
         if not isinstance(self.data[0, 0], (float, int)):
             return ERR.INVALID_DATA
 
-        return ERR.OK;
+        return ERR.OK
 
 
     def is_valid_batchfile(self)->ERR:
         return self.has_valid_frame()
-        # errorcode = self.has_valid_frame()
-        # if not errorcode:
-        #     return errorcode
-
-        # # if not isinstance(self.xData[0], datetime):
-        # #     return ERR.INVALID_BATCHFILE
-
-        # return ERR.OK
 
 
     def has_valid_frame(self):

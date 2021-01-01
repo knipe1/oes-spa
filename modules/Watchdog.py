@@ -34,7 +34,7 @@ class SpectrumHandler(FileSystemEventHandler):
 class Watchdog():
 
     def __init__(self, onModifiedMethod=None)->None:
-        self.observer = Observer()
+        self.reset_observer()
         self.handler = SpectrumHandler(onModifiedMethod)
 
 
@@ -49,10 +49,14 @@ class Watchdog():
             self.observer.unschedule_all()
             self.observer.stop()
             self.observer.join()
-            self.observer = Observer()
+            self.reset_observer()
             print("Observation stopped.")
         except RuntimeError:
             print("No observer initialized.")
+
+
+    def reset_observer(self)->None:
+        self.observer = Observer()
 
 
     def is_alive(self)->bool:

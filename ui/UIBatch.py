@@ -12,7 +12,7 @@ Created on Fri Jan 24 12:00:10 2020
 
 # third-party libs
 from PyQt5.QtWidgets import QAbstractItemView
-from PyQt5.QtCore import QObject, Signal, Slot, QModelIndex
+from PyQt5.QtCore import QObject, Slot
 
 # local modules/libs
 from ui.ui_batch_dialog import Ui_batch
@@ -20,6 +20,11 @@ from ui.matplotlibwidget import MatplotlibWidget
 
 # enums and dataclasses
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+
+# constants
+TRACE_SELECTION = [CHC.PEAK_AREA,
+                   CHC.PEAK_HEIGHT,
+                   CHC.CHARACTERISTIC_VALUE]
 
 
 class UIBatch(Ui_batch, QObject):
@@ -30,6 +35,9 @@ class UIBatch(Ui_batch, QObject):
     handling the normal generated class, which is overridden whenever the gui
     is changed.
     """
+
+    def keyPressEvent(self, event)->None:
+        print("HALASDHLASDJLADJ")
 
 
     ### Properties
@@ -105,19 +113,11 @@ class UIBatch(Ui_batch, QObject):
 
 
 
-    def init_trace(self):
+    def init_trace(self)->dict:
         """Selects Characteristics that can be displayed in the plot."""
-        # TODO: Config? Or somewhere else?
-        selection = [CHC.PEAK_AREA,
-                     CHC.PEAK_HEIGHT,
-                     CHC.CHARACTERISTIC_VALUE]
-
         trace = {}
-        for item in selection:
-            try:
-                trace[item] = item.value
-            except:
-                print("UIBatch: Selection contain non enum element!")
+        for item in TRACE_SELECTION:
+            trace[item] = item.value
 
         return trace
 
@@ -142,7 +142,7 @@ class UIBatch(Ui_batch, QObject):
         self.listFiles.setCurrentRow(index)
 
 
-    def focussed_filelist(self)->bool:
+    def is_focussed_filelist(self)->bool:
         return self.listFiles.hasFocus()
 
 
