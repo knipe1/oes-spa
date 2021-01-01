@@ -356,7 +356,7 @@ class BatchAnalysis(QDialog):
         self._files.difference_update(skippedFiles)
 
 
-    def map_spectrum_characteristics(self, specHandler:SpectrumHandler)->dict:
+    def merge_characteristics(self, specHandler:SpectrumHandler)->dict:
         results = specHandler.results
         results[CHC.FILENAME] = self.currentFile.filename
 
@@ -369,7 +369,7 @@ class BatchAnalysis(QDialog):
         data = []
         for fitting in setting.checkedFittings:
             specHandler.fit_data(fitting)
-            results = self.map_spectrum_characteristics(specHandler)
+            results = self.merge_characteristics(specHandler)
 
             # excluding file if no appropiate data given like in processed spectra.
             if not specHandler.has_valid_peak():
