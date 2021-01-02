@@ -29,12 +29,15 @@ class FileSet(set):
 
     @property
     def selected_row(self)->str:
-        row = self.listWidget.currentRow()
-        return row
+        return self._selected_row
 
     @selected_row.setter
     def selected_row(self, i:int)->None:
         self.listWidget.setCurrentRow(i)
+
+    # Hint: @Slot(int) is not possible here. May cause issues in some applications.
+    def slot_selected_row(self, i:int)->None:
+        self._selected_row = i
 
 
     def __init__(self, listWidget, iterable=()):
@@ -49,6 +52,8 @@ class FileSet(set):
         """
         super().__init__(iterable)
         self.listWidget = listWidget
+        self._selected_row = -1
+        self.listWidget.currentRowChanged.connect(self.slot_selected_row)
 
 
     def __getitem__(self, i:int)->str:
@@ -62,13 +67,11 @@ class FileSet(set):
     def clear(self)->None:
         """Clears the set AND updates the ui."""
         super().clear()
-        self.update_ui()
+        self.listWidget.clear()
 
 
     def update(self, s:set)->None:
         """Updates the set AND updates the ui."""
-
-        # Get the current selection.
         filename = None
         index = self.selected_row
         if index >= 0:

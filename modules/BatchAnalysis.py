@@ -187,18 +187,19 @@ class BatchAnalysis(QDialog):
         """
         event.accept()
 
-        isFocused = self.window.is_focussed_filelist()
-        isDelete = event.matches(QKeys.Delete)
+        # Cancel current analysis.
         isCancel = event.matches(QKeys.Cancel)
+        if isCancel:
+            self.schedule_cancel_routine()
+            return
 
         # Remove currently selected file.
+        isFocused = self.window.is_focussed_filelist()
+        isDelete = event.matches(QKeys.Delete)
         if isFocused and isDelete:
             row = self._files.selected_row
             self._files.remove(self._files[row])
-
-        # Cancel current analysis
-        if isCancel:
-            self.schedule_cancel_routine()
+            return
 
 
     def dragEnterEvent(self, event)->None:

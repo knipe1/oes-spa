@@ -11,8 +11,8 @@ Created on Fri Jan 24 12:00:10 2020
 # standard libs
 
 # third-party libs
-from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtCore import QObject, Slot
+from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
 from ui.ui_batch_dialog import Ui_batch

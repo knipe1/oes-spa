@@ -169,18 +169,14 @@ class SpectrumHandler():
             self.characteristicValue = characteristicValue
             self.integration.extend(intAreas)
 
-        # check CHC value if no ref is defined -> Should be None
         return ERR.OK
 
 
     def calculate_characteristic_value(self, peak:Peak)->tuple:
 
-        # Default is None to distuinguish issues during the analysis and just no peak (=0).
+        # Default =None. No peak found: =0.0.
         characteristicValue = None
         intAreas = []
-
-        # if not hasattr(peak, "reference") or peak.reference is None:
-        #     return characteristicValue, intAreas
 
         peakCharacteristics, _ = self.analyse_peak(peak)
         peakArea = peakCharacteristics[CHC.PEAK_AREA]
@@ -264,7 +260,7 @@ class SpectrumHandler():
         self.peakPosition = procXData[idxPeak]
         self.peakHeight = procYData[idxPeak]
 
-        # getting all wavelength(x) and the intensities(y)
+        # getting all wavelength(x) and the intensities(y).
         peakAreaX = procXData[integrationRange]
         peakAreaY = procYData[integrationRange]
         # Integrate along the given axis using the composite trapezoidal rule.
@@ -282,11 +278,6 @@ class SpectrumHandler():
                 procIntegration.append(intArea)
 
         return rawIntegration, procIntegration
-
-
-    # def determine_dispersion(self, parameter:dict)->float:
-    #     dispersion = self.basicSetting.dispersion
-    #     return dispersion
 
 
     def has_valid_peak(self):
