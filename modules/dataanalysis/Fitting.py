@@ -51,7 +51,7 @@ class Fitting():
     def peak(self, peak)->None:
         self._peak = peak
         if not peak is None:
-            self.set_peak_reference(peak)
+            self.check_peak_reference(peak)
 
 
     @property
@@ -124,7 +124,8 @@ class Fitting():
     def set_peak(self, **kwargs)->Peak:
         try:
             peak = Peak(**kwargs)
-            # peak = Peak(**parameter)
+            if not peak.isValid:
+                self.update_errorcode_peak()
         except TypeError:
             # In case an argument is not defined e.g.:
             # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
@@ -133,7 +134,7 @@ class Fitting():
         return peak
 
 
-    def set_peak_reference(self, peak:Peak)->None:
+    def check_peak_reference(self, peak:Peak)->None:
         try:
             hasValidReference = peak.has_valid_reference()
         except ValueError:
