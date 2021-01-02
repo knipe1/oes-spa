@@ -40,10 +40,10 @@ class Peak(BasePeak):
         self.set_reference(ref)
 
 
-    def set_reference(self, ref):
+    def set_reference(self, ref:dict)->None:
         """
-        Undefined: Omitting attribute
-        Unproperly defined: reference = None
+        Undefined: reference = None
+        Unproperly defined: Omitting attribute
         Properly defined: reference is a ReferencePeak
         """
 
@@ -51,11 +51,22 @@ class Peak(BasePeak):
             try:
                 self.reference = ReferencePeak(**ref)
             except TypeError:
-                self.reference = None
+                pass
+        else:
+            self.reference = None
+
+
+    def has_valid_reference(self)->None:
+        if not hasattr(self, "reference"):
+            raise ValueError("Reference peak is not properly defined!")
+        elif self.reference is None:
+            return self.reference
+        else:
+            return self.reference.isValid
 
 
     @property
-    def isValid(self):
+    def isValid(self)->bool:
         error = super().isValid
         if not self.is_valid_normalizationFactor():
             error = ERR.INVALID_NORM_FACTOR

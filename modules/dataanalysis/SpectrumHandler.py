@@ -116,12 +116,7 @@ class SpectrumHandler():
         self.integration = []
         self.fitting = None
 
-        self.peakArea = None
-        self.peakHeight = None
-        self.peakName = None
-        self.peakPosition = None
-        self.avgbase = None
-        self.characteristicValue = None
+        self.reset_values()
 
         self.rawData = file.data
         self.process_data()
@@ -137,11 +132,23 @@ class SpectrumHandler():
         return self.__module__ + ":\n" + str(info)
 
 
+    def reset_values(self)->None:
+        self.peakArea = None
+        self.peakHeight = None
+        self.peakName = None
+        self.peakPosition = None
+        self.avgbase = None
+        self.characteristicValue = None
+
+
+
     def fit_data(self, fitting:Fitting)->ERR:
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
         if fitting is None or fitting.peak is None:
             return ERR.OK
+
+        self.reset_values()
 
         peak = fitting.peak
         self.peakName = peak.name
@@ -157,10 +164,12 @@ class SpectrumHandler():
         self.peakPosition = peakCharacteristics[CHC.PEAK_POSITION]
         self.integration = list(integrationAreas.values())
 
-        characteristicValue, intAreas = self.calculate_characteristic_value(peak)
-        self.characteristicValue = characteristicValue
-        self.integration.extend(intAreas)
+        if peak.has_valid_reference():
+            characteristicValue, intAreas = self.calculate_characteristic_value(peak)
+            self.characteristicValue = characteristicValue
+            self.integration.extend(intAreas)
 
+        # check CHC value if no ref is defined -> Should be None
         return ERR.OK
 
 
@@ -170,8 +179,8 @@ class SpectrumHandler():
         characteristicValue = None
         intAreas = []
 
-        if not hasattr(peak, "reference") or peak.reference is None:
-            return characteristicValue, intAreas
+        # if not hasattr(peak, "reference") or peak.reference is None:
+        #     return characteristicValue, intAreas
 
         peakCharacteristics, _ = self.analyse_peak(peak)
         peakArea = peakCharacteristics[CHC.PEAK_AREA]
