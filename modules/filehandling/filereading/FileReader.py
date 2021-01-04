@@ -119,7 +119,7 @@ class FileReader(FileFramework):
         self.subReader = self.determine_subReader()
 
         self.__post_init__(**kwargs)
-        self.logger.info("Read file: " + self.filename)
+        self._logger.info("Read file: " + self.filename)
 
 
     def __post_init__(self, **kwargs):
@@ -176,7 +176,7 @@ class FileReader(FileFramework):
             subReader = BaReader()
 
         else:
-            self.logger.warning(f"Unknown suffix: {suffix}")
+            self._logger.warning(f"Unknown suffix: {suffix}")
             return None
 
         return subReader

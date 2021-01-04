@@ -113,7 +113,7 @@ class BatchAnalysis(QDialog):
             Required for the interplay between the two windows.
 
         """
-        self.logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
 
         # Initialize the parent class [equivalent to: QDialog.__init__(self)].
         super().__init__(parent)
@@ -219,7 +219,7 @@ class BatchAnalysis(QDialog):
             valid_urls.remove(None)
             dialog.critical_unknownSuffix(parent=self)
         except KeyError:
-            self.logger.debug("No invalid url found.")
+            self._logger.info("No invalid url found.")
 
         self.update_filelist(valid_urls)
 
@@ -230,7 +230,7 @@ class BatchAnalysis(QDialog):
         # Checks absolute pathnames to avoid issues due to relative vs absolute pathnames.
         eventPath, _, _ = uni.extract_path_basename_suffix(pathname)
 
-        self.logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+        self._logger.info("WD: Spectrum file modified/added: %s"%(pathname))
         isOk = self.analyze_single_file(pathname)
         if not isOk:
             return
@@ -239,10 +239,10 @@ class BatchAnalysis(QDialog):
 
         # Distinguish between modified batch- and spectrum-file.
         if self.batchFile == pathname:
-            self.logger.info("WD: Batchfile modified.")
+            self._logger.info("WD: Batchfile modified.")
             self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
-            self.logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+            self._logger.info("WD: Spectrum file modified/added: %s"%(pathname))
             isOk = self.analyze_single_file(pathname)
             if not isOk:
                 return
@@ -259,9 +259,9 @@ class BatchAnalysis(QDialog):
 
 
     def has_valid_WD_settings(self)->bool:
-        isWDdir = path.isdir(self.WDdirectory) or self.logger.info("Invalid WD directory!")
+        isWDdir = path.isdir(self.WDdirectory) or self._logger.info("Invalid WD directory!")
         batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
-        isBatchdir = path.isdir(batchPath) or self.logger.info("Invalid batch directory!")
+        isBatchdir = path.isdir(batchPath) or self._logger.info("Invalid batch directory!")
         isValid = (isWDdir and isBatchdir)
         return isValid
 
@@ -304,7 +304,7 @@ class BatchAnalysis(QDialog):
 
 
     def analyze(self)->None:
-        self.logger.info("Start batch analysis.")
+        self._logger.info("Start batch analysis.")
 
         # Reset the properties to have a clean setup.
         self.isScheduledCancel = False
@@ -323,7 +323,7 @@ class BatchAnalysis(QDialog):
 
         files = self._files.to_list()
         amount = len(files)
-        self.logger.info("No. of files %i:"%(amount))
+        self._logger.info("No. of files %i:"%(amount))
 
         for i in range(amount):
             # Be responsive and process events to enable cancelation.
@@ -495,7 +495,7 @@ class BatchAnalysis(QDialog):
             Transmitted by a QListModel or by another method.
         """
         index, msg = get_numerical_index(index)
-        self.logger.debug(msg)
+        self._logger.info(msg)
 
         filename = self.get_indexed_filename(index)
 
@@ -511,7 +511,7 @@ class BatchAnalysis(QDialog):
             filename = self._files[index]
         except IndexError:
             filename = None
-            self.logger.info("Cannot open file, invalid index provided!")
+            self._logger.info("Cannot open file, invalid index provided!")
         return filename
 
 
@@ -524,7 +524,7 @@ class BatchAnalysis(QDialog):
             if not uni.is_valid_suffix(filename):
                 filelist.remove(filename)
         self._files.update(filelist)
-        self.logger.debug("Filelist updated.")
+        self._logger.info("Filelist updated.")
 
 
     def reset_files(self)->None:

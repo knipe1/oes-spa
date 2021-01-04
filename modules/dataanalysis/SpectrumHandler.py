@@ -106,7 +106,7 @@ class SpectrumHandler():
     ### dunder methods
 
     def __init__(self, file:FileReader, basicSetting:BasicSetting, **kwargs):
-        self.logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
 
         if not file.is_valid_spectrum():
             raise InvalidSpectrumError("File contain no valid spectrum.")
@@ -350,7 +350,7 @@ class SpectrumHandler():
                 start = centralWavelength - center*dispersion
                 shiftedData = rawXData*dispersion + start
             except TypeError:
-                self.logger.info("Could not process data. Value of wavelength or dispersion is invalid!")
+                self._logger.info("Could not process data. Value of wavelength or dispersion is invalid!")
                 shiftedData = rawXData
         else:
             try:
@@ -358,7 +358,7 @@ class SpectrumHandler():
                 shift = centralWavelength - center
                 shiftedData = rawXData + shift
             except TypeError:
-                self.logger.info("Could not process data. Value of wavelength is invalid!")
+                self._logger.info("Could not process data. Value of wavelength is invalid!")
                 shiftedData = rawXData
 
         return shiftedData

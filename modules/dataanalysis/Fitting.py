@@ -69,7 +69,7 @@ class Fitting():
     ## __methods__
 
     def __init__(self, fitting:dict)->None:
-        self.logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
 
         self.reset_errorcode()
 
@@ -141,7 +141,7 @@ class Fitting():
             return None
 
         if hasValidReference is None:
-            self.logger.info("No reference peak defined.")
+            self._logger.info("No reference peak defined.")
         elif not hasValidReference:
             self.update_errorcode_reference()
 
@@ -155,17 +155,17 @@ class Fitting():
 
     def update_errorcode_fitting(self)->None:
         self.errCode += ERR_FIT.FITTING.value
-        self.logger.error("Error: Fitting has an error!")
+        self._logger.error("Error: Fitting has an error!")
 
 
     def update_errorcode_peak(self)->None:
         self.errCode += ERR_FIT.PEAK.value
-        self.logger.error("Error: Peak is not properly defined!")
+        self._logger.error("Error: Peak is not properly defined!")
 
 
     def update_errorcode_reference(self)->None:
         self.errCode += ERR_FIT.REFERENCE.value
-        self.logger.warning("Invalid reference peak defined.")
+        self._logger.warning("Invalid reference peak defined.")
 
 
     def reset_errorcode(self)->None:

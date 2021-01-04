@@ -97,7 +97,7 @@ class Spectrum():
     def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE, **kwargs)->None:
         # Set up the logger.
         name = kwargs.get("name", __name__)
-        self.logger = logging.getLogger(name)
+        self._logger = logging.getLogger(name)
 
         self.ui = uiElement
         self.exportType = exportType
@@ -188,7 +188,7 @@ class Spectrum():
         try:
             self.ui.axes.plot(self.xData, self.baseline, **self.baselineMarkup);
         except AttributeError:
-            self.logger.info("Could not plot baseline.")
+            self._logger.info("Could not plot baseline.")
 
 
     def plot_integration_areas(self)->None:

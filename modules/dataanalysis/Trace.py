@@ -17,7 +17,6 @@ from modules.dataanalysis.Spectrum import Spectrum
 import modules.Universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
-
 # Enums
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 

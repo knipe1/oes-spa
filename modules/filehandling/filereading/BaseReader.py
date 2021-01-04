@@ -145,7 +145,7 @@ class BaseReader(FileFramework):
             yData = convert_to_float_or_time(xyData[:, 1])
             xyData = np.array((xData, yData)).transpose()
         except IndexError:
-            self.logger.warning("No valid x- and y-data given. Empty data?!")
+            self._logger.warning("No valid x- and y-data given. Empty data?!")
         except:
             return None
 

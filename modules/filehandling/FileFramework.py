@@ -42,7 +42,7 @@ class FileFramework:
     def __init__(self, filename, **kwargs):
         # Set up the logger.
         name = kwargs.get("name", __name__)
-        self.logger = logging.getLogger(name)
+        self._logger = logging.getLogger(name)
 
         self.filename = filename
         self.register_dialects()

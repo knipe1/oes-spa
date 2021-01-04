@@ -73,7 +73,7 @@ class AnalysisWindow(QMainWindow):
 
     def __init__(self)->None:
         super().__init__()
-        self.logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
 
         # Set defaults.
         self._activeFile = None;
@@ -211,10 +211,10 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self.logger.info(f"New value of setting: {changedValue}. Redraw of {self.activeFile.filename}.")
+            self._logger.info(f"New value of setting: {changedValue}. Redraw of {self.activeFile.filename}.")
             self.apply_file(self.activeFile)
         except AttributeError:
-            self.logger.warning("Redraw Failed")
+            self._logger.warning("Redraw Failed")
 
 
     ### data analysis
@@ -252,7 +252,7 @@ class AnalysisWindow(QMainWindow):
         try:
             self.window.wavelength = file.WAVELENGTH
         except KeyError:
-            self.logger.debug(f"No Wavelength provided by: {file.filename}")
+            self._logger.info(f"No Wavelength provided by: {file.filename}")
 
 
     def show_wavelength_difference_information(self, file:FileReader, setting:BasicSetting)->None:

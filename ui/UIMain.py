@@ -100,7 +100,7 @@ class UIMain(Ui_main):
             wavelength = self.tinCentralWavelength.text()
             wavelength = float(wavelength)
         except ValueError:
-            self.logger.error("Could not get valid value for wavelength!")
+            self._logger.error("Could not get valid value for wavelength!")
         return wavelength
 
     @wavelength.setter
@@ -116,7 +116,7 @@ class UIMain(Ui_main):
             dispersion = self.tinDispersion.text()
             dispersion = float(dispersion)
         except ValueError:
-            self.logger.error("Could not get valid value for dispersion!")
+            self._logger.error("Could not get valid value for dispersion!")
             dispersion = None
         return dispersion
 
@@ -135,7 +135,7 @@ class UIMain(Ui_main):
             grating = self.ddGrating.currentText()
             grating = float(grating)
         except:
-            self.logger.error("Could not get valid value for grating!")
+            self._logger.error("Could not get valid value for grating!")
         return grating
 
 
@@ -174,7 +174,7 @@ class UIMain(Ui_main):
             The "parent" of this GUI. It is used for connections to other GUIs
             other (rather general) functions.
         """
-        self.logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
 
         self.setupUi(parent)
         self.__post_init__()
@@ -206,7 +206,7 @@ class UIMain(Ui_main):
             preIdx = allTexts.index(PRESELECT_FITTING)
             self.clistFitting.setCurrentRow(preIdx)
         except ValueError:
-            self.logger.info("No preselected Fitting found.")
+            self._logger.info("No preselected Fitting found.")
 
         CHECKED_FITTINGS = self.config.CHECKED_FITTINGS
         for fit in CHECKED_FITTINGS:
@@ -214,7 +214,7 @@ class UIMain(Ui_main):
                 ckdIdx = allTexts.index(fit)
                 self.clistFitting.item(ckdIdx).setCheckState(2)
             except ValueError:
-                self.logger.info("Checked fitting not found.")
+                self._logger.info("Checked fitting not found.")
 
 
     def get_results(self):
@@ -342,7 +342,7 @@ class UIMain(Ui_main):
         activeFitting : Fitting
         """
 
-        self.logger.info("Load fitting: " + fittingName)
+        self._logger.info("Load fitting: " + fittingName)
 
         filename = self.get_filename_of_fitting(fittingName)
         fitConfig = self.load_fitting_configuration(filename)
@@ -437,11 +437,11 @@ class UIMain(Ui_main):
 
     def save_selected_fitting(self):
         selectedFitting = self.clistFitting.currentText()
-        self.logger.info(f"Save selected fitting: {selectedFitting}.")
+        self._logger.info(f"Save selected fitting: {selectedFitting}.")
 
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [t.text() for t in checkedFittings]
-        self.logger.info(f"Save checked fittings: {checkedFittings}.")
+        self._logger.info(f"Save checked fittings: {checkedFittings}.")
 
         self.config = ConfigLoader()
         self.config.PRESELECT_FITTING = selectedFitting
