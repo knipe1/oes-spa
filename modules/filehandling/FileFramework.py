@@ -8,10 +8,10 @@ Module for general purposes regarding read and write operations.
 
 # standard libs
 import csv
+import logging
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from Logger import Logger
 
 
 
@@ -42,7 +42,7 @@ class FileFramework:
     def __init__(self, filename, **kwargs):
         # Set up the logger.
         name = kwargs.get("name", __name__)
-        self.logger = Logger(name)
+        self.logger = logging.getLogger(name)
 
         self.filename = filename
         self.register_dialects()

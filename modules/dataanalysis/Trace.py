@@ -7,22 +7,18 @@ Created on Wed Nov  4 21:39:59 2020
 """
 
 # standard libs
-import numpy as np
 from datetime import datetime
+import numpy as np
 
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-from Logger import Logger
 from modules.dataanalysis.Spectrum import Spectrum
 import modules.Universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
 
 # Enums
-from c_types.Integration import Integration
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 

@@ -8,13 +8,13 @@ Created on Sat Apr 25 2020
 """
 
 # standard libs
+import logging
 import numpy as np
 
 # third-party libs
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from Logger import Logger
 import modules.Universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
@@ -97,7 +97,7 @@ class Spectrum():
     def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE, **kwargs)->None:
         # Set up the logger.
         name = kwargs.get("name", __name__)
-        self.logger = Logger(name)
+        self.logger = logging.getLogger(name)
 
         self.ui = uiElement
         self.exportType = exportType
