@@ -151,8 +151,10 @@ class FileReader(FileFramework):
 
     def set_defaults(self):
         # TODO: Test None instead of 0
-        self.xData = np.zeros(0)
-        self.yData = np.zeros(0)
+        # self.xData = np.zeros(0)
+        # self.yData = np.zeros(0)
+        self.xData = None
+        self.yData = None
         self.data = None
         self.parameter = {}
         # Init with "Not set!" to display the warning on the ui.
