@@ -5,8 +5,10 @@
 Contains routines to convert raw data and obtain different parameters
 
 Glossary:
-    rawData: the data that is originally in the spectrum file.
-    procData: 'processed' data-> the raw data processed like converting from pixel to wavelength or shift it to some wavelength.
+    rawData:
+        Data origins from the spectrum file.
+    procData:
+        'processed' data-> the raw data processed like converting from pixel to wavelength or shift it to some wavelength.
 
 @author: Peter Knittel, Hauke Wernecke
 """
@@ -105,7 +107,7 @@ class SpectrumHandler():
 
     ### dunder methods
 
-    def __init__(self, file:FileReader, basicSetting:BasicSetting, **kwargs):
+    def __init__(self, file:FileReader, basicSetting:BasicSetting):
         self._logger = logging.getLogger(__name__)
 
         if not file.is_valid_spectrum():
@@ -219,7 +221,8 @@ class SpectrumHandler():
 
         # Determine integration areas.
         integrationRaw = Integration(self.rawData[integrationRange])
-        integrationProcessed = Integration(self.procData[integrationRange], spectrumType=EXPORT_TYPE.PROCESSED)
+        integrationProcessed = Integration(self.procData[integrationRange],
+                                           spectrumType=EXPORT_TYPE.PROCESSED)
         integrationAreas = {CHC.INTEGRATION_RAW: integrationRaw,
                             CHC.INTEGRATION_PROCESSED: integrationProcessed}
 
@@ -281,7 +284,7 @@ class SpectrumHandler():
 
     def has_valid_peak(self):
         try:
-            return (self.peakHeight != 0.0)
+            return self.peakHeight != 0.0
         except AttributeError:
             return False
 
@@ -350,7 +353,7 @@ class SpectrumHandler():
                 start = centralWavelength - center*dispersion
                 shiftedData = rawXData*dispersion + start
             except TypeError:
-                self._logger.info("Could not process data. Value of wavelength or dispersion is invalid!")
+                self._logger.info("Could not process data. Invalid wavelength or dispersion!")
                 shiftedData = rawXData
         else:
             try:
@@ -365,8 +368,6 @@ class SpectrumHandler():
 
 
     def process_y_data(self):
-        # Baseline fitting with peakutils.
-        # TODO: what is calculated here? @knittel/@reinke
         # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
         rawYData = self.rawYData
         baseline = pkus.baseline(rawYData)

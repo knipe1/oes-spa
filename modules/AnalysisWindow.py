@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
     Glossary:
-        - activeFile: The file that is "active" (plotted and the results shown are analyzed from this file.)
+        - activeFile:
+            The file that is "active" (plotted and the results shown are analyzed from this file.)
 
 @author: Hauke Wernecke
 """
@@ -28,7 +29,6 @@ from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 # enums
 from c_types.BasicSetting import BasicSetting
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
-from c_enum.ERROR_CODE import ERROR_CODE as ERR
 
 # constants
 
@@ -76,7 +76,7 @@ class AnalysisWindow(QMainWindow):
         self._logger = logging.getLogger(__name__)
 
         # Set defaults.
-        self._activeFile = None;
+        self._activeFile = None
 
         ## Set up the user interfaces
         self.window = UIMain(self)
@@ -103,7 +103,8 @@ class AnalysisWindow(QMainWindow):
     def init_spectra(self)->None:
         """Set up the Spectrum elements with the corresponding ui elements."""
         self.rawSpectrum = Spectrum(self.window.plotRawSpectrum, EXPORT_TYPE.RAW)
-        self.processedSpectrum = Spectrum(self.window.plotProcessedSpectrum, EXPORT_TYPE.PROCESSED);
+        self.processedSpectrum = Spectrum(self.window.plotProcessedSpectrum,
+                                          EXPORT_TYPE.PROCESSED)
 
 
     def connect_ui_events(self)->None:
@@ -120,27 +121,28 @@ class AnalysisWindow(QMainWindow):
 
     def closeEvent(self, event)->None:
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
+        event.accept()
         self.batch.close()
         self.window.save_settings()
 
 
     def dragEnterEvent(self, event)->None:
         # Handle the urls. Multiple urls are handled by BatchAnalysis.
-        urls = event.mimeData().urls();
+        urls = event.mimeData().urls()
         isSingleFile = (len(urls) == 1)
         isMultipleFiles =(len(urls) > 1)
 
         if isMultipleFiles:
-            self.batch.show();
+            self.batch.show()
         elif isSingleFile:
             event.accept()
 
 
     def dropEvent(self, event)->None:
-        event.accept();
+        event.accept()
 
-        # Can only be one single file.
-        url = event.mimeData().urls()[0];
+        # Can only be a single file.
+        url = event.mimeData().urls()[0]
         localUrl = uni.get_valid_local_url(url)
 
         if localUrl:
@@ -157,15 +159,15 @@ class AnalysisWindow(QMainWindow):
         # Browse
 
         # Cancel/Quit dialog --> [].
-        filelist = dialog.dialog_spectra();
+        filelist = dialog.dialog_spectra()
         isSingleFile = (len(filelist) == 1)
         isMultipleFiles = (len(filelist) > 1)
 
         if isMultipleFiles:
-            self.batch.show();
+            self.batch.show()
             self.batch.update_filelist(filelist)
         elif isSingleFile:
-            filename = filelist[0];
+            filename = filelist[0]
             self.apply_file(filename)
 
 
@@ -176,11 +178,12 @@ class AnalysisWindow(QMainWindow):
 
 
     def export_processed(self)->None:
-        results = self.window.get_results();
+        results = self.window.get_results()
         self.export_spectrum(self.processedSpectrum, results)
 
 
-    def export_spectrum(self, spectrum:Spectrum, results:dict={})->None:
+    def export_spectrum(self, spectrum:Spectrum, results:dict=None)->None:
+        results = results or {}
 
         try:
             writer = SpectrumWriter(*self.activeFile.fileinformation)
@@ -220,21 +223,23 @@ class AnalysisWindow(QMainWindow):
     ### data analysis
 
     def apply_file(self, filename:(str, FileReader), silent:bool=False)->None:
-        """read out a file and extract its information, then set header information and draw spectra"""
+        """Read the file and displays the spectrum."""
         try:
             file = FileReader(filename)
         except TypeError:
             file = filename
 
         if not silent:
-            # Hint: set wavelength triggers a redraw loop. If wavelength is set after basicSetting is loaded, the analysis will not update the setting.
+            # Hint: set wavelength triggers a redraw loop.
+            # If wavelength is set after basicSetting is loaded,
+            # the analysis will not update the setting.
             isFileReloaded = (self.activeFile == file)
             if not isFileReloaded:
                 self.set_wavelength_from_file(file)
 
         basicSetting = self.window.get_basic_setting()
         try:
-            specHandler = SpectrumHandler(file, basicSetting, parameter=file.parameter)
+            specHandler = SpectrumHandler(file, basicSetting)
         except InvalidSpectrumError:
             if not silent:
                 dialog.critical_invalidSpectrum()
@@ -267,11 +272,11 @@ class AnalysisWindow(QMainWindow):
             self.window.show_diff_wavelength(hasDifferentWl)
 
 
-    def update_spectra(self, SpectrumHandler:SpectrumHandler):
-        data = SpectrumHandler.rawData
-        baseline = SpectrumHandler.baseline
-        processedData = SpectrumHandler.procData
-        rawIntegration, procIntegration = SpectrumHandler.get_integration_areas()
+    def update_spectra(self, spectrumHandler:SpectrumHandler):
+        data = spectrumHandler.rawData
+        baseline = spectrumHandler.baseline
+        processedData = spectrumHandler.procData
+        rawIntegration, procIntegration = spectrumHandler.get_integration_areas()
 
         self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
         self.processedSpectrum.update_data(processedData, procIntegration)
