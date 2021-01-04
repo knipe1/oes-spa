@@ -13,13 +13,13 @@ Glossary:
 
 
 # standard libs
+import logging
 import numpy as np
 
 # third-party libs
 import peakutils as pkus
 
 # local modules/libs
-from Logger import Logger
 import modules.Universal as uni
 from modules.dataanalysis.Calibration import Calibration
 from modules.dataanalysis.Fitting import Fitting
@@ -106,8 +106,7 @@ class SpectrumHandler():
     ### dunder methods
 
     def __init__(self, file:FileReader, basicSetting:BasicSetting, **kwargs):
-        # Set up the logger.
-        self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         if not file.is_valid_spectrum():
             raise InvalidSpectrumError("File contain no valid spectrum.")

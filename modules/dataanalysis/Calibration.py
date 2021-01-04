@@ -7,13 +7,13 @@ Created on Fri Dec 11 16:48:57 2020
 """
 
 # standard libs
+import logging
 import numpy as np
 
 # third-party libs
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from Logger import Logger
 
 # constants
 NO_ITERATION = 3;
@@ -33,8 +33,7 @@ class Calibration():
     ### __Methods__
 
     def __init__(self, calibrationFile:str):
-        # Set up the logger.
-        self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         self.calibrationPeaks = np.loadtxt(calibrationFile)[:, 0]
         self.noPeaks = len(self.calibrationPeaks)

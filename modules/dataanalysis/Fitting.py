@@ -11,12 +11,12 @@ Created on Thu Apr  9 10:51:31 2020
 #   https://doc.qt.io/qt-5/qcombobox.html
 
 # standard libs
+import logging
 
 # third-party libs
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from Logger import Logger
 
 # Enums
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
@@ -69,8 +69,7 @@ class Fitting():
     ## __methods__
 
     def __init__(self, fitting:dict)->None:
-        # Set up the logger.
-        self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         self.reset_errorcode()
 

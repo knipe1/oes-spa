@@ -9,12 +9,12 @@ Created on Thu Apr  9 10:51:31 2020
 """
 
 # standard libs
+import logging
 
 # third-party libs
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from Logger import Logger
 
 # Enums
 
@@ -30,9 +30,7 @@ class name():
     ### __Methods__
 
     def __init__(self):
-
-        # Set up the logger.
-        self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         self.__post_init__()
 

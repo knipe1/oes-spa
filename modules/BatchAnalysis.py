@@ -113,7 +113,6 @@ class BatchAnalysis(QDialog):
             Required for the interplay between the two windows.
 
         """
-        # self.logger = Logger(__name__)
         self.logger = logging.getLogger(__name__)
 
         # Initialize the parent class [equivalent to: QDialog.__init__(self)].

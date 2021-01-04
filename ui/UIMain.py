@@ -22,6 +22,7 @@ Created on Fri Jan 27 2020
 
 
 # standard libs
+import logging
 import os
 
 # third-party libs
@@ -30,7 +31,6 @@ import os
 from ui.ui_main_window import Ui_main
 from ConfigLoader import ConfigLoader
 from modules.dataanalysis.Fitting import Fitting
-from Logger import Logger
 import modules.Universal as uni
 from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
@@ -174,8 +174,7 @@ class UIMain(Ui_main):
             The "parent" of this GUI. It is used for connections to other GUIs
             other (rather general) functions.
         """
-        # set up the logger
-        self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         self.setupUi(parent)
         self.__post_init__()

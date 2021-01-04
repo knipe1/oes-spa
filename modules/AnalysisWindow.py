@@ -8,6 +8,7 @@
 """
 
 # standard libs
+import logging
 
 # third-party libs
 # base class: QMainWindow
@@ -16,7 +17,6 @@ from PyQt5.QtWidgets import QMainWindow
 # local modules/libs
 from ui.UIMain import UIMain
 from ConfigLoader import ConfigLoader
-from Logger import Logger
 import dialog_messages as dialog
 import modules.Universal as uni
 from modules.BatchAnalysis import BatchAnalysis
@@ -73,7 +73,7 @@ class AnalysisWindow(QMainWindow):
 
     def __init__(self)->None:
         super().__init__()
-        self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         # Set defaults.
         self._activeFile = None;
