@@ -119,7 +119,7 @@ class BaReader(BaseReader):
 
 
 
-def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName:str, nameColumn:str)->(int, int):
+def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName:str, nameColumn:str)->(int, int, int):
     """
 
 
@@ -127,8 +127,12 @@ def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName
     ----------
     dataHeader : list
         Contains the header information of the batch file.
-    columnName : str
+    xColumnName : str
         Name of the header information, which contains the y-data.
+    yColumnName : str
+        Name of the header information, which contains the y-data.
+    nameColumn : str
+        Name of the header information, which contains the peak information.
 
     Returns
     -------
@@ -136,6 +140,8 @@ def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName
         Index of the column which contains the x-values.
     yColumn : int
         Index of the column which contains the y-values.
+    peakColumn : int
+        Index of the column which contains the peak name.
 
     """
     # Filter allows to search for characteristic value, because
