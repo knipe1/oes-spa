@@ -24,7 +24,8 @@ from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-from Logger import Logger
+# from Logger import Logger
+import logging
 # UI
 from ui.UIBatch import UIBatch
 # modules & universal
@@ -50,7 +51,6 @@ from exception.InvalidSpectrumError import InvalidSpectrumError
 # constants
 # BATCH_SUFFIX requires "." as prefix to the suffix-value
 BATCH_SUFFIX = "." + SUFF.BATCH.value
-
 
 
 class BatchAnalysis(QDialog):
@@ -113,7 +113,8 @@ class BatchAnalysis(QDialog):
             Required for the interplay between the two windows.
 
         """
-        self.logger = Logger(__name__)
+        # self.logger = Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         # Initialize the parent class [equivalent to: QDialog.__init__(self)].
         super().__init__(parent)

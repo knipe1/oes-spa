@@ -5,8 +5,13 @@
 Single and batch analysis of OES spectra
 """
 
+
+
 # standard libs
 import sys
+
+import logging
+import LoggerConfig
 try:
     import sif_reader
     da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
@@ -45,6 +50,7 @@ def main():
 
     # Setup GUI
     app = QApplication(sys.argv)
+    LoggerConfig.set_up()
     window = AnalysisWindow()
 
 
@@ -127,6 +133,7 @@ def main():
         window.batch.window.btnWatchdog.click()
 
     sys.exit(app.exec_())
+
 
 
 # Run as main if executed and not included

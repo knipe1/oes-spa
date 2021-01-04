@@ -40,18 +40,20 @@ Created on Sun Mar 29 12:21:03 2020
 # splitting of different setting to different handler (files or consoles)
 
 
+
 # standard libs
 import logging
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
 from dialog_messages import dialog_logFile
+from c_metaclass.Singleton import Singleton
 
 # constants
 DEF_LOG_FILE = "../debug.log"
 
 
-class Logger():
+class Logger(metaclass=Singleton):
     """
     A class used to implement a general logger for each module.
 
@@ -113,46 +115,39 @@ class Logger():
             __name__ as common name to distinguish the different entries
             of the different modules. They are then named in the logs.
         """
-        # Load the configuration for filesystem properties.
-        config = ConfigLoader()
-        self.GENERAL = config.GENERAL
+        self.filename = ConfigLoader().logFile
 
-        self.filename = self.GENERAL.get("LOG_FILE")
         # config the format of the handler
         formatter = logging.Formatter(self.format)
 
         # Setting up the logger with the default configuration.
-        self.logger = logging.getLogger(name)   # get or create the logger
-        self.logger.setLevel(self.level)
+        self._logger = logging.getLogger(name)   # get or create the logger
+        self._logger.setLevel(self.level)
 
         # removing all handler from previous sessions to set up a clean logger
-        while len(self.logger.handlers):
-            self.logger.removeHandler(self.logger.handlers[0])
+        while len(self._logger.handlers):
+            self._logger.removeHandler(self._logger.handlers[0])
 
         # config a file handler.
         try:
-            fhandler = logging.FileHandler(filename = self.filename,
-                                           mode = self.mode)
+            fhandler = logging.FileHandler(filename = self.filename, mode = self.mode)
         except (FileNotFoundError, IsADirectoryError, TypeError, PermissionError, OSError):
             # Request a new location of the logfile.
             dialogFile = dialog_logFile(defaultFile=DEF_LOG_FILE)
             # Use the URL. Default if cancelled.
             self.filename = dialogFile
-            fhandler = logging.FileHandler(filename = self.filename,
-                                           mode = self.mode)
+            fhandler = logging.FileHandler(filename = self.filename, mode = self.mode)
 
         # Add log to file.
         fhandler.setLevel(self.level)
         fhandler.setFormatter(formatter)
-        self.logger.addHandler(fhandler)
+        self._logger.addHandler(fhandler)
 
         # Adding log also to console.
         streamHandler = logging.StreamHandler()
         streamHandler.setLevel(self.level)
         streamHandler.setFormatter(formatter)
-        self.logger.addHandler(streamHandler)
-
-        # self.info("Initialize: %s"%(name))
+        self._logger.addHandler(streamHandler)
 
 
     def __repr__(self):
@@ -161,6 +156,7 @@ class Logger():
         info["format"] = self.format
         info["filename"] = self.filename
         return self.__module__ + ":\n" + str(info)
+
 
 
     def debug(self, msg: str, extra=None)->None:
@@ -176,7 +172,7 @@ class Logger():
             The default is None.
 
         """
-        self.logger.debug(msg, extra = extra)
+        self._logger.debug(msg, extra = extra)
 
 
     def info(self, msg: str, extra=None)->None:
@@ -191,7 +187,7 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
         """
-        self.logger.info(msg, extra = extra)
+        self._logger.info(msg, extra = extra)
 
 
     def warning(self, msg: str, extra=None)->None:
@@ -206,7 +202,7 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
         """
-        self.logger.warning(msg, extra = extra)
+        self._logger.warning(msg, extra = extra)
 
 
     def error(self, msg, extra=None)->None:
@@ -221,7 +217,7 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
         """
-        self.logger.error(msg, extra = extra)
+        self._logger.error(msg, extra = extra)
 
 
     def critical(self, msg: str, extra=None)->None:
@@ -236,7 +232,7 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
         """
-        self.logger.critical(msg, extra = extra)
+        self._logger.critical(msg, extra = extra)
 
 
     def exception(self, msg, extra=None)->None:
@@ -251,4 +247,4 @@ class Logger():
             Additional arguments according to the docs of the logging module.
             The default is None.
         """
-        self.logger.exception(msg, extra = extra)
+        self._logger.exception(msg, extra = extra)
