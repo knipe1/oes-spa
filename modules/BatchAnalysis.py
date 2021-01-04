@@ -304,6 +304,12 @@ class BatchAnalysis(QDialog):
 
 
     def analyze(self)->None:
+        import threading as THR
+
+        ana = THR.Thread(target=self.THR_analyze)
+        ana.start()
+
+    def THR_analyze(self)->None:
         self._logger.info("Start batch analysis.")
 
         # Reset the properties to have a clean setup.
@@ -366,9 +372,10 @@ class BatchAnalysis(QDialog):
         if isPlotTrace:
             self.import_batchfile(takeCurrentBatchfile=True)
 
-        # Prompt the user with information about the skipped files.
-        dialog.information_batchAnalysisFinished(skippedFiles)
-        self._files.difference_update(skippedFiles)
+        if not isUpdatePlot:
+            # Prompt the user with information about the skipped files.
+            dialog.information_batchAnalysisFinished(skippedFiles)
+        # self._files.difference_update(skippedFiles)
 
 
     def merge_characteristics(self, specHandler:SpectrumHandler)->dict:

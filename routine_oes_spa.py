@@ -46,6 +46,7 @@ def main():
     activateWD = False
 
     test_calibration = False
+    noFiles = 100
 
 
     # Setup GUI
@@ -114,7 +115,7 @@ def main():
 
     if selectBatchSpectra:
         window.window.wavelength = "433.1"
-        selection = THR.Thread(target=emu.key_select_file, args=[10])
+        selection = THR.Thread(target=emu.key_select_file, args=[noFiles])
         selection.start()
         window.batch.browse_spectra()
         window.batch.window.radTrace.click()
