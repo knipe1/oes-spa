@@ -211,11 +211,11 @@ class SpectrumHandler():
 
         """
         integrationRange = self.get_integration_range(peak)
-        self.analyze_peak_characteristics(integrationRange)
+        area, height, position = self.analyze_peak_characteristics(integrationRange)
 
-        characteristics = {CHC.PEAK_POSITION: self.peakPosition,
-                           CHC.PEAK_HEIGHT: self.peakHeight,
-                           CHC.PEAK_AREA: self.peakArea,}
+        characteristics = {CHC.PEAK_POSITION: position,
+                           CHC.PEAK_HEIGHT: height,
+                           CHC.PEAK_AREA: area,}
 
         # Determine integration areas.
         integrationRaw = Integration(self.rawData[integrationRange])
@@ -251,20 +251,20 @@ class SpectrumHandler():
         try:
             idxPeak = procYData[integrationRange].argmax() + integrationRange[0]
         except ValueError:
-            self.peakArea = 0.0
-            self.peakHeight = 0.0
-            self.peakPosition = 0.0
-            return
+            peakArea = 0.0
+            peakHeight = 0.0
+            peakPosition = 0.0
+            return peakArea, peakHeight, peakPosition
 
-        self.peakPosition = procXData[idxPeak]
-        self.peakHeight = procYData[idxPeak]
+        peakPosition = procXData[idxPeak]
+        peakHeight = procYData[idxPeak]
 
         # getting all wavelength(x) and the intensities(y).
         peakAreaX = procXData[integrationRange]
         peakAreaY = procYData[integrationRange]
         # Integrate along the given axis using the composite trapezoidal rule.
-        self.peakArea = np.trapz(peakAreaY, peakAreaX)
-        return
+        peakArea = np.trapz(peakAreaY, peakAreaX)
+        return peakArea, peakHeight, peakPosition
 
 
     def get_integration_areas(self):
