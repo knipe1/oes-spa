@@ -18,7 +18,7 @@ import numpy as np
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import Signal, QModelIndex
+from PyQt5.QtCore import Signal, QModelIndex, Slot, QObject, QThread
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence as QKeys
 
@@ -53,6 +53,22 @@ from exception.InvalidSpectrumError import InvalidSpectrumError
 BATCH_SUFFIX = "." + SUFF.BATCH.value
 
 
+
+class YourThreadName(QThread):
+
+    def __init__(self):
+        QThread.__init__(self)
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        # your logic here
+        print(123)
+
+
+
+
 class BatchAnalysis(QDialog):
     """
     Provides an dialog widget as interface to analyze multiple spectra.
@@ -74,6 +90,7 @@ class BatchAnalysis(QDialog):
     signal_WDdirectory = Signal(str)
     signal_enableWD = Signal(bool)
     signal_progress = Signal(float)
+    signal_file = Signal(str)
 
 
     ### Properties
@@ -304,10 +321,14 @@ class BatchAnalysis(QDialog):
 
 
     def analyze(self)->None:
-        import threading as THR
+        self.thread = YourThreadName()
+        self.thread.start()
 
+        import threading as THR
+        # self.THR_analyze()
         ana = THR.Thread(target=self.THR_analyze)
         ana.start()
+
 
     def THR_analyze(self)->None:
         self._logger.info("Start batch analysis.")
@@ -364,7 +385,11 @@ class BatchAnalysis(QDialog):
 
             # Select by filename to trigger event based update of the plot.
             elif isUpdatePlot:
-                self._files.select_row_by_filename(file)
+                # self._files.select_row_by_filename(file)
+                # self.parent().apply_file(file)
+                self.signal_file.emit(file)
+                print("WWWWWWWWWWWWWWWWWWWWWWWWWWWAIT!!!!!!!!!!!!!!")
+                # time.sleep(0.1)
 
         if isExportBatch:
             self.export_batch(data, header)
@@ -376,6 +401,7 @@ class BatchAnalysis(QDialog):
             # Prompt the user with information about the skipped files.
             dialog.information_batchAnalysisFinished(skippedFiles)
         # self._files.difference_update(skippedFiles)
+        print(self.thread.isFinished())
 
 
     def merge_characteristics(self, specHandler:SpectrumHandler)->dict:
