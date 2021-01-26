@@ -87,6 +87,9 @@ class Worker(QThread):
         self.files = files
         self.start()
 
+    def export(self):
+        pass
+
 
 
 
@@ -350,7 +353,7 @@ class BatchAnalysis(QDialog):
         self.thread.analyze(self.setting, self._files.to_list())
 
         # import threading as THR
-        # # self.THR_analyze()
+        # self.THR_analyze()
         # ana = THR.Thread(target=self.THR_analyze)
         # ana.start()
 
@@ -426,7 +429,6 @@ class BatchAnalysis(QDialog):
             # Prompt the user with information about the skipped files.
             dialog.information_batchAnalysisFinished(skippedFiles)
         # self._files.difference_update(skippedFiles)
-        print(self.thread.isFinished())
 
 
     def merge_characteristics(self, specHandler:SpectrumHandler)->dict:
