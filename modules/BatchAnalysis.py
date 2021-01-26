@@ -54,17 +54,38 @@ BATCH_SUFFIX = "." + SUFF.BATCH.value
 
 
 
-class YourThreadName(QThread):
+class Worker(QThread):
+    output = Signal(str)
+    test = Signal(str)
+
+    @Slot(bool)
+    def slot_cancel(self, cancel:bool):
+        self.cancel = cancel
 
     def __init__(self):
-        QThread.__init__(self)
+        super().__init__()
+        self.cancel = False
 
-    def __del__(self):
+    def __del__(self)->None:
+        """Waits until the threads stopped processing and the delete it."""
         self.wait()
 
     def run(self):
-        # your logic here
-        print(123)
+        import time
+        self.output.emit("Hallelujah")
+        time.sleep(1)
+        for i, file in enumerate(self.files):
+            if self.cancel:
+                break
+            time.sleep(1)
+            self.output.emit(f"{file}; WL: {self.setting.wavelength}")
+            self.test.emit(file)
+
+
+    def analyze(self, setting:BasicSetting, files:list):
+        self.setting = setting
+        self.files = files
+        self.start()
 
 
 
@@ -91,6 +112,7 @@ class BatchAnalysis(QDialog):
     signal_enableWD = Signal(bool)
     signal_progress = Signal(float)
     signal_file = Signal(str)
+    signal_cancel = Signal(bool)
 
 
     ### Properties
@@ -321,13 +343,16 @@ class BatchAnalysis(QDialog):
 
 
     def analyze(self)->None:
-        self.thread = YourThreadName()
-        self.thread.start()
+        self.thread = Worker()
+        self.thread.output.connect(self.window.slot_WDdirectory)
+        self.thread.test.connect(self.parent().slot_plot_spectrum)
+        self.signal_cancel.connect(self.thread.slot_cancel)
+        self.thread.analyze(self.setting, self._files.to_list())
 
-        import threading as THR
-        # self.THR_analyze()
-        ana = THR.Thread(target=self.THR_analyze)
-        ana.start()
+        # import threading as THR
+        # # self.THR_analyze()
+        # ana = THR.Thread(target=self.THR_analyze)
+        # ana.start()
 
 
     def THR_analyze(self)->None:
@@ -578,6 +603,7 @@ class BatchAnalysis(QDialog):
     def schedule_cancel_routine(self)->None:
         """Demands a cancellation. Processed in corresponing methods."""
         self.isScheduledCancel = True
+        self.signal_cancel.emit(True)
 
 
 def assemble_header(config:dict)->list:

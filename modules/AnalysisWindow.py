@@ -53,9 +53,9 @@ class AnalysisWindow(QMainWindow):
     config = ConfigLoader()
     GENERAL = config.GENERAL
 
-    # @qtc.Slot(str)
-    # def slot_write(self, file:str)->None:
-    #     self.apply_file(file)
+    @qtc.Slot(str)
+    def slot_plot_spectrum(self, file:str)->None:
+        self.apply_file(file)
 
 
     ### Properties
