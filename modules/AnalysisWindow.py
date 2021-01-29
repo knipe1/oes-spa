@@ -55,7 +55,7 @@ class AnalysisWindow(QMainWindow):
 
     @qtc.Slot(str)
     def slot_plot_spectrum(self, file:str)->None:
-        self.apply_file(file)
+        self.apply_file(file, silent=True)
 
 
     ### Properties

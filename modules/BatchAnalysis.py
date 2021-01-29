@@ -16,6 +16,7 @@ Created on Mon Jan 20 10:22:44 2020
 # standard libs
 import numpy as np
 from os import path
+import time
 
 # third-party libs
 from PyQt5.QtCore import Signal, QModelIndex, Slot, QObject, QThread
@@ -55,9 +56,6 @@ BATCH_SUFFIX = "." + SUFF.BATCH.value
 
 
 class Worker(QThread):
-    output = Signal(str)
-    test = Signal(str)
-
     @Slot(bool)
     def slot_cancel(self, cancel:bool):
         self.cancel = cancel
@@ -70,27 +68,96 @@ class Worker(QThread):
         """Waits until the threads stopped processing and the delete it."""
         self.wait()
 
+
+class Plotter(Worker):
+    signal_filename = Signal(str)
+
     def run(self):
-        import time
-        self.output.emit("Hallelujah")
-        time.sleep(1)
-        for i, file in enumerate(self.files):
+        for file in self._files:
             if self.cancel:
                 break
-            time.sleep(1)
-            self.output.emit(f"{file}; WL: {self.setting.wavelength}")
-            self.test.emit(file)
+            time.sleep(.75)
+            self.signal_filename.emit(file)
 
 
-    def analyze(self, setting:BasicSetting, files:list):
-        self.setting = setting
-        self.files = files
+    def plot(self, files:list):
+        self._files = files
         self.start()
 
-    def export(self):
-        pass
+
+class Exporter(Worker):
+    signal_exportFinished = Signal(bool)
+    signal_progress = Signal(float)
+    signal_skipped_files = Signal(list)
+
+    def export(self, files:list, batchFile:str, setting:BasicSetting):
+        self._files = files
+        self._batchFile = batchFile
+        self._setting = setting
+        self.start()
+
+    def run(self):
+        data = []
+        header = []
+        skippedFiles = []
+
+        before = time.perf_counter()
+        amount = len(self._files)
+
+        for i, file in enumerate(self._files):
+            if self.cancel:
+                break
+            self.signal_progress.emit((i+1)/amount)
+
+            try:
+                self.currentFile = FileReader(file)
+            except FileNotFoundError:
+                skippedFiles.append(file)
+                continue
+
+            if not self.currentFile.is_analyzable():
+                skippedFiles.append(file)
+                continue
+
+            try:
+                specHandler = SpectrumHandler(self.currentFile, self._setting)
+            except InvalidSpectrumError:
+                skippedFiles.append(file)
+                continue
+
+            fileData, header = analyze_file(self._setting, specHandler, self.currentFile)
+            data.extend(fileData)
+
+        BatchWriter(self._batchFile).export(data, header)
+        after = time.perf_counter()
+
+        self.signal_skipped_files.emit(skippedFiles)
+        print(f"Time elapsed: {after-before}")
+        # Signal required
+        # dialog.information_batchAnalysisFinished(skippedFiles)
 
 
+def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileReader)->tuple:
+    data = []
+    for fitting in setting.checkedFittings:
+        specHandler.fit_data(fitting)
+        results = merge_characteristics(specHandler, file)
+
+        # excluding file if no appropiate data given like in processed spectra.
+        if not specHandler.has_valid_peak():
+            continue
+
+        data.append(assemble_row(results))
+    header = assemble_header(results)
+    return data, header
+
+def merge_characteristics(specHandler:SpectrumHandler, file:FileReader)->dict:
+    results = specHandler.results
+    results[CHC.FILENAME] = file.filename
+
+    timestamp = file.timeInfo
+    results[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
+    return results
 
 
 class BatchAnalysis(QDialog):
@@ -113,9 +180,20 @@ class BatchAnalysis(QDialog):
     signal_batchfile = Signal(str)
     signal_WDdirectory = Signal(str)
     signal_enableWD = Signal(bool)
-    signal_progress = Signal(float)
     signal_file = Signal(str)
     signal_cancel = Signal(bool)
+
+    ### Slots
+
+    @Slot()
+    def slot_import_batch(self):
+        if self.window.get_plot_trace():
+            self.import_batchfile(takeCurrentBatchfile=True)
+
+
+    @Slot(list)
+    def slot_show_skipped_files(self, skippedFiles:list):
+        dialog.information_batchAnalysisFinished(skippedFiles)
 
 
     ### Properties
@@ -208,7 +286,6 @@ class BatchAnalysis(QDialog):
         self.signal_enableAnalysis.connect(self.window.slot_enableAnalysis)
         self.signal_WDdirectory.connect(self.window.slot_WDdirectory)
         self.signal_enableWD.connect(self.window.slot_enableWD)
-        self.signal_progress.connect(self.window.slot_progress)
 
 
     ### Events
@@ -346,19 +423,6 @@ class BatchAnalysis(QDialog):
 
 
     def analyze(self)->None:
-        self.thread = Worker()
-        self.thread.output.connect(self.window.slot_WDdirectory)
-        self.thread.test.connect(self.parent().slot_plot_spectrum)
-        self.signal_cancel.connect(self.thread.slot_cancel)
-        self.thread.analyze(self.setting, self._files.to_list())
-
-        # import threading as THR
-        # self.THR_analyze()
-        # ana = THR.Thread(target=self.THR_analyze)
-        # ana.start()
-
-
-    def THR_analyze(self)->None:
         self._logger.info("Start batch analysis.")
 
         # Reset the properties to have a clean setup.
@@ -370,7 +434,6 @@ class BatchAnalysis(QDialog):
         # Export even if plot trace is selected(First export then import+plot).
         isExportBatch = self.window.get_export_batch() or isPlotTrace
 
-        # Get characteristic values.
         basicSetting = self.setting
 
         data = []
@@ -380,55 +443,22 @@ class BatchAnalysis(QDialog):
         amount = len(files)
         self._logger.info("No. of files %i:"%(amount))
 
-        for i in range(amount):
-            # Be responsive and process events to enable cancelation.
-            # HINT: QApplication.processEvents() slows down the analysis massively.
-            QApplication.processEvents()
-            if self.isScheduledCancel:
-                break
+        if isUpdatePlot:
+            self.thread = Plotter()
+            self.thread.signal_filename.connect(self.parent().slot_plot_spectrum)
+            self.signal_cancel.connect(self.thread.slot_cancel)
+            self.thread.plot(self._files.to_list())
 
-            self.signal_progress.emit((i+1)/amount)
-
-            # Read out the filename and the data.
-            file = files[i]
-            try:
-                self.currentFile = FileReader(file)
-            except FileNotFoundError:
-                skippedFiles.append(file)
-                continue
-
-            if isExportBatch:
-                if not self.currentFile.is_analyzable():
-                    skippedFiles.append(file)
-                    continue
-
-                try:
-                    specHandler = SpectrumHandler(self.currentFile, basicSetting)
-                except InvalidSpectrumError:
-                    skippedFiles.append(file)
-                    continue
-
-                fileData, header = self.analyze_file(basicSetting, specHandler)
-                data.extend(fileData)
-
-            # Select by filename to trigger event based update of the plot.
-            elif isUpdatePlot:
-                # self._files.select_row_by_filename(file)
-                # self.parent().apply_file(file)
-                self.signal_file.emit(file)
-                print("WWWWWWWWWWWWWWWWWWWWWWWWWWWAIT!!!!!!!!!!!!!!")
-                # time.sleep(0.1)
 
         if isExportBatch:
-            self.export_batch(data, header)
+            self.thread = Exporter()
+            self.signal_cancel.connect(self.thread.slot_cancel)
+            self.thread.finished.connect(self.slot_import_batch)
+            self.thread.signal_progress.connect(self.window.slot_progress)
+            self.thread.signal_skipped_files.connect(self.slot_show_skipped_files)
+            self.thread.export(self._files.to_list(), self.batchFile, self.setting)
 
-        if isPlotTrace:
-            self.import_batchfile(takeCurrentBatchfile=True)
 
-        if not isUpdatePlot:
-            # Prompt the user with information about the skipped files.
-            dialog.information_batchAnalysisFinished(skippedFiles)
-        # self._files.difference_update(skippedFiles)
 
 
     def merge_characteristics(self, specHandler:SpectrumHandler)->dict:
