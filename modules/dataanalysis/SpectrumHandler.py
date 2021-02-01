@@ -150,7 +150,6 @@ class SpectrumHandler(QDialog):
         self._characteristicValue = None
 
 
-
     def fit_data(self, fitting:Fitting)->ERR:
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
@@ -173,7 +172,12 @@ class SpectrumHandler(QDialog):
         self.peakPosition = peakCharacteristics[CHC.PEAK_POSITION]
         self.integration = list(integrationAreas.values())
 
-        if peak.has_valid_reference():
+        try:
+            validReference = peak.has_valid_reference()
+        except ValueError:
+            validReference = False
+
+        if validReference:
             characteristicValue, intAreas = self.calculate_characteristic_value(peak)
             self._characteristicValue = characteristicValue
             self.integration.extend(intAreas)

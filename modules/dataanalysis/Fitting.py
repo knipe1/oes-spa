@@ -78,6 +78,7 @@ class Fitting():
         try:
             self.peak = self.set_peak(**peakParameter)
         except TypeError:
+            self.peak = None
             self.update_errorcode_fitting()
 
 
