@@ -13,7 +13,6 @@ import numpy as np
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
 
 # constants
 NO_ITERATION = 3;
@@ -22,10 +21,6 @@ MAX_SHIFT_nm = 0.3;
 
 
 class Calibration():
-
-    # Load the configuration.
-    config = ConfigLoader()
-
 
     ### Properties
 

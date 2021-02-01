@@ -26,7 +26,7 @@ import logging
 import os
 
 # third-party libs
-from PyQt5.QtCore import QObject, Slot
+from PyQt5.QtCore import QObject, pyqtSlot
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -41,6 +41,7 @@ from modules.filehandling.filereading.FileReader import FileReader
 # enums and dataclasses
 from c_types.BasicSetting import BasicSetting
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+
 
 class UIMain(Ui_main, QObject):
     """
@@ -89,7 +90,7 @@ class UIMain(Ui_main, QObject):
 
     # Slots
 
-    @Slot(bool)
+    @pyqtSlot(bool)
     def slot_enableDispersion(self, enable:bool)->None:
         self.tinDispersion.setEnabled(enable)
 

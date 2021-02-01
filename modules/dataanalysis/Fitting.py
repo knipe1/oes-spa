@@ -19,13 +19,15 @@ import logging
 from ConfigLoader import ConfigLoader
 
 # Enums
-from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.ERROR_FITTING import ERROR_FITTING as ERR_FIT
 from c_types.Peak import Peak
 
 
 # constants
 NO_NAME_DEFINED = "No name provided!"
+
+# Load the configuration for fitting properties.
+FITTING = ConfigLoader().FITTING
 
 
 class Fitting():
@@ -36,10 +38,6 @@ class Fitting():
     corresponding reference peaks.
 
     """
-
-    # Load the configuration for fitting properties.
-    FITTING = ConfigLoader().FITTING;
-
 
     ### Properties
 
@@ -73,7 +71,7 @@ class Fitting():
 
         self.reset_errorcode()
 
-        name, calibration, peakParameter = self.extract_parameter(fitting)
+        name, calibration, peakParameter = extract_parameter(fitting)
 
         self.name = name
         self.calibration = calibration
@@ -93,33 +91,6 @@ class Fitting():
 
     ## methods
 
-    def extract_parameter(self, fitting:dict)->dict:
-
-        fittingName = self.extract_fitting_name(fitting)
-        calibration = self.extract_calibration(fitting)
-        peakParameter = self.extract_peak_parameter(fitting)
-
-        return fittingName, calibration, peakParameter
-
-
-    def extract_fitting_name(self, fitting:dict)->str:
-        name = fitting.get("NAME", NO_NAME_DEFINED)
-        return name
-
-
-    def extract_calibration(self, fitting:dict)->str:
-        calibration = fitting.get("CALIBRATION")
-        if calibration:
-            calibration = self.FITTING["DIR"] + calibration
-        return calibration
-
-
-    def extract_peak_parameter(self, fitting:dict)->dict:
-        peakParameter = fitting.get("PEAKS")
-        return peakParameter
-
-
-    # def set_peak(self, parameter:dict)->Peak:
     def set_peak(self, **kwargs)->Peak:
         try:
             peak = Peak(**kwargs)
@@ -138,7 +109,7 @@ class Fitting():
             hasValidReference = peak.has_valid_reference()
         except ValueError:
             self.update_errorcode_reference()
-            return None
+            return
 
         if hasValidReference is None:
             self._logger.info("No reference peak defined.")
@@ -170,3 +141,29 @@ class Fitting():
 
     def reset_errorcode(self)->None:
         self.errCode = ERR_FIT.OK.value
+
+
+def extract_parameter(fitting:dict)->dict:
+
+    fittingName = extract_fitting_name(fitting)
+    calibration = extract_calibration(fitting)
+    peakParameter = extract_peak_parameter(fitting)
+
+    return fittingName, calibration, peakParameter
+
+
+def extract_fitting_name(fitting:dict)->str:
+    name = fitting.get("NAME", NO_NAME_DEFINED)
+    return name
+
+
+def extract_calibration(fitting:dict)->str:
+    calibration = fitting.get("CALIBRATION")
+    if calibration:
+        calibration = FITTING["DIR"] + calibration
+    return calibration
+
+
+def extract_peak_parameter(fitting:dict)->dict:
+    peakParameter = fitting.get("PEAKS")
+    return peakParameter

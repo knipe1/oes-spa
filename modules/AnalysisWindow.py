@@ -13,8 +13,7 @@ import logging
 
 # third-party libs
 # base class: QMainWindow
-import PyQt5.QtCore as qtc
-# from PyQt5.QtCore import Slot
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QMainWindow
 
 
@@ -53,7 +52,7 @@ class AnalysisWindow(QMainWindow):
     config = ConfigLoader()
     GENERAL = config.GENERAL
 
-    @qtc.Slot(str)
+    @pyqtSlot(str)
     def slot_plot_spectrum(self, file:str)->None:
         self.apply_file(file, silent=True)
 
