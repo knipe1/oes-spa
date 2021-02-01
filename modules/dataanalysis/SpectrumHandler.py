@@ -121,6 +121,7 @@ class SpectrumHandler(QDialog):
 
         self.integration = []
         self.fitting = None
+        self._avgbase = None
 
         self.reset_values()
 
@@ -146,7 +147,6 @@ class SpectrumHandler(QDialog):
         self._peakHeight = None
         self._peakName = None
         self.peakPosition = None
-        self._avgbase = None
         self._characteristicValue = None
 
 
