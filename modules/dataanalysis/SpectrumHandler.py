@@ -370,7 +370,9 @@ class SpectrumHandler():
     def process_y_data(self):
         # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
         rawYData = self.rawYData
-        baseline = pkus.baseline(rawYData)
+        # Baseline correction without DC drift.
+        meanIntensity = np.mean(rawYData)
+        baseline = pkus.baseline(rawYData - meanIntensity) + meanIntensity
         avgbase = np.mean(baseline)
 
         # Shifting y data and normalization to average baseline intensity.

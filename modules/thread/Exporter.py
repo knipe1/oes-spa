@@ -9,7 +9,7 @@ Created on Fri Jan 29 15:03:07 2021
 # standard libs
 
 # third-party libs
-from PyQt5.QtCore import Signal, Slot, QThread
+from PyQt5.QtCore import Signal
 
 # local modules/libs
 from modules.thread.Worker import Worker

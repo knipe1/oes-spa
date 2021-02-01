@@ -10,7 +10,7 @@ Created on Fri Jan 29 15:01:48 2021
 import time
 
 # third-party libs
-from PyQt5.QtCore import Signal, Slot, QThread
+from PyQt5.QtCore import Signal
 
 # local modules/libs
 from modules.thread.Worker import Worker

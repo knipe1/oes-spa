@@ -19,6 +19,7 @@ from PyQt5.QtCore import QFileInfo, QUrl
 from ConfigLoader import ConfigLoader
 
 # Enums
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.SUFFICES import SUFFICES as SUFF
 
 # Load the configuration for import and batch properties.
@@ -32,11 +33,10 @@ EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
 # Take "." and the suffix value to create the file extension.
 EXPORT_SUFFIX = "." + SUFF.CSV.value
 
-
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.filehandling.filereading.FileReader import FileReader
 from c_types.BasicSetting import BasicSetting
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+
 
 def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileReader)->tuple:
     data = []
@@ -64,13 +64,13 @@ def merge_characteristics(specHandler:SpectrumHandler, file:FileReader)->dict:
     return results
 
 
-def assemble_header(config:dict)->list:
-    header = [label.value for label in config.keys()]
+def assemble_header(data:dict)->list:
+    header = [label.value for label in data.keys()]
     return header
 
 
-def assemble_row(config:dict)->list:
-    row = config.values()
+def assemble_row(data:dict)->list:
+    row = data.values()
     return row
 
 
@@ -112,8 +112,8 @@ def get_valid_local_url(url:QUrl)->str:
         The local url of given url if valid. None otherwise.
 
     """
-    isValid = url.isValid();
-    localUrl = url.toLocalFile();
+    isValid = url.isValid()
+    localUrl = url.toLocalFile()
     isValidSuffix = is_valid_suffix(localUrl)
     if isValid and isValidSuffix:
         return localUrl
@@ -184,7 +184,8 @@ def reduce_path(urls:list)->str:
 
     """
     for path in urls:
-        # Use "NotExistingDirectory" to achieve that the resulting filepath is relative (../dir/filename.ext)
+        # Use "NotExistingDirectory" to achieve
+        # that the resulting filepath is relative (../dir/filename.ext).
         referencePath = os.path.abspath(os.path.join(path, "../../NotExistingDirectory"))
         relativeFilepath = os.path.relpath(path, referencePath)
         yield relativeFilepath

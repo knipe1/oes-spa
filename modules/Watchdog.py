@@ -13,6 +13,7 @@ from ConfigLoader import ConfigLoader
 
 
 class SpectrumHandler(FileSystemEventHandler):
+
     def __init__(self, onModifiedMethod)->None:
         super().__init__()
         self.onModifiedMethod = onModifiedMethod or print
@@ -38,7 +39,9 @@ class Watchdog():
         self.handler = SpectrumHandler(onModifiedMethod)
 
 
-    def start(self, paths:list)->None:
+    def start(self, paths:(list, str))->None:
+        if isinstance(paths, str):
+            paths = [paths]
         for path in paths:
             self.observer.schedule(self.handler, path, recursive=False)
         self.observer.start()

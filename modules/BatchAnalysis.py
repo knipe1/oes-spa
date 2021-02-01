@@ -14,8 +14,9 @@ Created on Mon Jan 20 10:22:44 2020
 """
 
 # standard libs
-import numpy as np
 from os import path
+import logging
+import numpy as np
 
 # third-party libs
 from PyQt5.QtCore import Signal, QModelIndex, Slot
@@ -24,8 +25,6 @@ from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
 from ConfigLoader import ConfigLoader
-# from Logger import Logger
-import logging
 # UI
 from ui.UIBatch import UIBatch
 # modules & universal
@@ -164,17 +163,17 @@ class BatchAnalysis(QDialog):
 
 
     def set_connections(self)->None:
-        self.window.connect_browse_spectra(self.browse_spectra)
+        self.window.connect_browse_spectra(self._browse_spectra)
         self.window.connect_analyze(self.analyze)
         self.window.connect_cancel(self.schedule_cancel_routine)
-        self.window.connect_change_batchfile(self.enable_analysis)
+        self.window.connect_change_batchfile(self._enable_analysis)
         self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_clear(self.reset_batch)
         self.window.connect_import_batchfile(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
-        self.window.connect_select_file(self.enable_analysis)
-        self.window.connect_set_watchdog_directory(self.specify_watchdog_directory)
-        self.window.connect_set_batchfile(self.specify_batchfile)
+        self.window.connect_select_file(self._enable_analysis)
+        self.window.connect_set_watchdog_directory(self._specify_watchdog_directory)
+        self.window.connect_set_batchfile(self._specify_batchfile)
         self.window.connect_watchdog(self._toggle_watchdog)
 
         self.signal_batchfile.connect(self.window.slot_batchfile)
@@ -241,27 +240,12 @@ class BatchAnalysis(QDialog):
     ### Watchdog routines
 
     def watchdog_event_handler(self, pathname:str)->None:
-        # Checks absolute pathnames to avoid issues due to relative vs absolute pathnames.
-        eventPath, _, _ = uni.extract_path_basename_suffix(pathname)
-
         self._logger.info("WD: Spectrum file modified/added: %s", pathname)
         isOk = self.analyze_single_file(pathname)
         if not isOk:
             return
         self.update_filelist([pathname])
-        return
-
-        # Distinguish between modified batch- and spectrum-file.
-        if self.batchFile == pathname:
-            self._logger.info("WD: Batchfile modified.")
-            self.import_batchfile(takeCurrentBatchfile=True)
-        elif self.WDdirectory == eventPath:
-            self._logger.info("WD: Spectrum file modified/added: %s", pathname)
-            isOk = self.analyze_single_file(pathname)
-            if not isOk:
-                return
-            self.update_filelist([pathname])
-            # self._files.select_row_by_filename(pathname)
+        # self._files.select_row_by_filename(pathname)
 
 
     def _toggle_watchdog(self, status:bool)->None:
@@ -287,9 +271,7 @@ class BatchAnalysis(QDialog):
             return
 
         WDpath = self.WDdirectory
-        batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
-        paths = [WDpath]
-        self.dog.start(paths)
+        self.dog.start(WDpath)
         self.signal_enableWD.emit(False)
 
 
@@ -394,25 +376,25 @@ class BatchAnalysis(QDialog):
     ### UI-interactions
 
 
-    def specify_batchfile(self)->None:
+    def _specify_batchfile(self)->None:
         """Specifies the filename through a dialog."""
         filename = dialog.dialog_batchfile()
         self.batchFile = filename
 
 
-    def specify_watchdog_directory(self)->None:
+    def _specify_watchdog_directory(self)->None:
         """Specifies the watchdog directory through a dialog."""
         directory = dialog.dialog_watchdogDirectory()
         self.WDdirectory = directory
 
 
-    def browse_spectra(self)->None:
+    def _browse_spectra(self)->None:
         """Opens a dialog to browse for spectra and updates the filelist."""
         filelist = dialog.dialog_spectra()
         self.update_filelist(filelist)
 
 
-    def enable_analysis(self)->None:
+    def _enable_analysis(self)->None:
         """Enables the ui if configuration is set accordingly."""
         if not self.batchFile:
             enable = False
@@ -436,7 +418,7 @@ class BatchAnalysis(QDialog):
         index, msg = get_numerical_index(index)
         self._logger.info(msg)
 
-        filename = self.get_indexed_filename(index)
+        filename = self._get_indexed_filename(index)
 
         if filename:
             selectedFile = FileReader(filename)
@@ -445,7 +427,7 @@ class BatchAnalysis(QDialog):
             self.traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
 
 
-    def get_indexed_filename(self, index:int)->str:
+    def _get_indexed_filename(self, index:int)->str:
         try:
             filename = self._files[index]
         except IndexError:
