@@ -13,7 +13,10 @@ import logging
 
 # third-party libs
 # base class: QMainWindow
+import PyQt5.QtCore as qtc
+# from PyQt5.QtCore import Slot
 from PyQt5.QtWidgets import QMainWindow
+
 
 # local modules/libs
 from ui.UIMain import UIMain
@@ -50,8 +53,27 @@ class AnalysisWindow(QMainWindow):
     config = ConfigLoader()
     GENERAL = config.GENERAL
 
+    @qtc.Slot(str)
+    def slot_plot_spectrum(self, file:str)->None:
+        self.apply_file(file, silent=True)
+
 
     ### Properties
+    def keyPressEvent(self, event)->None:
+        """
+        Key handling.
+
+        Regarding deletions, cancellations,...
+        """
+        event.accept()
+        from PyQt5.QtGui import QKeySequence as QKeys
+
+        # Cancel current analysis.
+        isCancel = event.matches(QKeys.Cancel)
+        if isCancel:
+            self.batch.schedule_cancel_routine()
+            self.batch.isScheduledCancel = True
+            return
 
     @property
     def activeFile(self)->FileReader:

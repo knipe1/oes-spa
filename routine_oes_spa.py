@@ -9,8 +9,6 @@ Single and batch analysis of OES spectra
 
 # standard libs
 import sys
-
-import logging
 import LoggerConfig
 try:
     import sif_reader
@@ -24,8 +22,6 @@ import threading as THR
 from PyQt5.QtWidgets import QApplication
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-import modules.Universal as uni
 from modules.AnalysisWindow import AnalysisWindow
 
 
@@ -46,6 +42,7 @@ def main():
     activateWD = False
 
     test_calibration = False
+    noFiles = 50
 
 
     # Setup GUI
@@ -114,7 +111,7 @@ def main():
 
     if selectBatchSpectra:
         window.window.wavelength = "433.1"
-        selection = THR.Thread(target=emu.key_select_file, args=[10])
+        selection = THR.Thread(target=emu.key_select_file, args=[noFiles])
         selection.start()
         window.batch.browse_spectra()
         window.batch.window.radTrace.click()

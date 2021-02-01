@@ -18,8 +18,8 @@ import numpy as np
 from os import path
 
 # third-party libs
-from PyQt5.QtCore import Signal, QModelIndex
-from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtCore import Signal, QModelIndex, Slot
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
@@ -36,12 +36,13 @@ from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
+from modules.thread.Exporter import Exporter
+from modules.thread.Plotter import Plotter
 
 
 # Enums
 from c_types.FileSet import FileSet
 from c_types.BasicSetting import BasicSetting
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
@@ -73,7 +74,21 @@ class BatchAnalysis(QDialog):
     signal_batchfile = Signal(str)
     signal_WDdirectory = Signal(str)
     signal_enableWD = Signal(bool)
-    signal_progress = Signal(float)
+    signal_file = Signal(str)
+    signal_cancel = Signal(bool)
+
+    ### Slots
+
+    @Slot()
+    def slot_import_batch(self):
+        if self.window.get_plot_trace():
+            self.import_batchfile(takeCurrentBatchfile=True)
+
+
+    @Slot(list)
+    def slot_handle_skipped_files(self, skippedFiles:list):
+        dialog.information_batchAnalysisFinished(skippedFiles)
+        self._files.difference_update(skippedFiles)
 
 
     ### Properties
@@ -123,8 +138,8 @@ class BatchAnalysis(QDialog):
         self._batchFile = None
         self._WDdirectory = ""
         self.currentFile = None
-        self.isScheduledCancel = False
         self.setting = None
+        self._thread = None
 
         # Set up ui.
         self.window = UIBatch(self)
@@ -160,13 +175,12 @@ class BatchAnalysis(QDialog):
         self.window.connect_select_file(self.enable_analysis)
         self.window.connect_set_watchdog_directory(self.specify_watchdog_directory)
         self.window.connect_set_batchfile(self.specify_batchfile)
-        self.window.connect_watchdog(self.toggle_watchdog)
+        self.window.connect_watchdog(self._toggle_watchdog)
 
         self.signal_batchfile.connect(self.window.slot_batchfile)
         self.signal_enableAnalysis.connect(self.window.slot_enableAnalysis)
         self.signal_WDdirectory.connect(self.window.slot_WDdirectory)
         self.signal_enableWD.connect(self.window.slot_enableWD)
-        self.signal_progress.connect(self.window.slot_progress)
 
 
     ### Events
@@ -176,7 +190,7 @@ class BatchAnalysis(QDialog):
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
         event.accept()
         self.schedule_cancel_routine()
-        self.deactivate_watchdog()
+        self._deactivate_watchdog()
 
 
     def keyPressEvent(self, event)->None:
@@ -230,7 +244,7 @@ class BatchAnalysis(QDialog):
         # Checks absolute pathnames to avoid issues due to relative vs absolute pathnames.
         eventPath, _, _ = uni.extract_path_basename_suffix(pathname)
 
-        self._logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+        self._logger.info("WD: Spectrum file modified/added: %s", pathname)
         isOk = self.analyze_single_file(pathname)
         if not isOk:
             return
@@ -242,7 +256,7 @@ class BatchAnalysis(QDialog):
             self._logger.info("WD: Batchfile modified.")
             self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
-            self._logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+            self._logger.info("WD: Spectrum file modified/added: %s", pathname)
             isOk = self.analyze_single_file(pathname)
             if not isOk:
                 return
@@ -250,15 +264,15 @@ class BatchAnalysis(QDialog):
             # self._files.select_row_by_filename(pathname)
 
 
-    def toggle_watchdog(self, status:bool)->None:
+    def _toggle_watchdog(self, status:bool)->None:
         """Sets the Watchdog to the given status. (Activate if status is True)."""
         if status:
-            self.activate_watchdog()
+            self._activate_watchdog()
         else:
-            self.deactivate_watchdog()
+            self._deactivate_watchdog()
 
 
-    def has_valid_WD_settings(self)->bool:
+    def _has_valid_WD_settings(self)->bool:
         isWDdir = path.isdir(self.WDdirectory) or self._logger.info("Invalid WD directory!")
         batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
         isBatchdir = path.isdir(batchPath) or self._logger.info("Invalid batch directory!")
@@ -266,9 +280,9 @@ class BatchAnalysis(QDialog):
         return isValid
 
 
-    def activate_watchdog(self)->None:
+    def _activate_watchdog(self)->None:
         """Activates the WD if corresponding paths are valid."""
-        if not self.has_valid_WD_settings():
+        if not self._has_valid_WD_settings():
             self.signal_enableWD.emit(True)
             return
 
@@ -279,7 +293,7 @@ class BatchAnalysis(QDialog):
         self.signal_enableWD.emit(False)
 
 
-    def deactivate_watchdog(self)->None:
+    def _deactivate_watchdog(self)->None:
         self.dog.stop()
         self.signal_enableWD.emit(True)
 
@@ -297,8 +311,8 @@ class BatchAnalysis(QDialog):
         except InvalidSpectrumError:
             return None
 
-        data, header = self.analyze_file(self.setting, specHandler)
-        self.export_batch(data, header, isUpdate=True)
+        data, header = uni.analyze_file(self.setting, specHandler, self.currentFile)
+        BatchWriter(self.batchFile).extend_data(data, header)
         self.import_batchfile(takeCurrentBatchfile=True)
         return ERR.OK
 
@@ -306,99 +320,32 @@ class BatchAnalysis(QDialog):
     def analyze(self)->None:
         self._logger.info("Start batch analysis.")
 
-        # Reset the properties to have a clean setup.
-        self.isScheduledCancel = False
-
         # Get the modus.
         isUpdatePlot = self.window.get_update_plots()
-        isPlotTrace = self.window.get_plot_trace()
-        # Export even if plot trace is selected(First export then import+plot).
-        isExportBatch = self.window.get_export_batch() or isPlotTrace
-
-        # Get characteristic values.
-        basicSetting = self.setting
-
-        data = []
-        skippedFiles = []
+        isExportBatch = self.window.get_export_batch() or self.window.get_plot_trace()
 
         files = self._files.to_list()
-        amount = len(files)
-        self._logger.info("No. of files %i:"%(amount))
 
-        for i in range(amount):
-            # Be responsive and process events to enable cancelation.
-            # HINT: QApplication.processEvents() slows down the analysis massively.
-            QApplication.processEvents()
-            if self.isScheduledCancel:
-                break
+        if isUpdatePlot:
+            self._thread = Plotter()
+            self._thread.signal_filename.connect(self.parent().slot_plot_spectrum)
+            self.signal_cancel.connect(self._thread.slot_cancel)
+            self._thread.plot(files)
 
-            self.signal_progress.emit((i+1)/amount)
-
-            # Read out the filename and the data.
-            file = files[i]
-            try:
-                self.currentFile = FileReader(file)
-            except FileNotFoundError:
-                skippedFiles.append(file)
-                continue
-
-            if isExportBatch:
-                if not self.currentFile.is_analyzable():
-                    skippedFiles.append(file)
-                    continue
-
-                try:
-                    specHandler = SpectrumHandler(self.currentFile, basicSetting)
-                except InvalidSpectrumError:
-                    skippedFiles.append(file)
-                    continue
-
-                fileData, header = self.analyze_file(basicSetting, specHandler)
-                data.extend(fileData)
-
-            # Select by filename to trigger event based update of the plot.
-            elif isUpdatePlot:
-                self._files.select_row_by_filename(file)
 
         if isExportBatch:
-            self.export_batch(data, header)
-
-        if isPlotTrace:
-            self.import_batchfile(takeCurrentBatchfile=True)
-
-        # Prompt the user with information about the skipped files.
-        dialog.information_batchAnalysisFinished(skippedFiles)
-        self._files.difference_update(skippedFiles)
-
-
-    def merge_characteristics(self, specHandler:SpectrumHandler)->dict:
-        results = specHandler.results
-        results[CHC.FILENAME] = self.currentFile.filename
-
-        timestamp = self.currentFile.timeInfo
-        results[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
-        return results
-
-
-    def analyze_file(self, setting:BasicSetting, specHandler:SpectrumHandler)->tuple:
-        data = []
-        for fitting in setting.checkedFittings:
-            specHandler.fit_data(fitting)
-            results = self.merge_characteristics(specHandler)
-
-            # excluding file if no appropiate data given like in processed spectra.
-            if not specHandler.has_valid_peak():
-                continue
-
-            data.append(assemble_row(results))
-        header = assemble_header(results)
-        return data, header
+            self._thread = Exporter()
+            self.signal_cancel.connect(self._thread.slot_cancel)
+            self._thread.finished.connect(self.slot_import_batch)
+            self._thread.signal_progress.connect(self.window.slot_progress)
+            self._thread.signal_skipped_files.connect(self.slot_handle_skipped_files)
+            self._thread.export(files, self.batchFile, self.setting)
 
 
     def import_batchfile(self, takeCurrentBatchfile:bool=False)->None:
 
         # Select the file from which the data shall be imported.
-        filename = self.determine_batchfile(takeCurrentBatchfile)
+        filename = self._determine_batchfile(takeCurrentBatchfile)
         if not filename:
             return
 
@@ -425,21 +372,13 @@ class BatchAnalysis(QDialog):
         self.traceSpectrum.update_data(file.data)
 
 
-    def determine_batchfile(self, takeCurrentBatchfile:bool)->str:
+    def _determine_batchfile(self, takeCurrentBatchfile:bool)->str:
         """Takes either the current batchfile or opens a dialog to select one."""
         if takeCurrentBatchfile:
             filename = self.batchFile
         else:
             filename = dialog.dialog_importBatchfile()
         return filename
-
-
-    def export_batch(self, data:list, header:list, isUpdate:bool=False)->None:
-        exportWriter = BatchWriter(self.batchFile)
-        if isUpdate:
-            exportWriter.extend_data(data, header)
-        else:
-            exportWriter.export(data, header)
 
 
     def set_setting(self, setting:BasicSetting)->None:
@@ -544,17 +483,8 @@ class BatchAnalysis(QDialog):
 
     def schedule_cancel_routine(self)->None:
         """Demands a cancellation. Processed in corresponing methods."""
-        self.isScheduledCancel = True
+        self.signal_cancel.emit(True)
 
-
-def assemble_header(config:dict)->list:
-    header = [label.value for label in config.keys()]
-    return header
-
-
-def assemble_row(config:dict)->list:
-    row = config.values()
-    return row
 
 
 def get_numerical_index(index:(QModelIndex, int))->tuple:

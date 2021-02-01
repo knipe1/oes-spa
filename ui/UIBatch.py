@@ -36,8 +36,6 @@ class UIBatch(Ui_batch, QObject):
     is changed.
     """
 
-    def keyPressEvent(self, event)->None:
-        print("HALASDHLASDJLADJ")
 
 
     ### Properties
