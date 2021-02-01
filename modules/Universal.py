@@ -33,13 +33,14 @@ EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
 EXPORT_SUFFIX = "." + SUFF.CSV.value
 
 
-
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.filehandling.filereading.FileReader import FileReader
 from c_types.BasicSetting import BasicSetting
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+
 def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileReader)->tuple:
     data = []
+    header = []
     for fitting in setting.checkedFittings:
         specHandler.fit_data(fitting)
         results = merge_characteristics(specHandler, file)
@@ -62,6 +63,7 @@ def merge_characteristics(specHandler:SpectrumHandler, file:FileReader)->dict:
     # results[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
     return results
 
+
 def assemble_header(config:dict)->list:
     header = [label.value for label in config.keys()]
     return header
@@ -70,7 +72,6 @@ def assemble_header(config:dict)->list:
 def assemble_row(config:dict)->list:
     row = config.values()
     return row
-
 
 
 

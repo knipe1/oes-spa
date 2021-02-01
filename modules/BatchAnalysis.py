@@ -43,7 +43,6 @@ from modules.thread.Plotter import Plotter
 # Enums
 from c_types.FileSet import FileSet
 from c_types.BasicSetting import BasicSetting
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
@@ -257,7 +256,7 @@ class BatchAnalysis(QDialog):
             self._logger.info("WD: Batchfile modified.")
             self.import_batchfile(takeCurrentBatchfile=True)
         elif self.WDdirectory == eventPath:
-            self._logger.info("WD: Spectrum file modified/added: %s"%(pathname))
+            self._logger.info("WD: Spectrum file modified/added: %s", pathname)
             isOk = self.analyze_single_file(pathname)
             if not isOk:
                 return
@@ -495,5 +494,3 @@ def get_numerical_index(index:(QModelIndex, int))->tuple:
     except AttributeError:
         msg = "Open indexed file called by another method."
     return index, msg
-
-
