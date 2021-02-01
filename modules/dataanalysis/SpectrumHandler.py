@@ -371,6 +371,7 @@ class SpectrumHandler():
         # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
         rawYData = self.rawYData
         # Baseline correction without DC drift.
+        # HINT: Issue 121 -> to be reviewed
         meanIntensity = np.mean(rawYData)
         baseline = pkus.baseline(rawYData - meanIntensity) + meanIntensity
         avgbase = np.mean(baseline)
