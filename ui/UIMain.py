@@ -350,7 +350,7 @@ class UIMain(Ui_main, QObject):
         activeFitting : Fitting
         """
 
-        self._logger.info("Load fitting: " + fittingName)
+        self._logger.info("Load fitting: %s", fittingName)
 
         filename = self.get_filename_of_fitting(fittingName)
         fitConfig = self.load_fitting_configuration(filename)
@@ -445,11 +445,11 @@ class UIMain(Ui_main, QObject):
 
     def save_selected_fitting(self):
         selectedFitting = self.clistFitting.currentText()
-        self._logger.info(f"Save selected fitting: {selectedFitting}.")
+        self._logger.info("Save selected fitting: %s.", selectedFitting)
 
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [t.text() for t in checkedFittings]
-        self._logger.info(f"Save checked fittings: {checkedFittings}.")
+        self._logger.info("Save checked fittings: %s.", checkedFittings)
 
         self.config = ConfigLoader()
         self.config.PRESELECT_FITTING = selectedFitting
