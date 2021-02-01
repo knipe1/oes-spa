@@ -30,11 +30,10 @@ from PyQt5.QtCore import QObject, pyqtSlot
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
-from ConfigLoader import ConfigLoader
-from modules.dataanalysis.Fitting import Fitting
-import modules.Universal as uni
-from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
+from ConfigLoader import ConfigLoader
+import modules.Universal as uni
+from modules.dataanalysis.Fitting import Fitting
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.filehandling.filereading.FileReader import FileReader
 
@@ -63,12 +62,10 @@ class UIMain(Ui_main, QObject):
     ----------
     _fittings : list[str]
         Containing the filenames of the fittings.
-    UI_MAPPING : dict
-        Maps general keys to specific ui elements.
 
     Methods
     -------
-    retrieve_fittings():
+    _retrieve_fittings():
         Gets the fittings of the directory.
     connect_export_raw(fun):
         Interface to connect fun to triggered signal of the button.
@@ -86,7 +83,7 @@ class UIMain(Ui_main, QObject):
 
     # Load the configuration for fitting properties.
     config = ConfigLoader()
-    FITTING = config.FITTING;
+    FITTING = config.FITTING
 
     # Slots
 
@@ -99,10 +96,6 @@ class UIMain(Ui_main, QObject):
     @property
     def wavelength(self)->float:
         """Get the converted wavelength or None."""
-        # TODO: try/except vs throw an error?
-        # try: no exception and the program can still run
-        # error: is it an error, if the ui element is not found -> prob. yes
-        # error: if something invalid is written? -> prompt
         wavelength = None
         try:
             wavelength = self.tinCentralWavelength.text()
@@ -120,31 +113,18 @@ class UIMain(Ui_main, QObject):
     @property
     def dispersion(self)->float:
         """Get the converted dispersion or None."""
+        dispersion = None
         try:
             dispersion = self.tinDispersion.text()
             dispersion = float(dispersion)
         except ValueError:
             self._logger.error("Could not get valid value for dispersion!")
-            dispersion = None
         return dispersion
 
     @dispersion.setter
     def dispersion(self, disp:(float, str))->None:
         """Sets the given wavelenght dispersion to the ui-element."""
         self.tinDispersion.setText(str(disp))
-
-
-    @property
-    def grating(self)->int:
-        """Get the converted grating or None."""
-        # TODO: cf. wavelength, but dropdown cannot be empty.
-        grating = None
-        try:
-            grating = self.ddGrating.currentText()
-            grating = float(grating)
-        except:
-            self._logger.error("Could not get valid value for grating!")
-        return grating
 
 
     @property
@@ -195,20 +175,20 @@ class UIMain(Ui_main, QObject):
         self.DEF_LBL_FITTING = self.lblFitting.text()
         self.DEF_LBL_CHARACTERISTIC = self.lblCharacteristicValue.text()
 
-        self.fittings = self.retrieve_fittings()
-        self.load_fitting_selection_from_config()
-        self.load_settings_from_config()
+        self.fittings = self._retrieve_fittings()
+        self._load_fitting_selection_from_config()
+        self._load_settings_from_config()
 
         # initial hides. Cannot be set in designer.
         self.show_diff_wavelength(False)
 
 
-    def load_settings_from_config(self)->None:
+    def _load_settings_from_config(self)->None:
         self.wavelength = self.config.wavelength
         self.dispersion = self.config.dispersion
 
 
-    def load_fitting_selection_from_config(self)->None:
+    def _load_fitting_selection_from_config(self)->None:
         allTexts  = self.clistFitting.allTexts()
         PRESELECT_FITTING = self.config.PRESELECT_FITTING
         try:
@@ -243,25 +223,19 @@ class UIMain(Ui_main, QObject):
                 cwl = spectrumHandler.fitting.peak.centralWavelength
             except AttributeError:
                 cwl = 0.0
-        cwlInfo = f" (@{self.format_result(cwl)})"
+        cwlInfo = f" (@{format_result(cwl)})"
 
-        self.toutPeakHeight.setText(self.format_result(spectrumHandler._peakHeight) + cwlInfo)
-        self.toutPeakArea.setText(self.format_result(spectrumHandler._peakArea))
-        self.toutBaseline.setText(self.format_result(spectrumHandler._avgbase))
-        self.toutCharacteristicValue.setText(self.format_result(spectrumHandler._characteristicValue))
+        self.toutPeakHeight.setText(
+            format_result(spectrumHandler.results[CHC.PEAK_HEIGHT]) + cwlInfo)
+        self.toutPeakArea.setText(format_result(spectrumHandler.results[CHC.PEAK_AREA]))
+        self.toutBaseline.setText(format_result(spectrumHandler.results[CHC.BASELINE]))
+        self.toutCharacteristicValue.setText(
+            format_result(spectrumHandler.results[CHC.CHARACTERISTIC_VALUE]))
         try:
             peakName = spectrumHandler.fitting.peak.name + ":"
         except AttributeError:
             peakName = self.DEF_LBL_CHARACTERISTIC
         self.lblCharacteristicValue.setText(peakName)
-
-
-
-    def format_result(self, value:float)->str:
-        try:
-            return f"{value:8.4f}"
-        except TypeError:
-            return str(None)
 
     # Connect methods: Provides at least one event (signal) to connect to a
     # function
@@ -306,7 +280,7 @@ class UIMain(Ui_main, QObject):
         self.toutTimeInfo.setText(strTimeInfo)
 
 
-    def retrieve_fittings(self) -> list:
+    def _retrieve_fittings(self) -> list:
         """
         Retrieve all fitting files of the directory of fittings.
 
@@ -339,7 +313,7 @@ class UIMain(Ui_main, QObject):
         return fitDict
 
 
-    def load_fitting(self, fittingName:str, showError:bool=False)->Fitting:
+    def _load_fitting(self, fittingName:str, showError:bool=False)->Fitting:
         """
         Parameters
         ----------
@@ -353,15 +327,15 @@ class UIMain(Ui_main, QObject):
 
         self._logger.info("Load fitting: %s", fittingName)
 
-        filename = self.get_filename_of_fitting(fittingName)
-        fitConfig = self.load_fitting_configuration(filename)
+        filename = self._get_filename_of_fitting(fittingName)
+        fitConfig = self._load_fitting_configuration(filename)
         try:
             activeFitting = Fitting(fitConfig.config)
         except AttributeError:
             # If no config was loaded.
             return None
         if showError:
-            self.set_fittings_errorcode(activeFitting)
+            self._set_fittings_errorcode(activeFitting)
         return activeFitting
 
 
@@ -398,24 +372,26 @@ class UIMain(Ui_main, QObject):
 
 
     def get_basic_setting(self)->BasicSetting:
-        selectedFitting = self.load_fitting(self.clistFitting.currentText(), showError=True)
+        selectedFitting = self._load_fitting(self.clistFitting.currentText(), showError=True)
         checkedFittings = self.clistFitting.checkedItems()
-        checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
+        checkedFittings = [self._load_fitting(t.text()) for t in checkedFittings]
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
         calibration = self.cbCalibration.isChecked()
-        setting = BasicSetting(self.wavelength, self.dispersion, selectedFitting, checkedFittings, baselineCorrection, normalizeData, calibration)
+        setting = BasicSetting(self.wavelength, self.dispersion, selectedFitting, checkedFittings,
+                               baselineCorrection, normalizeData, calibration)
 
-        return setting;
+        return setting
 
 
-    def get_filename_of_fitting(self, fittingName:str)->str:
+    def _get_filename_of_fitting(self, fittingName:str)->str:
         for fitFilename, fitName in self.fittings.items():
             if fitName == fittingName:
                 return fitFilename
+        return None
 
 
-    def load_fitting_configuration(self, filename:str)->Fitting:
+    def _load_fitting_configuration(self, filename:str)->Fitting:
         try:
             path = os.path.join(self.FITTING["DIR"], filename)
         except TypeError:
@@ -425,17 +401,17 @@ class UIMain(Ui_main, QObject):
         return fitConfig
 
 
-    def set_fittings_errorcode(self, fit:Fitting):
-        label = mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
+    def _set_fittings_errorcode(self, fit:Fitting):
+        label = uni.mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
         self.lblFitting.setText(label)
 
 
     def save_settings(self)->None:
-        self.save_wavelength_and_dispersion()
-        self.save_selected_fitting()
+        self._save_wavelength_and_dispersion()
+        self._save_selected_fitting()
 
 
-    def save_wavelength_and_dispersion(self)->None:
+    def _save_wavelength_and_dispersion(self)->None:
         wl = self.wavelength
         dp = self.dispersion
 
@@ -444,7 +420,8 @@ class UIMain(Ui_main, QObject):
         self.config.dispersion = dp
         self.config.save_config()
 
-    def save_selected_fitting(self):
+
+    def _save_selected_fitting(self):
         selectedFitting = self.clistFitting.currentText()
         self._logger.info("Save selected fitting: %s.", selectedFitting)
 
@@ -456,3 +433,10 @@ class UIMain(Ui_main, QObject):
         self.config.PRESELECT_FITTING = selectedFitting
         self.config.CHECKED_FITTINGS = checkedFittings
         self.config.save_config()
+
+
+def format_result(value:float)->str:
+    try:
+        return f"{value:8.4f}"
+    except TypeError:
+        return str(None)

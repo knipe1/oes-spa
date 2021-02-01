@@ -44,7 +44,7 @@ class TestFitting(unittest.TestCase):
         None.
 
         """
-        fittings = self.fitting.retrieve_fittings()
+        fittings = self.fitting._retrieve_fittings()
         self.assertEqual(len(fittings), 1, "More files in directory")
         self.assertTrue('boron_fitting.yml' in fittings)
 
