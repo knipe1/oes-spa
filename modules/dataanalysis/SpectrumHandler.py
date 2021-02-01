@@ -124,7 +124,8 @@ class SpectrumHandler(QDialog):
 
         self.reset_values()
 
-        self.signal_pixel_data.connect(slotPixel)
+        if not slotPixel is None:
+            self.signal_pixel_data.connect(slotPixel)
 
         self.rawData = file.data
         self.process_data()
