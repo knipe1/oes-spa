@@ -19,6 +19,8 @@ import logging
 import numpy as np
 
 # third-party libs
+from PyQt5.QtCore import Signal
+from PyQt5.QtWidgets import QDialog
 import peakutils as pkus
 
 # local modules/libs
@@ -39,7 +41,7 @@ from c_enum.EXPORT_TYPE import EXPORT_TYPE
 from exception.InvalidSpectrumError import InvalidSpectrumError
 
 
-class SpectrumHandler():
+class SpectrumHandler(QDialog):
     """Handles and analyses spectra.
 
     SpectrumHandler(basicSetting, **kwargs):
@@ -51,6 +53,8 @@ class SpectrumHandler():
             parameter:
                 Information about wavelength, dispersion,...
      """
+    ### Signals
+    signal_pixel_data = Signal(bool)
 
     ### Properties
 
@@ -96,18 +100,19 @@ class SpectrumHandler():
     @property
     def results(self)->dict:
         result = {}
-        result[CHC.BASELINE] = self.avgbase
-        result[CHC.CHARACTERISTIC_VALUE] = self.characteristicValue
-        result[CHC.PEAK_NAME] = self.peakName
-        result[CHC.PEAK_AREA] = self.peakArea
-        result[CHC.PEAK_HEIGHT] = self.peakHeight
+        result[CHC.BASELINE] = self._avgbase
+        result[CHC.CHARACTERISTIC_VALUE] = self._characteristicValue
+        result[CHC.PEAK_NAME] = self._peakName
+        result[CHC.PEAK_AREA] = self._peakArea
+        result[CHC.PEAK_HEIGHT] = self._peakHeight
         result[CHC.PEAK_POSITION] = self.peakPosition
         return result
 
 
     ### dunder methods
 
-    def __init__(self, file:FileReader, basicSetting:BasicSetting):
+    def __init__(self, file:FileReader, basicSetting:BasicSetting, slotPixel=None):
+        super().__init__()
         self._logger = logging.getLogger(__name__)
 
         if not file.is_valid_spectrum():
@@ -119,27 +124,29 @@ class SpectrumHandler():
 
         self.reset_values()
 
+        self.signal_pixel_data.connect(slotPixel)
+
         self.rawData = file.data
         self.process_data()
 
 
     def __repr__(self):
         info = {}
-        info["Peak Height"] = self.peakHeight
-        info["Peak Area"] = self.peakArea
+        info["Peak Height"] = self._peakHeight
+        info["Peak Area"] = self._peakArea
         info["Peak Position"] = self.peakPosition
-        info["Baseline"] = self.avgbase
-        info["Characteristic"] = self.characteristicValue
+        info["Baseline"] = self._avgbase
+        info["Characteristic"] = self._characteristicValue
         return self.__module__ + ":\n" + str(info)
 
 
     def reset_values(self)->None:
-        self.peakArea = None
-        self.peakHeight = None
-        self.peakName = None
+        self._peakArea = None
+        self._peakHeight = None
+        self._peakName = None
         self.peakPosition = None
-        self.avgbase = None
-        self.characteristicValue = None
+        self._avgbase = None
+        self._characteristicValue = None
 
 
 
@@ -152,7 +159,7 @@ class SpectrumHandler():
         self.reset_values()
 
         peak = fitting.peak
-        self.peakName = peak.name
+        self._peakName = peak.name
 
         calibrationFile = self.fitting.calibration
         if self.basicSetting.calibration and calibrationFile:
@@ -160,14 +167,14 @@ class SpectrumHandler():
             self.procXData = calibration.calibrate(*self.procData.transpose())
 
         peakCharacteristics, integrationAreas = self.analyse_peak(peak)
-        self.peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
-        self.peakArea = peakCharacteristics[CHC.PEAK_AREA]
+        self._peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
+        self._peakArea = peakCharacteristics[CHC.PEAK_AREA]
         self.peakPosition = peakCharacteristics[CHC.PEAK_POSITION]
         self.integration = list(integrationAreas.values())
 
         if peak.has_valid_reference():
             characteristicValue, intAreas = self.calculate_characteristic_value(peak)
-            self.characteristicValue = characteristicValue
+            self._characteristicValue = characteristicValue
             self.integration.extend(intAreas)
 
         return ERR.OK
@@ -284,7 +291,7 @@ class SpectrumHandler():
 
     def has_valid_peak(self):
         try:
-            return self.peakHeight != 0.0
+            return self._peakHeight != 0.0
         except AttributeError:
             return False
 
@@ -328,13 +335,8 @@ class SpectrumHandler():
     def process_data(self)->None:
         """Processes the raw data with regard to the given wavelength and the dispersion."""
         procXData = self.process_x_data()
-        procYData, self.baseline, self.avgbase = self.process_y_data()
+        procYData, self.baseline, self._avgbase = self.process_y_data()
         self.procData = (procXData, procYData)
-
-
-    def get_center(self, data:np.ndarray)->float:
-        center = data[len(data) // 2 - 1]            # offset of python lists.
-        return center
 
 
     def process_x_data(self)->np.ndarray:
@@ -342,12 +344,13 @@ class SpectrumHandler():
 
         # Center of the xData. Used for shifting the data.
         rawXData = self.rawXData
-        center = self.get_center(rawXData)
+        center = get_center(rawXData)
 
         centralWavelength = self.basicSetting.wavelength
         dispersion = self.basicSetting.dispersion
         xDataArePixel = uni.data_are_pixel(rawXData)
         if xDataArePixel:
+            self.signal_pixel_data.emit(True)
             try:
                 # Employs the dispersion to convert pixel to wavelength
                 start = centralWavelength - center*dispersion
@@ -356,6 +359,7 @@ class SpectrumHandler():
                 self._logger.info("Could not process data. Invalid wavelength or dispersion!")
                 shiftedData = rawXData
         else:
+            self.signal_pixel_data.emit(False)
             try:
                 # Only shift the original data to the given centralWavelength
                 shift = centralWavelength - center
@@ -391,6 +395,11 @@ class SpectrumHandler():
 
 
         return processedYdata, baseline, avgbase
+
+
+def get_center(data:np.ndarray)->float:
+    center = data[len(data) // 2 - 1]            # offset of python lists.
+    return center
 
 
 def set_type_to_reference(intAreas:dict)->dict:

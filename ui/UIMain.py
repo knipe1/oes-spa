@@ -26,6 +26,7 @@ import logging
 import os
 
 # third-party libs
+from PyQt5.QtCore import QObject, Slot
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
@@ -41,7 +42,7 @@ from modules.filehandling.filereading.FileReader import FileReader
 from c_types.BasicSetting import BasicSetting
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
-class UIMain(Ui_main):
+class UIMain(Ui_main, QObject):
     """
     Provides an interface for the UI of the main window.
 
@@ -85,6 +86,12 @@ class UIMain(Ui_main):
     # Load the configuration for fitting properties.
     config = ConfigLoader()
     FITTING = config.FITTING;
+
+    # Slots
+
+    @Slot(bool)
+    def slot_enableDispersion(self, enable:bool)->None:
+        self.tinDispersion.setEnabled(enable)
 
     ### properties
 
@@ -174,6 +181,7 @@ class UIMain(Ui_main):
             The "parent" of this GUI. It is used for connections to other GUIs
             other (rather general) functions.
         """
+        super().__init__()
         self._logger = logging.getLogger(__name__)
 
         self.setupUi(parent)
@@ -236,10 +244,10 @@ class UIMain(Ui_main):
                 cwl = 0.0
         cwlInfo = f" (@{self.format_result(cwl)})"
 
-        self.toutPeakHeight.setText(self.format_result(spectrumHandler.peakHeight) + cwlInfo)
-        self.toutPeakArea.setText(self.format_result(spectrumHandler.peakArea))
-        self.toutBaseline.setText(self.format_result(spectrumHandler.avgbase))
-        self.toutCharacteristicValue.setText(self.format_result(spectrumHandler.characteristicValue))
+        self.toutPeakHeight.setText(self.format_result(spectrumHandler._peakHeight) + cwlInfo)
+        self.toutPeakArea.setText(self.format_result(spectrumHandler._peakArea))
+        self.toutBaseline.setText(self.format_result(spectrumHandler._avgbase))
+        self.toutCharacteristicValue.setText(self.format_result(spectrumHandler._characteristicValue))
         try:
             peakName = spectrumHandler.fitting.peak.name + ":"
         except AttributeError:

@@ -261,7 +261,7 @@ class AnalysisWindow(QMainWindow):
 
         basicSetting = self.window.get_basic_setting()
         try:
-            specHandler = SpectrumHandler(file, basicSetting)
+            specHandler = SpectrumHandler(file, basicSetting, slotPixel=self.window.slot_enableDispersion)
         except InvalidSpectrumError:
             if not silent:
                 dialog.critical_invalidSpectrum()

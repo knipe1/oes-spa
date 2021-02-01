@@ -19,7 +19,7 @@ import logging
 import numpy as np
 
 # third-party libs
-from PyQt5.QtCore import Signal, QModelIndex, Slot
+from PyQt5.QtCore import Signal, Slot, QModelIndex
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QKeySequence as QKeys
 
