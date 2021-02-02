@@ -37,7 +37,7 @@ BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.
 config = ConfigLoader()
-BATCH = config.BATCH;
+BATCH = config.BATCH
 
 # Message box
 ## critical
@@ -262,4 +262,3 @@ def update_logfile_in_configuration(logfile:str)->None:
     config = ConfigLoader()
     config.logFile = logfile
     config.save_config()
-

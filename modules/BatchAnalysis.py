@@ -65,8 +65,6 @@ class BatchAnalysis(QDialog):
 
     """
 
-    BATCH = ConfigLoader().BATCH
-
     # Qt-Signals
     signal_enableAnalysis = Signal(bool)
     signal_batchfile = Signal(str)

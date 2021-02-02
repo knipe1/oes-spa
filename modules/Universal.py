@@ -82,7 +82,6 @@ def format_suffix(suffix:str):
     return suffix
 
 
-
 def extract_path_basename_suffix(filename):
     fileInfo = QFileInfo(filename)
     absolutePath = fileInfo.absolutePath()

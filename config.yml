@@ -10,10 +10,9 @@ FITTING:
   - Example (No peak)
   - Example (No reference)
   - Methan Peak Fitting
-  - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Example Fitting
+  PRESELECT_FITTING: Methan Peak Fitting
 GENERAL:
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 PLOT:

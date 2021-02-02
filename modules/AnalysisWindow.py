@@ -251,9 +251,8 @@ class AnalysisWindow(QMainWindow):
             file = filename
 
         if not silent:
-            # Hint: set wavelength triggers a redraw loop.
-            # If wavelength is set after basicSetting is loaded,
-            # the analysis will not update the setting.
+            # HINT: set wavelength triggers a redraw loop. If wavelength is set after the setting
+            # is loaded, the analysis will not update the setting.
             isFileReloaded = (self.activeFile == file)
             if not isFileReloaded:
                 self.set_wavelength_from_file(file)
