@@ -35,6 +35,7 @@ from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
+from modules.thread.Appender import Appender
 from modules.thread.Exporter import Exporter
 from modules.thread.Plotter import Plotter
 
@@ -76,15 +77,21 @@ class BatchAnalysis(QDialog):
     ### Slots
 
     @Slot()
-    def slot_import_batch(self):
-        if self.window.get_plot_trace():
+    @Slot(bool)
+    def slot_import_batch(self, force:bool=False)->None:
+        if self.window.get_plot_trace() or force:
             self.import_batchfile(takeCurrentBatchfile=True)
 
 
     @Slot(list)
-    def slot_handle_skipped_files(self, skippedFiles:list):
+    def slot_handle_skipped_files(self, skippedFiles:list)->None:
         dialog.information_batchAnalysisFinished(skippedFiles)
         self._files.difference_update(skippedFiles)
+
+
+    @Slot(str)
+    def slot_valid_file(self, filename:str)->None:
+        self._files.update([filename])
 
 
     ### Properties
@@ -281,19 +288,10 @@ class BatchAnalysis(QDialog):
 
     def analyze_single_file(self, filename:str)->None:
 
-        self.currentFile = FileReader(filename)
-        if not self.currentFile.is_analyzable():
-            return None
-
-        try:
-            specHandler = SpectrumHandler(self.currentFile, self.setting)
-        except InvalidSpectrumError:
-            return None
-
-        data, header = Analysis.analyze_file(self.setting, specHandler, self.currentFile)
-        BatchWriter(self.batchFile).extend_data(data, header)
-        self.import_batchfile(takeCurrentBatchfile=True)
-        return ERR.OK
+        thread = Appender()
+        thread.signal_valid_file.connect(self.slot_valid_file)
+        thread.signal_import_batch.connect(self.slot_import_batch)
+        thread.append(filename, self.batchFile, self.setting)
 
 
     def analyze(self)->None:
