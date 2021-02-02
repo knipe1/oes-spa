@@ -91,7 +91,7 @@ class BatchAnalysis(QDialog):
 
     @Slot(str)
     def slot_valid_file(self, filename:str)->None:
-        self._files.update([filename])
+        self._files.update([filename], noSelection=True)
 
 
     ### Properties
@@ -290,7 +290,8 @@ class BatchAnalysis(QDialog):
 
         thread = Appender()
         thread.signal_valid_file.connect(self.slot_valid_file)
-        thread.signal_import_batch.connect(self.slot_import_batch)
+        # thread.signal_import_batch.connect(self.slot_import_batch)
+        # self.signal_cancel.connect(thread.slot_cancel)
         thread.append(filename, self.batchFile, self.setting)
 
 

@@ -70,11 +70,13 @@ class FileSet(set):
         self.listWidget.clear()
 
 
-    def update(self, s:set)->None:
+    def update(self, s:set, noSelection:bool=False)->None:
         """Updates the set AND updates the ui."""
         filename = None
         index = self.selected_row
-        if index >= 0:
+        if noSelection:
+            index = None
+        elif index >= 0:
             filename = self[index]
             index = None
 
