@@ -49,8 +49,7 @@ from c_enum.SUFFICES import SUFFICES as SUFF
 from exception.InvalidSpectrumError import InvalidSpectrumError
 
 # constants
-# BATCH_SUFFIX requires "." as prefix to the suffix-value
-BATCH_SUFFIX = "." + SUFF.BATCH.value
+BATCH_SUFFIX = SUFF.BATCH
 
 
 class BatchAnalysis(QDialog):

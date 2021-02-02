@@ -10,6 +10,7 @@ This module is for general purposes and includes various functions.
 import os
 import re
 import numpy as np
+from enum import Enum
 from datetime import datetime, timedelta
 
 # third-party libs
@@ -28,10 +29,7 @@ BATCH = config.BATCH
 
 # constants
 EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
-
-
-# Take "." and the suffix value to create the file extension.
-EXPORT_SUFFIX = "." + SUFF.CSV.value
+EXPORT_SUFFIX = SUFF.CSV
 
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.filehandling.filereading.FileReader import FileReader
@@ -74,6 +72,14 @@ def assemble_row(data:dict)->list:
     return row
 
 
+
+
+def format_suffix(suffix:str):
+    if isinstance(suffix, Enum):
+        suffix = suffix.value
+    if not suffix.startswith("."):
+        suffix = "." + suffix
+    return suffix
 
 
 
@@ -163,8 +169,8 @@ def timestamp_from_string(timestamp, timeformat=None):
 
 def replace_suffix(filename, suffix=None):
     """Replaces the suffix of the filename. Default is defined in the configuration."""
-    # Note: The suffix needs to have a dot in front of the extension.
     newSuffix = suffix or EXPORT_SUFFIX
+    newSuffix = format_suffix(newSuffix)
 
     fileSuffix = get_suffix(filename)
     if not fileSuffix == suffix:

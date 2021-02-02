@@ -19,7 +19,7 @@ import logging
 import numpy as np
 
 # third-party libs
-from PyQt5.QtCore import Signal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QDialog
 import peakutils as pkus
 
@@ -54,7 +54,7 @@ class SpectrumHandler(QDialog):
                 Information about wavelength, dispersion,...
      """
     ### Signals
-    signal_pixel_data = Signal(bool)
+    signal_pixel_data = pyqtSignal(bool)
 
     ### Properties
 
