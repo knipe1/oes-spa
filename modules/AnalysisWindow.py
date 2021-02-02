@@ -127,8 +127,8 @@ class AnalysisWindow(QMainWindow):
         win = self.window
         win.connect_change_basic_settings(self._redraw)
         win.connect_change_basic_settings(self._update_batch_setting)
-        win.connect_export_raw(self._export_raw)
         win.connect_export_processed(self._export_processed)
+        win.connect_export_raw(self._export_raw)
         win.connect_open_file(self._file_open)
         win.connect_show_batch(self.batch.show)
 
@@ -136,7 +136,7 @@ class AnalysisWindow(QMainWindow):
     ### Events
 
     def closeEvent(self, event)->None:
-        """Closing the BatchAnalysis dialog to have a clear shutdown."""
+        """Closes the BatchAnalysis dialog and save the settings."""
         event.accept()
         self.batch.close()
         self.window.save_settings()
@@ -157,7 +157,6 @@ class AnalysisWindow(QMainWindow):
     def dropEvent(self, event)->None:
         event.accept()
 
-        # Can only be a single file.
         url = event.mimeData().urls()[0]
         localUrl = uni.get_valid_local_url(url)
 
@@ -170,9 +169,7 @@ class AnalysisWindow(QMainWindow):
     ### Methods
 
     def _file_open(self)->None:
-        """Open FileDialog to select one or multiple spectra."""
-        # File-->Open
-        # Browse
+        """Opens a FileDialog to select one or multiple spectra."""
 
         # Cancel/Quit dialog --> [].
         filelist = dialog.dialog_spectra()
