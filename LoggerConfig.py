@@ -22,7 +22,6 @@ DEF_LOG_FILE = "../debug.log"
 
 
 
-
 def set_up()->None:
     filename = determine_filename()
     logging.basicConfig(level=LOG_LEVEL,
