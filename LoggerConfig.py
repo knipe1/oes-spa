@@ -30,11 +30,11 @@ def set_up()->None:
                                   logging.StreamHandler(sys.stdout),]
                         )
 
+
 def determine_filename()->str:
     filename = ConfigLoader().logFile
     if not filename:
         filename = dialog_logFile(defaultFile=DEF_LOG_FILE)
-
 
     try:
         with open(filename, "w"):
