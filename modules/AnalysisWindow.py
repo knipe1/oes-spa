@@ -110,9 +110,9 @@ class AnalysisWindow(QMainWindow):
 
 
     def __post_init__(self)->None:
-        self.connect_ui_events()
-        self.init_spectra()
-        self.update_batch_setting()
+        self._connect_ui_events()
+        self._init_spectra()
+        self._update_batch_setting()
 
 
     def __repr__(self):
@@ -121,20 +121,20 @@ class AnalysisWindow(QMainWindow):
         return self.__module__ + ":\n" + str(info)
 
 
-    def init_spectra(self)->None:
+    def _init_spectra(self)->None:
         """Set up the Spectrum elements with the corresponding ui elements."""
         self.rawSpectrum = Spectrum(self.window.plotRawSpectrum, EXPORT_TYPE.RAW)
         self.processedSpectrum = Spectrum(self.window.plotProcessedSpectrum,
                                           EXPORT_TYPE.PROCESSED)
 
 
-    def connect_ui_events(self)->None:
+    def _connect_ui_events(self)->None:
         win = self.window
-        win.connect_change_basic_settings(self.redraw)
-        win.connect_change_basic_settings(self.update_batch_setting)
-        win.connect_export_raw(self.export_raw)
-        win.connect_export_processed(self.export_processed)
-        win.connect_open_file(self.file_open)
+        win.connect_change_basic_settings(self._redraw)
+        win.connect_change_basic_settings(self._update_batch_setting)
+        win.connect_export_raw(self._export_raw)
+        win.connect_export_processed(self._export_processed)
+        win.connect_open_file(self._file_open)
         win.connect_show_batch(self.batch.show)
 
 
@@ -174,7 +174,7 @@ class AnalysisWindow(QMainWindow):
 
     ### Methods
 
-    def file_open(self)->None:
+    def _file_open(self)->None:
         """Open FileDialog to select one or multiple spectra."""
         # File-->Open
         # Browse
@@ -194,16 +194,16 @@ class AnalysisWindow(QMainWindow):
 
     ### Export
 
-    def export_raw(self)->None:
-        self.export_spectrum(self.rawSpectrum)
+    def _export_raw(self)->None:
+        self._export_spectrum(self.rawSpectrum)
 
 
-    def export_processed(self)->None:
+    def _export_processed(self)->None:
         results = self.window.get_results()
-        self.export_spectrum(self.processedSpectrum, results)
+        self._export_spectrum(self.processedSpectrum, results)
 
 
-    def export_spectrum(self, spectrum:Spectrum, results:dict=None)->None:
+    def _export_spectrum(self, spectrum:Spectrum, results:dict=None)->None:
         results = results or {}
 
         try:
@@ -219,12 +219,12 @@ class AnalysisWindow(QMainWindow):
             dialog.information_exportAborted()
 
 
-    def update_batch_setting(self)->None:
+    def _update_batch_setting(self)->None:
         setting = self.window.get_basic_setting()
         self.batch.set_setting(setting)
 
 
-    def redraw(self, changedValue:str=None)->None:
+    def _redraw(self, changedValue:str=None)->None:
         """
         Redraw the plots with data of the active file.
 
@@ -255,7 +255,7 @@ class AnalysisWindow(QMainWindow):
             # is loaded, the analysis will not update the setting.
             isFileReloaded = (self.activeFile == file)
             if not isFileReloaded:
-                self.set_wavelength_from_file(file)
+                self._set_wavelength_from_file(file)
 
         basicSetting = self.window.get_basic_setting()
         try:
@@ -266,21 +266,21 @@ class AnalysisWindow(QMainWindow):
             return
 
         specHandler.fit_data(basicSetting.selectedFitting)
-        self.update_spectra(specHandler)
+        self._update_spectra(specHandler)
         self.activeFile = file
 
-        self.show_wavelength_difference_information(file, basicSetting)
+        self._show_wavelength_difference_information(file, basicSetting)
         self.window.set_results(specHandler)
 
 
-    def set_wavelength_from_file(self, file:FileReader)->None:
+    def _set_wavelength_from_file(self, file:FileReader)->None:
         try:
             self.window.wavelength = file.WAVELENGTH
         except KeyError:
             self._logger.info("No Wavelength provided by: %s", file.filename)
 
 
-    def show_wavelength_difference_information(self, file:FileReader, setting:BasicSetting)->None:
+    def _show_wavelength_difference_information(self, file:FileReader, setting:BasicSetting)->None:
         settingWavelength = setting.wavelength
         try:
             fileWavelength = float(file.WAVELENGTH)
@@ -292,7 +292,7 @@ class AnalysisWindow(QMainWindow):
             self.window.show_diff_wavelength(hasDifferentWl)
 
 
-    def update_spectra(self, spectrumHandler:SpectrumHandler):
+    def _update_spectra(self, spectrumHandler:SpectrumHandler):
         data = spectrumHandler.rawData
         baseline = spectrumHandler.baseline
         processedData = spectrumHandler.procData
