@@ -24,12 +24,12 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
 # UI
 from ui.UIBatch import UIBatch
 # modules & universal
 import modules.Universal as uni
 import dialog_messages as dialog
+import modules.dataanalysis.Analysis as Analysis
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
@@ -290,7 +290,7 @@ class BatchAnalysis(QDialog):
         except InvalidSpectrumError:
             return None
 
-        data, header = uni.analyze_file(self.setting, specHandler, self.currentFile)
+        data, header = Analysis.analyze_file(self.setting, specHandler, self.currentFile)
         BatchWriter(self.batchFile).extend_data(data, header)
         self.import_batchfile(takeCurrentBatchfile=True)
         return ERR.OK

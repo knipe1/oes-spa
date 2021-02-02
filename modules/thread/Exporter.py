@@ -14,9 +14,9 @@ from PyQt5.QtCore import Signal
 # local modules/libs
 from modules.thread.Worker import Worker
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+import modules.dataanalysis.Analysis as Analysis
 from modules.filehandling.filereading.FileReader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
-from modules.Universal import analyze_file
 
 # type
 from c_types.BasicSetting import BasicSetting
@@ -65,7 +65,7 @@ class Exporter(Worker):
                 skippedFiles.append(file)
                 continue
 
-            fileData, header = analyze_file(self._setting, specHandler, self.currentFile)
+            fileData, header = Analysis.analyze_file(self._setting, specHandler, self.currentFile)
             data.extend(fileData)
 
         BatchWriter(self._batchFile).export(data, header)

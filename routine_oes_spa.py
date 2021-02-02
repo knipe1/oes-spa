@@ -41,7 +41,7 @@ def main():
     hideBatch = False
     activateWD = False
 
-    test_calibration = False
+    test_calibration = True
     noFiles = 50
 
 

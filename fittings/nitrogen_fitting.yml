@@ -1,4 +1,5 @@
 NAME: "Nitrogen Peak Fitting"
+CALIBRATION: "CH-Peaks2.dat"
 PEAKS:
     name: "CN Peak"
     centralWavelength: 388.26
