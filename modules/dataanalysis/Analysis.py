@@ -18,6 +18,7 @@ from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileReader)->tuple:
     data = []
     header = []
+    results = {}
     for fitting in setting.checkedFittings:
         specHandler.fit_data(fitting)
         results = merge_characteristics(specHandler, file)

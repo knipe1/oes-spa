@@ -31,7 +31,8 @@ from PyQt5.QtCore import QObject, pyqtSlot
 # local modules/libs
 from ui.ui_main_window import Ui_main
 from ui.matplotlibwidget import MatplotlibWidget
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
+from loader.YamlLoader import YamlLoader
 import modules.Universal as uni
 from modules.dataanalysis.Fitting import Fitting
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
@@ -305,7 +306,7 @@ class UIMain(Ui_main, QObject):
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
                     path = os.path.join(self.FITTING["DIR"], file)
-                    fitConfig = ConfigLoader(path)
+                    fitConfig = YamlLoader(path)
 
                     fit = fitConfig.config.get("NAME", "no name def.")
                     fitDict[file] = fit
@@ -397,7 +398,7 @@ class UIMain(Ui_main, QObject):
         except TypeError:
             # E.g. if no filename is given (no fitting is selected.)
             return None
-        fitConfig = ConfigLoader(path)
+        fitConfig = YamlLoader(path)
         return fitConfig
 
 

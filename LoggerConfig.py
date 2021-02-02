@@ -12,7 +12,7 @@ import logging
 import sys
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 from dialog_messages import dialog_logFile
 
 # constants

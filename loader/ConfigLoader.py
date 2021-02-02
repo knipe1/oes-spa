@@ -8,31 +8,18 @@ Created on Sun May  3 09:17:47 2020
 
 
 # standard libs
-import yaml
 
 # third-party libs
 
 # local modules/libs
+from loader.YamlLoader import YamlLoader
+from c_metaclass.Singleton import Singleton
 
 # Enums
 
-class ConfigLoader():
+class ConfigLoader(YamlLoader, metaclass=Singleton):
 
     ### Properties - Getter & Setter
-
-    @property
-    def path(self) -> str:
-        """path getter."""
-        return self._path
-
-    @path.setter
-    def path(self, pathname:str):
-        """path setter."""
-        # If pathname is either not a string or is but is empty, this pathname
-        # is invalid.
-        if isinstance(pathname, str) and pathname:
-            self._path = pathname
-
 
     @property
     def BATCH(self) -> dict:
@@ -109,21 +96,4 @@ class ConfigLoader():
     ### Methods
 
     def __init__(self, path:str = "./config.yml"):
-        self.path = path
-        self.config = self.load_config()
-
-
-    def load_config(self):
-        """"Load a config from a yml file."""
-        try:
-            with open(self.path, "r") as ymlFile:
-                config = yaml.load(ymlFile, Loader=yaml.FullLoader)
-            return config
-        except yaml.parser.ParserError:
-            print("Could not open configuration. Invalid formatted!")
-            return {}
-
-    def save_config(self):
-        """"Save a config to a yml file."""
-        with open(self.path, "w") as ymlFile:
-            yaml.dump(self.config, ymlFile)
+        super().__init__(path)

@@ -14,7 +14,7 @@ import numpy as np
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 import modules.Universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
@@ -37,7 +37,7 @@ class Spectrum():
     """
     # Load the configuration for plotting properties.
     config = ConfigLoader()
-    PLOT = config.PLOT;
+    PLOT = config.PLOT
 
     BASELINE = "baseline"
 
@@ -203,4 +203,3 @@ class Spectrum():
         isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
         col = peakColor if isPeakType else referenceColor
         return col
-

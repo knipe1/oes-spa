@@ -16,7 +16,7 @@ import logging
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 
 # Enums
 from c_enum.ERROR_FITTING import ERROR_FITTING as ERR_FIT

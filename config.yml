@@ -6,8 +6,6 @@ FITTING:
   CHECKED_FITTINGS:
   - Boron Peak Fitting
   - Example (Invalid Ref.)
-  - Example (Invalid peak)
-  - Example (No peak)
   - Example (No reference)
   - Methan Peak Fitting
   DIR: ./fittings/

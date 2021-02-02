@@ -11,9 +11,9 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Toolbar
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 
-PLOT = ConfigLoader().PLOT;
+PLOT = ConfigLoader().PLOT
 
 
 # set default rc parameter.
@@ -99,4 +99,3 @@ class MatplotlibWidget(QWidget):
     def add_toolbar(self):
         mplToolbar = Toolbar(self.canvas, self)
         self.vbl.addWidget(mplToolbar)
-

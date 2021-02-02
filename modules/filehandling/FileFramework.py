@@ -11,7 +11,7 @@ import csv
 import logging
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 
 
 

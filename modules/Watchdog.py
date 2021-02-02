@@ -9,7 +9,7 @@ Created on Fri Jul 24 22:44:59 2020
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 
 
 class SpectrumHandler(FileSystemEventHandler):

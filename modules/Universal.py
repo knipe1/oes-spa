@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from PyQt5.QtCore import QFileInfo, QUrl
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 
 # Enums
 from c_enum.SUFFICES import SUFFICES as SUFF

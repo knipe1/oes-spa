@@ -24,7 +24,7 @@ Created on Tue Feb 18 10:10:29 2020
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
