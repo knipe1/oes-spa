@@ -19,7 +19,6 @@ from PyQt5.QtWidgets import QMainWindow
 
 # local modules/libs
 from ui.UIMain import UIMain
-from ConfigLoader import ConfigLoader
 import dialog_messages as dialog
 import modules.Universal as uni
 from modules.BatchAnalysis import BatchAnalysis
@@ -47,10 +46,6 @@ class AnalysisWindow(QMainWindow):
         window = AnalysisWindow()
         window.apply_file("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
-
-    # Load the configuration for plotting, import and filesystem properties.
-    config = ConfigLoader()
-    GENERAL = config.GENERAL
 
     @pyqtSlot(str)
     def slot_plot_spectrum(self, file:str)->None:
