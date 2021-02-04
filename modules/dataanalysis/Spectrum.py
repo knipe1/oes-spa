@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
-Created on Sat Apr 25 2020
+class: Spectrum
 
 @author: Hauke Wernecke
 """
@@ -15,8 +14,8 @@ import numpy as np
 
 # local modules/libs
 from loader.ConfigLoader import ConfigLoader
-import modules.Universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
+import modules.Universal as uni
 
 
 # Enums
@@ -27,35 +26,30 @@ from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 class Spectrum():
     """
-    Concatenate properties of a spectrum to have data and plot abilities together.
+    Concatenate properties of a spectrum to join data and plot options.
 
     Usage:
         from modules.dataanalysis.Spectrum import Spectrum
         spectrum = Spectrum(matplotlibwidget, EXPORT_TYPE)
-        spectrum.update_data(data)
+        spectrum.set_data(data)
 
     """
-    # Load the configuration for plotting properties.
-    config = ConfigLoader()
-    PLOT = config.PLOT
+    PLOT = ConfigLoader().PLOT
 
     BASELINE = "baseline"
+
 
     @property
     def data(self)->np.ndarray:
         return self._data
 
     @data.setter
-    def data(self, xyData)->None:
+    def data(self, xyData:(tuple, np.ndarray))->None:
         self._data = np.array(xyData)
 
     @property
     def xData(self)->np.ndarray:
         return self.data[:, 0]
-
-    @property
-    def yData(self)->np.ndarray:
-        return self.data[:, 1]
 
     @classmethod
     def get_labels(cls, exportType:EXPORT_TYPE)->dict:
@@ -92,28 +86,38 @@ class Spectrum():
         return markup
 
 
-    ## dunder methods
+    @classmethod
+    def determine_color(cls, integrationArea:Integration)->str:
+        peakColor = cls.PLOT["INT_PEAK_COLOR"]
+        referenceColor = cls.PLOT["INT_REF_COLOR"]
+        isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
+        col = peakColor if isPeakType else referenceColor
+        return col
 
-    def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE, **kwargs)->None:
-        # Set up the logger.
-        name = kwargs.get("name", __name__)
-        self._logger = logging.getLogger(name)
 
-        self.ui = uiElement
-        self.exportType = exportType
+    ## __methods__
 
-        self.labels = self.get_labels(self.exportType)
-        self.markup = self.get_markup(self.exportType)
+    def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE)->None:
+        self._logger = logging.getLogger(self.__class__.__name__)
+
+        self._ui = uiElement
+        self._exportType = exportType
+
+        self._labels = self.get_labels(self._exportType)
+        self._markup = self.get_markup(self._exportType)
+
+        self.data = np.zeros(shape=(0, 2))
+        self.integrationAreas = []
 
 
     def __repr__(self):
         info = {}
-        info["ui"] = self.ui
-        info["exportType"] = self.exportType
-        info["labels"] = self.labels
-        info["markup"] = self.markup
-        info["has Baseline"] = self.hasattr("baseline")
-        info["data length"] = "X:%i, Y:%i"%(len(self.xData), len(self.yData))
+        info["ui"] = self._ui
+        info["exportType"] = self._exportType
+        info["labels"] = self._labels
+        info["markup"] = self._markup
+        info["has Baseline"] = hasattr(self, self.BASELINE)
+        info["data length"] = f"X:{len(self.xData)}"
         return self.__module__ + ":\n" + str(info)
 
 
@@ -121,11 +125,11 @@ class Spectrum():
 
     def add_baseline(self, baselineData:np.ndarray)->None:
         """Adds the baseline of a spectrum as property (to plot)."""
-        self.baseline = baselineData;
-        self.baselineMarkup = self.get_markup(self.BASELINE)
+        self._baseline = baselineData
 
 
-    def update_data(self, xyData:np.ndarray, integrationAreas:list=None, baselineData:np.ndarray=None)->None:
+    def set_data(self, xyData:np.ndarray, integrationAreas:list=None,
+                 baselineData:np.ndarray=None)->None:
         """
         Updates the data of the spectrum.
 
@@ -133,14 +137,14 @@ class Spectrum():
         """
         self.data = xyData
         self.integrationAreas = integrationAreas or []
-        if baselineData is not None:
+        if not baselineData is None:
             self.add_baseline(baselineData)
 
-        if self.exportType == EXPORT_TYPE.RAW :
+        if self._exportType == EXPORT_TYPE.RAW :
             if uni.data_are_pixel(self.xData):
-                self.labels = self.get_labels(EXPORT_TYPE.RAW)
+                self._labels = self.get_labels(EXPORT_TYPE.RAW)
             else:
-                self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
+                self._labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
         self.plot_spectrum()
 
@@ -153,40 +157,27 @@ class Spectrum():
     def init_plot(self)->None:
         """Inits the plots in the ui element regarding e.g. labels."""
         self.reset_plot()
-        self.ui.axes.update_layout(**self.labels)
+        self._ui.axes.update_layout(**self._labels)
 
 
     def reset_plot(self)->None:
-        self.ui.axes.clear()
-        self.ui.axes.axhline()
-        self.ui.axes.axvline()
+        self._ui.axes.clear()
+        self._ui.axes.axhline()
+        self._ui.axes.axvline()
 
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
-
-        self.ui.axes.plot(self.xData, self.yData, **self.markup);
+        self._ui.axes.plot(*self.data.T, **self._markup)
         self.plot_baseline()
         self.plot_integration_areas()
-        self.center_plot()
-
-        # referencePeaks = np.loadtxt("./fittings/CH-Peaks2.dat")
-        # for peak in referencePeaks[:, 0]:
-        #     self.ui.axes.axvline(peak)
-        self.ui.draw()
-
-
-    def center_plot(self)->None:
-        leftLimit = self.xData[0]
-        rightLimit = self.xData[-1]
-        isSingleValue = (leftLimit == rightLimit)
-        if not isSingleValue:
-            self.ui.axes.update_layout(xLimit=(leftLimit, rightLimit));
+        self._ui.draw()
 
 
     def plot_baseline(self)->None:
         try:
-            self.ui.axes.plot(self.xData, self.baseline, **self.baselineMarkup);
+            baselineMarkup = self.get_markup(self.BASELINE)
+            self._ui.axes.plot(self.xData, self._baseline, **baselineMarkup)
         except AttributeError:
             self._logger.info("Could not plot baseline.")
 
@@ -194,12 +185,4 @@ class Spectrum():
     def plot_integration_areas(self)->None:
         for intArea in self.integrationAreas:
             col = self.determine_color(intArea)
-            self.ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
-
-
-    def determine_color(self, integrationArea:Integration)->str:
-        peakColor = self.PLOT["INT_PEAK_COLOR"]
-        referenceColor = self.PLOT["INT_REF_COLOR"]
-        isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
-        col = peakColor if isPeakType else referenceColor
-        return col
+            self._ui.axes.fill_between(intArea.xData, intArea.yData, color=col)

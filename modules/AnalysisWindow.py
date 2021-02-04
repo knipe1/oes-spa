@@ -290,5 +290,5 @@ class AnalysisWindow(QMainWindow):
         processedData = spectrumHandler.procData
         rawIntegration, procIntegration = spectrumHandler.get_integration_areas()
 
-        self.rawSpectrum.update_data(data, rawIntegration, baselineData=baseline)
-        self.processedSpectrum.update_data(processedData, procIntegration)
+        self.rawSpectrum.set_data(data, rawIntegration, baselineData=baseline)
+        self.processedSpectrum.set_data(processedData, procIntegration)

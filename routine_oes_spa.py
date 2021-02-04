@@ -35,11 +35,11 @@ def main():
     initialAscLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    showBatch = False
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
-    activateWD = True
+    activateWD = False
 
     test_calibration = False
     noFiles = 50

@@ -7,6 +7,7 @@ Created on Wed Nov  4 21:39:59 2020
 """
 
 # standard libs
+import logging
 from datetime import datetime
 import numpy as np
 
@@ -34,31 +35,24 @@ class Trace(Spectrum):
 
 
     def __init__(self, uiElement:MatplotlibWidget):
-        super().__init__(uiElement, EXPORT_TYPE.BATCH, name=__name__)
+        super().__init__(uiElement, EXPORT_TYPE.BATCH)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
 
         for peak in self.data.keys():
-            self.markup["label"] = peak
+            self._markup["label"] = peak
             xData = self.data[peak][:, 0]
             yData = self.data[peak][:, 1]
-            self.ui.axes.plot(xData, yData, **self.markup);
+            self._ui.axes.plot(xData, yData, **self._markup)
 
-        try:
-            self.center_plot(xData)
-        except UnboundLocalError:
-            pass
-        self.ui.draw()
+        self._ui.draw()
 
 
-    def center_plot(self, xData)->None:
-        leftLimit = xData[0]
-        rightLimit = xData[-1]
-        isSingleValue = (leftLimit == rightLimit)
-        if not isSingleValue:
-            self.ui.axes.update_layout(xLimit=(leftLimit, rightLimit));
+    def reset_data(self):
+        self.set_data({})
 
 
     ## Calculation
@@ -100,8 +94,8 @@ class Trace(Spectrum):
         markup = {"color": self.PLOT["REFERENCE_COLOR"],
                   "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
                   "label": reducedFilename,}
-        self.recordingPlot = self.ui.axes.axvline(x=relativeTime, **markup)
-        self.ui.draw()
+        self.recordingPlot = self._ui.axes.axvline(x=relativeTime, **markup)
+        self._ui.draw()
 
 
     def remove_recording(self)->None:
@@ -113,6 +107,5 @@ class Trace(Spectrum):
 
     def set_custom_yLabel(self, label:str)->None:
         arbitraryUnit = " / a. u."
-        self.labels["yLabel"] = label + arbitraryUnit
-        self.markup["label"] = label
-
+        self._labels["yLabel"] = label + arbitraryUnit
+        self._markup["label"] = label

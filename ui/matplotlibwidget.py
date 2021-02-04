@@ -26,7 +26,7 @@ if PLOT:
 
 
 class MplCanvas(Canvas):
-    def __init__(self, parent=None, dpi=100)->None:
+    def __init__(self, dpi=100)->None:
         # Init a figure before init super, because figure is a arg of super.
         self.figure = mpl.Figure(dpi=dpi)
         self.axes = self.figure.add_subplot()
@@ -42,35 +42,25 @@ class MplCanvas(Canvas):
             print(err)
 
 
-    def update_layout(self, title=None, xLabel=None, yLabel=None, xLimit=None,
-                      yLimit=None, auto=False)->None:
+    def update_layout(self, xLabel=None, yLabel=None, xLimit=None)->None:
         """Updates the general layout with (optional) properties."""
 
-        axes = self.axes;
+        axes = self.axes
 
-        if not title == None:
-            axes.set_title(title)
-
-        if not xLabel == None:
+        if xLabel:
             axes.set_xlabel(xLabel)
-        if not yLabel == None:
+        if yLabel:
             axes.set_ylabel(yLabel)
 
-        if auto:
-            axes.set_xlim(auto=True)
-            axes.set_ylim(auto=True)
-
-        if not xLimit == None:
+        if xLimit:
             axes.set_xlim(*xLimit)
-        if not yLimit == None:
-            axes.set_ylim(*yLimit)
 
 
 
 
 
 class MatplotlibWidget(QWidget):
-    def __init__(self, parent)->None:
+    def __init__(self, parent=None)->None:
         super().__init__()
         self.vbl = QVBoxLayout()
         self.add_canvas()
@@ -81,7 +71,9 @@ class MatplotlibWidget(QWidget):
     def draw(self)->None:
         """Draw the plot immediately."""
         if self.axes.get_legend_handles_labels()[0]:
-            self.axes.legend();
+            self.axes.legend()
+
+        self.center_plot()
         self.canvas.draw()
 
         # Refactored - events were flushed in BatchAnalysis also allow to
@@ -89,9 +81,18 @@ class MatplotlibWidget(QWidget):
         # self.canvas.flush_events()
 
 
+    def center_plot(self)->None:
+        """Center the plot to the current data."""
+        xData = self.axes.lines[-1].get_xdata()
+        left = xData[0]
+        right = xData[-1]
+        if left < right:
+            self.axes.set_xlim((left, right))
+
+
     def add_canvas(self, **kwargs)->None:
         # A canvas is a container holding several drawing elements(like axis, lines, shapes, ...)
-        self.canvas = MplCanvas(parent=self, **kwargs)
+        self.canvas = MplCanvas(**kwargs)
         self.axes = self.canvas.axes
         self.vbl.addWidget(self.canvas)
 
