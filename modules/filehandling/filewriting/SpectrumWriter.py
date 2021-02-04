@@ -20,16 +20,18 @@ from modules.dataanalysis.Spectrum import Spectrum
 
 # Enums
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
 PROCESSED_APPENDIX = "_processed"
 RAW_APPENDIX = "_raw"
+EXPORT_SUFFIX = SUFF.CSV
 
 
 class SpectrumWriter(FileWriter):
 
     def __init__(self, filename, timestamp):
-        filename = uni.replace_suffix(filename)
+        filename = uni.replace_suffix(filename, suffix=EXPORT_SUFFIX)
 
         super().__init__(filename, name=__name__)
         self.timestamp = timestamp

@@ -8,7 +8,6 @@ This module is for general purposes and includes various functions.
 
 # standard libs
 import os
-import re
 import numpy as np
 from enum import Enum
 from datetime import datetime, timedelta
@@ -22,18 +21,17 @@ from loader.ConfigLoader import ConfigLoader
 # Enums
 from c_enum.SUFFICES import SUFFICES as SUFF
 
-# Load the configuration for import and batch properties.
-config = ConfigLoader()
-BATCH = config.BATCH
+# config
+BATCH = ConfigLoader().BATCH
 
 # constants
 EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
 EXPORT_SUFFIX = SUFF.CSV
 
+#%% Suffix
 
-
-
-def format_suffix(suffix:str):
+def format_suffix(suffix:(str, Enum))->str:
+    """Formats the Enum.value/string suffix as '.suffix'."""
     if isinstance(suffix, Enum):
         suffix = suffix.value
     if not suffix.startswith("."):
@@ -41,34 +39,33 @@ def format_suffix(suffix:str):
     return suffix
 
 
-def extract_path_basename_suffix(filename):
+def is_valid_suffix(filename:str)->bool:
+    """Valid suffices are defined in 'SUFFICES'."""
+    _, _, suffix = extract_path_basename_suffix(filename)
+    return SUFF.has_value(suffix)
+
+
+def replace_suffix(filename:str, suffix:str)->str:
+    """Replaces the suffix of the filename."""
+    newSuffix = format_suffix(suffix)
+    path, baseName, _ = extract_path_basename_suffix(filename)
+    newFilename = os.path.join(path, baseName + newSuffix)
+    return newFilename
+
+
+#%% urls/filename
+
+def extract_path_basename_suffix(filename:str)->(str, str, str):
     fileInfo = QFileInfo(filename)
     absolutePath = fileInfo.absolutePath()
     baseName = fileInfo.baseName()
-    suffix = fileInfo.completeSuffix()
+    suffix = fileInfo.completeSuffix().lower()
     return absolutePath, baseName, suffix
-
-
-def data_are_pixel(data:np.ndarray)->bool:
-    arePixel = (data[1]-data[0] == 1)
-    return arePixel
-
-
-def get_suffix(path:str)->str:
-    """Extracts the complete suffix in lower case of the given path."""
-    # Use only lower case to avoid overhead for e.g. .spk & .Spk files.
-    fileSuffix = QFileInfo(path).completeSuffix().lower()
-    return fileSuffix
-
-
-def is_valid_suffix(filename:str)->bool:
-    suffix = get_suffix(filename)
-    return SUFF.has_value(suffix)
 
 
 def get_valid_local_url(url:QUrl)->str:
     """
-    Checks whether the url is valid and has a valid suffix
+    Checks whether the url is valid and has a valid suffix.
 
     Returns
     -------
@@ -84,88 +81,31 @@ def get_valid_local_url(url:QUrl)->str:
     return None
 
 
-def convert_to_hours(timedifference:timedelta)->float:
-    """
-    Converts the difference of datetimes into hours.
-
-    Parameters
-    ----------
-    timedifference : timedelta
-        The difference between to datetime-objects.
-
-    Returns
-    -------
-    hours : float
-        The converted difference in hours.
-
-    """
-
-    hours = 0.0
-    # 1 hour = 3600 seconds and 1 day = 24 hours
-    hours += timedifference.seconds / 3600
-    hours += timedifference.days * 24
-
-    return hours
-
-
-def timestamp_to_string(timestamp, timeformat=None):
-    """Converts the given timestamp to a string with a pre-defined format."""
-    # strftime = STRing From TIME (with a given format)
-    timeformat = timeformat or EXPORT_TIMESTAMP
-    timestampString = datetime.strftime(timestamp, timeformat)
-    return timestampString
-
-
-def timestamp_from_string(timestamp, timeformat=None):
-    """Converts the given timestamp to a string of a (pre-)defined format."""
-    # Set default if not provided.
-    timeformat = timeformat or EXPORT_TIMESTAMP
-    # strptime = STRing To TIME (with a given format)
-    timestamp = datetime.strptime(timestamp, timeformat)
-    return timestamp
-
-
-def replace_suffix(filename, suffix=None):
-    """Replaces the suffix of the filename. Default is defined in the configuration."""
-    newSuffix = suffix or EXPORT_SUFFIX
-    newSuffix = format_suffix(newSuffix)
-
-    fileSuffix = get_suffix(filename)
-    if not fileSuffix == suffix:
-        path, baseName, _ = extract_path_basename_suffix(filename)
-        newFilename = os.path.join(path, baseName + newSuffix)
-
-    return newFilename
-
-
 def reduce_paths(urls:list)->str:
-    """
-    Yields the reduced url (relative dir+file).
-    """
+    """Yields the reduced url (relative dir+file)."""
     for path in urls:
         yield reduce_path(path)
 
 
 def reduce_path(path:list)->str:
     """
-    Reduces the url to the filename and the parent directory.
+    Reduces the url to the filename and the directory.
 
     Returns
     -------
-        (relative path + parent directory + filename)
+        (.. + directory + filename)
 
     """
-    # Use "NotExistingDirectory" to achieve
-    # that the resulting filepath is relative (../dir/filename.ext).
-    referencePath = os.path.abspath(os.path.join(path, "../../NotExistingDirectory"))
-    relativeFilepath = os.path.relpath(path, referencePath)
-    return relativeFilepath
+    prefix = ".." + os.sep
+    dirName = os.path.dirname(os.path.dirname(path))
+    relativeFilepath = os.path.relpath(path, dirName)
+    return prefix + relativeFilepath
 
 
 def add_index_to_text(texts:list)->str:
     """
     Adding the index of a list item in front of the item.
-    May the 44th item be "Datei", then the returning element would be "  44:Datei"
+    May the 44th item be "File", then the returning element would be "  44:File"
 
     Parameters
     ----------
@@ -178,22 +118,50 @@ def add_index_to_text(texts:list)->str:
     """
     sep = BATCH["SEPARATOR"]
     for idx, text in enumerate(texts):
-        index = format(idx, BATCH["INDEX_FORMAT"])
+        index = format(idx+1, BATCH["INDEX_FORMAT"])
         yield index + sep + text
 
 
-def natural_keys(text):
-    """
-    A list.sort(key=natural_keys) sorts in human order.
-    https://nedbatchelder.com/blog/200712/human_sorting.html
-    """
-    # r'(\d+)' matches any digit number (# indicates one or more matches)
-    # splitting a list of all non-numerical and numerical pattern
-    return [ int(c) if c.isdigit() else c for c in re.split(r'(\d+)', text) ]
+#%% time
 
 
-### String markups
+def timestamp_to_string(timestamp:datetime, timeformat:str=None)->str:
+    """Converts the timestamp to a string with a pre-defined format."""
+    # strftime = STRing From TIME (with a given format)
+    timeformat = timeformat or EXPORT_TIMESTAMP
+    timeString = datetime.strftime(timestamp, timeformat)
+    return timeString
 
-def mark_bold_red(label):
+
+def timestamp_from_string(timeString:str, timeformat:str=None)->datetime:
+    """Converts the string to a timestamp. String has to be formatted acc. to 'timeformat'."""
+    # strptime = STRing To TIME (with a given format)
+    timeformat = timeformat or EXPORT_TIMESTAMP
+    timestamp = datetime.strptime(timeString, timeformat)
+    return timestamp
+
+
+def convert_to_hours(timedifference:timedelta)->float:
+    """Converts the timedelta into hours."""
+    hours = 0.0
+    # 1 hour = 3600 seconds and 1 day = 24 hours
+    hours += timedifference.seconds / 3600
+    hours += timedifference.days * 24
+
+    return hours
+
+
+#%% Miscellaneous
+
+def data_are_pixel(data:np.ndarray)->bool:
+    """Checks whether the dataset is comprised of pixels."""
+    try:
+        arePixel = (data[1]-data[0] == 1)
+    except IndexError:
+        arePixel = False
+    return arePixel
+
+
+def mark_bold_red(label:str)->str:
     """Embed the given label into a Rich text format."""
-    return  "<b style='color:red'>" + label + "</b>"
+    return  f"<b style='color:red'>{label}</b>"

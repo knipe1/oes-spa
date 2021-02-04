@@ -18,7 +18,6 @@ Glossary:
 
 # standard libs
 import csv
-import numpy as np
 from datetime import datetime
 
 # third-party libs
@@ -163,7 +162,7 @@ class FileReader(FileFramework):
 
 
     def determine_subReader(self):
-        suffix = uni.get_suffix(self.filename)
+        _, _, suffix = uni.extract_path_basename_suffix(self.filename)
 
         if suffix == SUFF.CSV.value:
             subReader = CsvReader()

@@ -101,10 +101,10 @@ class Spectrum():
         self._logger = logging.getLogger(self.__class__.__name__)
 
         self._ui = uiElement
-        self._exportType = exportType
+        self.exportType = exportType
 
-        self._labels = self.get_labels(self._exportType)
-        self._markup = self.get_markup(self._exportType)
+        self._labels = self.get_labels(self.exportType)
+        self._markup = self.get_markup(self.exportType)
 
         self.data = np.zeros(shape=(0, 2))
         self.integrationAreas = []
@@ -113,7 +113,7 @@ class Spectrum():
     def __repr__(self):
         info = {}
         info["ui"] = self._ui
-        info["exportType"] = self._exportType
+        info["exportType"] = self.exportType
         info["labels"] = self._labels
         info["markup"] = self._markup
         info["has Baseline"] = hasattr(self, self.BASELINE)
@@ -140,7 +140,7 @@ class Spectrum():
         if not baselineData is None:
             self.add_baseline(baselineData)
 
-        if self._exportType == EXPORT_TYPE.RAW :
+        if self.exportType == EXPORT_TYPE.RAW :
             if uni.data_are_pixel(self.xData):
                 self._labels = self.get_labels(EXPORT_TYPE.RAW)
             else:
