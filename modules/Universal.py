@@ -138,21 +138,28 @@ def replace_suffix(filename, suffix=None):
     return newFilename
 
 
-def reduce_path(urls:list)->str:
+def reduce_paths(urls:list)->str:
+    """
+    Yields the reduced url (relative dir+file).
+    """
+    for path in urls:
+        yield reduce_path(path)
+
+
+def reduce_path(path:list)->str:
     """
     Reduces the url to the filename and the parent directory.
 
     Returns
     -------
-    yield (relative path + parent directory + filename)
+        (relative path + parent directory + filename)
 
     """
-    for path in urls:
-        # Use "NotExistingDirectory" to achieve
-        # that the resulting filepath is relative (../dir/filename.ext).
-        referencePath = os.path.abspath(os.path.join(path, "../../NotExistingDirectory"))
-        relativeFilepath = os.path.relpath(path, referencePath)
-        yield relativeFilepath
+    # Use "NotExistingDirectory" to achieve
+    # that the resulting filepath is relative (../dir/filename.ext).
+    referencePath = os.path.abspath(os.path.join(path, "../../NotExistingDirectory"))
+    relativeFilepath = os.path.relpath(path, referencePath)
+    return relativeFilepath
 
 
 def add_index_to_text(texts:list)->str:

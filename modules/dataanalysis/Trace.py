@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Nov  4 21:39:59 2020
+class: Trace
 
 @author: hauke
 """
@@ -44,10 +44,7 @@ class Trace(Spectrum):
 
         for peak in self.data.keys():
             self._markup["label"] = peak
-            xData = self.data[peak][:, 0]
-            yData = self.data[peak][:, 1]
-            self._ui.axes.plot(xData, yData, **self._markup)
-
+            self._ui.axes.plot(*self.data[peak].T, **self._markup)
         self._ui.draw()
 
 
@@ -62,13 +59,6 @@ class Trace(Spectrum):
         return np.array(diffTimes)
 
 
-    def reset_time(self)->None:
-        try:
-            del self.referenceTime
-        except AttributeError:
-            pass
-
-
     def get_timediff_H(self, timestamp:datetime)->None:
         try:
             refTime = self.referenceTime
@@ -81,16 +71,20 @@ class Trace(Spectrum):
         return diffTime
 
 
+    def reset_time(self)->None:
+        try:
+            del self.referenceTime
+        except AttributeError:
+            pass
+
+
 
     ## Recording
 
     def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
-        try:
-            relativeTime = self.get_timediff_H(timestamp)
-        except TypeError:
-            return
-        reducedFilename = ''.join(uni.reduce_path([filename]))
-        self.remove_recording()
+        relativeTime = self.get_timediff_H(timestamp)
+        reducedFilename = uni.reduce_path(filename)
+        self._remove_recording()
         markup = {"color": self.PLOT["REFERENCE_COLOR"],
                   "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
                   "label": reducedFilename,}
@@ -98,7 +92,7 @@ class Trace(Spectrum):
         self._ui.draw()
 
 
-    def remove_recording(self)->None:
+    def _remove_recording(self)->None:
         try:
             self.recordingPlot.remove()
         except AttributeError:
@@ -108,4 +102,3 @@ class Trace(Spectrum):
     def set_custom_yLabel(self, label:str)->None:
         arbitraryUnit = " / a. u."
         self._labels["yLabel"] = label + arbitraryUnit
-        self._markup["label"] = label

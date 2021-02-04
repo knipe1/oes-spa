@@ -17,7 +17,7 @@ import threading as THR
 from PyQt5.QtCore import QFileInfo
 
 # local modules/libs
-from modules.Universal import reduce_path
+from modules.Universal import reduce_paths
 from modules.Universal import add_index_to_text
 
 class TestLoadFiles(unittest.TestCase):
@@ -82,9 +82,9 @@ class TestReducePath(unittest.TestCase):
         self.filenameUrl = "csvfile_1.csv"
         self.listUrl = [self.url, self.shortUrl, self.filenameUrl]
         # reduced urls
-        self.reducedUrl = reduce_path(self.url)
-        self.reducedShortUrl = reduce_path(self.shortUrl)
-        self.reducedFilenameUrl = reduce_path(self.filenameUrl)
+        self.reducedUrl = reduce_paths(self.url)
+        self.reducedShortUrl = reduce_paths(self.shortUrl)
+        self.reducedFilenameUrl = reduce_paths(self.filenameUrl)
 
 
     def test_ok_reducePath(self):
@@ -93,13 +93,13 @@ class TestReducePath(unittest.TestCase):
         self.assertEqual(self.reducedShortUrl, "H:/csvfile_1.csv")
         self.assertEqual(self.reducedFilenameUrl, "csvfile_1.csv")
         # list of urls
-        self.assertEqual(type(reduce_path(self.listUrl)), list)
+        self.assertEqual(type(reduce_paths(self.listUrl)), list)
 
     def test_raise_reducePath(self):
-        self.assertRaises(TypeError, reduce_path, 12);
-        self.assertRaises(TypeError, reduce_path, ["asd", 12]);
-        self.assertRaises(TypeError, reduce_path, 3.4);
-        self.assertRaises(TypeError, reduce_path, (3.4, "asd"));
+        self.assertRaises(TypeError, reduce_paths, 12);
+        self.assertRaises(TypeError, reduce_paths, ["asd", 12]);
+        self.assertRaises(TypeError, reduce_paths, 3.4);
+        self.assertRaises(TypeError, reduce_paths, (3.4, "asd"));
 
 
 class TestAddIndexToText(unittest.TestCase):

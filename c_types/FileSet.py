@@ -105,7 +105,7 @@ class FileSet(set):
             files = natsorted(files)
 
         if indexed:
-            files = uni.add_index_to_text(uni.reduce_path(files))
+            files = uni.add_index_to_text(uni.reduce_paths(files))
 
         return files
 
