@@ -29,7 +29,7 @@ class AscReader(BaseReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        super().__init__(name=__name__)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):
@@ -86,5 +86,3 @@ def asc_separate_parameter(row:list)->(str, str):
     description, value = row[0].split(":", 1)
     value = value.strip()
     return (description, value)
-
-

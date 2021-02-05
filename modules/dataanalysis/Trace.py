@@ -36,7 +36,6 @@ class Trace(Spectrum):
 
     def __init__(self, uiElement:MatplotlibWidget):
         super().__init__(uiElement, EXPORT_TYPE.BATCH)
-        self._logger = logging.getLogger(self.__class__.__name__)
 
 
     def update_plot(self)->None:
@@ -82,7 +81,11 @@ class Trace(Spectrum):
     ## Recording
 
     def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
-        relativeTime = self.get_timediff_H(timestamp)
+        try:
+            # Handle incomplete/incorrect spectra.
+            relativeTime = self.get_timediff_H(timestamp)
+        except TypeError:
+            return
         reducedFilename = uni.reduce_path(filename)
         self._remove_recording()
         markup = {"color": self.PLOT["REFERENCE_COLOR"],
@@ -101,4 +104,4 @@ class Trace(Spectrum):
 
     def set_custom_yLabel(self, label:str)->None:
         arbitraryUnit = " / a. u."
-        self._labels["yLabel"] = label + arbitraryUnit
+        self.labels["yLabel"] = label + arbitraryUnit

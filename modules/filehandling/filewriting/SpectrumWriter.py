@@ -32,17 +32,7 @@ class SpectrumWriter(FileWriter):
 
     def __init__(self, filename, timestamp):
         filename = uni.replace_suffix(filename, suffix=EXPORT_SUFFIX)
-
-        super().__init__(filename, name=__name__)
-        self.timestamp = timestamp
-        self.dialect = self.csvDialect
-
-
-    def __repr__(self):
-        info = {}
-        info["filename"] = self.filename
-        info["Timestamp"] = self.timestamp
-        return self.__module__ + ":\n" + str(info)
+        super().__init__(filename, timestamp)
 
 
     def export(self, spectrum:Spectrum, extraInformation:dict=None)->str:

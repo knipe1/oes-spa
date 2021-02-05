@@ -24,7 +24,7 @@ class CsvReader(BaseReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        super().__init__(name=__name__)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):
@@ -34,7 +34,6 @@ class CsvReader(BaseReader):
     ### Methods
 
     def set_csv_defaults(self):
-        self.dialect = self.DIALECT_CSV["name"]
+        self.dialect = self.csvDialect
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["CSV_DATA_COLUMN"]
-

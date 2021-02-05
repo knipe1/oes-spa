@@ -63,7 +63,7 @@ class Spectrum():
         self._ui = uiElement
         self.exportType = exportType
 
-        self._labels = self.get_labels(self.exportType)
+        self.labels = self.get_labels(self.exportType)
         self._markup = self.get_markup(self.exportType)
 
         self.data = np.zeros(shape=(0, 2))
@@ -74,7 +74,7 @@ class Spectrum():
         info = {}
         info["ui"] = self._ui
         info["exportType"] = self.exportType
-        info["labels"] = self._labels
+        info["labels"] = self.labels
         info["markup"] = self._markup
         info["has Baseline"] = hasattr(self, self.BASELINE)
         info["data length"] = f"X:{len(self.xData)}"
@@ -102,9 +102,9 @@ class Spectrum():
 
         if self.exportType == EXPORT_TYPE.RAW :
             if uni.data_are_pixel(self.xData):
-                self._labels = self.get_labels(EXPORT_TYPE.RAW)
+                self.labels = self.get_labels(EXPORT_TYPE.RAW)
             else:
-                self._labels = self.get_labels(EXPORT_TYPE.PROCESSED)
+                self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
         self.plot_spectrum()
 
@@ -117,7 +117,7 @@ class Spectrum():
     def init_plot(self)->None:
         """Inits the plots in the ui element regarding e.g. labels."""
         self.reset_plot()
-        self._ui.axes.update_layout(**self._labels)
+        self._ui.axes.update_layout(**self.labels)
 
 
     def reset_plot(self)->None:

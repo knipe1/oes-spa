@@ -237,9 +237,9 @@ class AnalysisWindow(QMainWindow):
 
     def apply_file(self, filename:(str, FileReader), silent:bool=False)->None:
         """Read the file and displays the spectrum."""
-        try:
+        if not isinstance(filename, FileReader):
             file = FileReader(filename)
-        except TypeError:
+        else:
             file = filename
 
         if not silent:

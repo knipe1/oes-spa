@@ -24,7 +24,7 @@ class SpkReader(BaseReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        super().__init__(name=__name__)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):
@@ -34,6 +34,6 @@ class SpkReader(BaseReader):
     ### Methods
 
     def set_spk_defaults(self):
-        self.dialect = self.DIALECT["name"]
+        self.dialect = self.spectralDialect
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["SPK_DATA_COLUMN"]

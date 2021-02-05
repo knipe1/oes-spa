@@ -39,7 +39,7 @@ class BaReader(BaseReader):
 
     def __init__(self):
         # Init baseclass providing defaults and config.
-        super().__init__(name=__name__)
+        super().__init__()
         self.__post_init__()
 
     def __post_init__(self):
@@ -49,7 +49,7 @@ class BaReader(BaseReader):
     ### Methods
 
     def set_ba_defaults(self):
-        self.dialect = self.DIALECT_CSV["name"]
+        self.dialect = self.csvDialect
         self.xColumn = 0
         self.yColumn = 0
         self.peakColumn = 0

@@ -21,50 +21,17 @@ import modules.Universal as uni
 
 class BaseReader(FileFramework):
 
-    ### Properties
-
-    # These are default values and may be overwritten in subclasses.
-    @property
-    def dialect(self):
-        return self._dialect
-
-    @dialect.setter
-    def dialect(self, dialectname):
-        self._dialect = dialectname
-
-    @property
-    def xyColumn(self):
-        return self.xColumn, self.yColumn
-
-    @property
-    def xColumn(self):
-        return self._xColumn
-
-    @xColumn.setter
-    def xColumn(self, columnIndex:int):
-        self._xColumn = columnIndex
-
-    @property
-    def yColumn(self):
-        return self._yColumn
-
-    @yColumn.setter
-    def yColumn(self, columnIndex:int):
-        self._yColumn = columnIndex
-
-
     ### __Methods__
 
-    def __init__(self, **kwargs):
-        name = kwargs.get("name", __name__)
-        super().__init__(filename=None, name=name)
+    def __init__(self):
+        super().__init__(filename=None)
         self.set_defaults()
 
     ### methods
 
     def set_defaults(self):
         # dialect
-        self.dialect = self.DIALECT["name"]
+        self.dialect = self.spectralDialect
         # Column indeces
         self.xColumn = None
         self.yColumn = None
@@ -195,4 +162,3 @@ def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:
         data.append(xyData)
     except IndexError:
         pass
-

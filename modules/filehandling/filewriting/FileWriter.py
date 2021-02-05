@@ -24,9 +24,11 @@ import modules.Universal as uni
 
 class FileWriter(FileFramework):
 
-    def __init__(self, filename, **kwargs):
-        name = kwargs.get("name", __name__)
-        super().__init__(filename, name=name)
+    ## __methods__
+
+    def __init__(self, filename:str, timestamp:datetime)->None:
+        super().__init__(filename)
+        self.timestamp = timestamp
         self.dialect = self.csvDialect
 
 
@@ -34,7 +36,9 @@ class FileWriter(FileFramework):
         info = {}
         info["filename"] = self.filename
         info["Timestamp"] = self.timestamp
-        return self.__module__ + ":\n" + str(info)
+        return super().__repr__() + ":\n" + str(info)
+
+    ## methods
 
 
     def export(self, filename:str, data:list, columnTitles:list, extraInformation:dict=None):
