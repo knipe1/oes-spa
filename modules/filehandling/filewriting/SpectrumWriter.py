@@ -9,6 +9,7 @@ Created on Fri Sep 25 09:39:36 2020
 # standard libs
 import csv
 from os import path
+from datetime import datetime
 
 # third-party libs
 
@@ -30,7 +31,7 @@ EXPORT_SUFFIX = SUFF.CSV
 
 class SpectrumWriter(FileWriter):
 
-    def __init__(self, filename, timestamp):
+    def __init__(self, filename:str, timestamp:datetime):
         filename = uni.replace_suffix(filename, suffix=EXPORT_SUFFIX)
         super().__init__(filename, timestamp)
 
@@ -54,11 +55,6 @@ class SpectrumWriter(FileWriter):
         super().export(exportFilename, data, columnTitles, extraInformation)
 
         return exportFilename
-
-
-    def write_data(self, fWriter:csv.writer, data:list)->None:
-        fWriter.writerow([self.MARKER["DATA"]])
-        fWriter.writerows(data)
 
 
     def assemble_export_filename(self, exportType:EXPORT_TYPE)->str:

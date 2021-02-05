@@ -63,7 +63,6 @@ class BaseReader(FileFramework):
 
         try:
             information = self.join_information(timeInfo, self.data, parameter)
-            # information = self.join_information(timeInfo, data, parameter)
         except UnboundLocalError:
             information = self.join_information(None, None)
 
