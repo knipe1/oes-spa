@@ -24,6 +24,11 @@ from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 
+# constants and configs
+PLOT = ConfigLoader().PLOT
+BASELINE = "baseline"
+
+
 class Spectrum():
     """
     Concatenate properties of a spectrum to join data and plot options.
@@ -34,9 +39,7 @@ class Spectrum():
         spectrum.set_data(data)
 
     """
-    PLOT = ConfigLoader().PLOT
 
-    BASELINE = "baseline"
 
 
     @property
@@ -50,49 +53,6 @@ class Spectrum():
     @property
     def xData(self)->np.ndarray:
         return self.data[:, 0]
-
-    @classmethod
-    def get_labels(cls, exportType:EXPORT_TYPE)->dict:
-        """Get the labels according to the export type."""
-        if exportType == EXPORT_TYPE.RAW:
-            xLabel = cls.PLOT["RAW_X_LABEL"]
-            yLabel = cls.PLOT["RAW_Y_LABEL"]
-        elif exportType == EXPORT_TYPE.PROCESSED:
-            xLabel = cls.PLOT["PROCESSED_X_LABEL"]
-            yLabel = cls.PLOT["PROCESSED_Y_LABEL"]
-        elif exportType == EXPORT_TYPE.BATCH:
-            xLabel = cls.PLOT["BATCH_X_LABEL"]
-            yLabel = cls.PLOT["BATCH_Y_LABEL"]
-        labels = {"xLabel": xLabel, "yLabel": yLabel}
-        return labels
-
-
-    @classmethod
-    def get_markup(cls, exportType:EXPORT_TYPE)->dict:
-        """Get the markup according to the export type."""
-        if exportType == EXPORT_TYPE.RAW:
-            color = cls.PLOT["DATA_COLOR"]
-            label = cls.PLOT["RAW_DATA_LABEL"]
-        elif exportType == EXPORT_TYPE.PROCESSED:
-            color = cls.PLOT["DATA_COLOR"]
-            label = cls.PLOT["PROCESSED_DATA_LABEL"]
-        elif exportType == EXPORT_TYPE.BATCH:
-            color = None
-            label = cls.PLOT["BATCH_DATA_LABEL"]
-        elif exportType == cls.BASELINE:
-            color = cls.PLOT["BASELINE_COLOR"]
-            label = cls.PLOT["BASELINE_LABEL"]
-        markup = {"color": color, "label": label}
-        return markup
-
-
-    @classmethod
-    def determine_color(cls, integrationArea:Integration)->str:
-        peakColor = cls.PLOT["INT_PEAK_COLOR"]
-        referenceColor = cls.PLOT["INT_REF_COLOR"]
-        isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
-        col = peakColor if isPeakType else referenceColor
-        return col
 
 
     ## __methods__
@@ -186,3 +146,49 @@ class Spectrum():
         for intArea in self.integrationAreas:
             col = self.determine_color(intArea)
             self._ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
+
+
+    ### static methods
+
+    @staticmethod
+    def get_labels(exportType:EXPORT_TYPE)->dict:
+        """Get the labels according to the export type."""
+        if exportType == EXPORT_TYPE.RAW:
+            xLabel = PLOT["RAW_X_LABEL"]
+            yLabel = PLOT["RAW_Y_LABEL"]
+        elif exportType == EXPORT_TYPE.PROCESSED:
+            xLabel = PLOT["PROCESSED_X_LABEL"]
+            yLabel = PLOT["PROCESSED_Y_LABEL"]
+        elif exportType == EXPORT_TYPE.BATCH:
+            xLabel = PLOT["BATCH_X_LABEL"]
+            yLabel = PLOT["BATCH_Y_LABEL"]
+        labels = {"xLabel": xLabel, "yLabel": yLabel}
+        return labels
+
+
+    @staticmethod
+    def get_markup(exportType:EXPORT_TYPE)->dict:
+        """Get the markup according to the export type."""
+        if exportType == EXPORT_TYPE.RAW:
+            color = PLOT["DATA_COLOR"]
+            label = PLOT["RAW_DATA_LABEL"]
+        elif exportType == EXPORT_TYPE.PROCESSED:
+            color = PLOT["DATA_COLOR"]
+            label = PLOT["PROCESSED_DATA_LABEL"]
+        elif exportType == EXPORT_TYPE.BATCH:
+            color = None
+            label = PLOT["BATCH_DATA_LABEL"]
+        elif exportType == BASELINE:
+            color = PLOT["BASELINE_COLOR"]
+            label = PLOT["BASELINE_LABEL"]
+        markup = {"color": color, "label": label}
+        return markup
+
+
+    @staticmethod
+    def determine_color(integrationArea:Integration)->str:
+        peakColor = PLOT["INT_PEAK_COLOR"]
+        referenceColor = PLOT["INT_REF_COLOR"]
+        isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
+        col = peakColor if isPeakType else referenceColor
+        return col
