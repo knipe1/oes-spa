@@ -44,7 +44,7 @@ class FileWriter(FileFramework):
     def export(self, filename:str, data:list, columnTitles:list, extraInformation:dict=None):
         extraInformation = extraInformation or {}
 
-        with open(filename, 'w', newline='') as exportFile:
+        with open(filename, mode='w', newline='') as exportFile:
             fWriter = csv.writer(exportFile, dialect=self.dialect)
             self.write_header(fWriter, self.timestamp)
             self.write_information(fWriter, extraInformation)

@@ -29,12 +29,9 @@ from ui.UIBatch import UIBatch
 # modules & universal
 import modules.Universal as uni
 import dialog_messages as dialog
-import modules.dataanalysis.Analysis as Analysis
-from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
 from modules.filehandling.filereading.FileReader import FileReader
-from modules.filehandling.filewriting.BatchWriter import BatchWriter
 from modules.thread.Appender import Appender
 from modules.thread.Exporter import Exporter
 from modules.thread.Plotter import Plotter
@@ -43,11 +40,8 @@ from modules.thread.Plotter import Plotter
 # Enums
 from c_types.FileSet import FileSet
 from c_types.BasicSetting import BasicSetting
-from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
-# exceptions
-from exception.InvalidSpectrumError import InvalidSpectrumError
 
 # constants
 BATCH_SUFFIX = SUFF.BATCH
@@ -67,7 +61,6 @@ class BatchAnalysis(QDialog):
     """
 
     # Qt-Signals
-    signal_enableAnalysis = Signal(bool)
     signal_batchfile = Signal(str)
     signal_WDdirectory = Signal(str)
     signal_enableWD = Signal(bool)
@@ -170,18 +163,15 @@ class BatchAnalysis(QDialog):
         self.window.connect_browse_spectra(self._browse_spectra)
         self.window.connect_analyze(self.analyze)
         self.window.connect_cancel(self.schedule_cancel_routine)
-        self.window.connect_change_batchfile(self._enable_analysis)
         self.window.connect_change_trace(self.import_batchfile)
         self.window.connect_clear(self.reset_batch)
         self.window.connect_import_batchfile(self.import_batchfile)
         self.window.connect_select_file(self.open_indexed_file)
-        self.window.connect_select_file(self._enable_analysis)
         self.window.connect_set_watchdog_directory(self._specify_watchdog_directory)
         self.window.connect_set_batchfile(self._specify_batchfile)
         self.window.connect_watchdog(self._toggle_watchdog)
 
         self.signal_batchfile.connect(self.window.slot_batchfile)
-        self.signal_enableAnalysis.connect(self.window.slot_enableAnalysis)
         self.signal_WDdirectory.connect(self.window.slot_WDdirectory)
         self.signal_enableWD.connect(self.window.slot_enableWD)
 
@@ -304,6 +294,12 @@ class BatchAnalysis(QDialog):
 
         files = self._files.to_list()
 
+        if not files:
+            return
+
+        if isExportBatch and not self.batchFile:
+            return
+
         if isUpdatePlot:
             self._thread = Plotter()
             self._thread.signal_filename.connect(self.parent().slot_plot_spectrum)
@@ -388,18 +384,6 @@ class BatchAnalysis(QDialog):
         """Opens a dialog to browse for spectra and updates the filelist."""
         filelist = dialog.dialog_spectra()
         self.update_filelist(filelist)
-
-
-    def _enable_analysis(self)->None:
-        """Enables the ui if configuration is set accordingly."""
-        if not self.batchFile:
-            enable = False
-        elif not self._files:
-            enable = False
-        else:
-            enable = True
-
-        self.signal_enableAnalysis.emit(enable)
 
 
     def open_indexed_file(self, index:(QModelIndex, int))->None:

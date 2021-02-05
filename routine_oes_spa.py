@@ -34,10 +34,10 @@ def main():
     initialSpkLoad = True
     initialAscLoad = True
     tryDifferentFiles = False
-    exportSpectra = True
+    exportSpectra = False
     showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
     activateWD = False
 

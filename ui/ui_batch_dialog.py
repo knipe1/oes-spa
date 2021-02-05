@@ -107,7 +107,6 @@ class Ui_batch(object):
         self.RadProcess.addButton(self.radExport)
         self.layoutProcess.addWidget(self.radExport)
         self.btnAnalyze = QtWidgets.QPushButton(batch)
-        self.btnAnalyze.setEnabled(False)
         self.btnAnalyze.setObjectName("btnAnalyze")
         self.BtnFileaction.addButton(self.btnAnalyze)
         self.layoutProcess.addWidget(self.btnAnalyze)

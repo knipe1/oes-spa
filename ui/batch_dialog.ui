@@ -216,9 +216,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnAnalyze">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <property name="text">
         <string>&amp;Analyze</string>
        </property>
