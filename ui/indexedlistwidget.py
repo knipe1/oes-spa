@@ -29,6 +29,7 @@ class IndexedListWidget(QListWidget):
         formatLabels = self.add_index_to_text(reducedLabels)
         super().addItems(formatLabels)
 
+
     @staticmethod
     def add_index_to_text(texts:list)->str:
         """

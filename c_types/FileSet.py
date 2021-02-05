@@ -66,14 +66,11 @@ class FileSet(set):
         """Updates the set AND updates the ui."""
         filename = None
         index = self.current_row
-        if noSelection:
-            index = None
-        elif index >= 0:
+        if not noSelection and index >= 0:
             filename = self[index]
-            index = None
 
         super().update(s)
-        self.update_ui(index=index, filename=filename)
+        self.update_ui(filename=filename)
 
 
     def remove(self, t:str)->None:
@@ -99,9 +96,9 @@ class FileSet(set):
     def update_ui(self, index:int=None, filename:str=None)->None:
         """Update ui with converted and sorted/indexed list."""
         self._listWidget.setItems(self.to_list())
-        if not index is None:
+        if index is not None:
             self.current_row = index
-        elif not filename is None:
+        elif filename is not None:
             self.select_row_by_filename(filename)
 
 

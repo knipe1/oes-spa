@@ -16,13 +16,9 @@ from datetime import datetime, timedelta
 from PyQt5.QtCore import QFileInfo, QUrl
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
 
 # Enums
 from c_enum.SUFFICES import SUFFICES as SUFF
-
-# config
-BATCH = ConfigLoader().BATCH
 
 # constants
 EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
