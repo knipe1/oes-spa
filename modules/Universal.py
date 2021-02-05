@@ -102,26 +102,6 @@ def reduce_path(path:list)->str:
     return prefix + relativeFilepath
 
 
-def add_index_to_text(texts:list)->str:
-    """
-    Adding the index of a list item in front of the item.
-    May the 44th item be "File", then the returning element would be "  44:File"
-
-    Parameters
-    ----------
-    texts : list of strings
-
-    Returns
-    -------
-    yield: the text with the index prior
-
-    """
-    sep = BATCH["SEPARATOR"]
-    for idx, text in enumerate(texts):
-        index = format(idx+1, BATCH["INDEX_FORMAT"])
-        yield index + sep + text
-
-
 #%% time
 
 

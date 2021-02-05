@@ -60,7 +60,7 @@ class Ui_batch(object):
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.listFiles = QtWidgets.QListWidget(batch)
+        self.listFiles = IndexedListWidget(batch)
         self.listFiles.setMaximumSize(QtCore.QSize(800, 500))
         self.listFiles.setAcceptDrops(True)
         self.listFiles.setObjectName("listFiles")
@@ -172,4 +172,5 @@ class Ui_batch(object):
         self.label.setText(_translate("batch", "Select characteristic:"))
         self.btnImport.setText(_translate("batch", "Import Trace"))
 
+from ui.indexedlistwidget import IndexedListWidget
 from ui.matplotlibwidget import MatplotlibWidget

@@ -106,7 +106,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="listFiles">
+      <widget class="IndexedListWidget" name="listFiles">
        <property name="maximumSize">
         <size>
          <width>800</width>
@@ -313,6 +313,11 @@
    <extends>QWidget</extends>
    <header>ui.matplotlibwidget</header>
   </customwidget>
+  <customwidget>
+   <class>IndexedListWidget</class>
+   <extends>QListWidget</extends>
+   <header>ui.indexedlistwidget</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>btnSetFilename</tabstop>
@@ -324,11 +329,11 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="RadProcess"/>
   <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="RadProcess"/>
  </buttongroups>
 </ui>

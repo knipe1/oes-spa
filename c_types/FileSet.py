@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
-Created on Thu May  7 14:40:11 2020
+class: FileSet
 
 @author: Hauke Wernecke
 """
@@ -13,7 +12,6 @@ Created on Thu May  7 14:40:11 2020
 from dependencies.natsort.natsort import natsorted
 
 # local modules/libs
-import modules.Universal as uni
 
 # Enums
 
@@ -28,19 +26,15 @@ class FileSet(set):
     """
 
     @property
-    def selected_row(self)->str:
-        return self._selected_row
+    def current_row(self)->str:
+        return self._listWidget.currentRow()
 
-    @selected_row.setter
-    def selected_row(self, i:int)->None:
-        self.listWidget.setCurrentRow(i)
-
-    # Hint: @Slot(int) is not possible here. May cause issues in some applications.
-    def slot_selected_row(self, i:int)->None:
-        self._selected_row = i
+    @current_row.setter
+    def current_row(self, i:int)->None:
+        self._listWidget.setCurrentRow(i)
 
 
-    def __init__(self, listWidget, iterable=()):
+    def __init__(self, listWidget, iterable=())->None:
         """
 
         Parameters
@@ -51,9 +45,7 @@ class FileSet(set):
             The initial set. The default is ().
         """
         super().__init__(iterable)
-        self.listWidget = listWidget
-        self._selected_row = -1
-        self.listWidget.currentRowChanged.connect(self.slot_selected_row)
+        self._listWidget = listWidget
 
 
     def __getitem__(self, i:int)->str:
@@ -67,20 +59,19 @@ class FileSet(set):
     def clear(self)->None:
         """Clears the set AND updates the ui."""
         super().clear()
-        self.listWidget.clear()
+        self._listWidget.clear()
 
 
     def update(self, s:set, noSelection:bool=False)->None:
         """Updates the set AND updates the ui."""
         filename = None
-        index = self.selected_row
+        index = self.current_row
         if noSelection:
             index = None
         elif index >= 0:
             filename = self[index]
             index = None
 
-        # Updates the set as usual and refresh ui.
         super().update(s)
         self.update_ui(index=index, filename=filename)
 
@@ -88,38 +79,28 @@ class FileSet(set):
     def remove(self, t:str)->None:
         """Removes an item AND updates the ui."""
         super().remove(t)
-        idx = self.selected_row - 1
+        # max ensures that no neg. index is selected.
+        idx = max(self.current_row - 1, 0)
         self.update_ui(index=idx)
 
 
     def difference_update(self, iterables:set)->None:
         """Removes an item AND updates the ui."""
         super().difference_update(iterables)
-        self.update_ui(index=0)
+        self.update_ui()
 
 
-    def to_list(self, naturalSort:bool=True, indexed:bool=False)->None:
-        """Convert the set to a sorted/indexed list."""
-        files = list(self)
-        if naturalSort:
-            files = natsorted(files)
-
-        if indexed:
-            files = uni.add_index_to_text(uni.reduce_paths(files))
-
+    def to_list(self)->None:
+        """Convert the set to a sorted list."""
+        files = natsorted(self)
         return files
 
 
     def update_ui(self, index:int=None, filename:str=None)->None:
         """Update ui with converted and sorted/indexed list."""
-        files = self.to_list(indexed=True)
-
-        self.listWidget.clear()
-        self.listWidget.addItems(files)
-
+        self._listWidget.setItems(self.to_list())
         if not index is None:
-            # max(index, 0) ensures that no row with a neg. index is selected.
-            self.selected_row = max(index, 0)
+            self.current_row = index
         elif not filename is None:
             self.select_row_by_filename(filename)
 
@@ -128,4 +109,4 @@ class FileSet(set):
         """Gets the i-th item of the sorted list by the filename."""
         files = self.to_list()
         i = files.index(filename)
-        self.selected_row = i
+        self.current_row = i

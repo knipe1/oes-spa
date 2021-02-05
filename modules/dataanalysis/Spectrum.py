@@ -24,9 +24,6 @@ from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 
-# constants and configs
-PLOT = ConfigLoader().PLOT
-BASELINE = "baseline"
 
 
 class Spectrum():
@@ -40,6 +37,9 @@ class Spectrum():
 
     """
 
+    # constants and configs
+    PLOT = ConfigLoader().PLOT
+    BASELINE = "baseline"
 
 
     @property
@@ -150,45 +150,45 @@ class Spectrum():
 
     ### static methods
 
-    @staticmethod
-    def get_labels(exportType:EXPORT_TYPE)->dict:
+    @classmethod
+    def get_labels(cls, exportType:EXPORT_TYPE)->dict:
         """Get the labels according to the export type."""
         if exportType == EXPORT_TYPE.RAW:
-            xLabel = PLOT["RAW_X_LABEL"]
-            yLabel = PLOT["RAW_Y_LABEL"]
+            xLabel = cls.PLOT["RAW_X_LABEL"]
+            yLabel = cls.PLOT["RAW_Y_LABEL"]
         elif exportType == EXPORT_TYPE.PROCESSED:
-            xLabel = PLOT["PROCESSED_X_LABEL"]
-            yLabel = PLOT["PROCESSED_Y_LABEL"]
+            xLabel = cls.PLOT["PROCESSED_X_LABEL"]
+            yLabel = cls.PLOT["PROCESSED_Y_LABEL"]
         elif exportType == EXPORT_TYPE.BATCH:
-            xLabel = PLOT["BATCH_X_LABEL"]
-            yLabel = PLOT["BATCH_Y_LABEL"]
+            xLabel = cls.PLOT["BATCH_X_LABEL"]
+            yLabel = cls.PLOT["BATCH_Y_LABEL"]
         labels = {"xLabel": xLabel, "yLabel": yLabel}
         return labels
 
 
-    @staticmethod
-    def get_markup(exportType:EXPORT_TYPE)->dict:
+    @classmethod
+    def get_markup(cls, exportType:EXPORT_TYPE)->dict:
         """Get the markup according to the export type."""
         if exportType == EXPORT_TYPE.RAW:
-            color = PLOT["DATA_COLOR"]
-            label = PLOT["RAW_DATA_LABEL"]
+            color = cls.PLOT["DATA_COLOR"]
+            label = cls.PLOT["RAW_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.PROCESSED:
-            color = PLOT["DATA_COLOR"]
-            label = PLOT["PROCESSED_DATA_LABEL"]
+            color = cls.PLOT["DATA_COLOR"]
+            label = cls.PLOT["PROCESSED_DATA_LABEL"]
         elif exportType == EXPORT_TYPE.BATCH:
             color = None
-            label = PLOT["BATCH_DATA_LABEL"]
-        elif exportType == BASELINE:
-            color = PLOT["BASELINE_COLOR"]
-            label = PLOT["BASELINE_LABEL"]
+            label = cls.PLOT["BATCH_DATA_LABEL"]
+        elif exportType == cls.BASELINE:
+            color = cls.PLOT["BASELINE_COLOR"]
+            label = cls.PLOT["BASELINE_LABEL"]
         markup = {"color": color, "label": label}
         return markup
 
 
-    @staticmethod
-    def determine_color(integrationArea:Integration)->str:
-        peakColor = PLOT["INT_PEAK_COLOR"]
-        referenceColor = PLOT["INT_REF_COLOR"]
+    @classmethod
+    def determine_color(cls, integrationArea:Integration)->str:
+        peakColor = cls.PLOT["INT_PEAK_COLOR"]
+        referenceColor = cls.PLOT["INT_REF_COLOR"]
         isPeakType = (integrationArea.peakType == CHC.TYPE_PEAK)
         col = peakColor if isPeakType else referenceColor
         return col

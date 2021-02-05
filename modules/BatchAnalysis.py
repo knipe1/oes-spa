@@ -214,7 +214,7 @@ class BatchAnalysis(QDialog):
         isFocused = self.window.is_focussed_filelist()
         isDelete = event.matches(QKeys.Delete)
         if isFocused and isDelete:
-            row = self._files.selected_row
+            row = self._files.current_row
             self._files.remove(self._files[row])
             return
 
