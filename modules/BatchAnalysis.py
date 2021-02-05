@@ -19,7 +19,7 @@ import logging
 import numpy as np
 
 # third-party libs
-from PyQt5.QtCore import Signal, Slot, QModelIndex
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QModelIndex
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QKeySequence as QKeys
 
@@ -61,28 +61,28 @@ class BatchAnalysis(QDialog):
     """
 
     # Qt-Signals
-    signal_batchfile = Signal(str)
-    signal_WDdirectory = Signal(str)
-    signal_enableWD = Signal(bool)
-    signal_file = Signal(str)
-    signal_cancel = Signal(bool)
+    signal_batchfile = pyqtSignal(str)
+    signal_WDdirectory = pyqtSignal(str)
+    signal_enableWD = pyqtSignal(bool)
+    signal_file = pyqtSignal(str)
+    signal_cancel = pyqtSignal(bool)
 
     ### Slots
 
-    @Slot()
-    @Slot(bool)
+    @pyqtSlot()
+    @pyqtSlot(bool)
     def slot_import_batch(self, force:bool=False)->None:
         if self.window.get_plot_trace() or force:
             self.import_batchfile(takeCurrentBatchfile=True)
 
 
-    @Slot(list)
+    @pyqtSlot(list)
     def slot_handle_skipped_files(self, skippedFiles:list)->None:
         dialog.information_batchAnalysisFinished(skippedFiles)
         self._files.difference_update(skippedFiles)
 
 
-    @Slot(str)
+    @pyqtSlot(str)
     def slot_valid_file(self, filename:str)->None:
         self._files.update([filename], noSelection=True)
 
@@ -124,7 +124,7 @@ class BatchAnalysis(QDialog):
             Required for the interplay between the two windows.
 
         """
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         # Initialize the parent class [equivalent to: QDialog.__init__(self)].
         super().__init__(parent)

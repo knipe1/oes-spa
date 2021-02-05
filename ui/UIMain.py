@@ -164,7 +164,7 @@ class UIMain(Ui_main, QObject):
             other (rather general) functions.
         """
         super().__init__()
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         self.setupUi(parent)
         self.__post_init__()

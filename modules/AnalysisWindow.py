@@ -47,27 +47,19 @@ class AnalysisWindow(QMainWindow):
         window.apply_file("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
 
+    ### Slots
+
     @pyqtSlot(str)
     def slot_plot_spectrum(self, file:str)->None:
         self.apply_file(file, silent=True)
 
 
+    @pyqtSlot()
+    def slot_setting_changed(self):
+        self.setting = self.window.get_basic_setting()
+
+
     ### Properties
-    def keyPressEvent(self, event)->None:
-        """
-        Key handling.
-
-        Regarding deletions, cancellations,...
-        """
-        event.accept()
-        from PyQt5.QtGui import QKeySequence as QKeys
-
-        # Cancel current analysis.
-        isCancel = event.matches(QKeys.Cancel)
-        if isCancel:
-            self.batch.schedule_cancel_routine()
-            self.batch.isScheduledCancel = True
-            return
 
     @property
     def activeFile(self)->FileReader:
@@ -81,20 +73,32 @@ class AnalysisWindow(QMainWindow):
         # Set additional information (like from asc-file). Or clear previous information.
         self.window.update_information(file.parameter)
         self.window.enable_export(bool(file))
-
         self._activeFile = file
+
+
+    @property
+    def setting(self)->BasicSetting:
+        return self._setting
+
+    @setting.setter
+    def setting(self, s:BasicSetting)->None:
+        self._setting = s
+        self._redraw()
+        self.batch.set_setting(s)
+
+
 
 
     ### __Methods__
 
     def __init__(self)->None:
         super().__init__()
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
-        # Set defaults.
+        # Defaults.
         self._activeFile = None
 
-        ## Set up the user interfaces
+        ## Set up the UI
         self.window = UIMain(self)
         self.batch = BatchAnalysis(self)
 
@@ -107,7 +111,7 @@ class AnalysisWindow(QMainWindow):
     def __post_init__(self)->None:
         self._connect_ui_events()
         self._init_spectra()
-        self._update_batch_setting()
+        self.setting = self.window.get_basic_setting()
 
 
     def __repr__(self):
@@ -125,8 +129,7 @@ class AnalysisWindow(QMainWindow):
 
     def _connect_ui_events(self)->None:
         win = self.window
-        win.connect_change_basic_settings(self._redraw)
-        win.connect_change_basic_settings(self._update_batch_setting)
+        win.connect_change_basic_settings(self.slot_setting_changed)
         win.connect_export_processed(self._export_processed)
         win.connect_export_raw(self._export_raw)
         win.connect_open_file(self._file_open)
@@ -211,12 +214,7 @@ class AnalysisWindow(QMainWindow):
             dialog.information_exportAborted()
 
 
-    def _update_batch_setting(self)->None:
-        setting = self.window.get_basic_setting()
-        self.batch.set_setting(setting)
-
-
-    def _redraw(self, changedValue:str=None)->None:
+    def _redraw(self)->None:
         """
         Redraw the plots with data of the active file.
 
@@ -227,7 +225,7 @@ class AnalysisWindow(QMainWindow):
 
         """
         try:
-            self._logger.info("New value of setting: %s. Redraw of %s.", changedValue, self.activeFile.filename)
+            self._logger.info("Redraw of %s.", self.activeFile.filename)
             self.apply_file(self.activeFile)
         except AttributeError:
             self._logger.warning("Redraw Failed")
@@ -249,19 +247,18 @@ class AnalysisWindow(QMainWindow):
             if not isFileReloaded:
                 self._set_wavelength_from_file(file)
 
-        basicSetting = self.window.get_basic_setting()
         try:
-            specHandler = SpectrumHandler(file, basicSetting, slotPixel=self.window.slot_enableDispersion)
+            specHandler = SpectrumHandler(file, self.setting, slotPixel=self.window.slot_enableDispersion)
         except InvalidSpectrumError:
             if not silent:
                 dialog.critical_invalidSpectrum()
             return
 
-        specHandler.fit_data(basicSetting.selectedFitting)
+        specHandler.fit_data(self.setting.selectedFitting)
         self._update_spectra(specHandler)
         self.activeFile = file
 
-        self._show_wavelength_difference_information(file, basicSetting)
+        self._show_wavelength_difference_information(file)
         self.window.set_results(specHandler)
 
 
@@ -272,10 +269,10 @@ class AnalysisWindow(QMainWindow):
             self._logger.info("No Wavelength provided by: %s", file.filename)
 
 
-    def _show_wavelength_difference_information(self, file:FileReader, setting:BasicSetting)->None:
-        settingWavelength = setting.wavelength
+    def _show_wavelength_difference_information(self, file:FileReader)->None:
+        settingWavelength = self.setting.wavelength
         try:
-            fileWavelength = float(file.WAVELENGTH)
+            fileWavelength = file.WAVELENGTH
         except KeyError:
             fileWavelength = None
             settingWavelength = None
@@ -284,11 +281,8 @@ class AnalysisWindow(QMainWindow):
             self.window.show_diff_wavelength(hasDifferentWl)
 
 
-    def _update_spectra(self, spectrumHandler:SpectrumHandler):
-        data = spectrumHandler.rawData
-        baseline = spectrumHandler.baseline
-        processedData = spectrumHandler.procData
+    def _update_spectra(self, spectrumHandler:SpectrumHandler)->None:
         rawIntegration, procIntegration = spectrumHandler.get_integration_areas()
 
-        self.rawSpectrum.set_data(data, rawIntegration, baselineData=baseline)
-        self.processedSpectrum.set_data(processedData, procIntegration)
+        self.rawSpectrum.set_data(spectrumHandler.rawData, integrationAreas=rawIntegration, baselineData=spectrumHandler.baseline)
+        self.processedSpectrum.set_data(spectrumHandler.procData, integrationAreas=procIntegration)

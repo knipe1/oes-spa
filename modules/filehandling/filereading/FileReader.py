@@ -39,6 +39,9 @@ from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
+# exceptions
+from exception.ParameterNotSetError import ParameterNotSetError
+
 # constants
 TIME_NOT_SET = "Not set!"
 
@@ -64,8 +67,6 @@ class FileReader(FileFramework):
         Concats the x- & y-data. First column: x; second column: y.
     WAVELENGTH : str
         The wavelength if specified in the paramter of the file.
-    GRATING : str
-        The grating if specified in the paramter of the file.
 
 
     Methods
@@ -100,13 +101,11 @@ class FileReader(FileFramework):
     @property
     def WAVELENGTH(self):
         """Specific value of the parameter set."""
-        return self.parameter[ASC.WL.value]
-
-
-    @property
-    def GRATING(self):
-        """Specific value of the parameter set."""
-        return self.parameter[ASC.WL.value]
+        try:
+            wl = self.parameter[ASC.WL.value]
+        except KeyError:
+            raise ParameterNotSetError
+        return float(wl)
 
 
     ### __Methods__

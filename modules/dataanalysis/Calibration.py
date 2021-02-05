@@ -28,7 +28,7 @@ class Calibration():
     ### __Methods__
 
     def __init__(self, calibrationFile:str):
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         self.calibrationPeaks = np.loadtxt(calibrationFile)[:, 0]
         self.noPeaks = len(self.calibrationPeaks)

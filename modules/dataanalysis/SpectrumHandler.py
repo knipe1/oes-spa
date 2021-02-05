@@ -109,11 +109,11 @@ class SpectrumHandler(QDialog):
         return result
 
 
-    ### dunder methods
+    ### __methods__
 
     def __init__(self, file:FileReader, basicSetting:BasicSetting, slotPixel=None):
         super().__init__()
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         if not file.is_valid_spectrum():
             raise InvalidSpectrumError("File contain no valid spectrum.")
@@ -123,13 +123,13 @@ class SpectrumHandler(QDialog):
         self.fitting = None
         self._avgbase = None
 
-        self.reset_values()
+        self._reset_values()
 
         if not slotPixel is None:
             self.signal_pixel_data.connect(slotPixel)
 
         self.rawData = file.data
-        self.process_data()
+        self._process_data()
 
 
     def __repr__(self):
@@ -142,7 +142,7 @@ class SpectrumHandler(QDialog):
         return self.__module__ + ":\n" + str(info)
 
 
-    def reset_values(self)->None:
+    def _reset_values(self)->None:
         self._peakArea = None
         self._peakHeight = None
         self._peakName = None
@@ -156,7 +156,7 @@ class SpectrumHandler(QDialog):
         if fitting is None or fitting.peak is None:
             return ERR.OK
 
-        self.reset_values()
+        self._reset_values()
 
         peak = fitting.peak
         self._peakName = peak.name
@@ -166,7 +166,7 @@ class SpectrumHandler(QDialog):
             calibration = Calibration(calibrationFile)
             self.procXData = calibration.calibrate(*self.procData.transpose())
 
-        peakCharacteristics, integrationAreas = self.analyse_peak(peak)
+        peakCharacteristics, integrationAreas = self._analyse_peak(peak)
         self._peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]
         self._peakArea = peakCharacteristics[CHC.PEAK_AREA]
         self.peakPosition = peakCharacteristics[CHC.PEAK_POSITION]
@@ -178,23 +178,23 @@ class SpectrumHandler(QDialog):
             validReference = False
 
         if validReference:
-            characteristicValue, intAreas = self.calculate_characteristic_value(peak)
+            characteristicValue, intAreas = self._calculate_characteristic_value(peak)
             self._characteristicValue = characteristicValue
             self.integration.extend(intAreas)
 
         return ERR.OK
 
 
-    def calculate_characteristic_value(self, peak:Peak)->tuple:
+    def _calculate_characteristic_value(self, peak:Peak)->tuple:
 
         # Default =None. No peak found: =0.0.
         characteristicValue = None
         intAreas = []
 
-        peakCharacteristics, _ = self.analyse_peak(peak)
+        peakCharacteristics, _ = self._analyse_peak(peak)
         peakArea = peakCharacteristics[CHC.PEAK_AREA]
 
-        refCharacteristic, refIntegrationAreas = self.analyse_peak(peak.reference)
+        refCharacteristic, refIntegrationAreas = self._analyse_peak(peak.reference)
         refHeight = refCharacteristic[CHC.PEAK_HEIGHT]
         refArea = refCharacteristic[CHC.PEAK_AREA]
 
@@ -212,7 +212,7 @@ class SpectrumHandler(QDialog):
         return characteristicValue, intAreas
 
 
-    def analyse_peak(self, peak:Peak)->(dict, dict):
+    def _analyse_peak(self, peak:Peak)->(dict, dict):
         """
 
         Searching the given data for peaks and find the closest peak to the
@@ -224,8 +224,8 @@ class SpectrumHandler(QDialog):
             Defines the values for the analysis of the peak.
 
         """
-        integrationRange = self.get_integration_range(peak)
-        area, height, position = self.analyze_peak_characteristics(integrationRange)
+        integrationRange = self._get_integration_range(peak)
+        area, height, position = self._analyze_peak_characteristics(integrationRange)
 
         characteristics = {CHC.PEAK_POSITION: position,
                            CHC.PEAK_HEIGHT: height,
@@ -241,7 +241,7 @@ class SpectrumHandler(QDialog):
         return characteristics, integrationAreas
 
 
-    def get_integration_range(self, peak:Peak)->range:
+    def _get_integration_range(self, peak:Peak)->range:
         lowerLimit = peak.centralWavelength - peak.shiftDown
         upperLimit = peak.centralWavelength + peak.shiftUp
 
@@ -258,7 +258,7 @@ class SpectrumHandler(QDialog):
         return integrationRange
 
 
-    def analyze_peak_characteristics(self, integrationRange:range)->None:
+    def _analyze_peak_characteristics(self, integrationRange:range)->None:
 
         procXData, procYData = self.procXData, self.procYData
 
@@ -337,14 +337,14 @@ class SpectrumHandler(QDialog):
         return shiftedData
 
 
-    def process_data(self)->None:
+    def _process_data(self)->None:
         """Processes the raw data with regard to the given wavelength and the dispersion."""
-        procXData = self.process_x_data()
-        procYData, self.baseline, self._avgbase = self.process_y_data()
+        procXData = self._process_x_data()
+        procYData, self.baseline, self._avgbase = self._process_y_data()
         self.procData = (procXData, procYData)
 
 
-    def process_x_data(self)->np.ndarray:
+    def _process_x_data(self)->np.ndarray:
         """Assigns wavelength to the recorded Pixels """
 
         # Center of the xData. Used for shifting the data.
@@ -376,7 +376,7 @@ class SpectrumHandler(QDialog):
         return shiftedData
 
 
-    def process_y_data(self):
+    def _process_y_data(self):
         # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
         rawYData = self.rawYData
         # Baseline correction without DC drift.
