@@ -92,6 +92,15 @@ class UIMain(Ui_main, QObject):
     def slot_enableDispersion(self, enable:bool)->None:
         self.tinDispersion.setEnabled(enable)
 
+
+    @pyqtSlot(bool)
+    def slot_show_diff_wavelength(self, show:bool)->None:
+        uiElement = self.lblDiffWavelength
+        if show:
+            uiElement.show()
+        else:
+            uiElement.hide()
+
     ### properties
 
     @property
@@ -179,9 +188,6 @@ class UIMain(Ui_main, QObject):
         self.fittings = self._retrieve_fittings()
         self._load_fitting_selection_from_config()
         self._load_settings_from_config()
-
-        # initial hides. Cannot be set in designer.
-        self.show_diff_wavelength(False)
 
 
     def _load_settings_from_config(self)->None:
@@ -357,14 +363,6 @@ class UIMain(Ui_main, QObject):
             # format the entry
             entry = form.join(line)
             self.listInformation.addItem(entry)
-
-
-    def show_diff_wavelength(self, show:bool):
-        uiElement = self.lblDiffWavelength
-        if show:
-            uiElement.show()
-        else:
-            uiElement.hide()
 
 
     def enable_export(self, enable:bool)->None:

@@ -13,7 +13,7 @@ import logging
 
 # third-party libs
 # base class: QMainWindow
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 
 
@@ -35,6 +35,7 @@ from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 # exceptions
 from exception.InvalidSpectrumError import InvalidSpectrumError
+from exception.ParameterNotSetError import ParameterNotSetError
 
 
 class AnalysisWindow(QMainWindow):
@@ -46,6 +47,11 @@ class AnalysisWindow(QMainWindow):
         window = AnalysisWindow()
         window.apply_file("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """
+
+    ### Signal
+
+    signal_wavelength_difference = pyqtSignal(bool)
+
 
     ### Slots
 
@@ -104,6 +110,9 @@ class AnalysisWindow(QMainWindow):
 
         self.__post_init__()
 
+        # Hide initially. Cannot be set in designer.
+        self.signal_wavelength_difference.emit(False)
+
         # Show window, otherwise the window does not appear anywhere on the screen.
         self.show()
 
@@ -134,6 +143,8 @@ class AnalysisWindow(QMainWindow):
         win.connect_export_raw(self._export_raw)
         win.connect_open_file(self._file_open)
         win.connect_show_batch(self.batch.show)
+
+        self.signal_wavelength_difference.connect(win.slot_show_diff_wavelength)
 
 
     ### Events
@@ -265,7 +276,7 @@ class AnalysisWindow(QMainWindow):
     def _set_wavelength_from_file(self, file:FileReader)->None:
         try:
             self.window.wavelength = file.WAVELENGTH
-        except KeyError:
+        except ParameterNotSetError:
             self._logger.info("No Wavelength provided by: %s", file.filename)
 
 
@@ -273,12 +284,12 @@ class AnalysisWindow(QMainWindow):
         settingWavelength = self.setting.wavelength
         try:
             fileWavelength = file.WAVELENGTH
-        except KeyError:
+        except ParameterNotSetError:
             fileWavelength = None
             settingWavelength = None
         finally:
             hasDifferentWl = (fileWavelength != settingWavelength)
-            self.window.show_diff_wavelength(hasDifferentWl)
+            self.signal_wavelength_difference.emit(hasDifferentWl)
 
 
     def _update_spectra(self, spectrumHandler:SpectrumHandler)->None:

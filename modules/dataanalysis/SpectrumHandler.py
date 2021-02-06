@@ -403,8 +403,8 @@ class SpectrumHandler(QDialog):
 
 
 def get_center(data:np.ndarray)->float:
-    centerIdx = np.ceil(len(data) / 2 - 1)
-    center = data[int(centerIdx)]            # offset of python lists.
+    centerIdx = np.ceil(len(data) / 2 - 1)  # offset of python lists.
+    center = data[int(centerIdx)]
     return center
 
 
