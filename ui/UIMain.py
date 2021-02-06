@@ -101,6 +101,7 @@ class UIMain(Ui_main, QObject):
         else:
             uiElement.hide()
 
+
     ### properties
 
     @property
@@ -280,11 +281,35 @@ class UIMain(Ui_main, QObject):
         self.clistFitting.itemClicked.connect(fun)
 
 
-    def set_fileinformation(self, filereader:FileReader)->None:
+    @pyqtSlot(FileReader)
+    def update_fileinformation(self, reader:FileReader)->None:
+        self._set_fileinformation(reader)
+        self._update_parameter(reader.parameter)
+        self._enable_export(bool(reader))
+
+
+    def _set_fileinformation(self, filereader:FileReader)->None:
         filename, timeInfo = filereader.fileinformation
         strTimeInfo = uni.timestamp_to_string(timeInfo)
         self.toutFilename.setText(filename)
         self.toutTimeInfo.setText(strTimeInfo)
+
+
+    def _update_parameter(self, info:dict)->None:
+        """
+        Resets the information box and update it with the given information.
+
+        Parameters
+        ----------
+        info : dict
+            Information of the form: description->value.
+
+        """
+        form = ": "
+        self.listInformation.clear()
+        for line in info.items():
+            entry = form.join(line)
+            self.listInformation.addItem(entry)
 
 
     def _retrieve_fittings(self) -> list:
@@ -346,26 +371,7 @@ class UIMain(Ui_main, QObject):
         return activeFitting
 
 
-    def update_information(self, info:dict)->None:
-        """
-        Resets the information box and update it with the given information.
-
-        Parameters
-        ----------
-        info : dict
-            Information of the form: description->value.
-
-        """
-        # Init Format and clear.
-        form = ": "
-        self.listInformation.clear()
-        for line in info.items():
-            # format the entry
-            entry = form.join(line)
-            self.listInformation.addItem(entry)
-
-
-    def enable_export(self, enable:bool)->None:
+    def _enable_export(self, enable:bool)->None:
         self.actSaveRaw.setEnabled(enable)
         self.actSaveProcessed.setEnabled(enable)
 

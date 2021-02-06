@@ -51,6 +51,7 @@ class AnalysisWindow(QMainWindow):
     ### Signal
 
     signal_wavelength_difference = pyqtSignal(bool)
+    signal_file_changed = pyqtSignal(FileReader)
 
 
     ### Slots
@@ -75,10 +76,8 @@ class AnalysisWindow(QMainWindow):
     @activeFile.setter
     def activeFile(self, file:FileReader)->None:
         """activeFile setter: Updating the ui"""
-        self.window.set_fileinformation(file)
-        # Set additional information (like from asc-file). Or clear previous information.
-        self.window.update_information(file.parameter)
-        self.window.enable_export(bool(file))
+        if file != self._activeFile:
+            self.signal_file_changed.emit(file)
         self._activeFile = file
 
 
@@ -145,6 +144,7 @@ class AnalysisWindow(QMainWindow):
         win.connect_show_batch(self.batch.show)
 
         self.signal_wavelength_difference.connect(win.slot_show_diff_wavelength)
+        self.signal_file_changed.connect(win.update_fileinformation)
 
 
     ### Events
