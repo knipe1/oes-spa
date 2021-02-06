@@ -15,8 +15,8 @@ import numpy as np
 # local modules/libs
 
 # constants
-NO_ITERATION = 3;
-MAX_SHIFT_nm = 0.3;
+NO_ITERATION = 3
+MAX_SHIFT_nm = 0.3
 
 
 
@@ -27,8 +27,10 @@ class Calibration():
 
     ### __Methods__
 
-    def __init__(self, calibrationFile:str):
+    def __init__(self, calibrationFile:str)->None:
         self._logger = logging.getLogger(self.__class__.__name__)
+
+        self._shift = 0.0
 
         self.calibrationPeaks = np.loadtxt(calibrationFile)[:, 0]
         self.noPeaks = len(self.calibrationPeaks)
@@ -36,9 +38,9 @@ class Calibration():
 
     ### Methods
     def calibrate(self, xData:np.ndarray, yData:np.ndarray)->np.ndarray:
-        for i in range(NO_ITERATION):
+        for _ in range(NO_ITERATION):
             xData = self.calibrate_data(xData, yData)
-        return xData
+        return xData, self._shift
 
 
     def calibrate_data(self, xData:np.ndarray, yData:np.ndarray)->np.ndarray:
@@ -56,6 +58,7 @@ class Calibration():
 
         shift = summedIntensities.argmax() - (maxShift)
         absShift = (self.calibrationPeaks - xData[wlIndex-shift]).mean()
+        self._shift += absShift
 
         shiftedData = xData - absShift
         return shiftedData
@@ -71,7 +74,7 @@ class Calibration():
             maxShift = max(idxShift-wlIndex[i], maxShift)
         return wlIndex, maxShift
 
-
-    def find_index_with_closest_value(self, arr:np.ndarray, value:float)->int:
+    @staticmethod
+    def find_index_with_closest_value(arr:np.ndarray, value:float)->int:
         index = np.abs(arr - value).argmin()
         return index

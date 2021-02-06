@@ -106,6 +106,7 @@ class SpectrumHandler(QDialog):
         result[CHC.PEAK_AREA] = self._peakArea
         result[CHC.PEAK_HEIGHT] = self._peakHeight
         result[CHC.PEAK_POSITION] = self.peakPosition
+        result[CHC.CALIBRATION_SHIFT] = self._calibrationShift
         return result
 
 
@@ -148,6 +149,7 @@ class SpectrumHandler(QDialog):
         self._peakName = None
         self.peakPosition = None
         self._characteristicValue = None
+        self._calibrationShift = None
 
 
     def fit_data(self, fitting:Fitting)->ERR:
@@ -164,7 +166,7 @@ class SpectrumHandler(QDialog):
         calibrationFile = self.fitting.calibration
         if self.basicSetting.calibration and calibrationFile:
             calibration = Calibration(calibrationFile)
-            self.procXData = calibration.calibrate(*self.procData.transpose())
+            self.procXData, self._calibrationShift = calibration.calibrate(*self.procData.T)
 
         peakCharacteristics, integrationAreas = self._analyse_peak(peak)
         self._peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]

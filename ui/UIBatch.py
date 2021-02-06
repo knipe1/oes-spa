@@ -24,7 +24,8 @@ from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 # constants
 TRACE_SELECTION = [CHC.PEAK_AREA,
                    CHC.PEAK_HEIGHT,
-                   CHC.CHARACTERISTIC_VALUE]
+                   CHC.CHARACTERISTIC_VALUE,
+                   CHC.CALIBRATION_SHIFT]
 
 
 class UIBatch(Ui_batch, QObject):
@@ -199,5 +200,3 @@ class UIBatch(Ui_batch, QObject):
     def connect_watchdog(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnWatchdog.clicked.connect(fun)
-
-
