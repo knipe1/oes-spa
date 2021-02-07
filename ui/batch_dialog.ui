@@ -137,12 +137,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnClear">
+        <widget class="QPushButton" name="btnReset">
          <property name="enabled">
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>Clear</string>
+          <string>Reset</string>
          </property>
          <attribute name="buttonGroup">
           <string notr="true">BtnFileaction</string>
@@ -321,7 +321,7 @@
   <tabstop>btnBrowse</tabstop>
   <tabstop>foutBatchfile</tabstop>
   <tabstop>listFiles</tabstop>
-  <tabstop>btnClear</tabstop>
+  <tabstop>btnReset</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -77,7 +77,7 @@ class Spectrum():
         info["labels"] = self.labels
         info["markup"] = self._markup
         info["has Baseline"] = hasattr(self, self.BASELINE)
-        info["data length"] = f"X:{len(self.xData)}"
+        info["data length"] = f"X:{len(self.data)}"
         return self.__module__ + ":\n" + str(info)
 
 

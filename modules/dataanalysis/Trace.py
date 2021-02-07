@@ -66,7 +66,6 @@ class Trace(Spectrum):
             self.referenceTime = refTime
 
         diffTime = uni.convert_to_hours(timestamp - refTime)
-
         return diffTime
 
 

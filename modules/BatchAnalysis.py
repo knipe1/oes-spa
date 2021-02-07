@@ -3,7 +3,6 @@
 """
 Glossary:
     batchfile: The file in which the characteristic values are exported to.
-    WDdirectory: Directory which is observed by the WatchDog (WD)
 
 Note:
     When handling paths, absolute paths are used in comparisons.
@@ -62,8 +61,7 @@ class BatchAnalysis(QDialog):
 
     ### Signals
     signal_batchfile = pyqtSignal(str)
-    signal_WDdirectory = pyqtSignal(str)
-    signal_enableWD = pyqtSignal(bool)
+    signal_WDdirectory_changed = pyqtSignal(str)
     signal_file_selected = pyqtSignal(FileReader, bool)
     signal_cancel = pyqtSignal(bool)
 
@@ -103,18 +101,6 @@ class BatchAnalysis(QDialog):
         self.signal_batchfile.emit(filename)
 
 
-    @property
-    def WDdirectory(self)->str:
-        return self._WDdirectory
-
-    @WDdirectory.setter
-    def WDdirectory(self, directory:str)->None:
-        """WDdirectory setter: Updating the ui"""
-        if not path.isdir(directory):
-            return
-        self._WDdirectory = directory
-        self.signal_WDdirectory.emit(directory)
-
 
     ### __methods__
 
@@ -134,7 +120,6 @@ class BatchAnalysis(QDialog):
         # Init the props to prevent errors in the ui-init routine.
         # (SystemError: <built-in function connectSlotsByName> returned a result with an error set)
         self._batchFile = None
-        self._WDdirectory = ""
         self._thread = None
         self.currentFile = None
         self.setting = None
@@ -147,7 +132,7 @@ class BatchAnalysis(QDialog):
 
     def __post_init__(self)->None:
         self._files = FileSet(listWidget=self._window.listFiles)
-        self._dog = Watchdog(self.watchdog_event_handler)
+        self._dog = Watchdog(self._spectrum_modified_handler)
         self._traceSpectrum = Trace(self._window.plotTraceSpectrum)
 
         # Link events of the ui to methods of this class.
@@ -168,7 +153,7 @@ class BatchAnalysis(QDialog):
         self._window.connect_analyze(self.analyze)
         self._window.connect_browse_spectra(self._browse_spectra)
         self._window.connect_cancel(self.schedule_cancel_routine)
-        self._window.connect_clear(self.reset_batch)
+        self._window.connect_reset(self.reset_batch)
         self._window.connect_import_batchfile(self.import_batchfile)
         self._window.connect_set_batchfile(self._specify_batchfile)
         self._window.connect_set_watchdog_directory(self._specify_watchdog_directory)
@@ -178,8 +163,9 @@ class BatchAnalysis(QDialog):
         self._window.connect_select_file(self.open_indexed_file)
         # signals
         self.signal_batchfile.connect(self._window.slot_batchfile)
-        self.signal_WDdirectory.connect(self._window.slot_WDdirectory)
-        self.signal_enableWD.connect(self._window.slot_enableWD)
+        self.signal_WDdirectory_changed.connect(self._window.slot_WDdirectory)
+        self.signal_WDdirectory_changed.connect(self._dog.set_directory)
+        self._dog.dog_alive.connect(self._window.slot_enableWD)
         self.signal_file_selected.connect(self.parent().slot_plot_spectrum)
 
 
@@ -189,7 +175,7 @@ class BatchAnalysis(QDialog):
         """Closing the BatchAnalysis dialog to have a clear shutdown."""
         event.accept()
         self.schedule_cancel_routine()
-        self._deactivate_watchdog()
+        self._dog.trigger_status(False)
 
 
     def keyPressEvent(self, event)->None:
@@ -242,8 +228,8 @@ class BatchAnalysis(QDialog):
 
     ### Watchdog routines
 
-    def watchdog_event_handler(self, pathname:str)->None:
-        self._logger.info("WD: Spectrum file modified/added: %s", pathname)
+    def _spectrum_modified_handler(self, pathname:str)->None:
+        self._logger.info("Spectrum file modified/added: %s", pathname)
         isOk = self.analyze_single_file(pathname)
         if not isOk:
             return
@@ -253,34 +239,7 @@ class BatchAnalysis(QDialog):
 
     def _toggle_watchdog(self, status:bool)->None:
         """Sets the Watchdog to the given status. (Activate if status is True)."""
-        if status:
-            self._activate_watchdog()
-        else:
-            self._deactivate_watchdog()
-
-
-    def _has_valid_WD_settings(self)->bool:
-        isWDdir = path.isdir(self.WDdirectory) or self._logger.info("Invalid WD directory!")
-        batchPath, _, _ = uni.extract_path_basename_suffix(self.batchFile)
-        isBatchdir = path.isdir(batchPath) or self._logger.info("Invalid batch directory!")
-        isValid = (isWDdir and isBatchdir)
-        return isValid
-
-
-    def _activate_watchdog(self)->None:
-        """Activates the WD if path is valid."""
-        if not self._has_valid_WD_settings():
-            self.signal_enableWD.emit(True)
-            return
-
-        WDpath = self.WDdirectory
-        self._dog.start(WDpath)
-        self.signal_enableWD.emit(False)
-
-
-    def _deactivate_watchdog(self)->None:
-        self._dog.stop()
-        self.signal_enableWD.emit(True)
+        self._dog.trigger_status(status, self.batchFile)
 
 
     ### Methods/Analysis
@@ -386,7 +345,8 @@ class BatchAnalysis(QDialog):
     def _specify_watchdog_directory(self)->None:
         """Specifies the watchdog directory through a dialog."""
         directory = dialog.dialog_watchdogDirectory()
-        self.WDdirectory = directory
+        if path.isdir(directory):
+            self.signal_WDdirectory_changed.emit(directory)
 
 
     def _browse_spectra(self)->None:

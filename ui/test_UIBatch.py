@@ -62,7 +62,7 @@ class TestUIBatch(unittest.TestCase):
         self.assertTrue(self.form.foutBatchfile.isEnabled())
         self.assertTrue(self.form.listFiles.isEnabled())
 
-        self.assertTrue(self.form.btnClear.isEnabled())
+        self.assertTrue(self.form.btnReset.isEnabled())
         # check boxes
         self.assertTrue(self.form.cbPeakHeight.isEnabled())
         self.assertTrue(self.form.cbPeakArea.isEnabled())

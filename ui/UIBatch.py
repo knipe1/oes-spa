@@ -91,9 +91,9 @@ class UIBatch(Ui_batch, QObject):
 
     @Slot(bool)
     def slot_enableWD(self, status:bool)->None:
-        self.btnSetWatchdogDir.setEnabled(status)
-        self.btnSetFilename.setEnabled(status)
-        self.btnWatchdog.setChecked(not status)
+        self.btnSetWatchdogDir.setEnabled(not status)
+        self.btnSetFilename.setEnabled(not status)
+        self.btnWatchdog.setChecked(status)
 
 
     @Slot(float)
@@ -167,9 +167,9 @@ class UIBatch(Ui_batch, QObject):
         self.foutBatchfile.textChanged.connect(fun)
 
 
-    def connect_clear(self, fun)->None:
+    def connect_reset(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
-        self.btnClear.clicked.connect(fun)
+        self.btnReset.clicked.connect(fun)
 
 
     def connect_import_batchfile(self, fun)->None:
