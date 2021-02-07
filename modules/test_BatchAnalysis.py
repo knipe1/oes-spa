@@ -43,7 +43,7 @@ class TestBatchAnalysis(unittest.TestCase):
         cls.window.batch.show()
         # # variables
         cls.batch = cls.window.batch
-        cls.form = cls.window.batch.window
+        cls.form = cls.window.batch._window
 
     @classmethod
     def tearDownClass(cls):

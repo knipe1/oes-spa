@@ -103,12 +103,16 @@ class BaReader(BaseReader):
         line = kwargs.get("line")
         xColumnName = self.defaultBatchXColumn
         yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
-        self.xColumn, self.yColumn, self.peakColumn = determine_batch_column_indeces(line, xColumnName, yColumnName, self.nameColumn)
+        self.xColumn, self.yColumn, self.peakColumn = self.determine_batch_column_indeces(line, xColumnName, yColumnName, self.nameColumn)
 
 
-    def join_information(self, timeInfo:str, data:list, parameter:dict=None)->dict:
+    def join_information(self, timeInfo:str, data:dict, parameter:dict=None)->dict:
+        try:
+            peaks = data.keys()
+        except AttributeError:
+            peaks = {}
 
-        for peak in data.keys():
+        for peak in peaks:
             data[peak] = super().list_to_2column_array(data[peak])
 
         information = {}
@@ -118,38 +122,45 @@ class BaReader(BaseReader):
         return information
 
 
+    def determine_batch_column_indeces(self, dataHeader:list, xColumnName:str, yColumnName:str, nameColumn:str)->(int, int, int):
+        """
 
-def determine_batch_column_indeces(dataHeader:list, xColumnName:str, yColumnName:str, nameColumn:str)->(int, int, int):
-    """
 
+        Parameters
+        ----------
+        dataHeader : list
+            Contains the header information of the batch file.
+        xColumnName : str
+            Name of the header information, which contains the y-data.
+        yColumnName : str
+            Name of the header information, which contains the y-data.
+        nameColumn : str
+            Name of the header information, which contains the peak information.
 
-    Parameters
-    ----------
-    dataHeader : list
-        Contains the header information of the batch file.
-    xColumnName : str
-        Name of the header information, which contains the y-data.
-    yColumnName : str
-        Name of the header information, which contains the y-data.
-    nameColumn : str
-        Name of the header information, which contains the peak information.
+        Returns
+        -------
+        xColumn : int
+            Index of the column which contains the x-values.
+        yColumn : int
+            Index of the column which contains the y-values.
+        peakColumn : int
+            Index of the column which contains the peak name.
 
-    Returns
-    -------
-    xColumn : int
-        Index of the column which contains the x-values.
-    yColumn : int
-        Index of the column which contains the y-values.
-    peakColumn : int
-        Index of the column which contains the peak name.
+        """
+        # Filter allows to search for characteristic value, because
+        # the specific name of that peak is added to the static value.
+        wildcard = "*"
+        wildColumnName = yColumnName + wildcard
+        yColumn = dataHeader.index(fnmatch.filter(dataHeader, wildColumnName)[0])
 
-    """
-    # Filter allows to search for characteristic value, because
-    # the specific name of that peak is added to the static value.
-    wildcard = "*"
-    wildColumnName = yColumnName + wildcard
-    yColumn = dataHeader.index(fnmatch.filter(dataHeader, wildColumnName)[0])
-    xColumn = dataHeader.index(xColumnName)
-    peakColumn = dataHeader.index(nameColumn)
+        try:
+            xColumn = dataHeader.index(xColumnName)
+        except ValueError:
+            xColumn = self.xColumn
 
-    return xColumn, yColumn, peakColumn
+        try:
+            peakColumn = dataHeader.index(nameColumn)
+        except ValueError:
+            peakColumn = self.peakColumn
+
+        return xColumn, yColumn, peakColumn

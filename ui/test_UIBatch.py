@@ -37,7 +37,7 @@ class TestUIBatch(unittest.TestCase):
         self.window.batch.show()
         # # variables
         self.batch = self.window.batch
-        self.form = self.window.batch.window
+        self.form = self.window.batch._window
 
 
     @classmethod

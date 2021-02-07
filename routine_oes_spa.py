@@ -107,15 +107,15 @@ def main():
         # # in case of file already exists
         # yes = THR.Thread(target=emu.key_alt_j)
         # yes.start()
-        window.batch.window.btnSetFilename.click()
+        window.batch._window.btnSetFilename.click()
 
     if selectBatchSpectra:
         window.window.wavelength = "433.1"
         selection = THR.Thread(target=emu.key_select_file, args=[noFiles])
         selection.start()
         window.batch._browse_spectra()
-        window.batch.window.radTrace.click()
-        window.batch.window.btnAnalyze.click()
+        window.batch._window.radTrace.click()
+        window.batch._window.btnAnalyze.click()
 
     if hideBatch:
         window.batch.hide()
@@ -124,10 +124,10 @@ def main():
     if activateWD:
         enter = THR.Thread(target=emu.key_accept)
         enter.start()
-        window.batch.window.btnSetWatchdogDir.click()
+        window.batch._window.btnSetWatchdogDir.click()
 
         # Activate WD
-        window.batch.window.btnWatchdog.click()
+        window.batch._window.btnWatchdog.click()
 
     sys.exit(app.exec_())
 

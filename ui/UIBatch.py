@@ -42,7 +42,7 @@ class UIBatch(Ui_batch, QObject):
     ### Properties
 
     @property
-    def currentTraceValue(self)->str:
+    def traceSelection(self)->str:
         """Gets the current selection of cmbTrace"""
         return self.cmbTrace.currentText()
 
@@ -63,7 +63,7 @@ class UIBatch(Ui_batch, QObject):
             uiElement = self.cmbTrace
             uiElement.clear()
             uiElement.addItems(traceValues.values())
-        except:
+        except Exception:
             pass
 
 

@@ -12,6 +12,7 @@ class: FileSet
 from dependencies.natsort.natsort import natsorted
 
 # local modules/libs
+import modules.Universal as uni
 
 # Enums
 
@@ -62,15 +63,24 @@ class FileSet(set):
         self._listWidget.clear()
 
 
-    def update(self, s:set, noSelection:bool=False)->None:
+    def update(self, files:set, noSelection:bool=False)->None:
         """Updates the set AND updates the ui."""
         filename = None
         index = self.current_row
         if not noSelection and index >= 0:
             filename = self[index]
 
-        super().update(s)
+        files = self.validate(files)
+        super().update(files)
         self.update_ui(filename=filename)
+
+
+    def validate(self, files:set):
+        for file in files:
+            if not uni.is_valid_suffix(file):
+                files.remove(file)
+        return files
+
 
 
     def remove(self, t:str)->None:

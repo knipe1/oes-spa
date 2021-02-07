@@ -57,8 +57,9 @@ class AnalysisWindow(QMainWindow):
     ### Slots
 
     @pyqtSlot(str)
-    def slot_plot_spectrum(self, file:str)->None:
-        self.apply_file(file, silent=True)
+    @pyqtSlot(FileReader, bool)
+    def slot_plot_spectrum(self, file:str, silent_:bool=True)->None:
+        self.apply_file(file, silent=silent_)
 
 
     @pyqtSlot()
