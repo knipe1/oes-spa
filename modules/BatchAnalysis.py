@@ -83,6 +83,7 @@ class BatchAnalysis(QDialog):
     @pyqtSlot(str)
     def slot_valid_file(self, filename:str)->None:
         self._files.update([filename], noSelection=True)
+        # self._files.select_row_by_filename(pathname)
 
 
     ### Properties
@@ -149,6 +150,7 @@ class BatchAnalysis(QDialog):
     ### methods
 
     def _set_connections(self)->None:
+        """Set Signal-Slot connections."""
         # buttons
         self._window.connect_analyze(self.analyze)
         self._window.connect_browse_spectra(self._browse_spectra)
@@ -157,7 +159,7 @@ class BatchAnalysis(QDialog):
         self._window.connect_import_batchfile(self.import_batchfile)
         self._window.connect_set_batchfile(self._specify_batchfile)
         self._window.connect_set_watchdog_directory(self._specify_watchdog_directory)
-        self._window.connect_watchdog(self._toggle_watchdog)
+        self._window.connect_watchdog(self._trigger_watchdog)
         # change events
         self._window.connect_change_trace(self.import_batchfile)
         self._window.connect_select_file(self.open_indexed_file)
@@ -201,7 +203,8 @@ class BatchAnalysis(QDialog):
             return
 
 
-    def dragEnterEvent(self, event)->None:
+    @staticmethod
+    def dragEnterEvent(event)->None:
         """Note: Validation takes place in dropEvent-handler."""
         event.accept()
 
@@ -216,7 +219,6 @@ class BatchAnalysis(QDialog):
 
     def _drop_invalid_urls(self, urls:list)->set:
         validUrls = set(urls)
-
         try:
             validUrls.remove(None)
             dialog.critical_unknownSuffix(parent=self)
@@ -230,14 +232,10 @@ class BatchAnalysis(QDialog):
 
     def _spectrum_modified_handler(self, pathname:str)->None:
         self._logger.info("Spectrum file modified/added: %s", pathname)
-        isOk = self.analyze_single_file(pathname)
-        if not isOk:
-            return
-        self.update_filelist([pathname])
-        # self._files.select_row_by_filename(pathname)
+        self.analyze_single_file(pathname)
 
 
-    def _toggle_watchdog(self, status:bool)->None:
+    def _trigger_watchdog(self, status:bool)->None:
         """Sets the Watchdog to the given status. (Activate if status is True)."""
         self._dog.trigger_status(status, self.batchFile)
 
