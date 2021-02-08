@@ -157,6 +157,7 @@ class BatchAnalysis(QDialog):
         self._window.connect_cancel(self.schedule_cancel_routine)
         self._window.connect_reset(self.reset_batch)
         self._window.connect_import_batchfile(self.import_batchfile)
+        self._window.connect_refresh(self.import_batchfile)
         self._window.connect_set_batchfile(self._specify_batchfile)
         self._window.connect_set_watchdog_directory(self._specify_watchdog_directory)
         self._window.connect_watchdog(self._trigger_watchdog)
@@ -282,7 +283,7 @@ class BatchAnalysis(QDialog):
 
 
     def import_batchfile(self, takeCurrentBatchfile:bool=False)->None:
-
+        print("ASDASDADASDASD", takeCurrentBatchfile)
         # Select the file from which the data shall be imported.
         filename = self._determine_batchfile(takeCurrentBatchfile)
         if not filename:

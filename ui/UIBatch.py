@@ -6,9 +6,8 @@ Created on Fri Jan 24 12:00:10 2020
 @author: Hauke Wernecke
 """
 
-# TODO: get_defaults?
-
 # standard libs
+import functools as fct
 
 # third-party libs
 from PyQt5.QtCore import QObject, Slot
@@ -188,8 +187,13 @@ class UIBatch(Ui_batch, QObject):
 
 
     def connect_change_trace(self, fun)->None:
-        """Interface to connect fun to clicked signal of the button."""
+        """Interface to connect fun to text changed signal of the combobox."""
         self.cmbTrace.currentTextChanged.connect(fun)
+
+
+    def connect_refresh(self, fun)->None:
+        """Interface to connect fun to clicked signal of the button."""
+        self.btnRefresh.clicked.connect(fct.partial(fun, True))
 
 
     def connect_set_watchdog_directory(self, fun)->None:
