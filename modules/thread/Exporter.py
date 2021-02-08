@@ -59,8 +59,12 @@ class Exporter(Worker):
                 skippedFiles.append(file)
                 continue
 
+
+
+
+
             try:
-                specHandler = SpectrumHandler(self.currentFile, self._setting)
+                specHandler = SpectrumHandler(self.currentFile, self._setting, useWLofFile=True)
             except InvalidSpectrumError:
                 skippedFiles.append(file)
                 continue

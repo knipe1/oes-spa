@@ -272,7 +272,6 @@ class BatchAnalysis(QDialog):
             self.signal_cancel.connect(self._thread.slot_cancel)
             self._thread.plot(files)
 
-
         if isExportBatch:
             self._thread = Exporter()
             self.signal_cancel.connect(self._thread.slot_cancel)

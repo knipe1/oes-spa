@@ -64,7 +64,7 @@ class FileReader(FileFramework):
     timestamp : datetime or None
         Date and Time formatted as defined in the configuration.
     data : nunpy.array
-        Concats the x- & y-data. First column: x; second column: y.
+        Concats the x- & y-data. First column: x second column: y.
     WAVELENGTH : str
         The wavelength if specified in the paramter of the file.
 
@@ -104,7 +104,7 @@ class FileReader(FileFramework):
         try:
             wl = self.parameter[ASC.WL.value]
         except KeyError:
-            raise ParameterNotSetError
+            raise ParameterNotSetError from KeyError
         return float(wl)
 
 
@@ -203,15 +203,15 @@ class FileReader(FileFramework):
     def has_valid_frame(self):
         # Filetype.
         if not self.subReader:
-            return ERR.UNKNOWN_FILETYPE;
+            return ERR.UNKNOWN_FILETYPE
 
         # Data in general.
         if self.data is None or not len(self.data):
-            return ERR.INVALID_DATA;
+            return ERR.INVALID_DATA
 
         # Check file information.
         if not self.timeInfo:
-            return ERR.INVALID_FILEINFORMATION;
+            return ERR.INVALID_FILEINFORMATION
 
         return ERR.OK
 

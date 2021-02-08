@@ -17,10 +17,10 @@ from modules.dataanalysis.Fitting import Fitting
 
 @dataclass
 class BasicSetting():
-    wavelength: float;
-    dispersion: float;
-    selectedFitting: Fitting;
-    checkedFittings:list;
-    baselineCorrection: bool;
-    normalizeData: bool;
-    calibration: bool;
+    wavelength: float
+    dispersion: float
+    selectedFitting: Fitting
+    checkedFittings:list
+    baselineCorrection: bool
+    normalizeData: bool
+    calibration: bool

@@ -15,6 +15,7 @@ from c_types.BasicSetting import BasicSetting
 # Enums
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
+
 def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileReader)->tuple:
     data = []
     header = []
