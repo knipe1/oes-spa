@@ -5,7 +5,7 @@ PEAKS:
     centralWavelength: 388.26
     shiftDown: .07
     shiftUp:  .04
-    normalizationFactor: 1800
+    normalizationFactor: 180
     normalizationOffset: 0
     reference:
         centralWavelength: 388.85
