@@ -44,6 +44,7 @@ class Trace(Spectrum):
         for peak in self.data.keys():
             self._markup["label"] = peak
             self._ui.axes.plot(*self.data[peak].T, **self._markup)
+        # self._ui.draw(zoomOn=self.data[peak][:, 0])
         self._ui.draw()
 
 

@@ -3,6 +3,7 @@
 
 # standard libs
 import matplotlib.pyplot as mpl
+import numpy as np
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Toolbar
@@ -42,18 +43,12 @@ class MplCanvas(Canvas):
             print(err)
 
 
-    def update_layout(self, xLabel=None, yLabel=None, xLimit=None)->None:
+    def update_layout(self, xLabel=None, yLabel=None)->None:
         """Updates the general layout with (optional) properties."""
-
-        axes = self.axes
-
         if xLabel:
-            axes.set_xlabel(xLabel)
+            self.axes.set_xlabel(xLabel)
         if yLabel:
-            axes.set_ylabel(yLabel)
-
-        if xLimit:
-            axes.set_xlim(*xLimit)
+            self.axes.set_ylabel(yLabel)
 
 
 
@@ -68,12 +63,13 @@ class MatplotlibWidget(QWidget):
         self.setLayout(self.vbl)
 
 
-    def draw(self)->None:
+    def draw(self, zoomOn:np.ndarray=None)->None:
         """Draw the plot immediately."""
         if self.axes.get_legend_handles_labels()[0]:
             self.axes.legend()
 
-        self.center_plot()
+        if not zoomOn is None:
+            self.center_plot(zoomOn)
         self.canvas.draw()
 
         # Refactored - events were flushed in BatchAnalysis also allow to
@@ -81,11 +77,10 @@ class MatplotlibWidget(QWidget):
         # self.canvas.flush_events()
 
 
-    def center_plot(self)->None:
+    def center_plot(self, zoomOn:np.ndarray)->None:
         """Center the plot to the current data."""
-        xData = self.axes.lines[-1].get_xdata()
-        left = xData[0]
-        right = xData[-1]
+        left = zoomOn.min()
+        right = zoomOn.max()
         if left < right:
             self.axes.set_xlim((left, right))
 

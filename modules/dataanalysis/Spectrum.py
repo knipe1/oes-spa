@@ -133,11 +133,11 @@ class Spectrum():
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
+        self._ui.axes.plot(*self.data.T, **self._markup)
         self.plot_baseline()
         self.plot_integration_areas()
         self.plot_calibration_peaks()
-        self._ui.axes.plot(*self.data.T, **self._markup)
-        self._ui.draw()
+        self._ui.draw(zoomOn=self.xData)
 
 
     def plot_baseline(self)->None:

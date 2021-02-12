@@ -116,8 +116,8 @@ class FileReader(FileFramework):
         self.set_defaults()
         self.subReader = self.determine_subReader()
 
-        self.__post_init__(**kwargs)
         self._logger.info("Read file: %s", self.filename)
+        self.__post_init__(**kwargs)
 
 
     def __post_init__(self, **kwargs):
@@ -221,6 +221,8 @@ class FileReader(FileFramework):
 
 
     def read_file(self, **kwargs)->ERR:
+        if not self.subReader:
+            return
 
         with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,

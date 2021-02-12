@@ -92,9 +92,10 @@ def reduce_path(path:str)->str:
         (directory + filename)
 
     """
-    dirName = os.path.dirname(path)
+    completePath = os.path.dirname(path)
+    parentDir = os.path.basename(completePath)
     filename = os.path.basename(path)
-    filepath = dirName + os.sep + filename
+    filepath = parentDir + os.sep + filename
     return filepath
 
 
