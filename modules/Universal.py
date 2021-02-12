@@ -83,19 +83,20 @@ def reduce_paths(urls:list)->str:
         yield reduce_path(path)
 
 
-def reduce_path(path:list)->str:
+def reduce_path(path:str)->str:
     """
     Reduces the url to the filename and the directory.
 
     Returns
     -------
-        (.. + directory + filename)
+        (directory + filename)
 
     """
-    prefix = ".." + os.sep
-    dirName = os.path.dirname(os.path.dirname(path))
-    relativeFilepath = os.path.relpath(path, dirName)
-    return prefix + relativeFilepath
+    dirName = os.path.dirname(path)
+    filename = os.path.basename(path)
+    filepath = dirName + os.sep + filename
+    return filepath
+
 
 
 #%% time

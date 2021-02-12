@@ -89,7 +89,7 @@ class Spectrum():
 
 
     def set_data(self, xyData:np.ndarray, integrationAreas:list=None,
-                 baselineData:np.ndarray=None)->None:
+                 baselineData:np.ndarray=None, calibrationPeaks:np.ndarray=None)->None:
         """
         Updates the data of the spectrum.
 
@@ -97,6 +97,11 @@ class Spectrum():
         """
         self.data = xyData
         self.integrationAreas = integrationAreas or []
+        if calibrationPeaks is None:
+            self._calibrationPeaks = []
+        else:
+            self._calibrationPeaks = calibrationPeaks
+
         if not baselineData is None:
             self.add_baseline(baselineData)
 
@@ -128,9 +133,10 @@ class Spectrum():
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
-        self._ui.axes.plot(*self.data.T, **self._markup)
         self.plot_baseline()
         self.plot_integration_areas()
+        self.plot_calibration_peaks()
+        self._ui.axes.plot(*self.data.T, **self._markup)
         self._ui.draw()
 
 
@@ -146,6 +152,12 @@ class Spectrum():
         for intArea in self.integrationAreas:
             col = self.determine_color(intArea)
             self._ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
+
+
+    def plot_calibration_peaks(self)->None:
+        for peak in self._calibrationPeaks:
+            self._ui.axes.axvline(peak, ls="--")
+
 
 
     ### static methods

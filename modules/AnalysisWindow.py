@@ -30,6 +30,7 @@ from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 # enums
 from c_types.BasicSetting import BasicSetting
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
 # constants
 
@@ -293,8 +294,10 @@ class AnalysisWindow(QMainWindow):
             self.signal_wavelength_difference.emit(hasDifferentWl)
 
 
-    def _update_spectra(self, spectrumHandler:SpectrumHandler)->None:
-        rawIntegration, procIntegration = spectrumHandler.get_integration_areas()
+    def _update_spectra(self, specHandler:SpectrumHandler)->None:
+        rawIntegration, procIntegration = specHandler.get_integration_areas()
 
-        self.rawSpectrum.set_data(spectrumHandler.rawData, integrationAreas=rawIntegration, baselineData=spectrumHandler.baseline)
-        self.processedSpectrum.set_data(spectrumHandler.procData, integrationAreas=procIntegration)
+        self.rawSpectrum.set_data(specHandler.rawData, integrationAreas=rawIntegration,
+                                  baselineData=specHandler.baseline)
+        self.processedSpectrum.set_data(specHandler.procData, integrationAreas=procIntegration,
+                                        calibrationPeaks=specHandler.results[CHC.CALIBRATION_PEAKS])

@@ -8,7 +8,7 @@ FITTING:
   - Methan Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Boron Peak Fitting
+  PRESELECT_FITTING: Example Fitting
 GENERAL:
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 PLOT:
