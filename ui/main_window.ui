@@ -94,16 +94,23 @@
          </item>
          <item>
           <widget class="QLineEdit" name="tinCentralWavelength">
-           <property name="inputMask">
-            <string comment="9900"/>
-           </property>
            <property name="text">
             <string>433</string>
            </property>
-           <property name="readOnly">
-            <bool>false</bool>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblDispersion">
+           <property name="text">
+            <string>Dispersion (nm/px):</string>
+           </property>
+           <property name="buddy">
+            <cstring></cstring>
            </property>
           </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="tinDispersion"/>
          </item>
          <item>
           <widget class="QLabel" name="lblFitting">
@@ -157,6 +164,13 @@
            </property>
            <property name="checked">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbCalibration">
+           <property name="text">
+            <string>Enable Calibration</string>
            </property>
           </widget>
          </item>
@@ -244,9 +258,6 @@
          </item>
          <item>
           <widget class="QLineEdit" name="toutBaseline">
-           <property name="text">
-            <string/>
-           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -983,7 +994,6 @@ wavelength!</string>
     <addaction name="actOpen"/>
     <addaction name="menuSave"/>
     <addaction name="separator"/>
-    <addaction name="actQuit"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -998,19 +1008,6 @@ wavelength!</string>
   <action name="actOpen">
    <property name="text">
     <string>&amp;Open</string>
-   </property>
-  </action>
-  <action name="actRedraw">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Redraw Curves</string>
-   </property>
-  </action>
-  <action name="actQuit">
-   <property name="text">
-    <string>&amp;Quit</string>
    </property>
   </action>
   <action name="actOpenBatch">
@@ -1034,11 +1031,6 @@ wavelength!</string>
     <string>Fitted result</string>
    </property>
   </action>
-  <action name="actionAuthor">
-   <property name="text">
-    <string>Author</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1059,24 +1051,7 @@ wavelength!</string>
   <tabstop>toutPeakArea</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>actQuit</sender>
-   <signal>triggered()</signal>
-   <receiver>main</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>412</x>
-     <y>379</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <designerdata>
   <property name="gridDeltaX">
    <number>10</number>

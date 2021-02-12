@@ -11,21 +11,23 @@ Created on Thu Apr  9 10:51:31 2020
 #   https://doc.qt.io/qt-5/qcombobox.html
 
 # standard libs
+import logging
 
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-from Logger import Logger
-from c_types.Peak import Peak
+from loader.ConfigLoader import ConfigLoader
 
 # Enums
 from c_enum.ERROR_FITTING import ERROR_FITTING as ERR_FIT
+from c_types.Peak import Peak
 
 
 # constants
 NO_NAME_DEFINED = "No name provided!"
 
+# Load the configuration for fitting properties.
+FITTING = ConfigLoader().FITTING
 
 
 class Fitting():
@@ -37,11 +39,6 @@ class Fitting():
 
     """
 
-    # Load the configuration for fitting properties.
-    config = ConfigLoader()
-    FITTING = config.FITTING;
-
-
     ### Properties
 
     @property
@@ -50,102 +47,124 @@ class Fitting():
 
     @peak.setter
     def peak(self, peak)->None:
-        self.set_peak_reference(peak)
         self._peak = peak
+        if not peak is None:
+            self.check_peak_reference(peak)
 
 
     @property
-    def errCode(self) -> str:
+    def errCode(self)->str:
         error = self._errCode
         if error:
             error += "!"
         return error
 
     @errCode.setter
-    def errCode(self, code:ERR_FIT):
+    def errCode(self, code:ERR_FIT)->None:
         self._errCode = code
 
 
     ## __methods__
 
-    def __init__(self, fitting):
-        # Set up the logger.
-        self.logger = Logger(__name__)
+    def __init__(self, fitting:dict)->None:
+        self._logger = logging.getLogger(self.__class__.__name__)
 
-        self.fitting = fitting
-        self.errCode = ERR_FIT.OK.value
+        self.reset_errorcode()
 
-        name, peakParameter = self.extract_parameter(fitting)
+        name, calibration, peakParameter = extract_parameter(fitting)
 
         self.name = name
-        self.peak = self.set_peak(peakParameter)
+        self.calibration = calibration
+        try:
+            self.peak = self.set_peak(**peakParameter)
+        except TypeError:
+            self.peak = None
+            self.update_errorcode_fitting()
 
 
     def __repr__(self):
         info = {}
-        info["Fitting"] = self.fitting
+        info["Name"] = self.name
+        info["Calibration"] = self.calibration
+        info["Peak"] = self.peak
         return self.__module__ + ":\n" + str(info)
 
 
     ## methods
 
-    def extract_parameter(self, fitting:dict)->dict:
-
-        fittingName = self.extract_fitting_name(fitting)
-        peakParameter = self.extract_peak_parameter(fitting)
-
-        return fittingName, peakParameter
-
-
-    def extract_fitting_name(self, fitting:dict):
-        name = fitting.get("NAME", NO_NAME_DEFINED)
-        return name
-
-
-    def extract_peak_parameter(self, fitting:dict):
+    def set_peak(self, **kwargs)->Peak:
         try:
-            peakParameter = fitting["PEAKS"]
-            return peakParameter
-        except KeyError:
-            # In case of PEAKS is not defined:
-            # KeyError: type object argument after ** must be a mapping, not NoneType
-            self.update_errorcode_fitting()
-
-
-    def set_peak(self, peakParameter:dict)->Peak:
-        try:
-            peak = Peak(**peakParameter)
-            return peak
+            peak = Peak(**kwargs)
+            if not peak.isValid:
+                self.update_errorcode_peak()
         except TypeError:
             # In case an argument is not defined e.g.:
             # TypeError: __init__() missing 1 required positional argument: 'centralWavelength'
             self.update_errorcode_peak()
+            peak = None
+        return peak
 
 
-    def set_peak_reference(self, peak:Peak):
+    def check_peak_reference(self, peak:Peak)->None:
         try:
-            if peak.reference is None:
-                # 1. Invalid defined reference -> Error code.
-                self.update_errorcode_reference()
-            else:
-                # 2. No reference defined, which is valid.
-                self.reference = peak.reference
-        except AttributeError:
-            self.logger.info("No reference peak defined.")
+            hasValidReference = peak.has_valid_reference()
+        except ValueError:
+            self.update_errorcode_reference()
+            return
+
+        if hasValidReference is None:
+            self._logger.info("No reference peak defined.")
+        elif not hasValidReference:
+            self.update_errorcode_reference()
 
 
-    ## update errorcode methods
+    ## update errorcode/validation methods
 
-    def update_errorcode_fitting(self):
+    def is_valid(self)->bool:
+        err = bool(self.errCode)
+        return not err
+
+
+    def update_errorcode_fitting(self)->None:
         self.errCode += ERR_FIT.FITTING.value
-        self.logger.error("Error: Fitting has an error!")
+        self._logger.error("Error: Fitting has an error!")
 
 
-    def update_errorcode_peak(self):
+    def update_errorcode_peak(self)->None:
         self.errCode += ERR_FIT.PEAK.value
-        self.logger.error("Error: Peak is not properly defined!")
+        self._logger.error("Error: Peak is not properly defined!")
 
 
-    def update_errorcode_reference(self):
+    def update_errorcode_reference(self)->None:
         self.errCode += ERR_FIT.REFERENCE.value
-        self.logger.warning("Invalid reference peak defined.")
+        self._logger.warning("Invalid reference peak defined.")
+
+
+    def reset_errorcode(self)->None:
+        self.errCode = ERR_FIT.OK.value
+
+
+def extract_parameter(fitting:dict)->dict:
+
+    fittingName = extract_fitting_name(fitting)
+    calibration = extract_calibration(fitting)
+    peakParameter = extract_peak_parameter(fitting)
+
+    return fittingName, calibration, peakParameter
+
+
+def extract_fitting_name(fitting:dict)->str:
+    name = fitting.get("NAME", NO_NAME_DEFINED)
+    return name
+
+
+def extract_calibration(fitting:dict)->str:
+    calibration = fitting.get("CALIBRATION")
+    if calibration:
+        calibration = FITTING["DIR"] + calibration
+    return calibration
+
+
+def extract_peak_parameter(fitting:dict)->dict:
+    peakParameter = fitting.get("PEAKS")
+    return peakParameter

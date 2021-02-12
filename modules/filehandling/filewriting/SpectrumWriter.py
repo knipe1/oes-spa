@@ -9,6 +9,7 @@ Created on Fri Sep 25 09:39:36 2020
 # standard libs
 import csv
 from os import path
+from datetime import datetime
 
 # third-party libs
 
@@ -20,27 +21,19 @@ from modules.dataanalysis.Spectrum import Spectrum
 
 # Enums
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
 PROCESSED_APPENDIX = "_processed"
 RAW_APPENDIX = "_raw"
+EXPORT_SUFFIX = SUFF.CSV
 
 
 class SpectrumWriter(FileWriter):
 
-    def __init__(self, filename, timestamp):
-        filename = uni.replace_suffix(filename)
-
-        super().__init__(filename, name=__name__)
-        self.timestamp = timestamp
-        self.dialect = self.csvDialect
-
-
-    def __repr__(self):
-        info = {}
-        info["filename"] = self.filename
-        info["Timestamp"] = self.timestamp
-        return self.__module__ + ":\n" + str(info)
+    def __init__(self, filename:str, timestamp:datetime):
+        filename = uni.replace_suffix(filename, suffix=EXPORT_SUFFIX)
+        super().__init__(filename, timestamp)
 
 
     def export(self, spectrum:Spectrum, extraInformation:dict=None)->str:
@@ -62,11 +55,6 @@ class SpectrumWriter(FileWriter):
         super().export(exportFilename, data, columnTitles, extraInformation)
 
         return exportFilename
-
-
-    def write_data(self, fWriter:csv.writer, data:list)->None:
-        fWriter.writerow([self.MARKER["DATA"]])
-        fWriter.writerows(data)
 
 
     def assemble_export_filename(self, exportType:EXPORT_TYPE)->str:

@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Nov  4 21:39:59 2020
+class: Trace
 
 @author: hauke
 """
 
 # standard libs
-import numpy as np
+import logging
 from datetime import datetime
+import numpy as np
 
 # third-party libs
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-from Logger import Logger
 from modules.dataanalysis.Spectrum import Spectrum
 import modules.Universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
-
 # Enums
-from c_types.Integration import Integration
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 from c_enum.EXPORT_TYPE import EXPORT_TYPE
 
 
@@ -39,37 +35,28 @@ class Trace(Spectrum):
 
 
     def __init__(self, uiElement:MatplotlibWidget):
-        super().__init__(uiElement, EXPORT_TYPE.BATCH, name=__name__)
+        super().__init__(uiElement, EXPORT_TYPE.BATCH)
 
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
 
         for peak in self.data.keys():
-            self.markup["label"] = peak
-            xData = self.data[peak][:, 0]
-            yData = self.data[peak][:, 1]
-            self.ui.axes.plot(xData, yData, **self.markup);
-
-        self.center_plot(xData)
-        self.ui.draw()
+            self._markup["label"] = peak
+            self._ui.axes.plot(*self.data[peak].T, **self._markup)
+        # self._ui.draw(zoomOn=self.data[peak][:, 0])
+        self._ui.draw()
 
 
-    def center_plot(self, xData)->None:
-        leftLimit = xData[0]
-        rightLimit = xData[-1]
-        isSingleValue = (leftLimit == rightLimit)
-        if not isSingleValue:
-            self.ui.axes.update_layout(xLimit=(leftLimit, rightLimit));
+    def reset_data(self):
+        self.set_data({})
 
 
     ## Calculation
 
-    def reset_time(self)->None:
-        try:
-            del self.referenceTime
-        except AttributeError:
-            pass
+    def calculate_time_differences(self, timestamps:tuple)->np.ndarray:
+        diffTimes = [self.get_timediff_H(timestamp) for timestamp in timestamps]
+        return np.array(diffTimes)
 
 
     def get_timediff_H(self, timestamp:datetime)->None:
@@ -80,8 +67,14 @@ class Trace(Spectrum):
             self.referenceTime = refTime
 
         diffTime = uni.convert_to_hours(timestamp - refTime)
-
         return diffTime
+
+
+    def reset_time(self)->None:
+        try:
+            del self.referenceTime
+        except AttributeError:
+            pass
 
 
 
@@ -89,19 +82,20 @@ class Trace(Spectrum):
 
     def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
         try:
+            # Handle incomplete/incorrect spectra.
             relativeTime = self.get_timediff_H(timestamp)
         except TypeError:
             return
-        reducedFilename = ''.join(uni.reduce_path([filename]))
-        self.remove_recording()
+        reducedFilename = uni.reduce_path(filename)
+        self._remove_recording()
         markup = {"color": self.PLOT["REFERENCE_COLOR"],
                   "linestyle": self.PLOT["REFERENCE_LINESTYLE"],
                   "label": reducedFilename,}
-        self.recordingPlot = self.ui.axes.axvline(x=relativeTime, **markup)
-        self.ui.draw()
+        self.recordingPlot = self._ui.axes.axvline(x=relativeTime, **markup)
+        self._ui.draw()
 
 
-    def remove_recording(self)->None:
+    def _remove_recording(self)->None:
         try:
             self.recordingPlot.remove()
         except AttributeError:
@@ -111,5 +105,3 @@ class Trace(Spectrum):
     def set_custom_yLabel(self, label:str)->None:
         arbitraryUnit = " / a. u."
         self.labels["yLabel"] = label + arbitraryUnit
-        self.markup["label"] = label
-

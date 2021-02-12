@@ -24,7 +24,7 @@ Created on Tue Feb 18 10:10:29 2020
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
+from loader.ConfigLoader import ConfigLoader
 from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
@@ -37,7 +37,7 @@ BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.
 config = ConfigLoader()
-BATCH = config.BATCH;
+BATCH = config.BATCH
 
 # Message box
 ## critical
@@ -262,4 +262,3 @@ def update_logfile_in_configuration(logfile:str)->None:
     config = ConfigLoader()
     config.logFile = logfile
     config.save_config()
-

@@ -36,26 +36,26 @@ class TestLoadFiles(unittest.TestCase):
 
     def test_init(self):
         """Checking whether an object was instaciated"""
-        self.assertTrue(self.logger, "no instance of logger found!")
+        self.assertTrue(self._logger, "no instance of logger found!")
 
         """Checking whether the default settings are ok"""
-        self.assertEqual(self.logger.logger.getEffectiveLevel(), 10, "Default logging level (DEBUG)")
+        self.assertEqual(self._logger.logger.getEffectiveLevel(), 10, "Default logging level (DEBUG)")
 
 
     def test_messages(self):
         # testing the module and its behaviour
-        self.logger.debug("Debugging Nachricht")
-        self.logger.info("Info Nachricht")
-        self.logger.warning("Warnung")
-        self.logger.error("Error Nachricht")
-        self.logger.critical("Kritische Nachricht")
+        self._logger.debug("Debugging Nachricht")
+        self._logger.info("Info Nachricht")
+        self._logger.warning("Warnung")
+        self._logger.error("Error Nachricht")
+        self._logger.critical("Kritische Nachricht")
 
     def test_filename(self):
         # set LOG_FILE in config.yml to arbitraryFilename
         arbitraryFilename = "arbitraryFilename"
 
         # Checks whether the filename was loaded correctly.
-        self.assertEqual(self.logger.filename, arbitraryFilename,
+        self.assertEqual(self._logger.filename, arbitraryFilename,
                          "Arbitrary filename from config")
 
 

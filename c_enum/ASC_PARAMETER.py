@@ -11,5 +11,6 @@ from enum import Enum
 
 class ASC_PARAMETER(Enum):
     """Interface for the .asc-file parameter."""
+    # Necessary to be exactly the same name as in the .asc-file.
     WL = "Wavelength (nm)"
     GRAT = "Grating Groove Density (l/mm)"

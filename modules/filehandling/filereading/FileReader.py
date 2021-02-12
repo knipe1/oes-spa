@@ -18,7 +18,6 @@ Glossary:
 
 # standard libs
 import csv
-import numpy as np
 from datetime import datetime
 
 # third-party libs
@@ -31,6 +30,7 @@ from modules.filehandling.filereading.AscReader import AscReader
 from modules.filehandling.filereading.BaReader import BaReader
 from modules.filehandling.filereading.CsvReader import CsvReader
 from modules.filehandling.filereading.SpkReader import SpkReader
+from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 # further modules
 import modules.Universal as uni
 
@@ -38,6 +38,9 @@ import modules.Universal as uni
 from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
 from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
+
+# exceptions
+from exception.ParameterNotSetError import ParameterNotSetError
 
 # constants
 TIME_NOT_SET = "Not set!"
@@ -61,11 +64,9 @@ class FileReader(FileFramework):
     timestamp : datetime or None
         Date and Time formatted as defined in the configuration.
     data : nunpy.array
-        Concats the x- & y-data. First column: x; second column: y.
+        Concats the x- & y-data. First column: x second column: y.
     WAVELENGTH : str
         The wavelength if specified in the paramter of the file.
-    GRATING : str
-        The grating if specified in the paramter of the file.
 
 
     Methods
@@ -92,22 +93,6 @@ class FileReader(FileFramework):
         self._timestamp = timestamp
 
 
-    # @property
-    # def data(self)->tuple:
-    #     """Concats the x- & y-data. First column: x; second column: y."""
-    #     return (self.xData, self.yData)
-
-    # @data.setter
-    # def data(self, xyData:list):
-    #     """Sets the x- & y-data. First column: x; second column: y."""
-    #     xyData = np.array(xyData)
-    #     try:
-    #         self.xData = xyData[:, 0]
-    #         self.yData = xyData[:, 1]
-    #     except IndexError:
-    #         self.logger.warning("No valid data given.")
-
-
     @property
     def fileinformation(self):
         return (self.filename, self.timeInfo)
@@ -116,28 +101,26 @@ class FileReader(FileFramework):
     @property
     def WAVELENGTH(self):
         """Specific value of the parameter set."""
-        return self.parameter[ASC.WL.value]
-
-
-    @property
-    def GRATING(self):
-        """Specific value of the parameter set."""
-        return self.parameter[ASC.WL.value]
+        try:
+            wl = self.parameter[ASC.WL.value]
+        except KeyError:
+            raise ParameterNotSetError from KeyError
+        return float(wl)
 
 
     ### __Methods__
 
     def __init__(self, filename, **kwargs):
         # FileFramework provides the dialect and config etc.
-        super().__init__(filename, name=__name__)
+        super().__init__(filename)
         self.set_defaults()
         self.subReader = self.determine_subReader()
         if self.subReader is None:
             self.logger.info("No valid file: {self.filename}")
             return
 
+        self._logger.info("Read file: %s", self.filename)
         self.__post_init__(**kwargs)
-        self.logger.info("Read file: " + self.filename)
 
 
     def __post_init__(self, **kwargs):
@@ -169,8 +152,10 @@ class FileReader(FileFramework):
 
     def set_defaults(self):
         # TODO: Test None instead of 0
-        self.xData = np.zeros(0)
-        self.yData = np.zeros(0)
+        # self.xData = np.zeros(0)
+        # self.yData = np.zeros(0)
+        self.xData = None
+        self.yData = None
         self.data = None
         self.parameter = {}
         # Init with "Not set!" to display the warning on the ui.
@@ -179,7 +164,7 @@ class FileReader(FileFramework):
 
 
     def determine_subReader(self):
-        suffix = uni.get_suffix(self.filename)
+        _, _, suffix = uni.extract_path_basename_suffix(self.filename)
 
         if suffix == SUFF.CSV.value:
             subReader = CsvReader()
@@ -194,7 +179,7 @@ class FileReader(FileFramework):
             subReader = BaReader()
 
         else:
-            self.logger.warning(f"Unknown suffix: {suffix}")
+            self._logger.warning("Unknown suffix: %s.", suffix)
             return None
 
         return subReader
@@ -205,10 +190,13 @@ class FileReader(FileFramework):
         if not errorcode:
             return errorcode
 
+        if isinstance(self.data, dict):
+            return ERR.INVALID_DATA
+
         if not isinstance(self.data[0, 0], (float, int)):
             return ERR.INVALID_DATA
 
-        return ERR.OK;
+        return ERR.OK
 
 
     def is_valid_batchfile(self)->ERR:
@@ -218,21 +206,26 @@ class FileReader(FileFramework):
     def has_valid_frame(self):
         # Filetype.
         if not self.subReader:
-            return ERR.UNKNOWN_FILETYPE;
+            return ERR.UNKNOWN_FILETYPE
 
         # Data in general.
         if self.data is None or not len(self.data):
-            return ERR.INVALID_DATA;
+            return ERR.INVALID_DATA
 
         # Check file information.
         if not self.timeInfo:
-            return ERR.INVALID_FILEINFORMATION;
+            return ERR.INVALID_FILEINFORMATION
 
         return ERR.OK
 
 
+    def is_analyzable(self)->bool:
+        return not is_exported_spectrum(self.filename)
+
 
     def read_file(self, **kwargs)->ERR:
+        if not self.subReader:
+            return
 
         with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,

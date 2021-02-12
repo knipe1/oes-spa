@@ -8,17 +8,26 @@ Module for general purposes regarding read and write operations.
 
 # standard libs
 import csv
+import logging
+from collections import namedtuple
 
 # local modules/libs
-from ConfigLoader import ConfigLoader
-from Logger import Logger
 
+
+# dialects
+Dialect =  namedtuple("Dialect", ["name", "delimiter", "quoting"])
+
+DIALECT_SPECTRAL = Dialect("spectral", delimiter="\t", quoting=csv.QUOTE_MINIMAL)
+DIALECT_CSV = Dialect("csv", delimiter=",", quoting=csv.QUOTE_MINIMAL)
+
+DIALECTS = [DIALECT_SPECTRAL,
+            DIALECT_CSV,]
+
+for dia in DIALECTS:
+    csv.register_dialect(dia.name, quoting = dia.quoting, delimiter = dia.delimiter)
 
 
 class FileFramework:
-
-    # Configuration.
-    config = ConfigLoader()
 
     # constants
     MARKER  = {"BATCH": "Filename",
@@ -30,38 +39,25 @@ class FileFramework:
                       "CSV_DATA_COLUMN": 1,
                       "SPK_DATA_COLUMN": 3,}
 
-    DIALECT = {"name": "spectral_data",
-               "delimiter": "\t",
-               "quoting": csv.QUOTE_MINIMAL,}
 
-    DIALECT_CSV = {"name": "csv_data",
-                   "delimiter": ",",
-                   "quoting": csv.QUOTE_MINIMAL,}
+    ## __methods__
 
-
-    def __init__(self, filename, **kwargs):
-        # Set up the logger.
-        name = kwargs.get("name", __name__)
-        self.logger = Logger(name)
-
+    def __init__(self, filename:str)->None:
+        self._logger = logging.getLogger(self.__class__.__name__)
         self.filename = filename
-        self.register_dialects()
 
+
+    def __repr__(self)->str:
+        return self.__class__.__name__
+
+
+    ## properties
 
     @property
     def spectralDialect(self):
-        return self.DIALECT["name"]
+        return DIALECT_SPECTRAL.name
 
 
     @property
     def csvDialect(self):
-        return self.DIALECT_CSV["name"]
-
-
-    def register_dialects(self):
-        csv.register_dialect(self.DIALECT["name"],
-                             delimiter = self.DIALECT["delimiter"],
-                             quoting = self.DIALECT["quoting"])
-        csv.register_dialect(self.DIALECT_CSV["name"],
-                             delimiter = self.DIALECT_CSV["delimiter"],
-                             quoting = self.DIALECT_CSV["quoting"])
+        return DIALECT_CSV.name

@@ -17,6 +17,7 @@ __status__ = "alpha"
 
 # standard libs
 import sys
+import LoggerConfig
 
 # third-party libs
 from PyQt5.QtWidgets import QApplication
@@ -31,6 +32,7 @@ def main():
     # Setup GUI
     # sys.argv is a list containing the arguments given in the command line
     app = QApplication(sys.argv)
+    LoggerConfig.set_up()
     window = AnalysisWindow()
 
     sys.exit(app.exec_())

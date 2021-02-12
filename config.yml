@@ -4,16 +4,23 @@ BATCH:
   SEPARATOR: ':'
 FITTING:
   CHECKED_FITTINGS:
+<<<<<<< HEAD
   - Boron Peak Fitting
   - Example (Invalid Ref.)
   - Example (Invalid peak)
   - Example (No peak)
   - Example (No reference)
+=======
+  - Example Fitting
+>>>>>>> development
   - Methan Peak Fitting
-  - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
+<<<<<<< HEAD
   PRESELECT_FITTING: Nitrogen Peak Fitting
+=======
+  PRESELECT_FITTING: Example Fitting
+>>>>>>> development
 GENERAL:
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 PLOT:
@@ -36,3 +43,6 @@ PLOT:
   RAW_Y_LABEL: Intensity / a.u.
   REFERENCE_COLOR: b
   REFERENCE_LINESTYLE: --
+SETTINGS:
+  DISPERSION: 0.0061103
+  WL: 388.8

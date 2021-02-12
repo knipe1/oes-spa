@@ -22,18 +22,19 @@ Created on Fri Jan 27 2020
 
 
 # standard libs
+import logging
 import os
 
 # third-party libs
+from PyQt5.QtCore import QObject, pyqtSlot
 
 # local modules/libs
 from ui.ui_main_window import Ui_main
-from ConfigLoader import ConfigLoader
-from modules.dataanalysis.Fitting import Fitting
-from Logger import Logger
-import modules.Universal as uni
-from modules.Universal import mark_bold_red
 from ui.matplotlibwidget import MatplotlibWidget
+from loader.ConfigLoader import ConfigLoader
+from loader.YamlLoader import YamlLoader
+import modules.Universal as uni
+from modules.dataanalysis.Fitting import Fitting
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 from modules.filehandling.filereading.FileReader import FileReader
 
@@ -41,7 +42,8 @@ from modules.filehandling.filereading.FileReader import FileReader
 from c_types.BasicSetting import BasicSetting
 from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
 
-class UIMain(Ui_main):
+
+class UIMain(Ui_main, QObject):
     """
     Provides an interface for the UI of the main window.
 
@@ -61,12 +63,10 @@ class UIMain(Ui_main):
     ----------
     _fittings : list[str]
         Containing the filenames of the fittings.
-    UI_MAPPING : dict
-        Maps general keys to specific ui elements.
 
     Methods
     -------
-    retrieve_fittings():
+    _retrieve_fittings():
         Gets the fittings of the directory.
     connect_export_raw(fun):
         Interface to connect fun to triggered signal of the button.
@@ -84,17 +84,29 @@ class UIMain(Ui_main):
 
     # Load the configuration for fitting properties.
     config = ConfigLoader()
-    FITTING = config.FITTING;
+    FITTING = config.FITTING
+
+    # Slots
+
+    @pyqtSlot(bool)
+    def slot_enableDispersion(self, enable:bool)->None:
+        self.tinDispersion.setEnabled(enable)
+
+
+    @pyqtSlot(bool)
+    def slot_show_diff_wavelength(self, show:bool)->None:
+        uiElement = self.lblDiffWavelength
+        if show:
+            uiElement.show()
+        else:
+            uiElement.hide()
+
 
     ### properties
 
     @property
     def wavelength(self)->float:
         """Get the converted wavelength or None."""
-        # TODO: try/except vs throw an error?
-        # try: no exception and the program can still run
-        # error: is it an error, if the ui element is not found -> prob. yes
-        # error: if something invalid is written? -> prompt
         wavelength = None
         try:
             wavelength = self.tinCentralWavelength.text()
@@ -106,22 +118,26 @@ class UIMain(Ui_main):
         return wavelength
 
     @wavelength.setter
-    def wavelength(self, wl):
+    def wavelength(self, wl:(float, str))->None:
         """Sets the given wavelenght wl to the ui-element."""
-        self.tinCentralWavelength.setText(wl)
+        self.tinCentralWavelength.setText(str(wl))
 
 
     @property
-    def grating(self)->int:
-        """Get the converted grating or None."""
-        # TODO: cf. wavelength, but dropdown cannot be empty.
-        grating = None
+    def dispersion(self)->float:
+        """Get the converted dispersion or None."""
+        dispersion = None
         try:
-            grating = self.ddGrating.currentText()
-            grating = float(grating)
-        except:
-            self.logger.error("Could not get valid value for grating!")
-        return grating
+            dispersion = self.tinDispersion.text()
+            dispersion = float(dispersion)
+        except ValueError:
+            self._logger.error("Could not get valid value for dispersion!")
+        return dispersion
+
+    @dispersion.setter
+    def dispersion(self, disp:(float, str))->None:
+        """Sets the given wavelenght dispersion to the ui-element."""
+        self.tinDispersion.setText(str(disp))
 
 
     @property
@@ -159,8 +175,8 @@ class UIMain(Ui_main):
             The "parent" of this GUI. It is used for connections to other GUIs
             other (rather general) functions.
         """
-        # set up the logger
-        self.logger = Logger(__name__)
+        super().__init__()
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         self.setupUi(parent)
         self.__post_init__()
@@ -171,15 +187,26 @@ class UIMain(Ui_main):
         # Get default label for fittings, defined in Qt-designer.
         self.DEF_LBL_FITTING = self.lblFitting.text()
         self.DEF_LBL_CHARACTERISTIC = self.lblCharacteristicValue.text()
+        self.DEF_LBL_CALIBRATION = self.cbCalibration.text()
 
-        self.fittings = self.retrieve_fittings()
+        self.fittings = self._retrieve_fittings()
+        self._load_fitting_selection_from_config()
+        self._load_settings_from_config()
+
+
+    def _load_settings_from_config(self)->None:
+        self.wavelength = self.config.wavelength
+        self.dispersion = self.config.dispersion
+
+
+    def _load_fitting_selection_from_config(self)->None:
         allTexts  = self.clistFitting.allTexts()
         PRESELECT_FITTING = self.config.PRESELECT_FITTING
         try:
             preIdx = allTexts.index(PRESELECT_FITTING)
             self.clistFitting.setCurrentRow(preIdx)
         except ValueError:
-            self.logger.info("No preselected Fitting found.")
+            self._logger.info("No preselected Fitting found.")
 
         CHECKED_FITTINGS = self.config.CHECKED_FITTINGS
         for fit in CHECKED_FITTINGS:
@@ -187,11 +214,7 @@ class UIMain(Ui_main):
                 ckdIdx = allTexts.index(fit)
                 self.clistFitting.item(ckdIdx).setCheckState(2)
             except ValueError:
-                self.logger.info("Checked fitting not found.")
-
-
-        # initial hides. Cannot be set in designer.
-        self.show_diff_wavelength(False)
+                self._logger.info("Checked fitting not found.")
 
 
     def get_results(self):
@@ -211,25 +234,28 @@ class UIMain(Ui_main):
                 cwl = spectrumHandler.fitting.peak.centralWavelength
             except AttributeError:
                 cwl = 0.0
-        cwlInfo = f" (@{self.format_result(cwl)})"
+        cwlInfo = f" (@{format_result(cwl)})"
 
-        self.toutPeakHeight.setText(self.format_result(spectrumHandler.peakHeight) + cwlInfo)
-        self.toutPeakArea.setText(self.format_result(spectrumHandler.peakArea))
-        self.toutBaseline.setText(self.format_result(spectrumHandler.avgbase))
-        self.toutCharacteristicValue.setText(self.format_result(spectrumHandler.characteristicValue))
+        self.toutPeakHeight.setText(
+            format_result(spectrumHandler.results[CHC.PEAK_HEIGHT]) + cwlInfo)
+        self.toutPeakArea.setText(format_result(spectrumHandler.results[CHC.PEAK_AREA]))
+        self.toutBaseline.setText(format_result(spectrumHandler.results[CHC.BASELINE]))
+        self.toutCharacteristicValue.setText(
+            format_result(spectrumHandler.results[CHC.CHARACTERISTIC_VALUE]))
         try:
             peakName = spectrumHandler.fitting.peak.name + ":"
         except AttributeError:
             peakName = self.DEF_LBL_CHARACTERISTIC
         self.lblCharacteristicValue.setText(peakName)
 
+        shift = spectrumHandler.results[CHC.CALIBRATION_SHIFT] or 0.0
+        calibrationLabel = self.DEF_LBL_CALIBRATION + format_shift(shift)
+        self.cbCalibration.setText(calibrationLabel)
 
 
-    def format_result(self, value:float)->str:
-        try:
-            return f"{value:8.4f}"
-        except TypeError:
-            return str(None)
+
+
+
 
     # Connect methods: Provides at least one event (signal) to connect to a
     # function
@@ -260,19 +286,45 @@ class UIMain(Ui_main):
     def connect_change_basic_settings(self, fun):
         """Interface to connect fun to changes of the basic setting."""
         self.tinCentralWavelength.textChanged.connect(fun)
+        self.tinDispersion.textChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
+        self.cbCalibration.stateChanged.connect(fun)
         self.clistFitting.itemClicked.connect(fun)
 
 
-    def set_fileinformation(self, filereader:FileReader)->None:
+    @pyqtSlot(FileReader)
+    def update_fileinformation(self, reader:FileReader)->None:
+        self._set_fileinformation(reader)
+        self._update_parameter(reader.parameter)
+        self._enable_export(bool(reader))
+
+
+    def _set_fileinformation(self, filereader:FileReader)->None:
         filename, timeInfo = filereader.fileinformation
         strTimeInfo = uni.timestamp_to_string(timeInfo)
         self.toutFilename.setText(filename)
         self.toutTimeInfo.setText(strTimeInfo)
 
 
-    def retrieve_fittings(self) -> list:
+    def _update_parameter(self, info:dict)->None:
+        """
+        Resets the information box and update it with the given information.
+
+        Parameters
+        ----------
+        info : dict
+            Information of the form: description->value.
+
+        """
+        form = ": "
+        self.listInformation.clear()
+        for line in info.items():
+            entry = form.join(line)
+            self.listInformation.addItem(entry)
+
+
+    def _retrieve_fittings(self) -> list:
         """
         Retrieve all fitting files of the directory of fittings.
 
@@ -297,7 +349,7 @@ class UIMain(Ui_main):
                     # loading the parameter and set up the dict using the
                     # filename and the name of the fitting
                     path = os.path.join(self.FITTING["DIR"], file)
-                    fitConfig = ConfigLoader(path)
+                    fitConfig = YamlLoader(path)
 
                     fit = fitConfig.config.get("NAME", "no name def.")
                     fitDict[file] = fit
@@ -305,7 +357,7 @@ class UIMain(Ui_main):
         return fitDict
 
 
-    def load_fitting(self, fittingName:str, showError:bool=False)->Fitting:
+    def _load_fitting(self, fittingName:str, showError:bool=False)->Fitting:
         """
         Parameters
         ----------
@@ -317,91 +369,95 @@ class UIMain(Ui_main):
         activeFitting : Fitting
         """
 
-        self.logger.info("Load fitting: " + fittingName)
+        self._logger.info("Load fitting: %s", fittingName)
 
-        filename = self.get_filename_of_fitting(fittingName)
-        fitConfig = self.load_fitting_configuration(filename)
+        filename = self._get_filename_of_fitting(fittingName)
+        fitConfig = self._load_fitting_configuration(filename)
         try:
             activeFitting = Fitting(fitConfig.config)
         except AttributeError:
             # If no config was loaded.
             return None
         if showError:
-            self.set_fittings_errorcode(activeFitting)
+            self._set_fittings_errorcode(activeFitting)
         return activeFitting
 
 
-    def update_information(self, info:dict)->None:
-        """
-        Resets the information box and update it with the given information.
-
-        Parameters
-        ----------
-        info : dict
-            Information of the form: description->value.
-
-        """
-        # Init Format and clear.
-        form = ": "
-        self.listInformation.clear()
-        for line in info.items():
-            # format the entry
-            entry = form.join(line)
-            self.listInformation.addItem(entry)
-
-
-    def show_diff_wavelength(self, show:bool):
-        uiElement = self.lblDiffWavelength
-        if show:
-            uiElement.show()
-        else:
-            uiElement.hide()
-
-
-    def enable_export(self, enable:bool)->None:
+    def _enable_export(self, enable:bool)->None:
         self.actSaveRaw.setEnabled(enable)
         self.actSaveProcessed.setEnabled(enable)
 
 
     def get_basic_setting(self)->BasicSetting:
+        selectedFitting = self._load_fitting(self.clistFitting.currentText(), showError=True)
+        checkedFittings = self.clistFitting.checkedItems()
+        checkedFittings = [self._load_fitting(t.text()) for t in checkedFittings]
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
-        selectedFitting = self.load_fitting(self.clistFitting.currentText(), showError=True)
-        checkedFittings = self.clistFitting.checkedItems()
-        checkedFittings = [self.load_fitting(t.text()) for t in checkedFittings]
-        setting = BasicSetting(self.wavelength, selectedFitting, checkedFittings, baselineCorrection, normalizeData)
+        calibration = self.cbCalibration.isChecked()
+        setting = BasicSetting(self.wavelength, self.dispersion, selectedFitting, checkedFittings,
+                               baselineCorrection, normalizeData, calibration)
 
-        return setting;
+        return setting
 
 
-    def get_filename_of_fitting(self, fittingName:str)->str:
+    def _get_filename_of_fitting(self, fittingName:str)->str:
         for fitFilename, fitName in self.fittings.items():
             if fitName == fittingName:
                 return fitFilename
+        return None
 
 
-    def load_fitting_configuration(self, filename:str)->Fitting:
+    def _load_fitting_configuration(self, filename:str)->Fitting:
         try:
             path = os.path.join(self.FITTING["DIR"], filename)
         except TypeError:
             # E.g. if no filename is given (no fitting is selected.)
             return None
-        fitConfig = ConfigLoader(path)
+        fitConfig = YamlLoader(path)
         return fitConfig
 
 
-    def set_fittings_errorcode(self, fit:Fitting):
-        label = mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
+    def _set_fittings_errorcode(self, fit:Fitting):
+        label = uni.mark_bold_red(fit.errCode) + self.DEF_LBL_FITTING
         self.lblFitting.setText(label)
 
 
-    def save_selected_fitting(self):
+    def save_settings(self)->None:
+        self._save_wavelength_and_dispersion()
+        self._save_selected_fitting()
+
+
+    def _save_wavelength_and_dispersion(self)->None:
+        wl = self.wavelength
+        dp = self.dispersion
+
+        self.config = ConfigLoader()
+        self.config.wavelength = wl
+        self.config.dispersion = dp
+        self.config.save_config()
+
+
+    def _save_selected_fitting(self):
         selectedFitting = self.clistFitting.currentText()
-        self.logger.info(f"Save selected fitting: {selectedFitting}.")
+        self._logger.info("Save selected fitting: %s.", selectedFitting)
+
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [t.text() for t in checkedFittings]
-        self.logger.info(f"Save checked fittings: {checkedFittings}.")
+        self._logger.info("Save checked fittings: %s.", checkedFittings)
+
         self.config = ConfigLoader()
         self.config.PRESELECT_FITTING = selectedFitting
         self.config.CHECKED_FITTINGS = checkedFittings
         self.config.save_config()
+
+
+def format_result(value:float)->str:
+    try:
+        return f"{value:8.4f}"
+    except TypeError:
+        return str(None)
+
+
+def format_shift(shift:float)->str:
+    return f"\n(Δ {shift:.3f})"

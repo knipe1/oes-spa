@@ -18,10 +18,10 @@ class SUFFICES(Enum):
     BATCH = "ba"
 
     @classmethod
-    def has_value(cls, value):
+    def has_value(cls, value:str)->bool:
         # The member called _value2member_map_(which is undocumented and may be changed/removed in future python versions).
         return value in cls._value2member_map_
 
     @classmethod
-    def value_set(cls):
+    def value_set(cls)->set:
         return set(item.value for item in cls)

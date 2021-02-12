@@ -27,17 +27,8 @@ class BatchWriter(FileWriter):
     Can either export a set of data, or add data to an existing batchfile.
     """
 
-    def __init__(self, filename):
-        super().__init__(filename, name=__name__)
-        self.timestamp = datetime.now()
-        self.dialect = self.csvDialect
-
-
-    def __repr__(self):
-        info = {}
-        info["filename"] = self.filename
-        info["Timestamp"] = self.timestamp
-        return self.__module__ + ":\n" + str(info)
+    def __init__(self, filename:str)->None:
+        super().__init__(filename, timestamp=datetime.now())
 
 
     def export(self, data:list, columnTitles:list)->None:
@@ -72,10 +63,9 @@ class BatchWriter(FileWriter):
             with open(self.filename, 'r', newline='') as f:
                 fReader = csv.reader(f, dialect=self.dialect)
                 for line in fReader:
-                    if self.MARKER["BATCH"] in line[0]:
+                    if self.MARKER["BATCH"] in line:
                         isValid = True
                         break
         except FileNotFoundError:
             pass
         return isValid
-

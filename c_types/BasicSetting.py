@@ -15,10 +15,12 @@ from dataclasses import dataclass
 # local modules/libs
 from modules.dataanalysis.Fitting import Fitting
 
-@dataclass(frozen=True)
+@dataclass
 class BasicSetting():
-    wavelength: float;
-    selectedFitting: Fitting;
-    checkedFittings:list;
-    baselineCorrection: bool;
-    normalizeData: bool;
+    wavelength: float
+    dispersion: float
+    selectedFitting: Fitting
+    checkedFittings:list
+    baselineCorrection: bool
+    normalizeData: bool
+    calibration: bool

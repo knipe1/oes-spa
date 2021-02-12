@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Nov 14 12:52:54 2020
+Created on Fri Feb  5 18:53:16 2021
 
 @author: hauke
 """
 
-class InvalidSpectrumError(Exception):
+class ParameterNotSetError(Exception):
     pass

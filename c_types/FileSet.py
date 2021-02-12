@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
-Created on Thu May  7 14:40:11 2020
+class: FileSet
 
 @author: Hauke Wernecke
 """
@@ -28,16 +27,15 @@ class FileSet(set):
     """
 
     @property
-    def selected_row(self):
-        row = self.listWidget.currentRow()
-        return row
+    def current_row(self)->str:
+        return self._listWidget.currentRow()
 
-    @selected_row.setter
-    def selected_row(self, i):
-        self.listWidget.setCurrentRow(i)
+    @current_row.setter
+    def current_row(self, i:int)->None:
+        self._listWidget.setCurrentRow(i)
 
 
-    def __init__(self, listWidget, iterable=()):
+    def __init__(self, listWidget, iterable=())->None:
         """
 
         Parameters
@@ -46,14 +44,12 @@ class FileSet(set):
             The ui element in which to display the list.
         iterable : iterable, optional
             The initial set. The default is ().
-        updateOnChange : function/method, optional
-            The function is called when the set was changed. The default is None.
         """
         super().__init__(iterable)
-        self.listWidget = listWidget
+        self._listWidget = listWidget
 
 
-    def __getitem__(self, i):
+    def __getitem__(self, i:int)->str:
         """Gets the i-th item of the unsorted list."""
         if i < 0:
             raise IndexError
@@ -61,70 +57,63 @@ class FileSet(set):
         return files[i]
 
 
-    def clear(self):
+    def clear(self)->None:
         """Clears the set AND updates the ui."""
         super().clear()
-        self.update_ui()
+        self._listWidget.clear()
 
 
-    def update(self, s):
+    def update(self, files:set, noSelection:bool=False)->None:
         """Updates the set AND updates the ui."""
-
-        # Get the current selection.
         filename = None
-        index = self.selected_row
-        if index >= 0:
+        index = self.current_row
+        if not noSelection and index >= 0:
             filename = self[index]
-            index = None
 
-        # Updates the set as usual and refresh ui.
-        super().update(s)
-        self.update_ui(index=index, filename=filename)
-
-
-    def remove(self, t):
-        """Removes an item AND updates the ui."""
-        super().remove(t)
-        idx = self.selected_row - 1
-        self.update_ui(index=idx)
+        files = self.validate(files)
+        super().update(files)
+        self.update_ui(filename=filename)
 
 
-    def difference_update(self, iterables):
-        """Removes an item AND updates the ui."""
-        super().difference_update(iterables)
-        self.update_ui(index=0)
-
-
-    def to_list(self, naturalSort=True, indexed=False):
-        """Convert the set to a sorted/indexed list."""
-        files = list(self)
-        if naturalSort:
-            # files.sort(key=uni.natural_keys)
-            files = natsorted(files)
-
-
-        if indexed:
-            files = uni.add_index_to_text(uni.reduce_path(files))
-
+    def validate(self, files:set):
+        for file in files:
+            if not uni.is_valid_suffix(file):
+                files.remove(file)
         return files
 
 
-    def update_ui(self, index=None, filename=None):
+
+    def remove(self, t:str)->None:
+        """Removes an item AND updates the ui."""
+        super().remove(t)
+        # max ensures that no neg. index is selected.
+        idx = max(self.current_row - 1, 0)
+        self.update_ui(index=idx)
+
+
+    def difference_update(self, iterables:set)->None:
+        """Removes an item AND updates the ui."""
+        super().difference_update(iterables)
+        self.update_ui()
+
+
+    def to_list(self)->None:
+        """Convert the set to a sorted list."""
+        files = natsorted(self)
+        return files
+
+
+    def update_ui(self, index:int=None, filename:str=None)->None:
         """Update ui with converted and sorted/indexed list."""
-        files = self.to_list(indexed=True)
-
-        self.listWidget.clear()
-        self.listWidget.addItems(files)
-
-        if not index is None:
-            # max(index, 0) ensures that no row with a neg. index is selected.
-            self.selected_row = max(index, 0)
-        elif not filename is None:
+        self._listWidget.setItems(self.to_list())
+        if index is not None:
+            self.current_row = index
+        elif filename is not None:
             self.select_row_by_filename(filename)
 
 
-    def select_row_by_filename(self, filename):
+    def select_row_by_filename(self, filename:str)->None:
         """Gets the i-th item of the sorted list by the filename."""
         files = self.to_list()
         i = files.index(filename)
-        self.selected_row = i
+        self.current_row = i

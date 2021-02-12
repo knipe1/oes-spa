@@ -14,7 +14,7 @@ Created on Fri Feb 21 09:14:12 2020
 from time import sleep
 from pynput.keyboard import Key, Controller
 
-PAUSE = 3
+PAUSE = 4
 
 
 def key_accept():
