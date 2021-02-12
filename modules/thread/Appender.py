@@ -41,7 +41,7 @@ class Appender(Worker):
             return
 
         try:
-            specHandler = SpectrumHandler(self._file, self._setting, useWLofFile=True)
+            specHandler = SpectrumHandler(self._file, self._setting)
         except InvalidSpectrumError:
             return
 
