@@ -114,7 +114,7 @@ class SpectrumHandler(QDialog):
 
     ### __methods__
 
-    def __init__(self, file:FileReader, basicSetting:BasicSetting, slotPixel=None, useWLofFile:bool=False):
+    def __init__(self, file:FileReader, basicSetting:BasicSetting, slotPixel=None):
         super().__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -215,7 +215,10 @@ class SpectrumHandler(QDialog):
         intAreas = integrationAreas.values()
 
         # Validation
-        if refHeight >= peak.reference.minimumHeight:
+        highRefPeak = (refHeight >= peak.reference.minimumHeight)
+        posPeakArea = (peakArea > 0)
+        posRefPeakArea = (refArea >= 0)
+        if highRefPeak and posPeakArea and posRefPeakArea:
             ratio = np.abs(peakArea) / np.abs(refArea)
             characteristicValue = ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
