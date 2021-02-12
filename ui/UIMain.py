@@ -185,6 +185,7 @@ class UIMain(Ui_main, QObject):
         # Get default label for fittings, defined in Qt-designer.
         self.DEF_LBL_FITTING = self.lblFitting.text()
         self.DEF_LBL_CHARACTERISTIC = self.lblCharacteristicValue.text()
+        self.DEF_LBL_CALIBRATION = self.cbCalibration.text()
 
         self.fittings = self._retrieve_fittings()
         self._load_fitting_selection_from_config()
@@ -244,6 +245,15 @@ class UIMain(Ui_main, QObject):
         except AttributeError:
             peakName = self.DEF_LBL_CHARACTERISTIC
         self.lblCharacteristicValue.setText(peakName)
+
+        shift = spectrumHandler.results[CHC.CALIBRATION_SHIFT] or 0.0
+        calibrationLabel = self.DEF_LBL_CALIBRATION + format_shift(shift)
+        self.cbCalibration.setText(calibrationLabel)
+
+
+
+
+
 
     # Connect methods: Provides at least one event (signal) to connect to a
     # function
@@ -445,3 +455,7 @@ def format_result(value:float)->str:
         return f"{value:8.4f}"
     except TypeError:
         return str(None)
+
+
+def format_shift(shift:float)->str:
+    return f"\n(Δ {shift:.3f})"
