@@ -252,8 +252,8 @@ def filefilter_from_list(filterlist:list)->str:
 
 
 def suffices_to_string(suffices:list)->str:
-    strSuffices = ["." + suffix for suffix in suffices];
-    strSuffices = ", ".join(strSuffices);
+    strSuffices = ["." + suffix for suffix in suffices]
+    strSuffices = ", ".join(strSuffices)
     return strSuffices
 
 

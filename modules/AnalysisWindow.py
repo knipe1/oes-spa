@@ -228,15 +228,7 @@ class AnalysisWindow(QMainWindow):
 
 
     def _redraw(self)->None:
-        """
-        Redraw the plots with data of the active file.
-
-        Parameters
-        ----------
-        changedValue : str
-            The value of the new selected option. Informative in the logger.
-
-        """
+        """Redraw the plots with data of the active file."""
         try:
             self._logger.info("Redraw of %s.", self.activeFile.filename)
             self.apply_file(self.activeFile)
@@ -253,12 +245,11 @@ class AnalysisWindow(QMainWindow):
         else:
             file = filename
 
-        if not silent:
-            # HINT: set wavelength triggers a redraw loop. If wavelength is set after the setting
-            # is loaded, the analysis will not update the setting.
-            isFileReloaded = (self.activeFile == file)
-            if not isFileReloaded:
-                self._set_wavelength_from_file(file)
+        # HINT: set wavelength triggers a redraw loop. If wavelength is set after the setting
+        # is loaded, the analysis will not update the setting.
+        isFileReloaded = (self.activeFile == file)
+        if not isFileReloaded:
+            self._set_wavelength_from_file(file)
 
         try:
             specHandler = SpectrumHandler(file, self.setting, slotPixel=self.window.slot_enableDispersion)

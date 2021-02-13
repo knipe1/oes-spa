@@ -317,8 +317,8 @@ class UIMain(Ui_main, QObject):
         """
         form = ": "
         self.listInformation.clear()
-        for line in info.items():
-            entry = form.join(line)
+        for key, value in info.items():
+            entry = str(key) + form + str(value)
             self.listInformation.addItem(entry)
 
 

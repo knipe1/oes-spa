@@ -57,8 +57,9 @@ def main():
 
     # automatic open and close routine
     if initialSpkLoad:
-        window.apply_file("./sample files/Asterix1059 1468.Spk")
-        # window.apply_file("./sample files/Obel276/Obelix276 40.Spk")
+        # window.apply_file("./sample files/Asterix1059 1468.Spk")
+        # window.apply_file('./sample files/SIF/asterix1183-h2plasma433nm-bor-sif.asc')
+        window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
     if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
 

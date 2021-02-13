@@ -29,6 +29,7 @@ from modules.filehandling.FileFramework import FileFramework
 from modules.filehandling.filereading.AscReader import AscReader
 from modules.filehandling.filereading.BaReader import BaReader
 from modules.filehandling.filereading.CsvReader import CsvReader
+from modules.filehandling.filereading.sifreader import SifReader
 from modules.filehandling.filereading.SpkReader import SpkReader
 from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
 # further modules
@@ -54,6 +55,7 @@ class FileReader(FileFramework):
         *.spk/*.Spk
         *.asc
         *.csv
+        *.sif
         *.ba
 
     Usage:
@@ -151,6 +153,7 @@ class FileReader(FileFramework):
         # TODO: Test None instead of 0
         # self.xData = np.zeros(0)
         # self.yData = np.zeros(0)
+        # TODO: Used anywhere?
         self.xData = None
         self.yData = None
         self.data = None
@@ -165,16 +168,14 @@ class FileReader(FileFramework):
 
         if suffix == SUFF.CSV.value:
             subReader = CsvReader()
-
         elif suffix == SUFF.SPK.value:
             subReader = SpkReader()
-
         elif suffix == SUFF.ASC.value:
             subReader = AscReader()
-
+        elif suffix == SUFF.SIF.value:
+            subReader = SifReader()
         elif suffix == SUFF.BATCH.value:
             subReader = BaReader()
-
         else:
             self._logger.warning("Unknown suffix: %s.", suffix)
             return None
@@ -223,6 +224,22 @@ class FileReader(FileFramework):
     def read_file(self, **kwargs)->ERR:
         if not self.subReader:
             return
+        kwargs["filename"] = self.filename
+
+        # if isinstance(self.subReader, SifReader):
+        #     import sif_reader
+        #     import numpy as np
+        #     import datetime
+        #     file = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+        #     yData = file[0].flatten()
+        #     parameter = file[1]
+        #     xData = np.arange(1, yData.size+1)
+        #     cali = parameter['Calibration_data']
+        #     xData = cali[0] + xData * cali[1] + xData * np.power(cali[2], 2)+ xData * np.power(cali[3], 3)
+        #     self.timeInfo = datetime.datetime.fromtimestamp(parameter['ExperimentTime'])
+        #     self.data = np.array([xData, yData]).T
+        #     self.parameter = parameter
+        #     # return
 
         with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,

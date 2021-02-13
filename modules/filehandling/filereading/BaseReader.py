@@ -112,7 +112,7 @@ class BaseReader(FileFramework):
             xyData = np.array((xData, yData)).transpose()
         except IndexError:
             self._logger.warning("No valid x- and y-data given. Empty data?!")
-        except:
+        except Exception:
             return None
 
         return xyData
