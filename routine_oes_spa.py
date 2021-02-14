@@ -10,11 +10,6 @@ Single and batch analysis of OES spectra
 # standard libs
 import sys
 import LoggerConfig
-try:
-    import sif_reader
-    da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
-except (FileNotFoundError, ModuleNotFoundError):
-    pass
 
 # third-party libs
 import emulator as emu
@@ -35,13 +30,13 @@ def main():
     initialAscLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
+    showBatch = True
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
 
-    test_calibration = True
+    test_calibration = False
     noFiles = 50
 
 

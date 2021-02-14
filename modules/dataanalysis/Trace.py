@@ -43,9 +43,14 @@ class Trace(Spectrum):
 
         for peak in self.data.keys():
             self._markup["label"] = peak
+            self.data[peak] = self.sort_x_data(self.data[peak])
             self._ui.axes.plot(*self.data[peak].T, **self._markup)
-        # self._ui.draw(zoomOn=self.data[peak][:, 0])
         self._ui.draw()
+
+
+    def sort_x_data(self, arr:np.ndarray):
+        order = arr[:, 0].argsort()
+        return arr[order]
 
 
     def reset_data(self):
