@@ -15,6 +15,7 @@ from PyQt5.QtCore import Slot, QThread
 
 # Enums
 
+
 class Worker(QThread):
 
     ### Slots
@@ -28,6 +29,7 @@ class Worker(QThread):
     def __init__(self):
         super().__init__()
         self.cancel = False
+
 
     def __del__(self)->None:
         """Waits until the threads stopped processing and the delete it."""

@@ -68,6 +68,9 @@ class MatplotlibWidget(QWidget):
         if self.axes.get_legend_handles_labels()[0]:
             self.axes.legend()
 
+        self.axes.relim(visible_only=True)
+        self.axes.autoscale(axis="y")
+
         if not zoomOn is None:
             self.center_plot(zoomOn)
         self.canvas.draw()

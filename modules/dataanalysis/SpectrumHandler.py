@@ -114,17 +114,18 @@ class SpectrumHandler(QDialog):
 
     ### __methods__
 
-    def __init__(self, file:FileReader, basicSetting:BasicSetting, slotPixel=None):
+    def __init__(self, file:FileReader, basicSetting:BasicSetting, slotPixel=None, useFileWavelength:bool=False):
         super().__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
 
         if not file.is_valid_spectrum():
             raise InvalidSpectrumError("File contain no valid spectrum.")
 
-        try:
-            basicSetting.wavelength = file.WAVELENGTH
-        except ParameterNotSetError:
-            pass
+        if useFileWavelength:
+            try:
+                basicSetting.wavelength = file.WAVELENGTH
+            except ParameterNotSetError:
+                pass
 
         self.basicSetting = basicSetting
 

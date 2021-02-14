@@ -28,9 +28,10 @@ def main():
 
     initialSpkLoad = True
     initialAscLoad = False
+    initialSifLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
+    showBatch = False
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
@@ -52,11 +53,12 @@ def main():
 
     # automatic open and close routine
     if initialSpkLoad:
-        # window.apply_file("./sample files/Asterix1059 1468.Spk")
+        window.apply_file("./sample files/Asterix1059 1468.Spk")
         # window.apply_file('./sample files/SIF/asterix1183-h2plasma433nm-bor-sif.asc')
-        window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
     if initialAscLoad:
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
+    if initialSifLoad:
+        window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 
 
     if tryDifferentFiles:

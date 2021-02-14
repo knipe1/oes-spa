@@ -61,6 +61,10 @@ class Spectrum():
         self._logger = logging.getLogger(self.__class__.__name__)
 
         self._ui = uiElement
+        self._ui.axes.clear()
+        self._ui.axes.axhline()
+        self._ui.axes.axvline()
+
         self.exportType = exportType
 
         self.labels = self.get_labels(self.exportType)
@@ -111,7 +115,10 @@ class Spectrum():
             else:
                 self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
-        self.plot_spectrum()
+        # self.plot_spectrum()
+        from modules.thread.drawer import Drawer
+        self._thread = Drawer()
+        self._thread.draw(self)
 
 
     def plot_spectrum(self)->None:
@@ -126,9 +133,17 @@ class Spectrum():
 
 
     def reset_plot(self)->None:
-        self._ui.axes.clear()
-        self._ui.axes.axhline()
-        self._ui.axes.axvline()
+        lines = self._ui.axes.lines
+        while len(lines) > 2:
+            lines.remove(lines[-1])
+
+        collections = self._ui.axes.collections
+        while len(collections):
+            collections.remove(collections[-1])
+
+        # self._ui.axes.clear()
+        # self._ui.axes.axhline()
+        # self._ui.axes.axvline()
 
 
     def update_plot(self)->None:

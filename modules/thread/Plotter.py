@@ -15,7 +15,8 @@ from PyQt5.QtCore import Signal
 # local modules/libs
 from modules.thread.Worker import Worker
 
-# Enums
+# constants
+PAUSE = 0.75
 
 
 class Plotter(Worker):
@@ -25,7 +26,7 @@ class Plotter(Worker):
         for file in self._files:
             if self.cancel:
                 break
-            time.sleep(.75)
+            time.sleep(PAUSE)
             self.signal_filename.emit(file)
 
 

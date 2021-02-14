@@ -60,7 +60,7 @@ class Exporter(Worker):
                 continue
 
             try:
-                specHandler = SpectrumHandler(self.currentFile, self._setting)
+                specHandler = SpectrumHandler(self.currentFile, self._setting, useFileWavelength=True)
             except InvalidSpectrumError:
                 skippedFiles.append(file)
                 continue
