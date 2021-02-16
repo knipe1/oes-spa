@@ -14,7 +14,7 @@ import logging
 # third-party libs
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
+from loader.configloader import ConfigLoader
 
 # Enums
 

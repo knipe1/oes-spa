@@ -14,7 +14,7 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from loader.ConfigLoader import ConfigLoader
+from loader.configloader import ConfigLoader
 import modules.universal as uni
 
 

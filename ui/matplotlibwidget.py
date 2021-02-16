@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Toolbar
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
+from loader.configloader import ConfigLoader
 
 PLOT = ConfigLoader().PLOT
 

@@ -13,7 +13,7 @@ import numpy as np
 # third-party libs
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
+from loader.configloader import ConfigLoader
 from ui.matplotlibwidget import MatplotlibWidget
 import modules.universal as uni
 

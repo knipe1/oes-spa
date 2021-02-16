@@ -12,7 +12,7 @@ Created on Sun May  3 09:17:47 2020
 # third-party libs
 
 # local modules/libs
-from loader.YamlLoader import YamlLoader
+from loader.yamlloader import YamlLoader
 from c_metaclass.singleton import Singleton
 
 # Enums
