@@ -28,11 +28,11 @@ import modules.universal as uni
 from modules.dataanalysis.calibration import Calibration
 from modules.dataanalysis.fitting import Fitting
 from modules.filehandling.filereading.filereader import FileReader
-from c_types.BasicSetting import BasicSetting
+from c_types.basicsetting import BasicSetting
 
 # enums
-from c_types.Integration import Integration
-from c_types.Peak import Peak
+from c_types.integration import Integration
+from c_types.peak import Peak
 from c_enum.characteristic import CHARACTERISTIC as CHC
 from c_enum.error_code import ERROR_CODE as ERR
 from c_enum.export_type import EXPORT_TYPE

@@ -39,7 +39,7 @@ from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
 
 # enums and dataclasses
-from c_types.BasicSetting import BasicSetting
+from c_types.basicsetting import BasicSetting
 from c_enum.characteristic import CHARACTERISTIC as CHC
 
 

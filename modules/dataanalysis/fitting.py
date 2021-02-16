@@ -20,7 +20,7 @@ from loader.ConfigLoader import ConfigLoader
 
 # Enums
 from c_enum.error_fitting import ERROR_FITTING as ERR_FIT
-from c_types.Peak import Peak
+from c_types.peak import Peak
 
 
 # constants

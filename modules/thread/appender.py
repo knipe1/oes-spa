@@ -19,7 +19,7 @@ from modules.filehandling.filereading.filereader import FileReader
 from modules.filehandling.filewriting.batchwriter import BatchWriter
 
 # type
-from c_types.BasicSetting import BasicSetting
+from c_types.basicsetting import BasicSetting
 
 # exceptions
 from exception.InvalidSpectrumError import InvalidSpectrumError

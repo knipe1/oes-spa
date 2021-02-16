@@ -21,7 +21,7 @@ class FileSet(set):
     Extends a set for interaction with a listWidget.
 
     Usage:
-        from custum_types.FileSet import FileSet
+        from custum_types.fileset import FileSet
         further usage such as a set. Additionaly one can get items of this set.
 
     """

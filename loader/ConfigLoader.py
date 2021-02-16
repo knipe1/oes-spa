@@ -13,7 +13,7 @@ Created on Sun May  3 09:17:47 2020
 
 # local modules/libs
 from loader.YamlLoader import YamlLoader
-from c_metaclass.Singleton import Singleton
+from c_metaclass.singleton import Singleton
 
 # Enums
 

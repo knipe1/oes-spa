@@ -28,7 +28,7 @@ from modules.filehandling.filereading.filereader import FileReader
 from modules.filehandling.filewriting.spectrumwriter import SpectrumWriter
 
 # enums
-from c_types.BasicSetting import BasicSetting
+from c_types.basicsetting import BasicSetting
 from c_enum.export_type import EXPORT_TYPE
 from c_enum.characteristic import CHARACTERISTIC as CHC
 

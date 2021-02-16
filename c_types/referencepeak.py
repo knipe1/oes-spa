@@ -12,7 +12,7 @@ from dataclasses import dataclass
 # third-party libs
 
 # local modules/libs
-from c_types.BasePeak import BasePeak
+from c_types.basepeak import BasePeak
 
 # Enums
 from c_enum.error_code import ERROR_CODE as ERR

@@ -37,8 +37,8 @@ from modules.thread.plotter import Plotter
 
 
 # Enums
-from c_types.FileSet import FileSet
-from c_types.BasicSetting import BasicSetting
+from c_types.fileset import FileSet
+from c_types.basicsetting import BasicSetting
 from c_enum.suffices import SUFFICES as SUFF
 
 
