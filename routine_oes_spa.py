@@ -9,14 +9,14 @@ Single and batch analysis of OES spectra
 
 # standard libs
 import sys
-import LoggerConfig
 
 # third-party libs
-import emulator as emu
-import threading as THR
 from PyQt5.QtWidgets import QApplication
+import threading as THR
+import emulator as emu
 
 # local modules/libs
+import LoggerConfig
 from modules.AnalysisWindow import AnalysisWindow
 
 
