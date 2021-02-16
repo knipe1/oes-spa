@@ -15,7 +15,7 @@ from PyQt5.QtCore import Signal
 from modules.thread.Worker import Worker
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 import modules.dataanalysis.Analysis as Analysis
-from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filereading.filereader import FileReader
 from modules.filehandling.filewriting.BatchWriter import BatchWriter
 
 # type

@@ -24,7 +24,7 @@ import modules.Universal as uni
 from modules.BatchAnalysis import BatchAnalysis
 from modules.dataanalysis.Spectrum import Spectrum
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
-from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filereading.filereader import FileReader
 from modules.filehandling.filewriting.SpectrumWriter import SpectrumWriter
 
 # enums

@@ -30,7 +30,7 @@ import modules.Universal as uni
 import dialog_messages as dialog
 from modules.dataanalysis.Trace import Trace
 from modules.Watchdog import Watchdog
-from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filereading.filereader import FileReader
 from modules.thread.Appender import Appender
 from modules.thread.Exporter import Exporter
 from modules.thread.Plotter import Plotter

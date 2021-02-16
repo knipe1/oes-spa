@@ -36,7 +36,7 @@ from loader.YamlLoader import YamlLoader
 import modules.Universal as uni
 from modules.dataanalysis.Fitting import Fitting
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
-from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filereading.filereader import FileReader
 
 # enums and dataclasses
 from c_types.BasicSetting import BasicSetting

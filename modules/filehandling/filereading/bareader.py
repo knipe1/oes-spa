@@ -19,7 +19,7 @@ import fnmatch
 
 # local modules/libs
 # BaseReader: base class.
-from modules.filehandling.filereading.BaseReader import BaseReader
+from modules.filehandling.filereading.basereader import BaseReader
 # further modules
 import modules.Universal as uni
 

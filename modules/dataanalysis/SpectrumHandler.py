@@ -27,7 +27,7 @@ import peakutils as pkus
 import modules.Universal as uni
 from modules.dataanalysis.Calibration import Calibration
 from modules.dataanalysis.Fitting import Fitting
-from modules.filehandling.filereading.FileReader import FileReader
+from modules.filehandling.filereading.filereader import FileReader
 from c_types.BasicSetting import BasicSetting
 
 # enums
