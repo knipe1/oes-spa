@@ -22,8 +22,8 @@ from ui.UIMain import UIMain
 import dialog_messages as dialog
 import modules.Universal as uni
 from modules.BatchAnalysis import BatchAnalysis
-from modules.dataanalysis.Spectrum import Spectrum
-from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.dataanalysis.spectrum import Spectrum
+from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
 from modules.filehandling.filewriting.spectrumwriter import SpectrumWriter
 

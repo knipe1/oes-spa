@@ -8,7 +8,7 @@ Created on Tue Feb  2 14:02:43 2021
 
 import modules.Universal as uni
 
-from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
 from c_types.BasicSetting import BasicSetting
 

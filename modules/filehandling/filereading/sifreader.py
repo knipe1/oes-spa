@@ -17,7 +17,7 @@ import sif_reader
 # local modules/libs
 from modules.filehandling.filereading.basereader import BaseReader
 import modules.Universal as uni
-import modules.dataanalysis.SpectrumHandler as SH
+import modules.dataanalysis.spectrumhandler as SH
 
 # Enums
 from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC

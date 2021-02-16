@@ -35,7 +35,7 @@ from loader.ConfigLoader import ConfigLoader
 from loader.YamlLoader import YamlLoader
 import modules.Universal as uni
 from modules.dataanalysis.Fitting import Fitting
-from modules.dataanalysis.SpectrumHandler import SpectrumHandler
+from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
 
 # enums and dataclasses
