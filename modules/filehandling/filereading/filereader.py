@@ -24,7 +24,7 @@ from datetime import datetime
 
 # local modules/libs
 # FileFramework: base class.
-from modules.filehandling.FileFramework import FileFramework
+from modules.filehandling.fileframework import FileFramework
 # specific subReader
 from modules.filehandling.filereading.ascreader import AscReader
 from modules.filehandling.filereading.bareader import BaReader

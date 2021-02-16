@@ -12,7 +12,7 @@ import csv
 from unittest import TestCase
 
 # local modules/libs
-from modules.filehandling.FileFramework import FileFramework
+from modules.filehandling.fileframework import FileFramework
 
 class TestFileFramework(TestCase):
     framework = FileFramework()
