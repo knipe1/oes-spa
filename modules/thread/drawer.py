@@ -10,8 +10,6 @@ Created on Sun Feb 14 20:58:50 2021
 # standard libs
 
 # third-party libs
-from PyQt5.QtCore import Signal
-
 # local modules/libs
 from modules.thread.worker import Worker
 
@@ -19,7 +17,6 @@ from modules.thread.worker import Worker
 
 
 class Drawer(Worker):
-    signal_filename = Signal(str)
 
     def run(self):
         self._obj.plot_spectrum()

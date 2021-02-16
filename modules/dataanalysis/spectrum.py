@@ -16,6 +16,7 @@ import numpy as np
 from loader.configloader import ConfigLoader
 from ui.matplotlibwidget import MatplotlibWidget
 import modules.universal as uni
+from modules.thread.drawer import Drawer
 
 
 # Enums
@@ -59,7 +60,6 @@ class Spectrum():
 
     def __init__(self, uiElement:MatplotlibWidget, exportType:EXPORT_TYPE)->None:
         self._logger = logging.getLogger(self.__class__.__name__)
-
         self._ui = uiElement
         self._ui.axes.clear()
         self._ui.axes.axhline()
@@ -67,11 +67,15 @@ class Spectrum():
 
         self.exportType = exportType
 
+        self._baseline = None
+        self._calibrationPeaks = None
+        self._thread = None
+
         self.labels = self.get_labels(self.exportType)
         self._markup = self.get_markup(self.exportType)
 
         self.data = np.zeros(shape=(0, 2))
-        self.integrationAreas = []
+        self._integrationAreas = []
 
 
     def __repr__(self):
@@ -87,11 +91,6 @@ class Spectrum():
 
     ## methods
 
-    def add_baseline(self, baselineData:np.ndarray)->None:
-        """Adds the baseline of a spectrum as property (to plot)."""
-        self._baseline = baselineData
-
-
     def set_data(self, xyData:np.ndarray, integrationAreas:list=None,
                  baselineData:np.ndarray=None, calibrationPeaks:np.ndarray=None)->None:
         """
@@ -100,25 +99,22 @@ class Spectrum():
         Set integration areas and baseline for more detailled plotting.
         """
         self.data = xyData
-        self.integrationAreas = integrationAreas or []
-        if calibrationPeaks is None:
-            self._calibrationPeaks = []
-        else:
-            self._calibrationPeaks = calibrationPeaks
+        self._integrationAreas = integrationAreas or []
+        self._baseline = baselineData
+        self._calibrationPeaks = calibrationPeaks
 
-        if not baselineData is None:
-            self.add_baseline(baselineData)
+        if self.exportType == EXPORT_TYPE.RAW:
+            self.update_labels()
 
-        if self.exportType == EXPORT_TYPE.RAW :
-            if uni.data_are_pixel(self.xData):
-                self.labels = self.get_labels(EXPORT_TYPE.RAW)
-            else:
-                self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
-
-        # self.plot_spectrum()
-        from modules.thread.drawer import Drawer
         self._thread = Drawer()
         self._thread.draw(self)
+
+
+    def update_labels(self)->None:
+        if uni.data_are_pixel(self.xData):
+            self.labels = self.get_labels(EXPORT_TYPE.RAW)
+        else:
+            self.labels = self.get_labels(EXPORT_TYPE.PROCESSED)
 
 
     def plot_spectrum(self)->None:
@@ -141,10 +137,6 @@ class Spectrum():
         while len(collections):
             collections.remove(collections[-1])
 
-        # self._ui.axes.clear()
-        # self._ui.axes.axhline()
-        # self._ui.axes.axvline()
-
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
@@ -159,17 +151,19 @@ class Spectrum():
         try:
             baselineMarkup = self.get_markup(self.BASELINE)
             self._ui.axes.plot(self.xData, self._baseline, **baselineMarkup)
-        except AttributeError:
+        except ValueError:
             self._logger.info("Could not plot baseline.")
 
 
     def plot_integration_areas(self)->None:
-        for intArea in self.integrationAreas:
+        for intArea in self._integrationAreas:
             col = self.determine_color(intArea)
             self._ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
 
 
     def plot_calibration_peaks(self)->None:
+        if self._calibrationPeaks is None:
+            return
         for peak in self._calibrationPeaks:
             self._ui.axes.axvline(peak, ls="--")
 

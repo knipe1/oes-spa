@@ -40,7 +40,8 @@ class Trace(Spectrum):
 
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
-
+        # Resets the color cycle, that the first line is always plotted in the same color.
+        self._ui.axes.set_prop_cycle(None)
         for peak in self.data.keys():
             self._markup["label"] = peak
             self.data[peak] = self.sort_x_data(self.data[peak])
