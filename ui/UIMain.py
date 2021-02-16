@@ -33,7 +33,7 @@ from ui.ui_main_window import Ui_main
 from ui.matplotlibwidget import MatplotlibWidget
 from loader.ConfigLoader import ConfigLoader
 from loader.YamlLoader import YamlLoader
-import modules.Universal as uni
+import modules.universal as uni
 from modules.dataanalysis.Fitting import Fitting
 from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader

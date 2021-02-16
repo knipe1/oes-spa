@@ -17,7 +17,7 @@ import emulator as emu
 
 # local modules/libs
 import loggerconfig
-from modules.AnalysisWindow import AnalysisWindow
+from modules.analysiswindow import AnalysisWindow
 
 
 

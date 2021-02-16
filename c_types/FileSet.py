@@ -12,7 +12,7 @@ class: FileSet
 from dependencies.natsort.natsort import natsorted
 
 # local modules/libs
-import modules.Universal as uni
+import modules.universal as uni
 
 # Enums
 

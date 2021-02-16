@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QListWidget
 
 # local modules/libs
 from loader.ConfigLoader import ConfigLoader
-import modules.Universal as uni
+import modules.universal as uni
 
 
 BATCH = ConfigLoader().BATCH

@@ -6,7 +6,7 @@ Created on Tue Feb  2 14:02:43 2021
 @author: hauke
 """
 
-import modules.Universal as uni
+import modules.universal as uni
 
 from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader

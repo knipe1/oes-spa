@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import QDialog
 import peakutils as pkus
 
 # local modules/libs
-import modules.Universal as uni
+import modules.universal as uni
 from modules.dataanalysis.Calibration import Calibration
 from modules.dataanalysis.Fitting import Fitting
 from modules.filehandling.filereading.filereader import FileReader

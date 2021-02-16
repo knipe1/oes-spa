@@ -33,7 +33,7 @@ from modules.filehandling.filereading.sifreader import SifReader
 from modules.filehandling.filereading.spkreader import SpkReader
 from modules.filehandling.filewriting.spectrumwriter import is_exported_spectrum
 # further modules
-import modules.Universal as uni
+import modules.universal as uni
 
 # enums (alphabetical order)
 from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC

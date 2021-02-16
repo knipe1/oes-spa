@@ -17,8 +17,8 @@ import threading as THR
 from PyQt5.QtCore import QFileInfo
 
 # local modules/libs
-from modules.Universal import reduce_paths
-from modules.Universal import add_index_to_text
+from modules.universal import reduce_paths
+from modules.universal import add_index_to_text
 
 class TestLoadFiles(unittest.TestCase):
 

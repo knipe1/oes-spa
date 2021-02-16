@@ -21,7 +21,7 @@ import fnmatch
 # BaseReader: base class.
 from modules.filehandling.filereading.basereader import BaseReader
 # further modules
-import modules.Universal as uni
+import modules.universal as uni
 
 # enums (alphabetical order)
 from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
@@ -30,7 +30,7 @@ from c_enum.ERROR_CODE import ERROR_CODE as ERR
 from c_enum.SUFFICES import SUFFICES as SUFF
 
 # constants
-from modules.Universal import EXPORT_TIMESTAMP
+from modules.universal import EXPORT_TIMESTAMP
 
 
 class BaReader(BaseReader):

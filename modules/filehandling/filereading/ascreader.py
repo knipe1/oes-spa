@@ -13,7 +13,7 @@ from datetime import datetime
 
 # local modules/libs
 from modules.filehandling.filereading.basereader import BaseReader
-import modules.Universal as uni
+import modules.universal as uni
 
 # Enums
 

@@ -15,7 +15,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from loader.ConfigLoader import ConfigLoader
-import modules.Universal as uni
+import modules.universal as uni
 
 
 class Watchdog(QObject):

@@ -15,7 +15,7 @@ import numpy as np
 # local modules/libs
 from loader.ConfigLoader import ConfigLoader
 from ui.matplotlibwidget import MatplotlibWidget
-import modules.Universal as uni
+import modules.universal as uni
 
 
 # Enums

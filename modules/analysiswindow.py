@@ -20,8 +20,8 @@ from PyQt5.QtWidgets import QMainWindow
 # local modules/libs
 from ui.UIMain import UIMain
 import dialog_messages as dialog
-import modules.Universal as uni
-from modules.BatchAnalysis import BatchAnalysis
+import modules.universal as uni
+from modules.batchanalysis import BatchAnalysis
 from modules.dataanalysis.spectrum import Spectrum
 from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
@@ -44,7 +44,7 @@ class AnalysisWindow(QMainWindow):
     Main Window. Organization and interfaces of sub-types/sub-windows.
 
     Usage:
-        from modules.AnalysisWindow import AnalysisWindow
+        from modules.analysiswindow import AnalysisWindow
         window = AnalysisWindow()
         window.apply_file("./sample files/Asterix1059 1.Spk") # Load a spectrum programmatically.
     """

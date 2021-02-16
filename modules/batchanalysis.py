@@ -26,10 +26,10 @@ from PyQt5.QtGui import QKeySequence as QKeys
 # UI
 from ui.UIBatch import UIBatch
 # modules & universal
-import modules.Universal as uni
+import modules.universal as uni
 import dialog_messages as dialog
 from modules.dataanalysis.Trace import Trace
-from modules.Watchdog import Watchdog
+from modules.watchdog import Watchdog
 from modules.filehandling.filereading.filereader import FileReader
 from modules.thread.appender import Appender
 from modules.thread.exporter import Exporter
@@ -54,7 +54,7 @@ class BatchAnalysis(QDialog):
     May extract characteristic values for further applications.
 
     Usage:
-        from modules.BatchAnalysis import BatchAnalysis
+        from modules.batchanalysis import BatchAnalysis
         batch = BatchAnalysis(parent)  # parent as main window or application
 
     """

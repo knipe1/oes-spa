@@ -24,7 +24,7 @@ from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import QApplication
 
 # classes
-from modules.AnalysisWindow import AnalysisWindow
+from modules.analysiswindow import AnalysisWindow
 
 
 

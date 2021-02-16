@@ -23,7 +23,7 @@ import loggerconfig
 from PyQt5.QtWidgets import QApplication
 
 # local modules/libs
-from modules.AnalysisWindow import AnalysisWindow
+from modules.analysiswindow import AnalysisWindow
 
 
 def main():

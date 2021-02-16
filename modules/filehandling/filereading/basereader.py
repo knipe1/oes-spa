@@ -15,7 +15,7 @@ from datetime import datetime
 # local modules/libs
 # FileFramework: base class.
 from modules.filehandling.fileframework import FileFramework
-import modules.Universal as uni
+import modules.universal as uni
 
 # Enums
 

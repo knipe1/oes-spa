@@ -15,7 +15,7 @@ import numpy as np
 
 # local modules/libs
 from modules.dataanalysis.spectrum import Spectrum
-import modules.Universal as uni
+import modules.universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
 # Enums
