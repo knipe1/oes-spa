@@ -24,7 +24,7 @@ from PyQt5.QtGui import QKeySequence as QKeys
 
 # local modules/libs
 # UI
-from ui.UIBatch import UIBatch
+from ui.UIbatch import UIBatch
 # modules & universal
 import modules.universal as uni
 import dialog_messages as dialog

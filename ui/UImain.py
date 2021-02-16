@@ -7,7 +7,7 @@ interfaces
 
 
 Usage:
-    from ui.UIMain import UIMain
+    from ui.UImain import UIMain
     self.window = UIMain(parent)  # parent as main window or application
 
 
@@ -55,7 +55,7 @@ class UIMain(Ui_main, QObject):
     elements under certain conditions.
 
     Usage:
-        from ui.UIMain import UIMain
+        from ui.UImain import UIMain
         self.window = UIMain(parent)  # parent as main window or application
 
 

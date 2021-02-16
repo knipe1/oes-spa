@@ -4,7 +4,7 @@
 This file implements a routine to run all test one after another.
 
 Therefore, the test modules are imported and added to a test suite.
-For further information see also the official python documnetation about 
+For further information see also the official python documnetation about
 unittests.
 https://docs.python.org/3/library/unittest.html
 
@@ -20,8 +20,8 @@ import modules.test_BatchAnalysis as t_batch
 import modules.test_FileFramework as t_file
 import modules.test_universal as t_uni
 ## ui
-import ui.test_UIBatch as t_ui_batch
-import ui.test_UIMain as t_ui_main
+import ui.test_UIbatch as t_ui_batch
+import ui.test_UImain as t_ui_main
 
 
 # initialize the test suite

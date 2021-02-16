@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import QMainWindow
 
 
 # local modules/libs
-from ui.UIMain import UIMain
+from ui.UImain import UIMain
 import dialog_messages as dialog
 import modules.universal as uni
 from modules.batchanalysis import BatchAnalysis
