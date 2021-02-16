@@ -23,6 +23,7 @@ DEF_LOG_FILE = "../debug.log"
 
 
 def set_up()->None:
+    """Set up the logger including the format, the log level and the handlers."""
     filename = determine_filename()
     logging.basicConfig(level=LOG_LEVEL,
                         format=LOG_FORMAT,
@@ -32,6 +33,7 @@ def set_up()->None:
 
 
 def determine_filename()->str:
+    """Uses the logfile defined in the config if possible. Otherwise starts a dialog."""
     filename = ConfigLoader().logFile
     if not filename:
         filename = dialog_logFile(defaultFile=DEF_LOG_FILE)
