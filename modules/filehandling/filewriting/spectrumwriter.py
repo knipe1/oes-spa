@@ -7,7 +7,6 @@ Created on Fri Sep 25 09:39:36 2020
 """
 
 # standard libs
-import csv
 from os import path
 from datetime import datetime
 
@@ -15,7 +14,7 @@ from datetime import datetime
 
 # local modules/libs
 # FileWriter: base class.
-from modules.filehandling.filewriting.FileWriter import FileWriter
+from modules.filehandling.filewriting.filewriter import FileWriter
 import modules.Universal as uni
 from modules.dataanalysis.Spectrum import Spectrum
 

@@ -31,7 +31,7 @@ from modules.filehandling.filereading.bareader import BaReader
 from modules.filehandling.filereading.csvreader import CsvReader
 from modules.filehandling.filereading.sifreader import SifReader
 from modules.filehandling.filereading.spkreader import SpkReader
-from modules.filehandling.filewriting.SpectrumWriter import is_exported_spectrum
+from modules.filehandling.filewriting.spectrumwriter import is_exported_spectrum
 # further modules
 import modules.Universal as uni
 

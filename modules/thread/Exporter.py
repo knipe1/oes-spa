@@ -16,7 +16,7 @@ from modules.thread.Worker import Worker
 from modules.dataanalysis.SpectrumHandler import SpectrumHandler
 import modules.dataanalysis.Analysis as Analysis
 from modules.filehandling.filereading.filereader import FileReader
-from modules.filehandling.filewriting.BatchWriter import BatchWriter
+from modules.filehandling.filewriting.batchwriter import BatchWriter
 
 # type
 from c_types.BasicSetting import BasicSetting
