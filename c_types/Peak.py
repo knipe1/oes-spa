@@ -17,7 +17,7 @@ from c_types.ReferencePeak import ReferencePeak
 from dialog_messages import information_normalizationFactorUndefined, information_normalizationOffsetUndefined
 
 # Enums
-from c_enum.ERROR_CODE import ERROR_CODE as ERR
+from c_enum.error_code import ERROR_CODE as ERR
 
 # constants
 DEFAULT_NORM_FACTOR = 1.0
@@ -120,4 +120,3 @@ class Peak(BasePeak):
         except ValueError:
             pass
         return False
-

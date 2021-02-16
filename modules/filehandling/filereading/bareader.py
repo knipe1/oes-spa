@@ -24,10 +24,10 @@ from modules.filehandling.filereading.basereader import BaseReader
 import modules.universal as uni
 
 # enums (alphabetical order)
-from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
-from c_enum.ERROR_CODE import ERROR_CODE as ERR
-from c_enum.SUFFICES import SUFFICES as SUFF
+from c_enum.asc_parameter import ASC_PARAMETER as ASC
+from c_enum.characteristic import CHARACTERISTIC as CHC
+from c_enum.error_code import ERROR_CODE as ERR
+from c_enum.suffices import SUFFICES as SUFF
 
 # constants
 from modules.universal import EXPORT_TIMESTAMP

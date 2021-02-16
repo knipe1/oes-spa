@@ -20,8 +20,8 @@ import modules.universal as uni
 
 # Enums
 from c_types.Integration import Integration
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
-from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.characteristic import CHARACTERISTIC as CHC
+from c_enum.export_type import EXPORT_TYPE
 
 
 

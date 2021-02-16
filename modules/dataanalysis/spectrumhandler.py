@@ -25,17 +25,17 @@ import peakutils as pkus
 
 # local modules/libs
 import modules.universal as uni
-from modules.dataanalysis.Calibration import Calibration
-from modules.dataanalysis.Fitting import Fitting
+from modules.dataanalysis.calibration import Calibration
+from modules.dataanalysis.fitting import Fitting
 from modules.filehandling.filereading.filereader import FileReader
 from c_types.BasicSetting import BasicSetting
 
 # enums
 from c_types.Integration import Integration
 from c_types.Peak import Peak
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
-from c_enum.ERROR_CODE import ERROR_CODE as ERR
-from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.characteristic import CHARACTERISTIC as CHC
+from c_enum.error_code import ERROR_CODE as ERR
+from c_enum.export_type import EXPORT_TYPE
 
 # exceptions
 from exception.InvalidSpectrumError import InvalidSpectrumError

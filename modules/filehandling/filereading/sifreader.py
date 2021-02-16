@@ -20,7 +20,7 @@ import modules.universal as uni
 import modules.dataanalysis.spectrumhandler as SH
 
 # Enums
-from c_enum.ASC_PARAMETER import ASC_PARAMETER as ASC
+from c_enum.asc_parameter import ASC_PARAMETER as ASC
 
 # constants
 

@@ -28,7 +28,7 @@ from ui.UIBatch import UIBatch
 # modules & universal
 import modules.universal as uni
 import dialog_messages as dialog
-from modules.dataanalysis.Trace import Trace
+from modules.dataanalysis.trace import Trace
 from modules.watchdog import Watchdog
 from modules.filehandling.filereading.filereader import FileReader
 from modules.thread.appender import Appender
@@ -39,7 +39,7 @@ from modules.thread.plotter import Plotter
 # Enums
 from c_types.FileSet import FileSet
 from c_types.BasicSetting import BasicSetting
-from c_enum.SUFFICES import SUFFICES as SUFF
+from c_enum.suffices import SUFFICES as SUFF
 
 
 # constants

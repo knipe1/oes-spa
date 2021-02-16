@@ -19,7 +19,7 @@ import modules.universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 
 # Enums
-from c_enum.EXPORT_TYPE import EXPORT_TYPE
+from c_enum.export_type import EXPORT_TYPE
 
 
 

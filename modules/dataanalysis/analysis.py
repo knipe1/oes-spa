@@ -13,7 +13,7 @@ from modules.filehandling.filereading.filereader import FileReader
 from c_types.BasicSetting import BasicSetting
 
 # Enums
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.characteristic import CHARACTERISTIC as CHC
 
 
 def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileReader)->tuple:

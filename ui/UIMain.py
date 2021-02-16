@@ -34,13 +34,13 @@ from ui.matplotlibwidget import MatplotlibWidget
 from loader.ConfigLoader import ConfigLoader
 from loader.YamlLoader import YamlLoader
 import modules.universal as uni
-from modules.dataanalysis.Fitting import Fitting
+from modules.dataanalysis.fitting import Fitting
 from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
 
 # enums and dataclasses
 from c_types.BasicSetting import BasicSetting
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.characteristic import CHARACTERISTIC as CHC
 
 
 class UIMain(Ui_main, QObject):

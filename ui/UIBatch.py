@@ -18,7 +18,7 @@ from ui.ui_batch_dialog import Ui_batch
 from ui.matplotlibwidget import MatplotlibWidget
 
 # enums and dataclasses
-from c_enum.CHARACTERISTIC import CHARACTERISTIC as CHC
+from c_enum.characteristic import CHARACTERISTIC as CHC
 
 # constants
 TRACE_SELECTION = [CHC.PEAK_AREA,
