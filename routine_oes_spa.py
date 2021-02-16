@@ -16,7 +16,7 @@ import threading as THR
 import emulator as emu
 
 # local modules/libs
-import LoggerConfig
+import loggerconfig
 from modules.AnalysisWindow import AnalysisWindow
 
 
@@ -43,7 +43,7 @@ def main():
 
     # Setup GUI
     app = QApplication(sys.argv)
-    LoggerConfig.set_up()
+    loggerconfig.set_up()
     window = AnalysisWindow()
 
 
