@@ -12,7 +12,7 @@ Created on Fri Jan 29 15:03:07 2021
 from PyQt5.QtCore import Signal
 
 # local modules/libs
-from modules.thread.Worker import Worker
+from modules.thread.worker import Worker
 from modules.dataanalysis.spectrumhandler import SpectrumHandler
 import modules.dataanalysis.analysis as Analysis
 from modules.filehandling.filereading.filereader import FileReader

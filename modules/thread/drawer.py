@@ -13,7 +13,7 @@ Created on Sun Feb 14 20:58:50 2021
 from PyQt5.QtCore import Signal
 
 # local modules/libs
-from modules.thread.Worker import Worker
+from modules.thread.worker import Worker
 
 # constants
 

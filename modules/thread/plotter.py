@@ -13,7 +13,7 @@ import time
 from PyQt5.QtCore import Signal
 
 # local modules/libs
-from modules.thread.Worker import Worker
+from modules.thread.worker import Worker
 
 # constants
 PAUSE = 0.75
