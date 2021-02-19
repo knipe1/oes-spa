@@ -28,7 +28,7 @@ def main():
 
     initialSpkLoad = True
     initialAscLoad = False
-    initialSifLoad = False
+    initialSifLoad = True
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = False

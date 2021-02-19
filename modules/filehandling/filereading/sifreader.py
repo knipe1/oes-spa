@@ -23,6 +23,8 @@ import modules.dataanalysis.spectrumhandler as SH
 from c_enum.asc_parameter import ASC_PARAMETER as ASC
 
 # constants
+NAME_TIME = "ExperimentTime"
+CALIBRATION_FACTORS = "Calibration_data"
 
 class SifReader(BaseReader):
 
@@ -46,15 +48,28 @@ class SifReader(BaseReader):
         """Parameter 'fReader' only required to have the same signature across reader."""
         filename = kwargs["filename"]
         file = sif_reader.np_open(filename)
-        yData = file[0].flatten()
-        parameter = file[1]
-        xData = np.arange(1, yData.size+1)
-        cali = parameter['Calibration_data']
-        xData = cali[0] + xData * cali[1] + np.power(xData, 2) * cali[2] + np.power(xData, 3) * cali[3]
+        yData, parameter = file[0], file[1]
 
-        timeInfo_ms = parameter['ExperimentTime']
+        # Data handling.
+        yData = yData.flatten()
+        xData = np.arange(1, yData.size+1)
+        factors = parameter[CALIBRATION_FACTORS]
+        xData = self.self_calibration(xData, factors)
+
+        # Parameter handling.
+        timeInfo_ms = parameter[NAME_TIME]
         timeInfo = datetime.fromtimestamp(timeInfo_ms)
-        parameter['ExperimentTime'] = uni.timestamp_to_string(timeInfo)
+        parameter[NAME_TIME] = uni.timestamp_to_string(timeInfo)
         parameter[ASC.WL.value] = np.round(SH.get_center(xData), 3)
+
         information = self.join_information(timeInfo, np.array([xData, yData]).T, parameter)
         return information
+
+
+    @staticmethod
+    def self_calibration(rawData:np.ndarray, factors:list)->np.ndarray:
+        data = (factors[0]
+                + rawData * factors[1]
+                + np.power(rawData, 2) * factors[2]
+                + np.power(rawData, 3) * factors[3])
+        return data
