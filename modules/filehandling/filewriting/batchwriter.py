@@ -58,14 +58,14 @@ class BatchWriter(FileWriter):
 
 
     def is_valid_batchfile(self)->None:
-        isValid = False
         try:
             with open(self.filename, 'r', newline='') as f:
                 fReader = csv.reader(f, dialect=self.dialect)
                 for line in fReader:
                     if self.MARKER["BATCH"] in line:
-                        isValid = True
                         break
+                else:
+                    return False
         except FileNotFoundError:
             pass
-        return isValid
+        return True
