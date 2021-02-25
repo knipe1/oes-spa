@@ -20,9 +20,11 @@ import modules.universal as uni
 
 class Watchdog(QObject):
 
+    ## Signals
     dog_alive = pyqtSignal(bool)
 
 
+    ## Slots
     @pyqtSlot(str)
     def set_directory(self, directory:str)->None:
        self._directory = directory
@@ -37,6 +39,8 @@ class Watchdog(QObject):
             self.stop()
 
 
+    ## __methods__
+
     def __init__(self, onModifiedMethod=None)->None:
         super().__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -44,6 +48,8 @@ class Watchdog(QObject):
         self._directory = ""
         self.handler = SpectrumEventHandler(onModifiedMethod)
 
+
+    ## methods
 
     def start(self, filename:str)->None:
         isValid = self._validate_settings(filename)
@@ -59,9 +65,9 @@ class Watchdog(QObject):
             self.observer.stop()
             self.observer.join()
             self.reset_observer()
-            print("Observation stopped.")
+            self.logger.info("Observation stopped.")
         except RuntimeError:
-            print("No observer initialized.")
+            self.logger.info("No observer initialized.")
         self.dog_alive.emit(self.is_alive())
 
 

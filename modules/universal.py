@@ -92,10 +92,10 @@ def reduce_path(path:str)->str:
         (directory + filename)
 
     """
-    completePath = os.path.dirname(path)
-    parentDir = os.path.basename(completePath)
-    filename = os.path.basename(path)
-    filepath = parentDir + os.sep + filename
+    info = QFileInfo(path)
+    dirname = info.absoluteDir().dirName()
+    filename = info.fileName()
+    filepath = dirname + os.sep + filename
     return filepath
 
 

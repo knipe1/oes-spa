@@ -38,7 +38,6 @@ def merge_characteristics(specHandler:SpectrumHandler, file:FileReader)->dict:
     results[CHC.FILENAME] = file.filename
 
     timestamp = file.timeInfo
-    # results[CHC.HEADER_INFO] = timestamp_to_string(timestamp)
     results[CHC.HEADER_INFO] = uni.timestamp_to_string(timestamp)
     return results
 
