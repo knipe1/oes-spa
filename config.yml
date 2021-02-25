@@ -11,7 +11,7 @@ FITTING:
   - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Example Fitting
+  PRESELECT_FITTING: Example (No peak)
 GENERAL:
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 PLOT:
@@ -36,4 +36,4 @@ PLOT:
   REFERENCE_LINESTYLE: --
 SETTINGS:
   DISPERSION: 0.0061103
-  WL: 388.0
+  WL: 433.0
