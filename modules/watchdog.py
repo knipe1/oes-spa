@@ -67,7 +67,7 @@ class Watchdog(QObject):
             self.reset_observer()
             self.logger.info("Observation stopped.")
         except RuntimeError:
-            self.logger.info("No observer initialized.")
+            self._logger.info("No observer initialized.")
         self.dog_alive.emit(self.is_alive())
 
 
