@@ -60,10 +60,10 @@ class BatchAnalysis(QDialog):
     """
 
     ### Signals
-    signal_batchfile = pyqtSignal(str)
-    signal_WDdirectory_changed = pyqtSignal(str)
-    signal_file_selected = pyqtSignal(FileReader, bool)
-    signal_cancel = pyqtSignal(bool)
+    batchfileChanged = pyqtSignal(str)
+    WDdirectoryChanged = pyqtSignal(str)
+    fileSelected = pyqtSignal(FileReader, bool)
+    cancelInitiated = pyqtSignal(bool)
 
     ### Slots
 
@@ -99,7 +99,7 @@ class BatchAnalysis(QDialog):
             return
         filename = uni.replace_suffix(filename, suffix=BATCH_SUFFIX)
         self._batchFile = filename
-        self.signal_batchfile.emit(filename)
+        self.batchfileChanged.emit(filename)
 
 
 
@@ -165,11 +165,11 @@ class BatchAnalysis(QDialog):
         self._window.connect_change_trace(self.import_batchfile)
         self._window.connect_select_file(self.open_indexed_file)
         # signals
-        self.signal_batchfile.connect(self._window.slot_batchfile)
-        self.signal_WDdirectory_changed.connect(self._window.slot_WDdirectory)
-        self.signal_WDdirectory_changed.connect(self._dog.set_directory)
+        self.batchfileChanged.connect(self._window.slot_batchfile)
+        self.WDdirectoryChanged.connect(self._window.slot_WDdirectory)
+        self.WDdirectoryChanged.connect(self._dog.set_directory)
         self._dog.dog_alive.connect(self._window.slot_enableWD)
-        self.signal_file_selected.connect(self.parent().slot_plot_spectrum)
+        self.fileSelected.connect(self.parent().slot_plot_spectrum)
 
 
     ### Events
@@ -248,7 +248,7 @@ class BatchAnalysis(QDialog):
         thread = Appender()
         thread.signal_valid_file.connect(self.slot_valid_file)
         # thread.signal_import_batch.connect(self.slot_import_batch)
-        # self.signal_cancel.connect(thread.slot_cancel)
+        # self.cancelInitiated.connect(thread.slot_cancel)
         thread.append(filename, self.batchFile, self.setting)
 
 
@@ -270,12 +270,12 @@ class BatchAnalysis(QDialog):
         if isUpdatePlot:
             self._thread = Plotter()
             self._thread.signal_filename.connect(self.parent().slot_plot_spectrum)
-            self.signal_cancel.connect(self._thread.slot_cancel)
+            self.cancelInitiated.connect(self._thread.slot_cancel)
             self._thread.plot(files)
 
         if isExportBatch:
             self._thread = Exporter()
-            self.signal_cancel.connect(self._thread.slot_cancel)
+            self.cancelInitiated.connect(self._thread.slot_cancel)
             self._thread.finished.connect(self.slot_import_batch)
             self._thread.signal_progress.connect(self._window.slot_progress)
             self._thread.signal_skipped_files.connect(self.slot_handle_skipped_files)
@@ -343,7 +343,7 @@ class BatchAnalysis(QDialog):
         """Specifies the watchdog directory through a dialog."""
         directory = dialog.dialog_watchdogDirectory()
         if path.isdir(directory):
-            self.signal_WDdirectory_changed.emit(directory)
+            self.WDdirectoryChanged.emit(directory)
 
 
     def _browse_spectra(self)->None:
@@ -369,7 +369,7 @@ class BatchAnalysis(QDialog):
         if filename:
             selectedFile = FileReader(filename)
             dogAlive = self._dog.is_alive()
-            self.signal_file_selected.emit(selectedFile, dogAlive)
+            self.fileSelected.emit(selectedFile, dogAlive)
             self._traceSpectrum.plot_referencetime_of_spectrum(*selectedFile.fileinformation)
 
 
@@ -408,7 +408,7 @@ class BatchAnalysis(QDialog):
 
     def schedule_cancel_routine(self)->None:
         """Demands a cancellation. Processed in corresponing methods."""
-        self.signal_cancel.emit(True)
+        self.cancelInitiated.emit(True)
 
 
 
