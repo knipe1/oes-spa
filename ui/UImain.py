@@ -89,12 +89,12 @@ class UIMain(Ui_main, QObject):
     # Slots
 
     @pyqtSlot(bool)
-    def slot_enableDispersion(self, enable:bool)->None:
+    def enable_dispersion(self, enable:bool)->None:
         self.tinDispersion.setEnabled(enable)
 
 
     @pyqtSlot(bool)
-    def slot_show_diff_wavelength(self, show:bool)->None:
+    def show_diff_wavelength(self, show:bool)->None:
         uiElement = self.lblDiffWavelength
         if show:
             uiElement.show()

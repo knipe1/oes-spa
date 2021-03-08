@@ -20,7 +20,7 @@ class Worker(QThread):
 
     ### Slots
     @Slot(bool)
-    def slot_cancel(self, cancel:bool):
+    def cancel_job(self, cancel:bool):
         self.cancel = cancel
 
 

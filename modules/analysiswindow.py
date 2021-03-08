@@ -51,20 +51,20 @@ class AnalysisWindow(QMainWindow):
 
     ### Signal
 
-    signal_wavelength_difference = pyqtSignal(bool)
-    signal_file_changed = pyqtSignal(FileReader)
+    wavelengthChanged = pyqtSignal(bool)
+    fileChanged = pyqtSignal(FileReader)
 
 
     ### Slots
 
     @pyqtSlot(str)
     @pyqtSlot(FileReader, bool)
-    def slot_plot_spectrum(self, file:str, silent_:bool=True)->None:
+    def plot_spectrum(self, file:str, silent_:bool=True)->None:
         self.apply_file(file, silent=silent_)
 
 
     @pyqtSlot()
-    def slot_setting_changed(self):
+    def setting_changed(self):
         self.setting = self.window.get_basic_setting()
 
 
@@ -79,7 +79,7 @@ class AnalysisWindow(QMainWindow):
     def activeFile(self, file:FileReader)->None:
         """activeFile setter: Updating the ui"""
         if file != self._activeFile:
-            self.signal_file_changed.emit(file)
+            self.fileChanged.emit(file)
         self._activeFile = file
 
 
@@ -112,7 +112,7 @@ class AnalysisWindow(QMainWindow):
         self.__post_init__()
 
         # Hide initially. Cannot be set in designer.
-        self.signal_wavelength_difference.emit(False)
+        self.wavelengthChanged.emit(False)
 
         # Show window, otherwise the window does not appear anywhere on the screen.
         self.show()
@@ -139,14 +139,14 @@ class AnalysisWindow(QMainWindow):
 
     def _connect_ui_events(self)->None:
         win = self.window
-        win.connect_change_basic_settings(self.slot_setting_changed)
+        win.connect_change_basic_settings(self.setting_changed)
         win.connect_export_processed(self._export_processed)
         win.connect_export_raw(self._export_raw)
         win.connect_open_file(self._file_open)
         win.connect_show_batch(self.batch.show)
 
-        self.signal_wavelength_difference.connect(win.slot_show_diff_wavelength)
-        self.signal_file_changed.connect(win.update_fileinformation)
+        self.wavelengthChanged.connect(win.show_diff_wavelength)
+        self.fileChanged.connect(win.update_fileinformation)
 
 
     ### Events
@@ -252,7 +252,7 @@ class AnalysisWindow(QMainWindow):
             self._set_wavelength_from_file(file)
 
         try:
-            specHandler = SpectrumHandler(file, self.setting, slotPixel=self.window.slot_enableDispersion)
+            specHandler = SpectrumHandler(file, self.setting, slotPixel=self.window.enable_dispersion)
         except InvalidSpectrumError:
             if not silent:
                 dialog.critical_invalidSpectrum()
@@ -282,7 +282,7 @@ class AnalysisWindow(QMainWindow):
             settingWavelength = None
         finally:
             hasDifferentWl = (fileWavelength != settingWavelength)
-            self.signal_wavelength_difference.emit(hasDifferentWl)
+            self.wavelengthChanged.emit(hasDifferentWl)
 
 
     def _update_spectra(self, specHandler:SpectrumHandler)->None:

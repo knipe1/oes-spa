@@ -55,7 +55,7 @@ class SpectrumHandler(QDialog):
                 Information about wavelength, dispersion,...
      """
     ### Signals
-    signal_pixel_data = pyqtSignal(bool)
+    pixelDataTriggered = pyqtSignal(bool)
 
     ### Properties
 
@@ -136,7 +136,7 @@ class SpectrumHandler(QDialog):
         self._reset_values()
 
         if not slotPixel is None:
-            self.signal_pixel_data.connect(slotPixel)
+            self.pixelDataTriggered.connect(slotPixel)
 
         self.rawData = file.data
         self._process_data()
@@ -371,7 +371,7 @@ class SpectrumHandler(QDialog):
         dispersion = self.basicSetting.dispersion
         xDataArePixel = uni.data_are_pixel(rawXData)
         if xDataArePixel:
-            self.signal_pixel_data.emit(True)
+            self.pixelDataTriggered.emit(True)
             try:
                 # Employs the dispersion to convert pixel to wavelength
                 start = centralWavelength - center*dispersion
@@ -380,7 +380,7 @@ class SpectrumHandler(QDialog):
                 self._logger.info("Could not process data. Invalid wavelength or dispersion!")
                 shiftedData = rawXData
         else:
-            self.signal_pixel_data.emit(False)
+            self.pixelDataTriggered.emit(False)
             try:
                 # Only shift the original data to the given centralWavelength
                 shift = centralWavelength - center

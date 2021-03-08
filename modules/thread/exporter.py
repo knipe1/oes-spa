@@ -27,9 +27,8 @@ from exception.InvalidSpectrumError import InvalidSpectrumError
 
 
 class Exporter(Worker):
-    signal_exportFinished = Signal(bool)
-    signal_progress = Signal(float)
-    signal_skipped_files = Signal(list)
+    progressChanged = Signal(float)
+    skippedFilesTriggered = Signal(list)
 
     def export(self, files:list, batchFile:str, setting:BasicSetting):
         self._files = files
@@ -47,7 +46,7 @@ class Exporter(Worker):
         for i, file in enumerate(self._files):
             if self.cancel:
                 break
-            self.signal_progress.emit((i+1)/amount)
+            self.progressChanged.emit((i+1)/amount)
 
             try:
                 self.currentFile = FileReader(file)
@@ -70,4 +69,4 @@ class Exporter(Worker):
 
         BatchWriter(self._batchFile).export(data, header)
 
-        self.signal_skipped_files.emit(skippedFiles)
+        self.skippedFilesTriggered.emit(skippedFiles)

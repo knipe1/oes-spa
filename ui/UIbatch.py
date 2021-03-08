@@ -74,29 +74,29 @@ class UIBatch(Ui_batch, QObject):
     ## Qt-Slots
 
     @Slot(bool)
-    def slot_enableAnalysis(self, status:bool)->None:
+    def enable_analysis(self, status:bool)->None:
         self.btnAnalyze.setEnabled(status)
 
 
     @Slot(str)
-    def slot_batchfile(self, filename:str)->None:
+    def set_batchfilename(self, filename:str)->None:
         self.foutBatchfile.setText(filename)
 
 
     @Slot(str)
-    def slot_WDdirectory(self, dirname:str)->None:
+    def set_WDdirectory(self, dirname:str)->None:
         self.foutWatchdog.setText(dirname)
 
 
     @Slot(bool)
-    def slot_enableWD(self, status:bool)->None:
+    def enable_WD(self, status:bool)->None:
         self.btnSetWatchdogDir.setEnabled(not status)
         self.btnSetFilename.setEnabled(not status)
         self.btnWatchdog.setChecked(status)
 
 
     @Slot(float)
-    def slot_progress(self, percentage:float)->None:
+    def set_progress_bar(self, percentage:float)->None:
         self.barProgress.setValue(percentage*100)
 
 

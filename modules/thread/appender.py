@@ -27,8 +27,8 @@ from exception.InvalidSpectrumError import InvalidSpectrumError
 
 
 class Appender(Worker):
-    signal_valid_file = Signal(str)
-    signal_import_batch = Signal(bool)
+    fileValidated = Signal(str)
+    importBatchTriggered = Signal(bool)
 
     def append(self, filename:str, batchFile:str, setting:BasicSetting):
         self._file = FileReader(filename)
@@ -47,5 +47,5 @@ class Appender(Worker):
 
         data, header = Analysis.analyze_file(self._setting, specHandler, self._file)
         BatchWriter(self._batchFile).extend_data(data, header)
-        self.signal_valid_file.emit(self._file.filename)
-        self.signal_import_batch.emit(True)
+        self.fileValidated.emit(self._file.filename)
+        self.importBatchTriggered.emit(True)

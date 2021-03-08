@@ -69,21 +69,20 @@ class BatchAnalysis(QDialog):
 
     @pyqtSlot()
     @pyqtSlot(bool)
-    def slot_import_batch(self, force:bool=False)->None:
+    def update_batch(self, force:bool=False)->None:
         if self._window.get_plot_trace() or force:
             self.import_batchfile(takeCurrentBatchfile=True)
 
 
     @pyqtSlot(list)
-    def slot_handle_skipped_files(self, skippedFiles:list)->None:
+    def handle_skipped_files(self, skippedFiles:list)->None:
         dialog.information_batchAnalysisFinished(skippedFiles)
         self._files.difference_update(skippedFiles)
 
 
     @pyqtSlot(str)
-    def slot_valid_file(self, filename:str)->None:
+    def add_file(self, filename:str)->None:
         self._files.update([filename], noSelection=True)
-        # self._files.select_row_by_filename(pathname)
 
 
     ### Properties
@@ -165,11 +164,11 @@ class BatchAnalysis(QDialog):
         self._window.connect_change_trace(self.import_batchfile)
         self._window.connect_select_file(self.open_indexed_file)
         # signals
-        self.batchfileChanged.connect(self._window.slot_batchfile)
-        self.WDdirectoryChanged.connect(self._window.slot_WDdirectory)
+        self.batchfileChanged.connect(self._window.set_batchfilename)
+        self.WDdirectoryChanged.connect(self._window.set_WDdirectory)
         self.WDdirectoryChanged.connect(self._dog.set_directory)
-        self._dog.dog_alive.connect(self._window.slot_enableWD)
-        self.fileSelected.connect(self.parent().slot_plot_spectrum)
+        self._dog.dog_alive.connect(self._window.enable_WD)
+        self.fileSelected.connect(self.parent().plot_spectrum)
 
 
     ### Events
@@ -246,9 +245,9 @@ class BatchAnalysis(QDialog):
     def analyze_single_file(self, filename:str)->None:
 
         thread = Appender()
-        thread.signal_valid_file.connect(self.slot_valid_file)
-        # thread.signal_import_batch.connect(self.slot_import_batch)
-        # self.cancelInitiated.connect(thread.slot_cancel)
+        thread.fileValidated.connect(self.add_file)
+        # thread.importBatchTriggered.connect(self.update_batch)
+        # self.cancelInitiated.connect(thread.cancel_job)
         thread.append(filename, self.batchFile, self.setting)
 
 
@@ -269,16 +268,16 @@ class BatchAnalysis(QDialog):
 
         if isUpdatePlot:
             self._thread = Plotter()
-            self._thread.signal_filename.connect(self.parent().slot_plot_spectrum)
-            self.cancelInitiated.connect(self._thread.slot_cancel)
+            self._thread.fileTriggered.connect(self.parent().plot_spectrum)
+            self.cancelInitiated.connect(self._thread.cancel_job)
             self._thread.plot(files)
 
         if isExportBatch:
             self._thread = Exporter()
-            self.cancelInitiated.connect(self._thread.slot_cancel)
-            self._thread.finished.connect(self.slot_import_batch)
-            self._thread.signal_progress.connect(self._window.slot_progress)
-            self._thread.signal_skipped_files.connect(self.slot_handle_skipped_files)
+            self.cancelInitiated.connect(self._thread.cancel_job)
+            self._thread.finished.connect(self.update_batch)
+            self._thread.progressChanged.connect(self._window.set_progress_bar)
+            self._thread.skippedFilesTriggered.connect(self.handle_skipped_files)
             self._thread.export(files, self.batchFile, self.setting)
 
 

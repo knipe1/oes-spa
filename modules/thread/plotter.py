@@ -20,14 +20,14 @@ PAUSE = 0.75
 
 
 class Plotter(Worker):
-    signal_filename = Signal(str)
+    fileTriggered = Signal(str)
 
     def run(self):
         for file in self._files:
             if self.cancel:
                 break
             time.sleep(PAUSE)
-            self.signal_filename.emit(file)
+            self.fileTriggered.emit(file)
 
 
     def plot(self, files:list):
