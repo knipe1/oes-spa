@@ -118,7 +118,7 @@ class FileReader(FileFramework):
         self.set_defaults()
         self.subReader = self.determine_subReader()
 
-        self._logger.info("Read file: %s", self.filename)
+        # self._logger.info("Read file: %s", self.filename)
         self.__post_init__(**kwargs)
 
 
@@ -143,19 +143,12 @@ class FileReader(FileFramework):
         info = {}
         info["filename"] = self.filename
         info["timeInfo"] = self.timeInfo
-        info["data length"] = "X:%i, Y:%i"%(len(self.xData), len(self.yData))
         return self.__module__ + ":\n" + str(info)
 
 
     ### Methods
 
     def set_defaults(self):
-        # TODO: Test None instead of 0
-        # self.xData = np.zeros(0)
-        # self.yData = np.zeros(0)
-        # TODO: Used anywhere?
-        self.xData = None
-        self.yData = None
         self.data = None
         self.parameter = {}
         # Init with "Not set!" to display the warning on the ui.
@@ -225,21 +218,6 @@ class FileReader(FileFramework):
         if not self.subReader:
             return
         kwargs["filename"] = self.filename
-
-        # if isinstance(self.subReader, SifReader):
-        #     import sif_reader
-        #     import numpy as np
-        #     import datetime
-        #     file = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
-        #     yData = file[0].flatten()
-        #     parameter = file[1]
-        #     xData = np.arange(1, yData.size+1)
-        #     cali = parameter['Calibration_data']
-        #     xData = cali[0] + xData * cali[1] + xData * np.power(cali[2], 2)+ xData * np.power(cali[3], 3)
-        #     self.timeInfo = datetime.datetime.fromtimestamp(parameter['ExperimentTime'])
-        #     self.data = np.array([xData, yData]).T
-        #     self.parameter = parameter
-        #     # return
 
         with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,

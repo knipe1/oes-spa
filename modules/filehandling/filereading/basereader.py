@@ -47,14 +47,12 @@ class BaseReader(FileFramework):
 
         marker = self.MARKER["HEADER"]
 
-        # data = []
         parameter = {}
 
         for line in fReader:
             markerElement, xDataElement, yDataElement = self.get_information(line)
 
             if self.is_data(xDataElement, yDataElement):
-                # data.append((xDataElement, yDataElement))
                 self.add_xy_to_data((xDataElement, yDataElement))
             elif self.contain_marker(marker, markerElement):
                 timeInfo = self.get_time_info(markerElement)

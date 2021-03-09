@@ -24,7 +24,7 @@ from c_types.basicsetting import BasicSetting
 # exceptions
 from exception.InvalidSpectrumError import InvalidSpectrumError
 
-
+import time
 
 class Exporter(Worker):
     progressChanged = Signal(float)
@@ -43,6 +43,7 @@ class Exporter(Worker):
 
         amount = len(self._files)
 
+        before = time.perf_counter()
         for i, file in enumerate(self._files):
             if self.cancel:
                 break
@@ -68,5 +69,7 @@ class Exporter(Worker):
             data.extend(fileData)
 
         BatchWriter(self._batchFile).export(data, header)
+        after = time.perf_counter()
+        print("Elapsed time:", after-before)
 
         self.skippedFilesTriggered.emit(skippedFiles)

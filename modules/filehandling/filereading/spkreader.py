@@ -14,7 +14,7 @@ Created on Fri Sep  4 12:11:22 2020
 from modules.filehandling.filereading.basereader import BaseReader
 
 # Enums
-
+import pandas as pd
 
 class SpkReader(BaseReader):
 
@@ -37,3 +37,20 @@ class SpkReader(BaseReader):
         self.dialect = self.spectralDialect
         self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
         self.yColumn = self.DATA_STRUCTURE["SPK_DATA_COLUMN"]
+
+
+    def readout_file(self, fReader, **kwargs)->dict:
+        filename = kwargs["filename"]
+
+        dfFile = pd.read_csv(filename,
+                             header = None,
+                             usecols = [self.xColumn, self.yColumn],
+                             skiprows = 3,
+                             dialect = self.dialect,
+                             skip_blank_lines = True)
+
+        timeInfo = self.get_time_info(next(fReader)[0])
+        self.data = dfFile.to_numpy()
+
+        information = self.join_information(timeInfo, self.data)
+        return information
