@@ -370,8 +370,8 @@ class SpectrumHandler(QDialog):
         centralWavelength = self.basicSetting.wavelength
         dispersion = self.basicSetting.dispersion
         xDataArePixel = uni.data_are_pixel(rawXData)
+        self.pixelDataTriggered.emit(xDataArePixel)
         if xDataArePixel:
-            self.pixelDataTriggered.emit(True)
             try:
                 # Employs the dispersion to convert pixel to wavelength
                 start = centralWavelength - center*dispersion
@@ -380,7 +380,6 @@ class SpectrumHandler(QDialog):
                 self._logger.info("Could not process data. Invalid wavelength or dispersion!")
                 shiftedData = rawXData
         else:
-            self.pixelDataTriggered.emit(False)
             try:
                 # Only shift the original data to the given centralWavelength
                 shift = centralWavelength - center

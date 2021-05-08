@@ -33,6 +33,10 @@ class YamlLoader():
         except yaml.parser.ParserError:
             print("Could not open configuration. Invalid formatted!")
             return {}
+        except FileNotFoundError:
+            print("File not found!")
+            return {}
+
 
 
     def save_config(self):
