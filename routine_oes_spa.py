@@ -35,7 +35,7 @@ def main():
     selectBatchfile = True
     selectBatchSpectra = True
     hideBatch = False
-    activateWD = False
+    activateWD = True
 
     test_calibration = False
     noFiles = 10

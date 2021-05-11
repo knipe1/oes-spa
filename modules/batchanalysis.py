@@ -94,9 +94,13 @@ class BatchAnalysis(QDialog):
     @batchFile.setter
     def batchFile(self, filename:str)->None:
         """batchFile setter: Updating the ui"""
-        if not filename:
+        if filename == "":
             return
-        filename = uni.replace_suffix(filename, suffix=BATCH_SUFFIX)
+
+        if filename is not None:
+            filename = uni.replace_suffix(filename, suffix=BATCH_SUFFIX)
+        else:
+            filename = ""
         self._batchFile = filename
         self.batchfileChanged.emit(filename)
 
@@ -338,10 +342,10 @@ class BatchAnalysis(QDialog):
         self.batchFile = filename
 
 
-    def _specify_watchdog_directory(self)->None:
+    def _specify_watchdog_directory(self, directory:str="")->None:
         """Specifies the watchdog directory through a dialog."""
-        directory = dialog.dialog_watchdogDirectory()
-        if path.isdir(directory):
+        directory = directory if directory is None else dialog.dialog_watchdogDirectory()
+        if directory is None or path.isdir(directory):
             self.WDdirectoryChanged.emit(directory)
 
 
@@ -400,9 +404,16 @@ class BatchAnalysis(QDialog):
         self._traceSpectrum.reset_data()
 
 
+    def reset_batchfile(self)->None:
+        self.batchFile = None
+
+
     def reset_batch(self)->None:
         self.reset_files()
         self.reset_trace()
+        self.reset_batchfile()
+        self._trigger_watchdog(False)
+        self._specify_watchdog_directory(None)
 
 
     def schedule_cancel_routine(self)->None:
