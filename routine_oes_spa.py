@@ -31,14 +31,14 @@ def main():
     initialSifLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
+    showBatch = True
+    selectBatchfile = True
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
 
     test_calibration = False
-    noFiles = 100
+    noFiles = 1000
 
 
     # Setup GUI
