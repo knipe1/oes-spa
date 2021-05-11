@@ -38,6 +38,11 @@ class Trace(Spectrum):
         super().__init__(uiElement, EXPORT_TYPE.BATCH)
 
 
+    def init_plot(self)->None:
+        super().init_plot()
+        self._delete_recording()
+
+
     def update_plot(self)->None:
         """Updates the plots in the ui element."""
         # Resets the color cycle, that the first line is always plotted in the same color.
@@ -106,6 +111,14 @@ class Trace(Spectrum):
             self.recordingPlot.remove()
         except AttributeError:
             pass
+
+
+    def _delete_recording(self)->None:
+        try:
+            del self.recordingPlot
+        except AttributeError:
+            pass
+
 
 
     def set_custom_yLabel(self, label:str)->None:

@@ -33,12 +33,12 @@ def main():
     exportSpectra = False
     showBatch = True
     selectBatchfile = True
-    selectBatchSpectra = False
+    selectBatchSpectra = True
     hideBatch = False
     activateWD = False
 
     test_calibration = False
-    noFiles = 1000
+    noFiles = 10
 
 
     # Setup GUI
