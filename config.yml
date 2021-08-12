@@ -11,7 +11,7 @@ FITTING:
   - Nitrogen Peak Fitting
   DIR: ./fittings/
   FILE_PATTERN: fitting.yml
-  PRESELECT_FITTING: Boron Peak Fitting
+  PRESELECT_FITTING: Nitrogen Peak Fitting
 GENERAL:
   LOG_FILE: /home/hauke/IAF/oes-spectra-analysis-Homeversion/debug.log
 PLOT:
@@ -35,5 +35,5 @@ PLOT:
   REFERENCE_COLOR: b
   REFERENCE_LINESTYLE: --
 SETTINGS:
-  DISPERSION: 0.0061103
-  WL: 433.1
+  DISPERSION: -0.0063011
+  WL: 388.0

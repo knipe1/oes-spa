@@ -14,6 +14,8 @@ import sys
 from PyQt5.QtWidgets import QApplication
 import threading as THR
 import emulator as emu
+import dialog_messages as DIA
+
 
 # local modules/libs
 import loggerconfig
@@ -26,19 +28,21 @@ def main():
     # True
     # False
 
-    initialSpkLoad = True
-    initialAscLoad = False
+    # DIA.critical_invalidSpectrum()
+
+    initialSpkLoad = False
+    initialAscLoad = True
     initialSifLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    showBatch = False
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
-    activateWD = True
+    activateWD = False
 
     test_calibration = False
-    noFiles = 10
+    noFiles = 300
 
 
     # Setup GUI
@@ -56,7 +60,8 @@ def main():
         window.apply_file("./sample files/Asterix1059 1468.Spk")
         # window.apply_file('./sample files/SIF/asterix1183-h2plasma433nm-bor-sif.asc')
     if initialAscLoad:
-        window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
+        window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
+        # window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
     if initialSifLoad:
         window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 
