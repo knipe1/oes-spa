@@ -8,6 +8,8 @@ Created on Sun May  3 09:17:47 2020
 
 
 # standard libs
+import os
+import shutil
 
 # third-party libs
 
@@ -18,6 +20,7 @@ from c_metaclass.singleton import Singleton
 # Enums
 
 class ConfigLoader(YamlLoader, metaclass=Singleton):
+    DEFAULT_CONFIG = "./default_config.yml"
 
     ### Properties - Getter & Setter
 
@@ -96,4 +99,6 @@ class ConfigLoader(YamlLoader, metaclass=Singleton):
     ### Methods
 
     def __init__(self, path:str = "./config.yml"):
+        if not os.path.exists(path):
+            shutil.copyfile(self.DEFAULT_CONFIG, path)
         super().__init__(path)
