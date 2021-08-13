@@ -36,8 +36,8 @@ def main():
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = True
-    selectBatchfile = True
-    selectBatchSpectra = True
+    selectBatchfile = False
+    selectBatchSpectra = False
     hideBatch = False
     activateWD = False
 

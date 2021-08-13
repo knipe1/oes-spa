@@ -268,6 +268,7 @@ class BatchAnalysis(QDialog):
             return
 
         if isExportBatch and not self.batchFile:
+            dialog.information_batchfileUndefined()
             return
 
         if isUpdatePlot:
