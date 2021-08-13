@@ -30,19 +30,19 @@ def main():
 
     # DIA.critical_invalidSpectrum()
 
-    initialSpkLoad = False
-    initialAscLoad = True
+    initialSpkLoad = True
+    initialAscLoad = False
     initialSifLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
-    selectBatchSpectra = False
+    showBatch = True
+    selectBatchfile = True
+    selectBatchSpectra = True
     hideBatch = False
     activateWD = False
 
-    test_calibration = False
-    noFiles = 300
+    test_calibration = True
+    noFiles = 50
 
 
     # Setup GUI
@@ -53,6 +53,7 @@ def main():
 
     if test_calibration:
         window.window.wavelength = "388.8"
+        window.window.cbCalibration.setChecked(True)
 
 
     # automatic open and close routine
@@ -60,8 +61,8 @@ def main():
         window.apply_file("./sample files/Asterix1059 1468.Spk")
         # window.apply_file('./sample files/SIF/asterix1183-h2plasma433nm-bor-sif.asc')
     if initialAscLoad:
-        window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
-        # window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
+        # window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
+        window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
     if initialSifLoad:
         window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 
@@ -113,7 +114,7 @@ def main():
         window.batch._window.btnSetFilename.click()
 
     if selectBatchSpectra:
-        window.window.wavelength = "433.1"
+        # window.window.wavelength = "433.1"
         selection = THR.Thread(target=emu.key_select_file, args=[noFiles])
         selection.start()
         window.batch._browse_spectra()

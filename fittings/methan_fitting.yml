@@ -1,6 +1,7 @@
 NAME: "Methan Peak Fitting"
+CALIBRATION: "CH-Peaks2.dat"
 PEAKS:
-    name: "CN Peak"
+    name: "CN4 Peak"
     centralWavelength: 388.3
     shiftDown: .4
     shiftUp:  .2
