@@ -80,12 +80,6 @@ def critical_unknownSuffix(suffices:list=None, parent:QWidget=None)->None:
 
 ## information
 
-def information_batchfileUndefined(parent:QWidget=None)->None:
-    title = "Batch file undefined";
-    text = "Data cannot be analyzed. Please select a batchfile."
-    QMessageBox.information(parent ,title, text);
-
-
 def information_batchAnalysisFinished(skippedFiles:list, parent:QWidget=None)->None:
     title = "Batch Analysis finished";
     skippedFiles.insert(0, "Skipped Files:")
