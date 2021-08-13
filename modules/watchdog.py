@@ -12,9 +12,8 @@ import logging
 # third-party libs
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
-from loader.configloader import ConfigLoader
+from spectrumeventhandler import SpectrumEventHandler
 import modules.universal as uni
 
 
@@ -41,11 +40,11 @@ class Watchdog(QObject):
 
     ## __methods__
 
-    def __init__(self, onModifiedMethod=None)->None:
+    def __init__(self, onModifiedMethod=None, directory:str=None)->None:
         super().__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
         self.reset_observer()
-        self._directory = ""
+        self._directory = directory or ""
         self.handler = SpectrumEventHandler(onModifiedMethod)
 
 
@@ -73,6 +72,7 @@ class Watchdog(QObject):
 
     def reset_observer(self)->None:
         self.observer = Observer()
+        self.observer.daemon = True
 
 
     def is_alive(self)->bool:
@@ -85,21 +85,3 @@ class Watchdog(QObject):
         isBatchdir = path.isdir(batchPath) or self._logger.info("Invalid batch directory!")
         isValid = (isWDdir and isBatchdir)
         return isValid
-
-
-
-class SpectrumEventHandler(FileSystemEventHandler):
-
-    def __init__(self, onModifiedMethod)->None:
-        super().__init__()
-        self.onModifiedMethod = onModifiedMethod or print
-        self.logfile = ConfigLoader().logFile
-
-
-    def on_modified(self, event)->None:
-        # Only consider File events.
-        if event.is_directory:
-            return
-        if self.logfile in event.src_path:
-            return
-        self.onModifiedMethod(event.src_path)

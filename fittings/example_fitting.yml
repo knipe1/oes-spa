@@ -1,7 +1,7 @@
-# Example/Muster
+﻿# Example/Muster
 # Name of the Fitting: Displayed in the Dropdown-Menu
 NAME: "Example Fitting"
-CALIBRATION: "CH-Peaks1.dat"
+CALIBRATION: "CH-Peaks2.dat"
 # 1-n Peaks:
 PEAKS:
     # name indicates the naming of the peak. Might be useful in extracting information.

@@ -37,6 +37,7 @@ import modules.universal as uni
 from modules.dataanalysis.fitting import Fitting
 from modules.dataanalysis.spectrumhandler import SpectrumHandler
 from modules.filehandling.filereading.filereader import FileReader
+from modules.fitting_watchdog import FittingWatchdog
 
 # enums and dataclasses
 from c_types.basicsetting import BasicSetting
@@ -289,6 +290,9 @@ class UIMain(Ui_main, QObject):
         self.cbNormalizeData.stateChanged.connect(fun)
         self.cbCalibration.stateChanged.connect(fun)
         self.clistFitting.itemClicked.connect(fun)
+        # Activate Watchdog to detect changes in fitting files.
+        self._wd = FittingWatchdog(fun, directory=self.FITTING["DIR"])
+        self._wd.start()
 
 
     @pyqtSlot(FileReader)

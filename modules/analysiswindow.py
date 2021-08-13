@@ -64,7 +64,7 @@ class AnalysisWindow(QMainWindow):
 
 
     @pyqtSlot()
-    def setting_changed(self):
+    def setting_changed(self, *args, **kwargs):
         self.setting = self.window.get_basic_setting()
 
 
