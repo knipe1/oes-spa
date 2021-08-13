@@ -221,7 +221,7 @@ class SpectrumHandler(QDialog):
         posRefPeakArea = (refArea >= 0)
         if highRefPeak and posPeakArea and posRefPeakArea:
             ratio = np.abs(peakArea) / np.abs(refArea)
-            characteristicValue = ratio * peak.normalizationFactor - peak.normalizationOffset
+            characteristicValue = np.power(ratio, 2) * peak.normalizationFactorSquared + ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
             characteristicValue = 0.0
 

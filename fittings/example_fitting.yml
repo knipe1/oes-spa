@@ -16,6 +16,7 @@ PEAKS:
     normalizationFactor: 100
     # normalizationOffset can compensate for background comtamination
     normalizationOffset: 1
+    normalizationFactorSquared: 2. 
     reference:
         # central wavelength of the reference peak
         centralWavelength: 388.8

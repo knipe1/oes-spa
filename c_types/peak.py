@@ -21,19 +21,21 @@ from c_enum.error_code import ERROR_CODE as ERR
 
 # constants
 DEFAULT_NORM_FACTOR = 1.0
+DEFAULT_NORM_SQUARED = 0.0
 DEFAULT_NORM_OFFSET = 0.0
 
 
 class Peak(BasePeak):
 
-    def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, normalizationOffset:float=None, **kwargs):
+    def __init__(self, name:str, centralWavelength:float, shiftUp:float, shiftDown:float, normalizationFactor:float=None, normalizationOffset:float=None, normalizationFactorSquared:float=None, **kwargs):
 
         super().__init__(centralWavelength, shiftUp, shiftDown)
         if name is None:
             raise ValueError ("Name cannot be None.")
         self.name = name
 
-        self.set_normFactor(normalizationFactor)
+        self.normalizationFactor = self.set_normFactor(normalizationFactor, default=DEFAULT_NORM_FACTOR)
+        self.normalizationFactorSquared = normalizationFactorSquared or DEFAULT_NORM_SQUARED
         self.set_normOffset(normalizationOffset)
 
         ref = kwargs.get("reference")
@@ -75,13 +77,13 @@ class Peak(BasePeak):
         return error
 
 
-    def set_normFactor(self, normFactor:float):
+    def set_normFactor(self, normFactor:float, default:float=1.0):
         try:
             float(normFactor)
         except (ValueError, TypeError):
-            normFactor = self.default_norm_factor()
+            normFactor = self.default_norm_factor(default)
 
-        self.normalizationFactor = normFactor
+        return normFactor
 
 
     def set_normOffset(self, normOffset:float):
@@ -93,10 +95,10 @@ class Peak(BasePeak):
         self.normalizationOffset = normOffset
 
 
-    def default_norm_factor(self):
+    def default_norm_factor(self, default:float):
         """Prompt the user and set the default."""
         information_normalizationFactorUndefined()
-        return DEFAULT_NORM_FACTOR
+        return default
 
 
     def default_norm_offset(self):
