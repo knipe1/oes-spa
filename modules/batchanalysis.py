@@ -241,7 +241,10 @@ class BatchAnalysis(QDialog):
 
     def _trigger_watchdog(self, status:bool)->None:
         """Sets the Watchdog to the given status. (Activate if status is True)."""
-        self._dog.trigger_status(status, self.batchFile)
+        isAlive = self._dog.trigger_status(status, self.batchFile)
+        if status and not isAlive:
+            self._specify_batchfile()
+            self._specify_watchdog_directory()
 
 
     ### Methods/Analysis

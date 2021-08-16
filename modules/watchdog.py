@@ -36,6 +36,7 @@ class Watchdog(QObject):
             self.start(filename)
         else:
             self.stop()
+        return self.is_alive()
 
 
     ## __methods__
