@@ -19,6 +19,7 @@ from modules.dataanalysis.fitting import Fitting
 class BasicSetting():
     wavelength: float
     dispersion: float
+    invertSpectrum: bool
     selectedFitting: Fitting
     checkedFittings:list
     baselineCorrection: bool

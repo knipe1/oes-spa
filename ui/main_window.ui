@@ -113,6 +113,13 @@
           <widget class="QLineEdit" name="tinDispersion"/>
          </item>
          <item>
+          <widget class="QCheckBox" name="cbInvertSpectrum">
+           <property name="text">
+            <string>Invert Spectrum</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="lblFitting">
            <property name="text">
             <string>Fitting:</string>

@@ -286,6 +286,7 @@ class UIMain(Ui_main, QObject):
         """Interface to connect fun to changes of the basic setting."""
         self.tinCentralWavelength.textChanged.connect(fun)
         self.tinDispersion.textChanged.connect(fun)
+        self.cbInvertSpectrum.stateChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
         self.cbCalibration.stateChanged.connect(fun)
@@ -394,11 +395,13 @@ class UIMain(Ui_main, QObject):
         selectedFitting = self._load_fitting(self.clistFitting.currentText(), showError=True)
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [self._load_fitting(t.text()) for t in checkedFittings]
+        invertSpectrum = self.cbInvertSpectrum.isChecked()
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
         calibration = self.cbCalibration.isChecked()
-        setting = BasicSetting(self.wavelength, self.dispersion, selectedFitting, checkedFittings,
-                               baselineCorrection, normalizeData, calibration)
+        setting = BasicSetting(wavelength=self.wavelength, dispersion=self.dispersion, invertSpectrum=invertSpectrum,
+                               selectedFitting=selectedFitting, checkedFittings=checkedFittings,
+                               baselineCorrection=baselineCorrection, normalizeData=normalizeData, calibration=calibration)
 
         return setting
 

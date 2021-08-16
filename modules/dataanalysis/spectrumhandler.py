@@ -368,7 +368,7 @@ class SpectrumHandler(QDialog):
         center = get_center(rawXData)
 
         centralWavelength = self.basicSetting.wavelength
-        dispersion = np.abs(self.basicSetting.dispersion)
+        dispersion = self.basicSetting.dispersion
         xDataArePixel = uni.data_are_pixel(rawXData)
         self.pixelDataTriggered.emit(xDataArePixel)
         if xDataArePixel:
@@ -393,10 +393,9 @@ class SpectrumHandler(QDialog):
 
     def _process_y_data(self):
         # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
-        dispersion = self.basicSetting.dispersion
-        invertedSpectrum = int(np.sign(dispersion))
+        invert = -1 if self.basicSetting.invertSpectrum else 1
 
-        rawYData = self.rawYData[::invertedSpectrum]
+        rawYData = self.rawYData[::invert]
         # Baseline correction without DC drift.
         # HINT: Issue 121 -> to be reviewed
         meanIntensity = np.mean(rawYData)
@@ -414,7 +413,7 @@ class SpectrumHandler(QDialog):
         else:
             processedYdata = shiftedYdata
 
-        return processedYdata, baseline[::invertedSpectrum], avgbase
+        return processedYdata, baseline[::invert], avgbase
 
 
 def get_center(data:np.ndarray)->float:
