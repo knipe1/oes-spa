@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'batch_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.3
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_batch(object):
     def setupUi(self, batch):
@@ -191,5 +189,6 @@ class Ui_batch(object):
         self.label.setText(_translate("batch", "Select characteristic:"))
         self.btnImport.setText(_translate("batch", "Import Trace"))
         self.btnRefresh.setText(_translate("batch", "Refresh"))
+
 from ui.indexedlistwidget import IndexedListWidget
 from ui.matplotlibwidget import MatplotlibWidget

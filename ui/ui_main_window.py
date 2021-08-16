@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'main_window.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.3
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_main(object):
     def setupUi(self, main):
@@ -479,5 +477,6 @@ class Ui_main(object):
         self.actOpenBatch.setText(_translate("main", "Analyze &Multiple Files"))
         self.actSaveRaw.setText(_translate("main", "Raw Data"))
         self.actSaveProcessed.setText(_translate("main", "Fitted result"))
+
 from ui.checkablelistwidget import CheckableListWidget
 from ui.matplotlibwidget import MatplotlibWidget
