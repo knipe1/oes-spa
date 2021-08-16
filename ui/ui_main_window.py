@@ -443,6 +443,7 @@ class Ui_main(object):
         self.lblCentralWavelength.setText(_translate("main", "Central Wavelength (nm):"))
         self.tinCentralWavelength.setText(_translate("main", "433"))
         self.lblDispersion.setText(_translate("main", "Dispersion (nm/px):"))
+        self.tinDispersion.setInputMask(_translate("main", "0.00000000"))
         self.cbInvertSpectrum.setText(_translate("main", "Invert Spectrum"))
         self.lblFitting.setText(_translate("main", "Fitting:"))
         self.cbBaselineCorrection.setText(_translate("main", "Baseline correction"))
