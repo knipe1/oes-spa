@@ -52,9 +52,9 @@ def critical_invalidSpectrum(parent:QWidget=None)->None:
         Used to determine the location the dialog is placed on the screen.
 
     """
-    title = "Error: Could not load spectrum.";
-    text = "File contains no valid spectrum!";
-    QMessageBox.critical(parent, title, text);
+    title = "Error: Could not load spectrum."
+    text = "File contains no valid spectrum!"
+    QMessageBox.critical(parent, title, text)
 
 
 def critical_unknownSuffix(suffices:list=None, parent:QWidget=None)->None:

@@ -78,7 +78,6 @@ class Ui_main(object):
         self.cbBaselineCorrection.setObjectName("cbBaselineCorrection")
         self.verticalLayout.addWidget(self.cbBaselineCorrection)
         self.cbNormalizeData = QtWidgets.QCheckBox(self.boxBasic)
-        self.cbNormalizeData.setChecked(True)
         self.cbNormalizeData.setObjectName("cbNormalizeData")
         self.verticalLayout.addWidget(self.cbNormalizeData)
         self.cbCalibration = QtWidgets.QCheckBox(self.boxBasic)

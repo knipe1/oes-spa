@@ -221,7 +221,7 @@ class SpectrumHandler(QDialog):
         posRefPeakArea = (refArea >= 0)
         if highRefPeak and posPeakArea and posRefPeakArea:
             ratio = np.abs(peakArea) / np.abs(refArea)
-            characteristicValue = ratio * peak.normalizationFactor - peak.normalizationOffset
+            characteristicValue = np.power(ratio, 2) * peak.normalizationFactorSquared + ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
             characteristicValue = 0.0
 
@@ -361,14 +361,14 @@ class SpectrumHandler(QDialog):
 
 
     def _process_x_data(self)->np.ndarray:
-        """Assigns wavelength to the recorded Pixels """
+        """Assigns wavelength to the recorded Pixels."""
 
         # Center of the xData. Used for shifting the data.
         rawXData = self.rawXData
         center = get_center(rawXData)
 
         centralWavelength = self.basicSetting.wavelength
-        dispersion = self.basicSetting.dispersion
+        dispersion = np.abs(self.basicSetting.dispersion)
         xDataArePixel = uni.data_are_pixel(rawXData)
         self.pixelDataTriggered.emit(xDataArePixel)
         if xDataArePixel:
@@ -393,7 +393,10 @@ class SpectrumHandler(QDialog):
 
     def _process_y_data(self):
         # Docs: https://peakutils.readthedocs.io/en/latest/reference.html
-        rawYData = self.rawYData
+        dispersion = self.basicSetting.dispersion
+        invertedSpectrum = int(np.sign(dispersion))
+
+        rawYData = self.rawYData[::invertedSpectrum]
         # Baseline correction without DC drift.
         # HINT: Issue 121 -> to be reviewed
         meanIntensity = np.mean(rawYData)
@@ -401,11 +404,9 @@ class SpectrumHandler(QDialog):
         avgbase = np.mean(baseline)
 
         # Shifting y data and normalization to average baseline intensity.
-        correctBaseline = self.basicSetting.baselineCorrection
-        if correctBaseline:
-            shiftedYdata = rawYData - baseline
-        else:
-            shiftedYdata = rawYData
+        # Branchless programming: The baseline is subtracted iff the baselineCorrection is True, but the Interpreter may
+        # preload the next line, because we avoid branching here (if statement).
+        shiftedYdata = rawYData - baseline * int(self.basicSetting.baselineCorrection)
 
         normalizeData = self.basicSetting.normalizeData
         if normalizeData:
@@ -413,8 +414,7 @@ class SpectrumHandler(QDialog):
         else:
             processedYdata = shiftedYdata
 
-
-        return processedYdata, baseline, avgbase
+        return processedYdata, baseline[::invertedSpectrum], avgbase
 
 
 def get_center(data:np.ndarray)->float:

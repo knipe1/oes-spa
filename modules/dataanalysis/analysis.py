@@ -21,6 +21,7 @@ def analyze_file(setting:BasicSetting, specHandler:SpectrumHandler, file:FileRea
     header = []
     results = {}
     for fitting in setting.checkedFittings:
+        specHandler._process_data()
         specHandler.fit_data(fitting)
         results = merge_characteristics(specHandler, file)
 
