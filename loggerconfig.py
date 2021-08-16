@@ -10,6 +10,8 @@ Created on Mon Jan  4 10:50:52 2021
 # standard libs
 import logging
 import sys
+import numpy as np
+np.set_printoptions(linewidth=np.nan)
 
 # local modules/libs
 from loader.configloader import ConfigLoader
