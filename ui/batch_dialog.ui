@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>batch</class>
  <widget class="QDialog" name="batch">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>

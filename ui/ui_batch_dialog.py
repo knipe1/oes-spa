@@ -11,6 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_batch(object):
     def setupUi(self, batch):
         batch.setObjectName("batch")
+        batch.setEnabled(True)
         batch.resize(757, 907)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)

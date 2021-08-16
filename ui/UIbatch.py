@@ -24,7 +24,8 @@ from c_enum.characteristic import CHARACTERISTIC as CHC
 TRACE_SELECTION = [CHC.PEAK_AREA,
                    CHC.PEAK_HEIGHT,
                    CHC.CHARACTERISTIC_VALUE,
-                   CHC.CALIBRATION_SHIFT]
+                   CHC.CALIBRATION_SHIFT,
+                   CHC.BASELINE]
 
 
 class UIBatch(Ui_batch, QObject):
