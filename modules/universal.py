@@ -13,7 +13,7 @@ from enum import Enum
 from datetime import datetime, timedelta
 
 # third-party libs
-from PyQt5.QtCore import QFileInfo, QUrl
+from PyQt5.QtCore import QFileInfo, QUrl, QDir
 
 # local modules/libs
 
@@ -53,7 +53,7 @@ def replace_suffix(filename:str, suffix:str)->str:
 
 def extract_path_basename_suffix(filename:str)->(str, str, str):
     fileInfo = QFileInfo(filename)
-    absolutePath = fileInfo.absolutePath()
+    absolutePath = QDir.toNativeSeparators(fileInfo.absolutePath())
     baseName = fileInfo.baseName()
     suffix = fileInfo.completeSuffix().lower()
     return absolutePath, baseName, suffix
