@@ -2,16 +2,18 @@
 
 # Form implementation generated from reading ui file 'batch_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_batch(object):
     def setupUi(self, batch):
         batch.setObjectName("batch")
-        batch.resize(638, 850)
+        batch.resize(757, 907)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -151,7 +153,7 @@ class Ui_batch(object):
         sizePolicy.setHeightForWidth(self.mplTrace.sizePolicy().hasHeightForWidth())
         self.mplTrace.setSizePolicy(sizePolicy)
         self.mplTrace.setMinimumSize(QtCore.QSize(370, 330))
-        self.mplTrace.setMaximumSize(QtCore.QSize(800, 800))
+        self.mplTrace.setMaximumSize(QtCore.QSize(80000, 80000))
         self.mplTrace.setBaseSize(QtCore.QSize(100, 100))
         self.mplTrace.setAutoFillBackground(False)
         self.mplTrace.setObjectName("mplTrace")
@@ -176,12 +178,12 @@ class Ui_batch(object):
     def retranslateUi(self, batch):
         _translate = QtCore.QCoreApplication.translate
         batch.setWindowTitle(_translate("batch", "Batch Analysis"))
-        self.btnSetFilename.setText(_translate("batch", "&Set Filename"))
-        self.btnWatchdog.setText(_translate("batch", "Active Watchdog"))
-        self.btnSetWatchdogDir.setText(_translate("batch", "Set Directory"))
+        self.btnSetFilename.setText(_translate("batch", "&Set Filename (Export)"))
+        self.btnWatchdog.setText(_translate("batch", "Activate Live Analysis"))
+        self.btnSetWatchdogDir.setText(_translate("batch", "Set Directory (Live)"))
         self.btnBrowse.setText(_translate("batch", "&Browse Files"))
         self.btnReset.setText(_translate("batch", "Reset"))
-        self.radTrace.setText(_translate("batch", "Plot Trace"))
+        self.radTrace.setText(_translate("batch", "Export + Plot Trace"))
         self.radSpectra.setText(_translate("batch", "Plot Spectra"))
         self.radExport.setText(_translate("batch", "Export"))
         self.btnAnalyze.setText(_translate("batch", "&Analyze"))
@@ -189,6 +191,5 @@ class Ui_batch(object):
         self.label.setText(_translate("batch", "Select characteristic:"))
         self.btnImport.setText(_translate("batch", "Import Trace"))
         self.btnRefresh.setText(_translate("batch", "Refresh"))
-
 from ui.indexedlistwidget import IndexedListWidget
 from ui.matplotlibwidget import MatplotlibWidget

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>638</width>
-    <height>850</height>
+    <width>757</width>
+    <height>907</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -54,7 +54,7 @@
         </size>
        </property>
        <property name="text">
-        <string>&amp;Set Filename</string>
+        <string>&amp;Set Filename (Export)</string>
        </property>
       </widget>
      </item>
@@ -72,7 +72,7 @@
      <item>
       <widget class="QPushButton" name="btnWatchdog">
        <property name="text">
-        <string>Active Watchdog</string>
+        <string>Activate Live Analysis</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -97,7 +97,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set Directory</string>
+        <string>Set Directory (Live)</string>
        </property>
       </widget>
      </item>
@@ -181,7 +181,7 @@
      <item>
       <widget class="QRadioButton" name="radTrace">
        <property name="text">
-        <string>Plot Trace</string>
+        <string>Export + Plot Trace</string>
        </property>
        <attribute name="buttonGroup">
         <string notr="true">RadProcess</string>
@@ -297,8 +297,8 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>800</width>
-          <height>800</height>
+          <width>80000</width>
+          <height>80000</height>
          </size>
         </property>
         <property name="baseSize">
