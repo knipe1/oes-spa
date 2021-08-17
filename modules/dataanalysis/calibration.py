@@ -33,8 +33,8 @@ class Calibration():
 
         self._shift = 0.0
 
-        self.calibrationPeaks = np.loadtxt(calibrationFile)[:, 0]
-        self.noPeaks = len(self.calibrationPeaks)
+        self.calibrationPeaks = np.loadtxt(calibrationFile, usecols=0, dtype=float, ndmin=1)
+        self.noPeaks = self.calibrationPeaks.size
 
 
     ### Methods
