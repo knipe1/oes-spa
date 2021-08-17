@@ -202,9 +202,10 @@ def dialog_batchfile(parent:QWidget=None)->str:
     filefilter = filefilter_from_list(BATCH_FILTER)
     defaultFilename = BATCH["DEF_FILENAME"];
 
+    selection = QFileDialog().directory().filePath(defaultFilename)
     filename, _ = QFileDialog.getSaveFileName(parent=parent, caption=caption,
-                                              directory=defaultFilename, filter=filefilter);
-    return filename;
+                                              directory=selection, filter=filefilter)
+    return filename
 
 
 def dialog_importBatchfile(parent:QWidget=None)->None:
@@ -219,7 +220,7 @@ def dialog_importBatchfile(parent:QWidget=None)->None:
     caption = "Open batchfile"
     filefilter = filefilter_from_list(BATCH_FILTER)
 
-    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption, filter=filefilter,)
+    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption, filter=filefilter, )
     return filename
 
 

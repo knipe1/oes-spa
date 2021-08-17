@@ -28,7 +28,7 @@ def main():
     # True
     # False
 
-    # DIA.critical_invalidSpectrum()
+    DIA.dialog_importBatchfile()
 
     initialSpkLoad = True
     initialAscLoad = False
