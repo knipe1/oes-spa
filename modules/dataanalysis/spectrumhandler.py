@@ -160,6 +160,9 @@ class SpectrumHandler(QDialog):
         self._peakHeight = None
         self._peakName = None
         self.peakPosition = None
+        self._refArea = None
+        self._refHeight = None
+        self.refPosition = None
         self._characteristicValue = None
         self._calibrationShift = None
         self._calibrationPeaks = None

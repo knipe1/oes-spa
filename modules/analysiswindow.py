@@ -37,6 +37,7 @@ from c_enum.characteristic import CHARACTERISTIC as CHC
 # exceptions
 from exception.InvalidSpectrumError import InvalidSpectrumError
 from exception.ParameterNotSetError import ParameterNotSetError
+from exception.CalibrationError import CalibrationError
 
 
 class AnalysisWindow(QMainWindow):
@@ -258,7 +259,11 @@ class AnalysisWindow(QMainWindow):
                 dialog.critical_invalidSpectrum()
             return
 
-        specHandler.fit_data(self.setting.selectedFitting)
+        try:
+            specHandler.fit_data(self.setting.selectedFitting)
+        except CalibrationError as e:
+            self._logger.warning(f"{file.filename}: {e}")
+
         self._update_spectra(specHandler)
         self.activeFile = file
 

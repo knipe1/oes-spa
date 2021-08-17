@@ -35,8 +35,8 @@ def main():
     initialSifLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = True
-    selectBatchfile = True
+    showBatch = False
+    selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False

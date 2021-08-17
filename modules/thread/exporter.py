@@ -23,6 +23,7 @@ from c_types.basicsetting import BasicSetting
 
 # exceptions
 from exception.InvalidSpectrumError import InvalidSpectrumError
+from exception.CalibrationError import CalibrationError
 
 import time
 

@@ -13,6 +13,7 @@ import numpy as np
 # third-party libs
 
 # local modules/libs
+from exception.CalibrationError import CalibrationError
 
 # constants
 NO_ITERATION = 3
@@ -47,14 +48,15 @@ class Calibration():
 
         # find indeces of the reference peaks in the proccessed data
         wlIndex, maxShift = self.find_indeces_and_max_shift(xData)
+        if any(wlIndex + maxShift > xData.size) or any(wlIndex - maxShift < 0) or maxShift == 0:
+            raise CalibrationError("Calibration peaks out of spectral range!")
 
         calibrationIntensities = np.zeros(shape=(self.noPeaks, 2*maxShift+1))
         for idx in range(-maxShift, maxShift+1):
             for ref in range(self.noPeaks):
-                idxOffset = idx + maxShift
                 intensity = yData[wlIndex[ref] + idx]
+                idxOffset = idx + maxShift
                 calibrationIntensities[ref, idxOffset] = intensity
-
 
         summedIntensities = calibrationIntensities.sum(axis=0)
 
@@ -75,6 +77,7 @@ class Calibration():
             idxShift = self.find_index_with_closest_value(xData, (wl + MAX_SHIFT_nm))
             maxShift = max(idxShift-wlIndex[i], maxShift)
         return wlIndex, maxShift
+
 
     @staticmethod
     def find_index_with_closest_value(arr:np.ndarray, value:float)->int:
