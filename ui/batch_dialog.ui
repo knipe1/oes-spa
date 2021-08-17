@@ -192,6 +192,9 @@
        <property name="text">
         <string>Export + Plot Trace</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
        <attribute name="buttonGroup">
         <string notr="true">RadProcess</string>
        </attribute>
@@ -204,19 +207,6 @@
        </property>
        <property name="text">
         <string>Plot Spectra</string>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">RadProcess</string>
-       </attribute>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radExport">
-       <property name="text">
-        <string>Export</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
         <string notr="true">RadProcess</string>

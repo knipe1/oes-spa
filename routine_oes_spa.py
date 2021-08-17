@@ -28,7 +28,7 @@ def main():
     # True
     # False
 
-    DIA.dialog_importBatchfile()
+    # DIA.dialog_importBatchfile()
 
     initialSpkLoad = True
     initialAscLoad = False
@@ -36,7 +36,7 @@ def main():
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = True
-    selectBatchfile = False
+    selectBatchfile = True
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False

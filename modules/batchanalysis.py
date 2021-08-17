@@ -265,7 +265,7 @@ class BatchAnalysis(QDialog):
 
         # Get the modus.
         isUpdatePlot = self._window.get_update_plots()
-        isExportBatch = self._window.get_export_batch() or self._window.get_plot_trace()
+        isExportBatch = self._window.get_plot_trace()
 
         files = self._files.to_list()
 
@@ -274,7 +274,8 @@ class BatchAnalysis(QDialog):
 
         if isExportBatch and not self.batchFile:
             self._specify_batchfile()
-            return
+            if not self.batchFile:
+                return
 
         if isUpdatePlot:
             self._thread = Plotter()

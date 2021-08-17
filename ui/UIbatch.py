@@ -23,6 +23,10 @@ from c_enum.characteristic import CHARACTERISTIC as CHC
 # constants
 TRACE_SELECTION = [CHC.PEAK_AREA,
                    CHC.PEAK_HEIGHT,
+                   CHC.PEAK_POSITION,
+                   CHC.REF_AREA,
+                   CHC.REF_HEIGHT,
+                   CHC.REF_POSITION,
                    CHC.CHARACTERISTIC_VALUE,
                    CHC.CALIBRATION_SHIFT,
                    CHC.BASELINE]
@@ -127,10 +131,6 @@ class UIBatch(Ui_batch, QObject):
 
     def get_plot_trace(self)->bool:
         return self.radTrace.isChecked()
-
-
-    def get_export_batch(self)->bool:
-        return self.radExport.isChecked()
 
 
     def get_fileselection(self)->int:

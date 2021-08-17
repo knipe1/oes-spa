@@ -107,6 +107,9 @@ class SpectrumHandler(QDialog):
         result[CHC.PEAK_AREA] = self._peakArea
         result[CHC.PEAK_HEIGHT] = self._peakHeight
         result[CHC.PEAK_POSITION] = self.peakPosition
+        result[CHC.REF_AREA] = self._refArea
+        result[CHC.REF_HEIGHT] = self._refHeight
+        result[CHC.REF_POSITION] = self.refPosition
         result[CHC.CALIBRATION_SHIFT] = self._calibrationShift
         result[CHC.CALIBRATION_PEAKS] = self._calibrationPeaks
         return result
@@ -191,6 +194,12 @@ class SpectrumHandler(QDialog):
             validReference = False
 
         if validReference:
+            # Reference
+            refCharacteristics, _ = self._analyse_peak(peak.reference)
+            self._refHeight = refCharacteristics[CHC.PEAK_HEIGHT]
+            self._refArea = refCharacteristics[CHC.PEAK_AREA]
+            self.refPosition = refCharacteristics[CHC.PEAK_POSITION]
+
             characteristicValue, intAreas = self._calculate_characteristic_value(peak)
             self._characteristicValue = characteristicValue
             self.integration.extend(intAreas)
@@ -204,9 +213,6 @@ class SpectrumHandler(QDialog):
         characteristicValue = None
         intAreas = []
 
-        peakCharacteristics, _ = self._analyse_peak(peak)
-        peakArea = peakCharacteristics[CHC.PEAK_AREA]
-
         refCharacteristic, refIntegrationAreas = self._analyse_peak(peak.reference)
         refHeight = refCharacteristic[CHC.PEAK_HEIGHT]
         refArea = refCharacteristic[CHC.PEAK_AREA]
@@ -217,10 +223,10 @@ class SpectrumHandler(QDialog):
 
         # Validation
         highRefPeak = (refHeight >= peak.reference.minimumHeight)
-        posPeakArea = (peakArea > 0)
+        posPeakArea = (self._peakArea > 0)
         posRefPeakArea = (refArea >= 0)
         if highRefPeak and posPeakArea and posRefPeakArea:
-            ratio = np.abs(peakArea) / np.abs(refArea)
+            ratio = np.abs(self._peakArea) / np.abs(refArea)
             characteristicValue = np.power(ratio, 2) * peak.normalizationFactorSquared + ratio * peak.normalizationFactor - peak.normalizationOffset
         else:
             characteristicValue = 0.0
