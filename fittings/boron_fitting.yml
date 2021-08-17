@@ -1,4 +1,5 @@
 NAME: "Boron Peak Fitting"
+CALIBRATION: "H_gamma-calibration.dat"
 PEAKS:
     name: "BH Peak"
     centralWavelength: 433.16
