@@ -52,11 +52,13 @@ class Calibration():
         for idx in range(-maxShift, maxShift+1):
             for ref in range(self.noPeaks):
                 idxOffset = idx + maxShift
-                calibrationIntensities[ref, idxOffset] = yData[wlIndex[ref] + idx]
+                intensity = yData[wlIndex[ref] + idx]
+                calibrationIntensities[ref, idxOffset] = intensity
+
 
         summedIntensities = calibrationIntensities.sum(axis=0)
 
-        shift = summedIntensities.argmax() - (maxShift)
+        shift = summedIntensities.argmax() - maxShift
         absShift = (self.calibrationPeaks - xData[wlIndex-shift]).mean()
         self._shift += absShift
 
