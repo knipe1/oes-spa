@@ -43,7 +43,6 @@ class RichCheckbox(QFrame):
         self._checkbox.setSizePolicy(sizePolicy)
         self._layout.addWidget(self._checkbox)
 
-
         self.stateChanged = self._checkbox.stateChanged
 
 
