@@ -182,9 +182,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cbCalibration">
-           <property name="text">
-            <string>Enable Calibration</string>
+          <widget class="RichCheckbox" name="rcbCalibration">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
           </widget>
          </item>
@@ -1056,6 +1056,12 @@ wavelength!</string>
    <class>CheckableListWidget</class>
    <extends>QListWidget</extends>
    <header location="global">ui.checkablelistwidget</header>
+  </customwidget>
+  <customwidget>
+   <class>RichCheckbox</class>
+   <extends>QFrame</extends>
+   <header location="global">ui.richcheckbox</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

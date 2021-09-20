@@ -85,9 +85,10 @@ class Ui_main(object):
         self.cbNormalizeData.setChecked(False)
         self.cbNormalizeData.setObjectName("cbNormalizeData")
         self.verticalLayout.addWidget(self.cbNormalizeData)
-        self.cbCalibration = QtWidgets.QCheckBox(self.boxBasic)
-        self.cbCalibration.setObjectName("cbCalibration")
-        self.verticalLayout.addWidget(self.cbCalibration)
+        self.rcbCalibration = RichCheckbox(self.boxBasic)
+        self.rcbCalibration.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.rcbCalibration.setObjectName("rcbCalibration")
+        self.verticalLayout.addWidget(self.rcbCalibration)
         self.layoutInformation.addWidget(self.boxBasic)
         self.boxResults = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -448,7 +449,6 @@ class Ui_main(object):
         self.lblFitting.setText(_translate("main", "Fitting:"))
         self.cbBaselineCorrection.setText(_translate("main", "Baseline correction"))
         self.cbNormalizeData.setText(_translate("main", "Normalize data"))
-        self.cbCalibration.setText(_translate("main", "Enable Calibration"))
         self.boxResults.setTitle(_translate("main", "Results"))
         self.lblCharacteristicValue.setText(_translate("main", "Characteristic Value:"))
         self.lblPeakHeight.setText(_translate("main", "Peak Height:"))
@@ -473,3 +473,4 @@ class Ui_main(object):
 
 from ui.checkablelistwidget import CheckableListWidget
 from ui.matplotlibwidget import MatplotlibWidget
+from ui.richcheckbox import RichCheckbox

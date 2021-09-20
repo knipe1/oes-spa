@@ -188,7 +188,9 @@ class UIMain(Ui_main, QObject):
         # Get default label for fittings, defined in Qt-designer.
         self.DEF_LBL_FITTING = self.lblFitting.text()
         self.DEF_LBL_CHARACTERISTIC = self.lblCharacteristicValue.text()
-        self.DEF_LBL_CALIBRATION = self.cbCalibration.text()
+
+        self.DEF_LBL_CALIBRATION = "Enable Calibration"
+        self.rcbCalibration.setText(self.DEF_LBL_CALIBRATION)
 
         self.fittings = self._retrieve_fittings()
         self._load_fitting_selection_from_config()
@@ -243,15 +245,25 @@ class UIMain(Ui_main, QObject):
         self.toutBaseline.setText(format_result(spectrumHandler.results[CHC.BASELINE]))
         self.toutCharacteristicValue.setText(
             format_result(spectrumHandler.results[CHC.CHARACTERISTIC_VALUE]))
+
         try:
             peakName = spectrumHandler.fitting.peak.name + ":"
         except AttributeError:
             peakName = self.DEF_LBL_CHARACTERISTIC
         self.lblCharacteristicValue.setText(peakName)
 
-        shift = spectrumHandler.results[CHC.CALIBRATION_SHIFT] or 0.0
-        calibrationLabel = self.DEF_LBL_CALIBRATION + format_shift(shift)
-        self.cbCalibration.setText(calibrationLabel)
+
+        shift = spectrumHandler.results[CHC.CALIBRATION_SHIFT]
+        if self.rcbCalibration.isChecked():
+            if shift is None:
+                info = "<br>" + uni.mark_bold_red("Calibration Error")
+            else:
+                info = format_shift(shift)
+        else:
+            info = ""
+
+        calibrationLabel = self.DEF_LBL_CALIBRATION + info
+        self.rcbCalibration.setText(calibrationLabel)
 
 
 
@@ -291,7 +303,7 @@ class UIMain(Ui_main, QObject):
         self.cbInvertSpectrum.stateChanged.connect(fun)
         self.cbBaselineCorrection.stateChanged.connect(fun)
         self.cbNormalizeData.stateChanged.connect(fun)
-        self.cbCalibration.stateChanged.connect(fun)
+        self.rcbCalibration.stateChanged.connect(fun)
         self.clistFitting.itemClicked.connect(fun)
         # Activate Watchdog to detect changes in fitting files.
         self._wd = FittingWatchdog(fun, directory=self.FITTING["DIR"])
@@ -400,7 +412,7 @@ class UIMain(Ui_main, QObject):
         invertSpectrum = self.cbInvertSpectrum.isChecked()
         baselineCorrection = self.cbBaselineCorrection.isChecked()
         normalizeData = self.cbNormalizeData.isChecked()
-        calibration = self.cbCalibration.isChecked()
+        calibration = self.rcbCalibration.isChecked()
         setting = BasicSetting(wavelength=self.wavelength, dispersion=self.dispersion, invertSpectrum=invertSpectrum,
                                selectedFitting=selectedFitting, checkedFittings=checkedFittings,
                                baselineCorrection=baselineCorrection, normalizeData=normalizeData, calibration=calibration)
@@ -467,4 +479,4 @@ def format_result(value:float)->str:
 
 
 def format_shift(shift:float)->str:
-    return f"\n(Δ {shift:.3f})"
+    return f"<br>(Δ {shift:.3f})"

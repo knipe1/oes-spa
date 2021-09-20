@@ -53,7 +53,7 @@ def main():
 
     if test_calibration:
         window.window.wavelength = "388.8"
-        window.window.cbCalibration.setChecked(True)
+        window.window.rcbCalibration.setChecked(True)
 
 
     # automatic open and close routine

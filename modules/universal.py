@@ -143,3 +143,8 @@ def data_are_pixel(data:np.ndarray)->bool:
 def mark_bold_red(label:str)->str:
     """Embed the given label into a Rich text format."""
     return  f"<b style='color:red'>{label}</b>"
+
+
+def add_html_linebreaks(*lines)->str:
+    HTMLlinebreak = "<br>"
+    return  HTMLlinebreak.join(lines)
