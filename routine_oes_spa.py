@@ -30,9 +30,9 @@ def main():
 
     # DIA.dialog_importBatchfile()
 
-    initialSpkLoad = True
+    initialSpkLoad = False
     initialAscLoad = False
-    initialSifLoad = False
+    initialSifLoad = True
     tryDifferentFiles = False
     exportSpectra = False
     showBatch = False
@@ -64,7 +64,8 @@ def main():
         # window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
     if initialSifLoad:
-        window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+        window.apply_file('./1988_433nm.sif')
+        # window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
 
 
     if tryDifferentFiles:

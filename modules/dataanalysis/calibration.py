@@ -41,6 +41,7 @@ class Calibration():
     def calibrate(self, xData:np.ndarray, yData:np.ndarray)->np.ndarray:
         for _ in range(NO_ITERATION):
             xData = self.calibrate_data(xData, yData)
+            print(self._shift, yData.max())
         return xData, self._shift
 
 
@@ -61,10 +62,10 @@ class Calibration():
         summedIntensities = calibrationIntensities.sum(axis=0)
 
         shift = summedIntensities.argmax() - maxShift
-        absShift = (self.calibrationPeaks - xData[wlIndex-shift]).mean()
+        absShift = (self.calibrationPeaks - xData[wlIndex+shift]).mean()
         self._shift += absShift
 
-        shiftedData = xData - absShift
+        shiftedData = xData + absShift
         return shiftedData
 
 
