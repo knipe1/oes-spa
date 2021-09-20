@@ -183,8 +183,8 @@
          </item>
          <item>
           <widget class="RichCheckbox" name="rcbCalibration">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+           <property name="text">
+            <string>CheckBox</string>
            </property>
           </widget>
          </item>
@@ -1059,9 +1059,8 @@ wavelength!</string>
   </customwidget>
   <customwidget>
    <class>RichCheckbox</class>
-   <extends>QFrame</extends>
+   <extends>QCheckBox</extends>
    <header location="global">ui.richcheckbox</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

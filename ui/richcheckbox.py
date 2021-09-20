@@ -17,6 +17,7 @@ from PyQt5.QtCore import Qt
 from ui.checkablelabel import CheckableLabel
 import modules.universal as uni
 
+
 class RichCheckbox(QFrame):
 
     def __init__(self, *args, **kwargs):
@@ -51,6 +52,7 @@ class RichCheckbox(QFrame):
         self._label.clicked.connect(self._checkbox.click)
         self._label.setTextFormat(Qt.RichText)
         self._layout.addWidget(self._label)
+
 
 
     def setText(self, *args):
