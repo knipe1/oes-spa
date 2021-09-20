@@ -91,6 +91,8 @@ class UIMain(Ui_main, QObject):
 
     @pyqtSlot(bool)
     def enable_dispersion(self, enable:bool)->None:
+        self.lblDispersion.setVisible(enable)
+        self.tinDispersion.setVisible(enable)
         self.tinDispersion.setEnabled(enable)
 
 
@@ -134,9 +136,9 @@ class UIMain(Ui_main, QObject):
         return dispersion
 
     @dispersion.setter
-    def dispersion(self, disp:(float, str))->None:
+    def dispersion(self, value:(float, str))->None:
         """Sets the given wavelenght dispersion to the ui-element."""
-        self.tinDispersion.setText(str(disp))
+        self.tinDispersion.setText(str(value))
 
 
     @property
