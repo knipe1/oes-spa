@@ -148,3 +148,9 @@ def mark_bold_red(label:str)->str:
 def add_html_linebreaks(*lines)->str:
     HTMLlinebreak = "<br>"
     return  HTMLlinebreak.join(lines)
+
+
+def remove_None_from_iterable(iterable):
+    while None in iterable:
+        iterable.remove(None)
+    return iterable

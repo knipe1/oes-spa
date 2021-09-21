@@ -256,14 +256,14 @@ class UIMain(Ui_main, QObject):
         shift = spectrumHandler.results[CHC.CALIBRATION_SHIFT]
         if self.rcbCalibration.isChecked():
             if shift is None:
-                info = "<br>" + uni.mark_bold_red("Calibration Error")
+                info = uni.mark_bold_red("Calibration Error")
             else:
                 info = format_shift(shift)
         else:
-            info = ""
+            info = None
 
-        calibrationLabel = self.DEF_LBL_CALIBRATION + info
-        self.rcbCalibration.setText(calibrationLabel)
+        # calibrationLabel = self.DEF_LBL_CALIBRATION + info
+        self.rcbCalibration.setText(self.DEF_LBL_CALIBRATION, info)
 
 
 
@@ -479,4 +479,4 @@ def format_result(value:float)->str:
 
 
 def format_shift(shift:float)->str:
-    return f"<br>(Δ {shift:.3f})"
+    return f"(Δ {shift:.3f})"

@@ -56,6 +56,7 @@ class RichCheckbox(QFrame):
 
 
     def setText(self, *args):
+        args = uni.remove_None_from_iterable(args)
         text = uni.add_html_linebreaks(*args)
         return self._label.setText(text)
 
