@@ -25,9 +25,9 @@ import peakutils as pkus
 
 # local modules/libs
 import modules.universal as uni
-from modules.dataanalysis.calibration import Calibration
-from modules.dataanalysis.fitting import Fitting
-from modules.filehandling.filereading.filereader import FileReader
+from .calibration import Calibration
+from .fitting import Fitting
+from ..filehandling.filereading.filereader import FileReader
 from c_types.basicsetting import BasicSetting
 
 # enums
@@ -189,7 +189,7 @@ class SpectrumHandler(QDialog):
             try:
                 self.procXData, self._calibrationShift = calibration.calibrate(*self.procData.T)
             except CalibrationError as e:
-                # ToDo: Handle Calibration Error here!
+                # TODO: Handle Calibration Error here! See #172
                 print(f"Spectrumhandler, line 193 (TODO): {e}")
 
         peakCharacteristics, integrationAreas = self._analyse_peak(peak)

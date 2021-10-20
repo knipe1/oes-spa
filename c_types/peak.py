@@ -12,8 +12,8 @@ Created on Thu Apr 16 09:48:04 2020
 # third-party libs
 
 # local modules/libs
-from c_types.basepeak import BasePeak
-from c_types.referencepeak import ReferencePeak
+from .basepeak import BasePeak
+from .referencepeak import ReferencePeak
 from dialog_messages import information_normalizationFactorUndefined, information_normalizationOffsetUndefined
 
 # Enums

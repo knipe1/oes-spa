@@ -14,7 +14,7 @@ import numpy as np
 # third-party libs
 
 # local modules/libs
-from modules.dataanalysis.spectrum import Spectrum
+from .spectrum import Spectrum
 import modules.universal as uni
 from ui.matplotlibwidget import MatplotlibWidget
 

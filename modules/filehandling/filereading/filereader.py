@@ -24,14 +24,14 @@ from datetime import datetime
 
 # local modules/libs
 # FileFramework: base class.
-from modules.filehandling.fileframework import FileFramework
+from ..fileframework import FileFramework
 # specific subReader
-from modules.filehandling.filereading.ascreader import AscReader
-from modules.filehandling.filereading.bareader import BaReader
-from modules.filehandling.filereading.csvreader import CsvReader
-from modules.filehandling.filereading.sifreader import SifReader
-from modules.filehandling.filereading.spkreader import SpkReader
-from modules.filehandling.filewriting.spectrumwriter import is_exported_spectrum
+from .ascreader import AscReader
+from .bareader import BaReader
+from .csvreader import CsvReader
+from .sifreader import SifReader
+from .spkreader import SpkReader
+from ..filewriting.spectrumwriter import is_exported_spectrum
 # further modules
 import modules.universal as uni
 

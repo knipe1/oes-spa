@@ -16,7 +16,7 @@ import numpy as np
 from loader.configloader import ConfigLoader
 from ui.matplotlibwidget import MatplotlibWidget
 import modules.universal as uni
-from modules.thread.drawer import Drawer
+from ..thread.drawer import Drawer
 
 
 # Enums

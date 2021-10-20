@@ -7,9 +7,7 @@ Created on Fri Jul 24 22:44:59 2020
 """
 
 
-import modules.universal as uni
-
-from modules.watchdog import Watchdog
+from .watchdog import Watchdog
 
 
 class FittingWatchdog(Watchdog):

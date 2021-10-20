@@ -28,12 +28,12 @@ from ui.UIbatch import UIBatch
 # modules & universal
 import modules.universal as uni
 import dialog_messages as dialog
-from modules.dataanalysis.trace import Trace
-from modules.watchdog import Watchdog
-from modules.filehandling.filereading.filereader import FileReader
-from modules.thread.appender import Appender
-from modules.thread.exporter import Exporter
-from modules.thread.plotter import Plotter
+from .dataanalysis.trace import Trace
+from .watchdog import Watchdog
+from .filehandling.filereading.filereader import FileReader
+from .thread.appender import Appender
+from .thread.exporter import Exporter
+from .thread.plotter import Plotter
 
 
 # Enums

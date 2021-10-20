@@ -14,8 +14,8 @@ from PyQt5.QtCore import QObject, Slot
 from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
-from ui.ui_batch_dialog import Ui_batch
-from ui.matplotlibwidget import MatplotlibWidget
+from .ui_batch_dialog import Ui_batch
+from .matplotlibwidget import MatplotlibWidget
 
 # enums and dataclasses
 from c_enum.characteristic import CHARACTERISTIC as CHC

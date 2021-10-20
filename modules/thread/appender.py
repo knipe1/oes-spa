@@ -12,11 +12,11 @@ Created on Tue Feb  2 16:56:14 2021
 from PyQt5.QtCore import Signal
 
 # local modules/libs
-from modules.thread.worker import Worker
-from modules.dataanalysis.spectrumhandler import SpectrumHandler
+from .worker import Worker
 import modules.dataanalysis.analysis as Analysis
-from modules.filehandling.filereading.filereader import FileReader
-from modules.filehandling.filewriting.batchwriter import BatchWriter
+from ..dataanalysis.spectrumhandler import SpectrumHandler
+from ..filehandling.filereading.filereader import FileReader
+from ..filehandling.filewriting.batchwriter import BatchWriter
 
 # type
 from c_types.basicsetting import BasicSetting

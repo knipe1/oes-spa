@@ -14,9 +14,9 @@ from datetime import datetime
 
 # local modules/libs
 # FileWriter: base class.
-from modules.filehandling.filewriting.filewriter import FileWriter
+from .filewriter import FileWriter
 import modules.universal as uni
-from modules.dataanalysis.spectrum import Spectrum
+from ...dataanalysis.spectrum import Spectrum
 
 # Enums
 from c_enum.export_type import EXPORT_TYPE

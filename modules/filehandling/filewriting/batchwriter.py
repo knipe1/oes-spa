@@ -13,7 +13,7 @@ from datetime import datetime
 # third-party libs
 
 # local modules/libs
-from modules.filehandling.filewriting.filewriter import FileWriter
+from .filewriter import FileWriter
 
 # Enums
 

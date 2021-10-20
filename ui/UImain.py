@@ -29,8 +29,8 @@ import os
 from PyQt5.QtCore import QObject, pyqtSlot
 
 # local modules/libs
-from ui.ui_main_window import Ui_main
-from ui.matplotlibwidget import MatplotlibWidget
+from .ui_main_window import Ui_main
+from .matplotlibwidget import MatplotlibWidget
 from loader.configloader import ConfigLoader
 from loader.yamlloader import YamlLoader
 import modules.universal as uni

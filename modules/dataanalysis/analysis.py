@@ -8,8 +8,8 @@ Created on Tue Feb  2 14:02:43 2021
 
 import modules.universal as uni
 
-from modules.dataanalysis.spectrumhandler import SpectrumHandler
-from modules.filehandling.filereading.filereader import FileReader
+from .spectrumhandler import SpectrumHandler
+from ..filehandling.filereading.filereader import FileReader
 from c_types.basicsetting import BasicSetting
 
 # Enums

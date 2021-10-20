@@ -11,7 +11,7 @@ Created on Fri Sep  4 12:11:22 2020
 # third-party libs
 
 # local modules/libs
-from modules.filehandling.filereading.basereader import BaseReader
+from .basereader import BaseReader
 
 # Enums
 

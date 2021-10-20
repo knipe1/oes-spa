@@ -12,7 +12,7 @@ from datetime import datetime
 # third-party libs
 
 # local modules/libs
-from modules.filehandling.filereading.basereader import BaseReader
+from .basereader import BaseReader
 import modules.universal as uni
 
 # Enums

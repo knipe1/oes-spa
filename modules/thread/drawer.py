@@ -12,7 +12,7 @@ Created on Sun Feb 14 20:58:50 2021
 # third-party libs
 
 # local modules/libs
-from modules.thread.worker import Worker
+from .worker import Worker
 
 # constants
 

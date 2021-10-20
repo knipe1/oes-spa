@@ -21,11 +21,11 @@ from PyQt5.QtWidgets import QMainWindow
 from ui.UImain import UIMain
 import dialog_messages as dialog
 import modules.universal as uni
-from modules.batchanalysis import BatchAnalysis
-from modules.dataanalysis.spectrum import Spectrum
-from modules.dataanalysis.spectrumhandler import SpectrumHandler
-from modules.filehandling.filereading.filereader import FileReader
-from modules.filehandling.filewriting.spectrumwriter import SpectrumWriter
+from .batchanalysis import BatchAnalysis
+from .dataanalysis.spectrum import Spectrum
+from .dataanalysis.spectrumhandler import SpectrumHandler
+from .filehandling.filereading.filereader import FileReader
+from .filehandling.filewriting.spectrumwriter import SpectrumWriter
 
 # enums
 from c_types.basicsetting import BasicSetting

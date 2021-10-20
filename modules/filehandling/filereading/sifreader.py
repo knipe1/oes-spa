@@ -15,7 +15,7 @@ from datetime import datetime
 import sif_reader
 
 # local modules/libs
-from modules.filehandling.filereading.basereader import BaseReader
+from .basereader import BaseReader
 import modules.universal as uni
 import modules.dataanalysis.spectrumhandler as SH
 
