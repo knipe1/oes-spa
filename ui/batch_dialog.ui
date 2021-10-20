@@ -2,32 +2,16 @@
 <ui version="4.0">
  <class>batch</class>
  <widget class="QDialog" name="batch">
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>862</width>
-    <height>907</height>
+    <width>880</width>
+    <height>950</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="acceptDrops">
-   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>Batch Analysis</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>afm.jpeg</normaloff>afm.jpeg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -249,9 +233,9 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="boxTracePage1" native="true">
+     <widget class="QWidget" name="boxTracePage1">
       <attribute name="title">
-       <string/>
+       <string>Single Batch</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -335,7 +319,7 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Page</string>
+       <string>Multi Batch</string>
       </attribute>
      </widget>
     </widget>
@@ -364,11 +348,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="RadProcess"/>
   <buttongroup name="BtnFileaction">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="RadProcess"/>
  </buttongroups>
 </ui>
