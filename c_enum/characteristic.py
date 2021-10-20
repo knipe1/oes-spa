@@ -25,6 +25,7 @@ class CHARACTERISTIC(Enum):
     PEAK_NAME = "Peak name"
     CALIBRATION_SHIFT = "Calibration shift"
     CALIBRATION_PEAKS = "Calibration peaks"
+    FITTING_FILE = "Filename of Fitting"
     INTEGRATION_RAW = auto()
     INTEGRATION_PROCESSED = auto()
     TYPE_PEAK = auto()

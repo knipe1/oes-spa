@@ -38,6 +38,7 @@ from c_enum.error_code import ERROR_CODE as ERR
 from c_enum.export_type import EXPORT_TYPE
 
 # exceptions
+from exception.CalibrationError import CalibrationError
 from exception.InvalidSpectrumError import InvalidSpectrumError
 from exception.ParameterNotSetError import ParameterNotSetError
 
@@ -112,6 +113,7 @@ class SpectrumHandler(QDialog):
         result[CHC.REF_POSITION] = self.refPosition
         result[CHC.CALIBRATION_SHIFT] = self._calibrationShift
         result[CHC.CALIBRATION_PEAKS] = self._calibrationPeaks
+        result[CHC.FITTING_FILE] = self._fitting_file
         return result
 
 
@@ -171,6 +173,7 @@ class SpectrumHandler(QDialog):
     def fit_data(self, fitting:Fitting)->ERR:
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
+        self._fitting_file = fitting.filename
         if fitting is None or fitting.peak is None:
             return ERR.OK
 
@@ -183,7 +186,11 @@ class SpectrumHandler(QDialog):
         if self.basicSetting.calibration and calibrationFile:
             calibration = Calibration(calibrationFile)
             self._calibrationPeaks = calibration.calibrationPeaks
-            self.procXData, self._calibrationShift = calibration.calibrate(*self.procData.T)
+            try:
+                self.procXData, self._calibrationShift = calibration.calibrate(*self.procData.T)
+            except CalibrationError as e:
+                # ToDo: Handle Calibration Error here!
+                print(f"Spectrumhandler, line 193 (TODO): {e}")
 
         peakCharacteristics, integrationAreas = self._analyse_peak(peak)
         self._peakHeight = peakCharacteristics[CHC.PEAK_HEIGHT]

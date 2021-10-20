@@ -391,7 +391,7 @@ class UIMain(Ui_main, QObject):
         filename = self._get_filename_of_fitting(fittingName)
         fitConfig = self._load_fitting_configuration(filename)
         try:
-            activeFitting = Fitting(fitConfig.config)
+            activeFitting = Fitting(fitConfig.config, filename)
         except AttributeError:
             # If no config was loaded.
             return None

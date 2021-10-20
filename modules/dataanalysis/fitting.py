@@ -66,10 +66,11 @@ class Fitting():
 
     ## __methods__
 
-    def __init__(self, fitting:dict)->None:
+    def __init__(self, fitting:dict, filename:str=None)->None:
         self._logger = logging.getLogger(self.__class__.__name__)
 
         self.reset_errorcode()
+        self.filename = filename
 
         name, calibration, peakParameter = extract_parameter(fitting)
 
