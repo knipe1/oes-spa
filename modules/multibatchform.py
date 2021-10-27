@@ -30,6 +30,7 @@ class MultiBatchForm(QWidget):
     ### Signals
     batchfileChanged = pyqtSignal(str)
     batchfileAdded = pyqtSignal(str)
+    analysisAdded = pyqtSignal(str)
 
     ### Properties
 
@@ -75,6 +76,7 @@ class MultiBatchForm(QWidget):
         # signals
         self.batchfileChanged.connect(self._window.set_batchfilename)
         self.batchfileAdded.connect(self._window.insert_batchfile)
+        self.analysisAdded.connect(self._window.add_analysis)
         self._window.connect_import_batchfile(self._specify_batchfile)
         self._window.connect_add_batchfile(self.append_batchfile)
 
@@ -89,3 +91,4 @@ class MultiBatchForm(QWidget):
         self._logger.info(f"Append Batchfile: {self.batchFile}")
         if not self.batchFile in self._window.get_batch_filenames():
             self.batchfileAdded.emit(self.batchFile)
+        self.analysisAdded.emit(self.batchFile)
