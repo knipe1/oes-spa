@@ -121,7 +121,6 @@ class UIBatch(Ui_batch, QObject):
         trace = {}
         for item in TRACE_SELECTION:
             trace[item] = item.value
-
         return trace
 
 

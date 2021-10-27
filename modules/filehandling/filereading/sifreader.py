@@ -17,7 +17,6 @@ import sif_reader
 # local modules/libs
 from .basereader import BaseReader
 import modules.universal as uni
-import modules.dataanalysis.spectrumhandler as SH
 
 # Enums
 from c_enum.asc_parameter import ASC_PARAMETER as ASC
@@ -25,6 +24,9 @@ from c_enum.asc_parameter import ASC_PARAMETER as ASC
 # constants
 NAME_TIME = "ExperimentTime"
 CALIBRATION_FACTORS = "Calibration_data"
+
+
+
 
 class SifReader(BaseReader):
 
@@ -60,7 +62,9 @@ class SifReader(BaseReader):
         timeInfo_ms = parameter[NAME_TIME]
         timeInfo = datetime.fromtimestamp(timeInfo_ms)
         parameter[NAME_TIME] = uni.timestamp_to_string(timeInfo)
-        parameter[ASC.WL.value] = np.round(SH.get_center(xData), 3)
+        # parameter[ASC.WL.value] = np.round(SH.get_center(xData), 3)
+
+        parameter[ASC.WL.value] = np.round(get_center(xData), 3)
 
         information = self.join_information(timeInfo, np.array([xData, yData]).T, parameter)
         return information
@@ -73,3 +77,9 @@ class SifReader(BaseReader):
                 + np.power(rawData, 2) * factors[2]
                 + np.power(rawData, 3) * factors[3])
         return data
+
+
+def get_center(data:np.ndarray)->float:
+    centerIdx = np.ceil(len(data) / 2 - 1)  # offset of python lists.
+    center = data[int(centerIdx)]
+    return center

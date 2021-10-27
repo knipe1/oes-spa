@@ -201,7 +201,7 @@ def dialog_batchfile(parent:QWidget=None)->str:
     """
     caption = "Set the filename of the batchfile:";
     filefilter = filefilter_from_list(BATCH_FILTER)
-    defaultFilename = BATCH["DEF_FILENAME"];
+    defaultFilename = BATCH["DEF_FILENAME"]
 
     selection = QFileDialog().directory().filePath(defaultFilename)
     filename, _ = QFileDialog.getSaveFileName(parent=parent, caption=caption,
