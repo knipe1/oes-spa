@@ -94,8 +94,8 @@
          </item>
          <item>
           <widget class="QLineEdit" name="tinCentralWavelength">
-           <property name="text">
-            <string>433</string>
+           <property name="inputMask">
+            <string>000.0000</string>
            </property>
           </widget>
          </item>
@@ -1050,7 +1050,7 @@ wavelength!</string>
   <customwidget>
    <class>MatplotlibWidget</class>
    <extends>QWidget</extends>
-   <header>ui.matplotlibwidget</header>
+   <header location="global">ui.matplotlibwidget</header>
   </customwidget>
   <customwidget>
    <class>CheckableListWidget</class>

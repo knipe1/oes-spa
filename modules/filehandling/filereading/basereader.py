@@ -147,8 +147,13 @@ def convert_to_float_or_time(dataColumn:np.ndarray):
         dataColumn = np.array(dataColumn, dtype=float)
     except ValueError:
         dataColumn = np.array(dataColumn, dtype=object)
+        # TODO: list comprehension?
         for idx, element in enumerate(dataColumn):
             dataColumn[idx] = uni.timestamp_from_string(element)
+    except TypeError:
+        dataColumn = np.array(dataColumn, dtype=object)
+        if not all([isinstance(d, datetime) for d in dataColumn]):
+            raise TypeError
 
     return dataColumn
 

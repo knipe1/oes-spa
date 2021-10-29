@@ -12,6 +12,7 @@ Created on Wed Nov  4 22:06:55 2020
 import csv
 import numpy as np
 from datetime import datetime
+import pandas as pd
 # fnmatch: Unix filename pattern matching (https://docs.python.org/3/library/fnmatch.html)
 import fnmatch
 
@@ -47,6 +48,26 @@ class BaReader(BaseReader):
 
 
     ### Methods
+
+
+    def readout_file(self, fReader=None, **kwargs)->dict:
+        """Parameter 'fReader' only required to have the same signature across reader."""
+        filename = kwargs["filename"]
+        df = pd.read_csv(filename, skiprows=1)
+
+        peakNames = set(df[CHC.PEAK_NAME.value])
+        columnValue = kwargs.get("columnValue", CHC.PEAK_AREA.value)
+
+        data = {}
+        for peak in peakNames:
+            raw_data = df.loc[df[CHC.PEAK_NAME.value] == peak, [CHC.HEADER_INFO.value, columnValue]]
+            # data[peak] = self.list_to_2column_array(raw_data)
+            data[peak] = raw_data
+
+        information = self.join_information(timeInfo=None, data=data)
+        return information
+
+
 
     def set_ba_defaults(self):
         self.dialect = self.csvDialect
@@ -113,7 +134,7 @@ class BaReader(BaseReader):
             peaks = {}
 
         for peak in peaks:
-            data[peak] = super().list_to_2column_array(data[peak])
+            data[peak] = self.list_to_2column_array(data[peak])
 
         information = {}
         information["timeInfo"] = timeInfo

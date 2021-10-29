@@ -54,6 +54,13 @@ class Trace(Spectrum):
         self._ui.draw()
 
 
+    def test(self)->None:
+        # self._markup["label"] = peak
+        self.data = self.sort_x_data(self.data)
+        self._ui.axes.plot(*self.data.T, **self._markup)
+        self._ui.draw()
+
+
     def sort_x_data(self, arr:np.ndarray):
         order = arr[:, 0].argsort()
         return arr[order]

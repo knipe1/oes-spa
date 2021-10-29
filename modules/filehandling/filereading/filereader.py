@@ -219,6 +219,7 @@ class FileReader(FileFramework):
             return
         kwargs["filename"] = self.filename
 
+
         with open(self.filename, 'r', newline='') as openFile:
             # Set up the reader (even if the file is something else than csv,
             # because we use another dialect then).

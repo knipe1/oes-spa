@@ -24,7 +24,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="2" column="0" colspan="3">
-     <widget class="MatplotlibWidget" name="mplRaw" native="true">
+     <widget class="MatplotlibWidget" name="mplBatch" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>

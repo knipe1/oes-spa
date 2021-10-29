@@ -28,12 +28,13 @@ from loader.configloader import ConfigLoader
 from c_enum.suffices import SUFFICES as SUFF
 
 # constants
-IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc *.sif)",
-               "SpexHex File (*.spk)",
-               "Exported Raw spectrum (*.csv)",
-               "Full information spectrum (*.asc)",
-               "(*.sif)",
-               ]
+IMPORT_FILTER = [
+    "Data sets (*.spk *.csv *.asc *.sif)",
+    "SpexHex File (*.spk)",
+    "Exported Raw spectrum (*.csv)",
+    "Full information spectrum (*.asc)",
+    "Andor Data Files (*.sif)",
+]
 BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.

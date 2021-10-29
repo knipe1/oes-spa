@@ -9,10 +9,11 @@ Created on Mon Oct 25 14:11:09 2021
 
 # standard libs
 # import functools as fct
+from enum import Enum
 
 # third-party libs
 from PyQt5.QtCore import QObject, pyqtSlot
-from PyQt5.QtWidgets import QTreeWidgetItem, QComboBox
+from PyQt5.QtWidgets import QTreeWidgetItem, QComboBox, QLineEdit
 
 
 # local modules/libs
@@ -26,6 +27,12 @@ import modules.universal as uni
 from c_enum.characteristic import CHARACTERISTIC as CHC
 
 # constants
+COL_FILENAME = 0
+COL_PEAKNAME = 1
+COL_CHARACTERISTIC = 2
+COL_X_OFFSET = 3
+COL_Y_OFFSET = 4
+
 BATCH_CHARACTERISTICS = [CHC.PEAK_AREA,
                          CHC.PEAK_HEIGHT,
                          CHC.PEAK_POSITION,
@@ -38,14 +45,21 @@ BATCH_CHARACTERISTICS = [CHC.PEAK_AREA,
 
 
 
+class LineEditOffset(QLineEdit):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.setInputMask("0000.0000")
+        self.setText("0.0")
+
+
 class TreeTopLevelItem(QTreeWidgetItem):
-    def __init__(self, filename:str, treeWidget):
+    def __init__(self, filename:str):
         super().__init__()
         self.filename = filename
-        self.setText(0, uni.reduce_path(filename))
+        self.setText(COL_FILENAME, uni.reduce_path(filename))
 
-        self.file = FileReader(filename)
-        self.peakNames = self.file.data.keys()
+        file = FileReader(filename)
+        self.peakNames = file.data.keys()
 
 
     def addChild(self):
@@ -53,23 +67,40 @@ class TreeTopLevelItem(QTreeWidgetItem):
         super().addChild(child)
 
         # void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget)
-        characteristics = CharacteristicComboBox(self.treeWidget())
-        self.treeWidget().setItemWidget(child, 2, characteristics)
         # Add peaks here
-        peakNames = PeakComboBox(self.treeWidget(), self.peakNames)
-        self.treeWidget().setItemWidget(child, 1, peakNames)
+        peakNames = PeakComboBox(self.treeWidget(), self.peakNames, child)
+        self.treeWidget().setItemWidget(child, COL_PEAKNAME, peakNames)
+        # Add Characteristics
+        characteristics = CharacteristicComboBox(self.treeWidget())
+        self.treeWidget().setItemWidget(child, COL_CHARACTERISTIC, characteristics)
+        # Add X-Offset
+        xOffset = LineEditOffset()
+        self.treeWidget().setItemWidget(child, COL_X_OFFSET, xOffset)
+        # Add Y-Offset
+        yOffset = LineEditOffset()
+        self.treeWidget().setItemWidget(child, COL_Y_OFFSET, yOffset)
+
+
+    def get_values_from_child(self, idx:int):
+        print(self.child(idx).get_values())
 
 
 class CustomComboBox(QComboBox):
     OPTIONS = tuple()
 
-    def __init__(self, parent):
+    def __init__(self, parent, item=None):
         super().__init__(parent)
         self.addItems(self.OPTIONS)
+        if item:
+            print("te")
+            self.currentIndexChanged.connect(item.t)
+
+    # def getComboValue(self):
+    #     print(self.currentText())
+    #     return self.currentText()
 
 
     def addItems(self, texts):
-        from enum import Enum
         if all((isinstance(t, Enum) for t in texts)):
             super().addItems((t.value for t in texts))
         else:
@@ -81,23 +112,42 @@ class CharacteristicComboBox(CustomComboBox):
 
 
 class PeakComboBox(CustomComboBox):
-    def __init__(self, parent, peakNames):
+    def __init__(self, parent, peakNames, i):
         self.OPTIONS = peakNames
-        super().__init__(parent)
-        # self.currentIndexChanged.connect(self.getComboValue)
-
-    # def getComboValue(self):
-    #     print(self.currentText())
-    #     return self.currentText()
+        super().__init__(parent, i)
 
 
 
 class TreeChildItem(QTreeWidgetItem):
-    def __init__(self):
+    def __int__(self):
         super().__init__()
-        self.setText(3, "No Offset")
-        self.setText(4, "-2.54")
+        self.dataChanged.connect(self.t)
 
+    def t(self):
+        print("Emitted")
+        self.emitDataChanged()
+
+    def get_values(self):
+        w = self.treeWidget()
+        xOffset = text_to_float(w.itemWidget(self, COL_X_OFFSET).text())
+        yOffset = text_to_float(w.itemWidget(self, COL_Y_OFFSET).text())
+
+
+        values = {
+            "peakname": w.itemWidget(self, COL_PEAKNAME).currentText(),
+            "CHC": w.itemWidget(self, COL_CHARACTERISTIC).currentText(),
+            "X-Offset": xOffset,
+            "Y-Offset": yOffset,
+        }
+        return values
+
+
+def text_to_float(text:str, default:float=0.0)->float:
+    try:
+        number = float(text)
+    except ValueError:
+        number = default
+    return number
 
 
 class UIMultiBatch(Ui_Form, QObject):
@@ -110,18 +160,14 @@ class UIMultiBatch(Ui_Form, QObject):
 
     @pyqtSlot(str)
     def insert_batchfile(self, filename:str):
-        item = TreeTopLevelItem(filename, self.batchlist)
-        self.batchlist.insertTopLevelItem(0, item)
+        item = TreeTopLevelItem(filename)
+        self.batchlist.prependTopLevelItem(item)
 
 
     @pyqtSlot(str)
     def add_analysis(self, batchfile:str):
         idxItem = self.get_batch_filenames().index(batchfile)
         item = self.batchlist.topLevelItem(idxItem)
-        print(f"{idxItem}: {item.filename}")
-
-        # addChild(QTreeWidgetItem *child)
-        # child = TreeChildItem()
         item.addChild()
 
 
@@ -136,10 +182,10 @@ class UIMultiBatch(Ui_Form, QObject):
         return self.batchlist.get_batchfiles()
 
 
-
     def connect_import_batchfile(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""
         self.btnSelectBatchfile.clicked.connect(fun)
+
 
     def connect_add_batchfile(self, fun)->None:
         """Interface to connect fun to clicked signal of the button."""

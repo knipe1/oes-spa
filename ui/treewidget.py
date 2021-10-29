@@ -6,13 +6,17 @@ Created on Mon Oct 25 12:08:27 2021
 @author: hauke
 """
 
-from PyQt5.QtWidgets import QTreeWidget
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 
 
 
 
 
 class TreeWidget(QTreeWidget):
+
+    def prependTopLevelItem(self, item:QTreeWidgetItem):
+        super().insertTopLevelItem(0, item)
+        item.setExpanded(True)
 
     def get_batchfiles(self):
         root = self.invisibleRootItem()

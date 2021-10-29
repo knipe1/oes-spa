@@ -23,23 +23,10 @@ import modules.universal as uni
 from ui.ui_multi_batch import Ui_Form
 
 
-# class combocompanies(QComboBox):
-#     def __init__(self, parent):
-#         super().__init__(parent)
-#         self.addItems(["Microsoft", "Apple", "Boron"])
-
-#     def getComboValue(self):
-#         print(self.currentText())
-#         # return self.currentText()
-
-
-
-
 
 def main():
     """Main program """
     filename = "./_batch.ba"
-    # batchfile = FileReader("./_batch.ba")
 
 
     # Create an application in which the GUI can be displayed.
@@ -61,27 +48,21 @@ def main():
     box._window.btnAddBatchfile.click()
 
     def read_batch():
-        for i in range(3):
-            item = box.batchlist.currentItem()
-            print(i, item.text(i), )
+        box._window.batchlist.topLevelItem(0).get_values_from_child(0)
+        # for i in range(3):
+        #     item = box.batchlist.currentItem()
+        #     print(i, item.text(i), )
 
-            try:
-                print(box.batchlist.itemWidget(item, i).currentText())
-            except Exception:
-                pass
+        #     try:
+        #         print(box.batchlist.itemWidget(item, i).currentText())
+        #     except Exception:
+        #         pass
 
-    box._window.batchlist.currentItemChanged.connect(read_batch)
-    print(box._window.batchlist.get_batchfiles())
-
-    # Custom code
-    # class DelegateItem(QStyledItemDelegate):
-    #     pass
-
-    # item1 = DelegateItem(box.treeWidget)
-    # box.treeWidget.setItemDelegate(item1)
+    box._window.batchlist.clicked.connect(read_batch)
 
 
 
+    # box.plot_trace_from_batchfile("/home/hauke/IAF/oes-spectra-analysis-Homeversion/_batch.ba", "Peak height", "Example Peak")
 
     # Omitting show() will lead to a hidden application -> Most often not what you want.
     main_window.show()

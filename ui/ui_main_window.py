@@ -441,7 +441,7 @@ class Ui_main(object):
         main.setWindowTitle(_translate("main", "OES-Spectra-Analysis"))
         self.boxBasic.setTitle(_translate("main", "Basic Information"))
         self.lblCentralWavelength.setText(_translate("main", "Central Wavelength (nm):"))
-        self.tinCentralWavelength.setText(_translate("main", "433"))
+        self.tinCentralWavelength.setInputMask(_translate("main", "000.0000"))
         self.lblDispersion.setText(_translate("main", "Dispersion (nm/px):"))
         self.tinDispersion.setInputMask(_translate("main", "0.00000000"))
         self.cbInvertSpectrum.setText(_translate("main", "Invert Spectrum"))
