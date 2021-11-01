@@ -38,8 +38,7 @@ IMPORT_FILTER = [
 BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.
-config = ConfigLoader()
-BATCH = config.BATCH
+BATCH = ConfigLoader().BATCH
 
 # Message box
 ## critical

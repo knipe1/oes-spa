@@ -6,11 +6,9 @@ Created on Mon Oct 25 12:08:27 2021
 @author: hauke
 """
 
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
+# third-party libs
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QHeaderView
 from PyQt5.QtCore import pyqtSignal
-
-
-
 
 
 class TreeWidget(QTreeWidget):
@@ -20,11 +18,15 @@ class TreeWidget(QTreeWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.itemSelectionChanged.connect(self.get_settings)
+        header = self.header()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        # header.setStretchLastSection(False)
 
 
     def prependTopLevelItem(self, item:QTreeWidgetItem):
         super().insertTopLevelItem(0, item)
         item.setExpanded(True)
+        item.init_widgets(self)
 
 
     def get_batchfiles(self):

@@ -55,6 +55,7 @@ class Ui_batch(object):
         self.listFiles.setMinimumSize(QtCore.QSize(200, 250))
         self.listFiles.setMaximumSize(QtCore.QSize(80000, 50000))
         self.listFiles.setAcceptDrops(True)
+        self.listFiles.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.listFiles.setObjectName("listFiles")
         self.horizontalLayout_2.addWidget(self.listFiles)
         self.verticalLayout = QtWidgets.QVBoxLayout()

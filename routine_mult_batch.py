@@ -10,17 +10,11 @@ Created on Tue Sep 21 12:30:27 2021
 import sys
 
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QTreeWidgetItem
-from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtWidgets import QMainWindow
 from modules.multibatchform import MultiBatchForm
 
-import numpy as np
-from modules.filehandling.filereading.bareader import BaReader
 # import dialog_messages as dialog
 import modules.universal as uni
-
-
-from ui.ui_multi_batch import Ui_Form
 
 
 
@@ -41,14 +35,8 @@ def main():
     box.batchFile = filename
     box._window.btnAddBatchfile.click()
 
-    # Test selection
-    def read_batch():
-        box._window.batchlist.topLevelItem(0).get_values_from_child(0)
-    box._window.batchlist.clicked.connect(read_batch)
 
-
-
-    box.plot_trace_from_batchfile(box._window.batchlist.get_settings())
+    # box.plot_trace_from_batchfile(box._window.batchlist.get_settings())
 
     # Omitting show() will lead to a hidden application -> Most often not what you want.
     main_window.show()

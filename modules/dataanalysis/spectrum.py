@@ -125,6 +125,7 @@ class Spectrum():
     def init_plot(self)->None:
         """Inits the plots in the ui element regarding e.g. labels."""
         self.reset_plot()
+        print(self.labels)
         self._ui.axes.update_layout(**self.labels)
 
 

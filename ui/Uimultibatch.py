@@ -40,6 +40,8 @@ class UIMultiBatch(Ui_Form, QObject):
         idxItem = self.get_batch_filenames().index(batchfile)
         item = self.batchlist.topLevelItem(idxItem)
         item.addChild()
+        # Trigger redraw
+        self.batchlist.get_settings()
 
 
 

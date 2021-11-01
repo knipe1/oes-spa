@@ -13,16 +13,18 @@ import numpy as np
 
 # third-party libs
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QDialog, QWidget
+from PyQt5.QtWidgets import QWidget
 
 import modules.universal as uni
 from ui.Uimultibatch import UIMultiBatch
 import dialog_messages as dialog
 from .filehandling.filereading.bareader import BaReader
-from .dataanalysis.trace import Trace
+from ui.multibatch_canvas import Multibatch_Canvas
 
+
+# enums and dataclasses
 from c_enum.suffices import SUFFICES as SUFF
-
+from c_enum.multi_batch_setting import MultiBatchSetting
 
 # constants
 BATCH_SUFFIX = SUFF.BATCH
@@ -50,10 +52,6 @@ class MultiBatchForm(QWidget):
         if filename == "":
             return
 
-        if filename is not None:
-            filename = uni.replace_suffix(filename, suffix=BATCH_SUFFIX)
-        else:
-            filename = ""
         self._batchFile = filename
         self.batchfileChanged.emit(filename)
 
@@ -79,7 +77,7 @@ class MultiBatchForm(QWidget):
 
     def __post_init__(self):
 
-        self._traceSpectrum = Trace(self._window.mplBatch)
+        self._traceSpectrum = Multibatch_Canvas(self._window.mplBatch)
         # signals
         self.batchfileChanged.connect(self._window.set_batchfilename)
         self.batchfileAdded.connect(self._window.insert_batchfile)
@@ -103,9 +101,8 @@ class MultiBatchForm(QWidget):
 
 
 
-    def plot_trace_from_batchfile(self, settings:dict)->None:
-        # print(settings)
-        self._traceSpectrum.init_plot()
+    def plot_trace_from_batchfile(self, settings:MultiBatchSetting)->None:
+        data = []
         for batchfile, settings in settings.items():
             try:
                 batch = BaReader(filename=batchfile)
@@ -113,13 +110,17 @@ class MultiBatchForm(QWidget):
                 continue
 
             for s in settings:
-                peak = s['peakname']
-                characteristic = s['CHC']
-                timestamps, values = batch.get_data(peak, characteristic)
-                timeaxis = uni.convert_to_hours(timestamps) + s["X-Offset"]
-                # timeaxis = (timestamps - timestamps[0])
-                print(s["X-Offset"], timeaxis[0])
-                values += s["Y-Offset"]
+                timestamps, values = batch.get_data(s.peakname, s.characteristic)
+                timeaxis = uni.convert_to_hours(timestamps) + s.xoffset
+                values += s.yoffset
                 traceData = np.array((timeaxis, values))
-                self._traceSpectrum._ui.axes.plot(*traceData)
-        self._traceSpectrum._ui.draw()
+                label = self._setting_to_label(s)
+                data.append((traceData, label))
+
+
+        self._traceSpectrum.plot(data)
+
+
+    def _setting_to_label(self, s:dict):
+        label = f"{s.peakname} - {s.characteristic} - X: {s.xoffset} - Y: {s.yoffset}"
+        return label

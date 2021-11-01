@@ -9,24 +9,22 @@ Created on Mon Nov  1 10:51:57 2021
 # standard libs
 
 # third-party libs
-from PyQt5.QtWidgets import QTreeWidgetItem
+from ui.treewidgetitem import TreeWidgetItem
 
 
 # local modules/libs
 import modules.universal as uni
 from modules.filehandling.filereading.bareader import BaReader
 from ui.treechilditem import TreeChildItem
-from ui.lineeditoffset import LineEditOffset
-from ui.customcombobox import CharacteristicComboBox, PeakComboBox
 
 # enums
-from c_enum.multi_batch_setting import MultiBatchSetting
+from c_enum.multi_batch_setting import MultiBatchColumns
 
-class TreeTopLevelItem(QTreeWidgetItem):
+class TreeTopLevelItem(TreeWidgetItem):
     def __init__(self, filename:str):
         super().__init__()
         self.filename = filename
-        self.setText(MultiBatchSetting.COL_FILENAME.value, uni.reduce_path(filename))
+        self.setText(MultiBatchColumns.COL_FILENAME.value, uni.reduce_path(filename))
 
         file = BaReader(filename)
         self.peakNames = file.data.keys()
@@ -35,23 +33,10 @@ class TreeTopLevelItem(QTreeWidgetItem):
     def addChild(self):
         child = TreeChildItem()
         super().addChild(child)
-
-        parentWidget = self.treeWidget()
-
-        # void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget)
-        # Add peaks here
-        peakNames = PeakComboBox(parentWidget, self.peakNames)
-        self.treeWidget().setItemWidget(child, MultiBatchSetting.COL_PEAKNAME.value, peakNames)
-        # Add Characteristics
-        characteristics = CharacteristicComboBox(parentWidget)
-        self.treeWidget().setItemWidget(child, MultiBatchSetting.COL_CHARACTERISTIC.value, characteristics)
-        # Add X-Offset
-        xOffset = LineEditOffset(parentWidget)
-        self.treeWidget().setItemWidget(child, MultiBatchSetting.COL_X_OFFSET.value, xOffset)
-        # Add Y-Offset
-        yOffset = LineEditOffset(parentWidget)
-        self.treeWidget().setItemWidget(child, MultiBatchSetting.COL_Y_OFFSET.value, yOffset)
+        child.init_widgets(peakNames=self.peakNames)
 
 
-    def get_values_from_child(self, idx:int):
-        print(self.child(idx).get_values())
+    def delete(self):
+        root = self.treeWidget().invisibleRootItem()
+        idx = root.indexOfChild(self)
+        root.takeChild(idx)

@@ -8,9 +8,14 @@ Created on Mon Nov  1 10:54:20 2021
 
 # standard libs
 from enum import IntEnum
+from collections import namedtuple
 
 
-class MultiBatchSetting(IntEnum):
+MultiBatchSetting = namedtuple('Setting', ['peakname', 'characteristic', 'xoffset', 'yoffset'])
+
+
+
+class MultiBatchColumns(IntEnum):
     COL_FILENAME = 0
     COL_PEAKNAME = 1
     COL_CHARACTERISTIC = 2

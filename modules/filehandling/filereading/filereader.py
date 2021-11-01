@@ -26,7 +26,7 @@ import csv
 from ..fileframework import FileFramework
 # specific subReader
 from .ascreader import AscReader
-from .bareader import BaReader
+# from .bareader import BaReader
 from .csvreader import CsvReader
 from .sifreader import SifReader
 from .spkreader import SpkReader
@@ -138,8 +138,8 @@ class FileReader(FileFramework):
             subReader = AscReader()
         elif suffix == SUFF.SIF.value:
             subReader = SifReader()
-        elif suffix == SUFF.BATCH.value:
-            subReader = BaReader()
+        # elif suffix == SUFF.BATCH.value:
+        #     subReader = BaReader()
         else:
             self._logger.warning("Unknown suffix: %s.", suffix)
             return None

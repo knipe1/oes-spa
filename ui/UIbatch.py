@@ -69,13 +69,10 @@ class UIBatch(Ui_batch, QObject):
         self.barProgress.setValue(percentage*100)
 
 
-    ### Methods
+    # ### Methods
     def __init__(self, parent):
         super().__init__()
         self.setupUi(parent)
-
-        # Disable option to edit the strings in the file list.
-        self.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
 
     def get_update_plots(self)->bool:
