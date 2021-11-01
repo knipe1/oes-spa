@@ -115,7 +115,7 @@ class Ui_batch(object):
         self.label = QtWidgets.QLabel(self.boxTrace)
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-        self.cmbTrace = QtWidgets.QComboBox(self.boxTrace)
+        self.cmbTrace = CharacteristicComboBox(self.boxTrace)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(2)
         sizePolicy.setVerticalStretch(0)
@@ -177,5 +177,6 @@ class Ui_batch(object):
         self.btnImport.setText(_translate("batch", "Import Trace"))
         self.btnRefresh.setText(_translate("batch", "Refresh"))
 
+from ui.customcombobox import CharacteristicComboBox
 from ui.indexedlistwidget import IndexedListWidget
 from ui.matplotlibwidget import MatplotlibWidget

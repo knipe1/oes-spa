@@ -239,7 +239,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="cmbTrace">
+       <widget class="CharacteristicComboBox" name="cmbTrace">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>2</horstretch>
@@ -323,6 +323,11 @@
    <class>IndexedListWidget</class>
    <extends>QListWidget</extends>
    <header>ui.indexedlistwidget</header>
+  </customwidget>
+  <customwidget>
+   <class>CharacteristicComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">ui.customcombobox</header>
   </customwidget>
  </customwidgets>
  <tabstops>
