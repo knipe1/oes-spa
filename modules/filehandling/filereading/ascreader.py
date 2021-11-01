@@ -45,25 +45,25 @@ class AscReader(BaseReader):
         self.yColumn = self.DATA_STRUCTURE["ASC_DATA_COLUMN"]
 
 
-    def readout_file(self, fReader, **kwargs):
-        filename = kwargs["filename"]
+    # def readout_file(self, fReader, **kwargs):
+    #     filename = kwargs["filename"]
 
-        test = pd.read_csv(filename,
-                            names = ("Pixel", "Intensity"),
-                            header = None,
-                            usecols = [self.xColumn, self.yColumn],
-                            dialect = self.dialect,
-                            skip_blank_lines = True,
-                            )
+    #     test = pd.read_csv(filename,
+    #                         names = ("Pixel", "Intensity"),
+    #                         header = None,
+    #                         usecols = [self.xColumn, self.yColumn],
+    #                         dialect = self.dialect,
+    #                         skip_blank_lines = True,
+    #                         )
 
-        testarray = test.to_numpy()
-        params = np.isnan(np.asfarray(testarray[:, 1]))
-        parameter = self.handle_additional_information_new(testarray[params][:, 0])
-        self.data = np.asfarray(testarray[~params])
-        timeInfo = self.get_time_info_new(parameter["Date and Time"])
+    #     testarray = test.to_numpy()
+    #     params = np.isnan(np.asfarray(testarray[:, 1]))
+    #     parameter = self.handle_additional_information_new(testarray[params][:, 0])
+    #     self.data = np.asfarray(testarray[~params])
+    #     timeInfo = self.get_time_info_new(parameter["Date and Time"])
 
-        information = self.join_information(timeInfo, self.data, parameter)
-        return information
+    #     information = self.join_information(timeInfo, self.data, parameter)
+    #     return information
 
 
     def handle_additional_information(self, **kwargs)->None:

@@ -28,14 +28,14 @@ class FileWriter(FileFramework):
 
     def __init__(self, filename:str, timestamp:datetime)->None:
         super().__init__(filename)
-        self.timestamp = timestamp
+        self.timeInfo = timestamp
         self.dialect = self.csvDialect
 
 
     def __repr__(self):
         info = {}
         info["filename"] = self.filename
-        info["Timestamp"] = self.timestamp
+        info["Timestamp"] = self.timeInfo
         return super().__repr__() + ":\n" + str(info)
 
     ## methods
@@ -46,7 +46,7 @@ class FileWriter(FileFramework):
 
         with open(filename, mode='w', newline='') as exportFile:
             fWriter = csv.writer(exportFile, dialect=self.dialect)
-            self.write_header(fWriter, self.timestamp)
+            self.write_header(fWriter, self.timeInfo)
             self.write_information(fWriter, extraInformation)
             self.write_column_titles(fWriter, columnTitles)
             self.write_data(fWriter, data)

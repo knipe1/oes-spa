@@ -18,7 +18,6 @@ Glossary:
 
 # standard libs
 import csv
-from datetime import datetime
 
 # third-party libs
 
@@ -42,9 +41,6 @@ from c_enum.suffices import SUFFICES as SUFF
 
 # exceptions
 from exception.ParameterNotSetError import ParameterNotSetError
-
-# constants
-TIME_NOT_SET = "Not set!"
 
 
 class FileReader(FileFramework):
@@ -85,22 +81,6 @@ class FileReader(FileFramework):
     ### Properties
 
     @property
-    def timeInfo(self):
-        return self._timestamp
-
-    @timeInfo.setter
-    def timeInfo(self, timestamp:datetime):
-        if not timestamp:
-            timestamp = TIME_NOT_SET
-        self._timestamp = timestamp
-
-
-    @property
-    def fileinformation(self):
-        return (self.filename, self.timeInfo)
-
-
-    @property
     def WAVELENGTH(self):
         """Specific value of the parameter set."""
         try:
@@ -130,15 +110,6 @@ class FileReader(FileFramework):
         return (self.is_valid_spectrum() == ERR.OK)
 
 
-    def __eq__(self, other):
-        try:
-            isEqual = (self.fileinformation == other.fileinformation)
-        except AttributeError:
-            # If compared with another type, that type has no header attribute.
-            isEqual = False
-        return isEqual
-
-
     def __repr__(self):
         info = {}
         info["filename"] = self.filename
@@ -152,7 +123,7 @@ class FileReader(FileFramework):
         self.data = None
         self.parameter = {}
         # Init with "Not set!" to display the warning on the ui.
-        self.timeInfo = TIME_NOT_SET
+        self.timeInfo = self.TIME_NOT_SET
         self.subReader = None
 
 
@@ -181,6 +152,10 @@ class FileReader(FileFramework):
         if not errorcode:
             return errorcode
 
+        # Check file information.
+        if not self.timeInfo or self.timeInfo == self.TIME_NOT_SET:
+            return ERR.INVALID_FILEINFORMATION
+
         if isinstance(self.data, dict):
             return ERR.INVALID_DATA
 
@@ -202,10 +177,6 @@ class FileReader(FileFramework):
         # Data in general.
         if self.data is None or not len(self.data):
             return ERR.INVALID_DATA
-
-        # Check file information.
-        if not self.timeInfo:
-            return ERR.INVALID_FILEINFORMATION
 
         return ERR.OK
 

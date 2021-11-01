@@ -129,7 +129,43 @@ def convert_to_hours(timedifference:timedelta)->float:
     return hours
 
 
+def convert_to_hours(timedifferences:timedelta)->float:
+    """Converts the timedelta into hours."""
+    hours = np.zeros(len(timedifferences), dtype=float)
+    # hours = 0.0
+    for idx, timedifference in enumerate(timedifferences):
+    # 1 hour = 3600 seconds and 1 day = 24 hours
+        hours[idx] += timedifference.seconds / 3600
+        hours[idx] += timedifference.days * 24
+
+    return hours
+
+
 #%% Miscellaneous
+
+
+def convert_to_float_or_time(dataColumn:np.ndarray):
+    try:
+        dataColumn = np.array(dataColumn, dtype=float)
+    except (ValueError, TypeError):
+        convert_to_time(dataColumn)
+    #     dataColumn = np.array(dataColumn, dtype=object)
+    # except TypeError:
+    #     dataColumn = np.array(dataColumn, dtype=object)
+    #     if not all([isinstance(d, datetime) for d in dataColumn]):
+    #         raise TypeError
+    return dataColumn
+
+
+def convert_to_time(data:np.ndarray)->np.ndarray:
+    data = np.array(data, dtype=object)
+    if not all([isinstance(d, datetime) for d in data]):
+        for idx, d in enumerate(data):
+            data[idx] = timestamp_from_string(d)
+    return data
+
+
+
 
 def data_are_pixel(data:np.ndarray)->bool:
     """Checks whether the dataset is comprised of pixels."""

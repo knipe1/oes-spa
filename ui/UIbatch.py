@@ -17,20 +17,6 @@ from PyQt5.QtWidgets import QAbstractItemView
 from .ui_batch_dialog import Ui_batch
 from .matplotlibwidget import MatplotlibWidget
 
-# enums and dataclasses
-from c_enum.characteristic import CHARACTERISTIC as CHC
-
-# constants
-TRACE_SELECTION = [CHC.PEAK_AREA,
-                   CHC.PEAK_HEIGHT,
-                   CHC.PEAK_POSITION,
-                   CHC.REF_AREA,
-                   CHC.REF_HEIGHT,
-                   CHC.REF_POSITION,
-                   CHC.CHARACTERISTIC_VALUE,
-                   CHC.CALIBRATION_SHIFT,
-                   CHC.BASELINE]
-
 
 class UIBatch(Ui_batch, QObject):
     """
@@ -41,34 +27,12 @@ class UIBatch(Ui_batch, QObject):
     is changed.
     """
 
-
-
     ### Properties
 
     @property
     def traceSelection(self)->str:
         """Gets the current selection of cmbTrace"""
         return self.cmbTrace.currentText()
-
-
-    @property
-    def traceValues(self)->dict:
-        """traceValues getter"""
-        return self._traceValues
-
-    @traceValues.setter
-    def traceValues(self, traceValues:dict):
-        """traceValues setter
-
-        Updating the ui
-        """
-        self._traceValues = traceValues
-        try:
-            uiElement = self.cmbTrace
-            uiElement.clear()
-            uiElement.addItems(traceValues.values())
-        except Exception:
-            pass
 
 
     @property
@@ -109,19 +73,9 @@ class UIBatch(Ui_batch, QObject):
     def __init__(self, parent):
         super().__init__()
         self.setupUi(parent)
-        self.traceValues = self.init_trace()
 
         # Disable option to edit the strings in the file list.
         self.listFiles.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
-
-
-    def init_trace(self)->dict:
-        """Selects Characteristics that can be displayed in the plot."""
-        trace = {}
-        for item in TRACE_SELECTION:
-            trace[item] = item.value
-        return trace
 
 
     def get_update_plots(self)->bool:

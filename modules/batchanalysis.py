@@ -30,6 +30,7 @@ import modules.universal as uni
 import dialog_messages as dialog
 from .dataanalysis.trace import Trace
 from .watchdog import Watchdog
+from .filehandling.filereading.bareader import BaReader
 from .filehandling.filereading.filereader import FileReader
 from .thread.appender import Appender
 from .thread.exporter import Exporter
@@ -44,6 +45,10 @@ from c_enum.suffices import SUFFICES as SUFF
 
 # constants
 BATCH_SUFFIX = SUFF.BATCH
+
+
+# exceptions
+from exception.InvalidBatchFileError import InvalidBatchFileError
 
 
 class BatchAnalysis(QDialog):
@@ -299,26 +304,23 @@ class BatchAnalysis(QDialog):
             return
 
         # Define the specific value which shall be plotted.
-        columnValue = self._window.traceSelection
+        characteristic = self._window.traceSelection
         try:
-            file = FileReader(filename, columnValue=columnValue)
-        except FileNotFoundError:
-            return
-
-        if not file.is_valid_batchfile():
+            batch = BaReader(filename=filename)
+        except (FileNotFoundError, InvalidBatchFileError):
             return
 
         # TODO: See #98
         self._traceSpectrum.reset_time()
-        for peak in file.data.keys():
-            timestamps, values = zip(*file.data[peak])
+        for peak in batch.data.keys():
+            timestamps, values = batch.get_data(peak, characteristic)
             diffTimes = self._traceSpectrum.calculate_time_differences(timestamps)
             traceData = np.array((diffTimes, values)).transpose()
-            file.data[peak] = traceData
+            batch.data[peak] = traceData
 
         # Plot the trace.
-        self._traceSpectrum.set_custom_yLabel(columnValue)
-        self._traceSpectrum.set_data(file.data)
+        self._traceSpectrum.set_custom_yLabel(characteristic)
+        self._traceSpectrum.set_data(batch.data)
 
 
     def _determine_batchfile(self, takeCurrentBatchfile:bool)->str:

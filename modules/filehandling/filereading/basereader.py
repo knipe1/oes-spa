@@ -21,6 +21,13 @@ import modules.universal as uni
 
 class BaseReader(FileFramework):
 
+    DATA_STRUCTURE = {
+        "PIXEL_COLUMN": 0,
+        "ASC_DATA_COLUMN": 1,
+        "CSV_DATA_COLUMN": 1,
+        "SPK_DATA_COLUMN": 3,
+    }
+
     ### __Methods__
 
     def __init__(self):
@@ -105,8 +112,9 @@ class BaseReader(FileFramework):
     def list_to_2column_array(self, xyData:list)->np.ndarray:
         xyData = np.array(xyData)
         try:
-            xData = convert_to_float_or_time(xyData[:, 0])
-            yData = convert_to_float_or_time(xyData[:, 1])
+            # = xyData.iloc[:, 0] for pandas.DataFrame
+            xData = uni.convert_to_float_or_time(xyData[:, 0])
+            yData = uni.convert_to_float_or_time(xyData[:, 1])
             xyData = np.array((xData, yData)).transpose()
         except IndexError:
             self._logger.warning("No valid x- and y-data given. Empty data?!")
@@ -141,21 +149,6 @@ class BaseReader(FileFramework):
             return (marker in element)
         except TypeError:
             return False
-
-def convert_to_float_or_time(dataColumn:np.ndarray):
-    try:
-        dataColumn = np.array(dataColumn, dtype=float)
-    except ValueError:
-        dataColumn = np.array(dataColumn, dtype=object)
-        # TODO: list comprehension?
-        for idx, element in enumerate(dataColumn):
-            dataColumn[idx] = uni.timestamp_from_string(element)
-    except TypeError:
-        dataColumn = np.array(dataColumn, dtype=object)
-        if not all([isinstance(d, datetime) for d in dataColumn]):
-            raise TypeError
-
-    return dataColumn
 
 
 def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:

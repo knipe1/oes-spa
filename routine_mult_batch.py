@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QComboBox
 from modules.multibatchform import MultiBatchForm
 
 import numpy as np
-from modules.filehandling.filereading.filereader import FileReader
+from modules.filehandling.filereading.bareader import BaReader
 # import dialog_messages as dialog
 import modules.universal as uni
 
@@ -37,40 +37,22 @@ def main():
 
     box = MultiBatchForm(main_window)
 
+    # routine
     box.batchFile = filename
-    # box.mplRaw.axes.plot(np.arange(10), np.random.normal(1, size=10))
-    # box.mplRaw.draw()
-
-
-
-
-    box._window.btnAddBatchfile.click()
     box._window.btnAddBatchfile.click()
 
+    # Test selection
     def read_batch():
         box._window.batchlist.topLevelItem(0).get_values_from_child(0)
-        # for i in range(3):
-        #     item = box.batchlist.currentItem()
-        #     print(i, item.text(i), )
-
-        #     try:
-        #         print(box.batchlist.itemWidget(item, i).currentText())
-        #     except Exception:
-        #         pass
-
     box._window.batchlist.clicked.connect(read_batch)
 
 
 
-    # box.plot_trace_from_batchfile("/home/hauke/IAF/oes-spectra-analysis-Homeversion/_batch.ba", "Peak height", "Example Peak")
+    box.plot_trace_from_batchfile(box._window.batchlist.get_settings())
 
     # Omitting show() will lead to a hidden application -> Most often not what you want.
     main_window.show()
-
     sys.exit(app.exec_())
-
-
-
 
 # Run as main if executed and not included
 main()

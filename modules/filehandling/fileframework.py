@@ -10,6 +10,7 @@ Module for general purposes regarding read and write operations.
 import csv
 import logging
 from collections import namedtuple
+from datetime import datetime
 
 # local modules/libs
 
@@ -30,14 +31,29 @@ for dia in DIALECTS:
 class FileFramework:
 
     # constants
-    MARKER  = {"BATCH": "Filename",
-              "DATA": "Data",
-              "HEADER": "Date",}
+    TIME_NOT_SET = "Not set!"
 
-    DATA_STRUCTURE = {"PIXEL_COLUMN": 0,
-                      "ASC_DATA_COLUMN": 1,
-                      "CSV_DATA_COLUMN": 1,
-                      "SPK_DATA_COLUMN": 3,}
+    MARKER  = {
+        "BATCH": "Filename",
+        "HEADER": "Date",
+    }
+
+    # Properties
+
+    @property
+    def timeInfo(self):
+        return self._timestamp
+
+    @timeInfo.setter
+    def timeInfo(self, timestamp:datetime):
+        if not timestamp:
+            timestamp = self.TIME_NOT_SET
+        self._timestamp = timestamp
+
+
+    @property
+    def fileinformation(self):
+        return (self.filename, self.timeInfo)
 
 
     ## __methods__
@@ -45,6 +61,17 @@ class FileFramework:
     def __init__(self, filename:str)->None:
         self._logger = logging.getLogger(self.__class__.__name__)
         self.filename = filename
+        self.timeInfo = None
+        self.data = None
+
+
+    def __eq__(self, other):
+        try:
+            isEqual = (self.fileinformation == other.fileinformation)
+        except AttributeError:
+            # If compared with another type, that type has no header attribute.
+            isEqual = False
+        return isEqual
 
 
     def __repr__(self)->str:

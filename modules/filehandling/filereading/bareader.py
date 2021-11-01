@@ -7,181 +7,87 @@ Created on Wed Nov  4 22:06:55 2020
 """
 
 
-
 # standard libs
-import csv
-import numpy as np
-from datetime import datetime
 import pandas as pd
-# fnmatch: Unix filename pattern matching (https://docs.python.org/3/library/fnmatch.html)
-import fnmatch
 
 # third-party libs
 
 # local modules/libs
 # BaseReader: base class.
 from .basereader import BaseReader
-# further modules
-import modules.universal as uni
 
 # enums (alphabetical order)
-from c_enum.asc_parameter import ASC_PARAMETER as ASC
 from c_enum.characteristic import CHARACTERISTIC as CHC
-from c_enum.error_code import ERROR_CODE as ERR
-from c_enum.suffices import SUFFICES as SUFF
 
-# constants
-from modules.universal import EXPORT_TIMESTAMP
+# exceptions
+from exception.InvalidBatchFileError import InvalidBatchFileError
+
+DROP_NAN_COLUMNS = (
+    CHC.BASELINE.value,
+    CHC.CHARACTERISTIC_VALUE.value,
+    CHC.FILENAME.value,
+    # CHC.FITTING_FILE.value, # cf. backwards compatibility
+    CHC.HEADER_INFO.value,
+    CHC.PEAK_AREA.value,
+    CHC.PEAK_HEIGHT.value,
+    CHC.PEAK_NAME.value,
+    CHC.PEAK_POSITION.value,
+)
 
 
-class BaReader(BaseReader):
+class BaReader():
 
     ### __Methods__
 
-    def __init__(self):
-        # Init baseclass providing defaults and config.
+    def __init__(self, filename:str, characteristic:str=None):
         super().__init__()
-        self.__post_init__()
-
-    def __post_init__(self):
-        self.set_ba_defaults()
+        self.read_batch(filename, characteristic)
 
 
     ### Methods
 
+    def read_batch(self, filename:str, characteristic:str=None)->dict:
+        df = self._read_file(filename)
+        self.data = self._disjoin_by_peakname(df)
 
-    def readout_file(self, fReader=None, **kwargs)->dict:
-        """Parameter 'fReader' only required to have the same signature across reader."""
-        filename = kwargs["filename"]
-        df = pd.read_csv(filename, skiprows=1)
 
-        peakNames = set(df[CHC.PEAK_NAME.value])
-        columnValue = kwargs.get("columnValue", CHC.PEAK_AREA.value)
+    def get_data(self, peak:str, characteristic:str):
+        raw_time = self.data[peak][CHC.HEADER_INFO.value]
+        data = self.data[peak][characteristic]
 
+        time = raw_time.reset_index(drop=True)
+
+        diffTime = time - time.iloc[0]
+        return diffTime.copy(), data.copy()
+
+
+    def _read_file(self, filename:str)->pd.DataFrame:
+        """Reads the file with default configuration and drops NaN-lines."""
+        try:
+            df = pd.read_csv(filename, skiprows=1)
+        except pd.errors.EmptyDataError:
+            raise InvalidBatchFileError from pd.errors.EmptyDataError
+
+        try:
+            df.dropna(subset=DROP_NAN_COLUMNS, inplace=True)
+        except KeyError:
+            raise InvalidBatchFileError from KeyError
+
+        df[CHC.HEADER_INFO.value] = pd.to_datetime(df[CHC.HEADER_INFO.value])
+        return df
+
+
+    def _disjoin_by_peakname(self, df:pd.DataFrame)->dict:
         data = {}
+        peakNames = self._get_peak_names(df)
         for peak in peakNames:
-            raw_data = df.loc[df[CHC.PEAK_NAME.value] == peak, [CHC.HEADER_INFO.value, columnValue]]
-            # data[peak] = self.list_to_2column_array(raw_data)
-            data[peak] = raw_data
-
-        information = self.join_information(timeInfo=None, data=data)
-        return information
+            data[peak] = df.loc[df[CHC.PEAK_NAME.value] == peak]
+        return data
 
 
-
-    def set_ba_defaults(self):
-        self.dialect = self.csvDialect
-        self.xColumn = 0
-        self.yColumn = 0
-        self.peakColumn = 0
-        self.timeFormat = EXPORT_TIMESTAMP
-
-        # default batch columns must be the value of an CHC.element.
-        self.defaultBatchYColumn = CHC.PEAK_AREA.value
-        self.defaultBatchXColumn = CHC.HEADER_INFO.value
-        self.nameColumn = CHC.PEAK_NAME.value
-        self.data = {}
-
-
-    def add_xy_to_data(self, xy):
-        if self.currentPeakName in self.data.keys():
-            self.data[self.currentPeakName].append(xy)
-        else:
-            self.data[self.currentPeakName] = [xy]
-
-
-    def get_information(self, line, **kwargs)->(str, str, str):
-
-        # Determine the peak name if possible
+    def _get_peak_names(self, df:pd.DataFrame)->set:
         try:
-            peakName = line[self.peakColumn]
-            self.currentPeakName = peakName
-        except IndexError:
-            self.currentPeakName = None
-
-        markerElement, xDataElement, yDataElement = super().get_information(line)
-        return markerElement, xDataElement, yDataElement
-
-
-    def is_data(self, xDataElement:str, yDataElement:str)->bool:
-        try:
-            uni.timestamp_from_string(xDataElement)
-            is_xData = True
-        except (TypeError, ValueError):
-            is_xData = super().is_data(xDataElement)
-
-        is_yData = super().is_data(yDataElement)
-
-        return (is_xData and is_yData)
-
-
-    def handle_additional_information(self, **kwargs)->None:
-        batchMarker = self.MARKER["BATCH"]
-        line = kwargs.get("line")
-        if not self.contain_marker(batchMarker, line):
-            return
-
-        line = kwargs.get("line")
-        xColumnName = self.defaultBatchXColumn
-        yColumnName = kwargs.get("columnValue", self.defaultBatchYColumn)
-        self.xColumn, self.yColumn, self.peakColumn = self.determine_batch_column_indeces(line, xColumnName, yColumnName, self.nameColumn)
-
-
-    def join_information(self, timeInfo:str, data:dict, parameter:dict=None)->dict:
-        try:
-            peaks = data.keys()
-        except AttributeError:
-            peaks = {}
-
-        for peak in peaks:
-            data[peak] = self.list_to_2column_array(data[peak])
-
-        information = {}
-        information["timeInfo"] = timeInfo
-        information["data"] = data
-        information["parameter"] = parameter or {}
-        return information
-
-
-    def determine_batch_column_indeces(self, dataHeader:list, xColumnName:str, yColumnName:str, nameColumn:str)->(int, int, int):
-        """
-
-
-        Parameters
-        ----------
-        dataHeader : list
-            Contains the header information of the batch file.
-        xColumnName : str
-            Name of the header information, which contains the y-data.
-        yColumnName : str
-            Name of the header information, which contains the y-data.
-        nameColumn : str
-            Name of the header information, which contains the peak information.
-
-        Returns
-        -------
-        xColumn : int
-            Index of the column which contains the x-values.
-        yColumn : int
-            Index of the column which contains the y-values.
-        peakColumn : int
-            Index of the column which contains the peak name.
-
-        """
-        # Filter allows to search for characteristic value, because
-        # the specific name of that peak is added to the static value.
-        wildcard = "*"
-        wildColumnName = yColumnName + wildcard
-        yColumn = dataHeader.index(fnmatch.filter(dataHeader, wildColumnName)[0])
-
-        try:
-            xColumn = dataHeader.index(xColumnName)
-        except ValueError:
-            xColumn = self.xColumn
-
-        try:
-            peakColumn = dataHeader.index(nameColumn)
-        except ValueError:
-            peakColumn = self.peakColumn
-
-        return xColumn, yColumn, peakColumn
+            peakNames = set(df[CHC.PEAK_NAME.value])
+        except KeyError:
+            peakNames = set()
+        return peakNames
