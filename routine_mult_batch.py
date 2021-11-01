@@ -32,8 +32,12 @@ def main():
     box = MultiBatchForm(main_window)
 
     # routine
-    box.batchFile = filename
-    box._window.btnAddBatchfile.click()
+
+    try:
+        box.batchFile = filename
+        box._window.btnAddBatchfile.click()
+    except Exception:
+        pass
 
 
     # box.plot_trace_from_batchfile(box._window.batchlist.get_settings())
