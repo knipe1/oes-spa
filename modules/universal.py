@@ -119,52 +119,37 @@ def timestamp_from_string(timeString:str, timeformat:str=None)->datetime:
     return timestamp
 
 
-def convert_to_hours(timedifference:timedelta)->float:
+def timedelta_to_hours(timedifference:timedelta)->float:
     """Converts the timedelta into hours."""
-    hours = 0.0
     # 1 hour = 3600 seconds and 1 day = 24 hours
+    hours = 0.0
     hours += timedifference.seconds / 3600
     hours += timedifference.days * 24
-
     return hours
 
 
 def convert_to_hours(timedifferences:timedelta)->float:
     """Converts the timedelta into hours."""
-    hours = np.zeros(len(timedifferences), dtype=float)
-    # hours = 0.0
-    for idx, timedifference in enumerate(timedifferences):
-    # 1 hour = 3600 seconds and 1 day = 24 hours
-        hours[idx] += timedifference.seconds / 3600
-        hours[idx] += timedifference.days * 24
-
+    hours = np.fromiter(map(timedelta_to_hours, timedifferences), dtype=float)
     return hours
 
 
 #%% Miscellaneous
 
 
-def convert_to_float_or_time(dataColumn:np.ndarray):
+def convert_to_float_or_time(data:np.ndarray):
     try:
-        dataColumn = np.array(dataColumn, dtype=float)
+        convertedData = np.array(data, dtype=float)
     except (ValueError, TypeError):
-        convert_to_time(dataColumn)
-    #     dataColumn = np.array(dataColumn, dtype=object)
-    # except TypeError:
-    #     dataColumn = np.array(dataColumn, dtype=object)
-    #     if not all([isinstance(d, datetime) for d in dataColumn]):
-    #         raise TypeError
-    return dataColumn
+        convertedData = convert_to_time(data)
+    return convertedData
 
 
 def convert_to_time(data:np.ndarray)->np.ndarray:
-    data = np.array(data, dtype=object)
-    if not all([isinstance(d, datetime) for d in data]):
-        for idx, d in enumerate(data):
-            data[idx] = timestamp_from_string(d)
+    """Converts a iterable of strings or datetime objects to an array of datetime objects."""
+    if not all((isinstance(d, datetime) for d in data)):
+        data = np.asarray(tuple(map(timestamp_from_string, data)), dtype=object)
     return data
-
-
 
 
 def data_are_pixel(data:np.ndarray)->bool:

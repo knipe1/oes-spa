@@ -157,16 +157,20 @@ class Spectrum():
 
 
     def plot_integration_areas(self)->None:
+        # TODO: intarea as dataclass?
         for intArea in self._integrationAreas:
             col = self.determine_color(intArea)
             self._ui.axes.fill_between(intArea.xData, intArea.yData, color=col)
 
 
     def plot_calibration_peaks(self)->None:
-        if self._calibrationPeaks is None:
+        try:
+            for peak in self._calibrationPeaks:
+                # TODO: CONSTANT LS!
+                # TODO: Separate method as 'plot_vline' with default ls
+                self._ui.axes.axvline(peak, ls="--")
+        except TypeError:
             return
-        for peak in self._calibrationPeaks:
-            self._ui.axes.axvline(peak, ls="--")
 
 
 

@@ -10,6 +10,8 @@
 # standard libs
 import sys
 import unittest
+import numpy as np
+from datetime import datetime
 
 # third-party libs
 import emulator as emu
@@ -17,8 +19,8 @@ import threading as THR
 from PyQt5.QtCore import QFileInfo
 
 # local modules/libs
-from modules.universal import reduce_paths
-from modules.universal import add_index_to_text
+import modules.universal as uni
+
 
 class TestLoadFiles(unittest.TestCase):
 
@@ -48,80 +50,58 @@ class TestLoadFiles(unittest.TestCase):
     def tearDown(self):
         pass
 
-    # def test_loadfiles(self):
-    #     # Open the dialog and reject it (start thread before open dialog)
-    #     enter = THR.Thread(target=emu.key_accept)
-    #     enter.start()
-    #     singleSpkFile = load_files(self.spkFile_1)[0];
-    #     enter = THR.Thread(target=emu.key_accept)
-    #     enter.start()
-    #     singleCsvFile = load_files(self.csvFile_1)[0];
-    #     enter = THR.Thread(target=emu.key_accept)
-    #     enter.start()
-    #     singleDocxFile = load_files(self.textfile_2)[0];
-    #     enter = THR.Thread(target=emu.key_accept)
-    #     enter.start()
-    #     multDataFiles = load_files(self.multSpk);
-
-    #     self.assertEqual(singleSpkFile, self.spkFile_1, "Spk-File");
-    #     self.assertEqual(singleCsvFile, self.csvFile_1, "Csv-File");
-    #     self.assertEqual(singleDocxFile, self.textfile_2, "Docx-File");
-    #     self.assertEqual(len(multDataFiles), 2, "Multiple Files");
-
-    # def test_values(self):
-    #     with self.assertRaises(TypeError):
-    #         load_files(12)
-    #         load_files(["asd", 12])
-    #         load_files(3.4)
 
 class TestReducePath(unittest.TestCase):
     def setUp(self):
         # normal urls
-        self.url = "./modules/testfiles/csvfile_1.csv";
+        self.url = "./modules/testfiles/csvfile_1.csv"
         self.shortUrl = "H:/csvfile_1.csv"
         self.filenameUrl = "csvfile_1.csv"
         self.listUrl = [self.url, self.shortUrl, self.filenameUrl]
         # reduced urls
-        self.reducedUrl = reduce_paths(self.url)
-        self.reducedShortUrl = reduce_paths(self.shortUrl)
-        self.reducedFilenameUrl = reduce_paths(self.filenameUrl)
+        self.reducedUrl = uni.reduce_path(self.url)
+        self.reducedShortUrl = uni.reduce_path(self.shortUrl)
+        self.reducedFilenameUrl = uni.reduce_path(self.filenameUrl)
 
 
     def test_ok_reducePath(self):
         # urls
-        self.assertEqual(self.reducedUrl, "/testfiles/csvfile_1.csv")
+        self.assertEqual(self.reducedUrl, "testfiles/csvfile_1.csv")
         self.assertEqual(self.reducedShortUrl, "H:/csvfile_1.csv")
-        self.assertEqual(self.reducedFilenameUrl, "csvfile_1.csv")
-        # list of urls
-        self.assertEqual(type(reduce_paths(self.listUrl)), list)
-
-    def test_raise_reducePath(self):
-        self.assertRaises(TypeError, reduce_paths, 12);
-        self.assertRaises(TypeError, reduce_paths, ["asd", 12]);
-        self.assertRaises(TypeError, reduce_paths, 3.4);
-        self.assertRaises(TypeError, reduce_paths, (3.4, "asd"));
+        self.assertEqual(self.reducedFilenameUrl, "oes-spectra-analysis-Homeversion/csvfile_1.csv")
 
 
-class TestAddIndexToText(unittest.TestCase):
+class TestConvertToTime(unittest.TestCase):
+    # Signature
+    # convert_to_time(data:np.ndarray)->np.ndarray:
     def setUp(self):
-        # valid entries
-        self.stringlist = ["a", "b", "c", "d", "e", "f"]
-        # invalid variables
-        self.list = [3, "a"]
-        self.number = 12123
+        timeList = [datetime.now() for _ in range(50)]
+        self.datetimeArray = np.asarray(timeList)
+        self.stringArray = np.asarray([uni.timestamp_to_string(t) for t in self.datetimeArray.copy()])
 
-    def test_ok_addIndexToText(self):
-        self.assertEqual(add_index_to_text(self.stringlist),
-                          ["   0:a",
-                          "   1:b",
-                          "   2:c",
-                          "   3:d",
-                          "   4:e",
-                          "   5:f"])
 
-    def test_raise_addIndexToText(self):
-        self.assertRaises(TypeError, add_index_to_text, self.list);
-        self.assertRaises(TypeError, add_index_to_text, self.number);
+    def test_convert_from_datetime(self):
+        self.assertTrue(all(self.datetimeArray == uni.convert_to_time(self.datetimeArray)))
+
+
+    def test_convert_from_string(self):
+        converted = uni.convert_to_time(self.stringArray)
+        self.assertTrue(all((isinstance(t, datetime) for t in converted)))
+
+
+    def test_performance(self):
+        import timeit
+        NO = 1_000
+        listStrings = list(self.stringArray)
+        print(timeit.timeit(f"uni.convert_to_time({listStrings})", setup="import modules.universal as uni", number=NO))
+        print(timeit.timeit(f"uni.new_convert_to_time({listStrings})", setup="import modules.universal as uni", number=NO))
+
+        listDatetime = list(self.datetimeArray.copy())
+        print(timeit.timeit(f"uni.convert_to_time({listDatetime})", setup="import modules.universal as uni; import datetime;", number=NO))
+        print(timeit.timeit(f"uni.new_convert_to_time({listDatetime})", setup="import modules.universal as uni; import datetime;", number=NO))
+
+
+
 
 
 if __name__ == '__main__':

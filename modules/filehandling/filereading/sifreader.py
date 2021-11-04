@@ -35,20 +35,11 @@ class SifReader(BaseReader):
 
     ### __Methods__
 
-    def __init__(self):
-        # Init baseclass providing defaults and config.
-        super().__init__()
-        self.__post_init__()
-
-    def __post_init__(self):
-        pass
-
 
     ### Methods
 
-    def readout_file(self, fReader=None, **kwargs)->dict:
+    def readout_file(self, filename)->dict:
         """Parameter 'fReader' only required to have the same signature across reader."""
-        filename = kwargs["filename"]
         file = sif_reader.np_open(filename)
         yData, parameter = file[0], file[1]
 

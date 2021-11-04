@@ -17,7 +17,7 @@ Glossary:
 """
 
 # standard libs
-import csv
+import pandas as pd
 
 # third-party libs
 
@@ -26,7 +26,6 @@ import csv
 from ..fileframework import FileFramework
 # specific subReader
 from .ascreader import AscReader
-# from .bareader import BaReader
 from .csvreader import CsvReader
 from .sifreader import SifReader
 from .spkreader import SpkReader
@@ -138,8 +137,6 @@ class FileReader(FileFramework):
             subReader = AscReader()
         elif suffix == SUFF.SIF.value:
             subReader = SifReader()
-        # elif suffix == SUFF.BATCH.value:
-        #     subReader = BaReader()
         else:
             self._logger.warning("Unknown suffix: %s.", suffix)
             return None
@@ -148,34 +145,19 @@ class FileReader(FileFramework):
 
 
     def is_valid_spectrum(self)->ERR:
-        errorcode = self.has_valid_frame()
-        if not errorcode:
-            return errorcode
-
-        # Check file information.
-        if not self.timeInfo or self.timeInfo == self.TIME_NOT_SET:
-            return ERR.INVALID_FILEINFORMATION
-
-        if isinstance(self.data, dict):
-            return ERR.INVALID_DATA
-
-        if not isinstance(self.data[0, 0], (float, int)):
-            return ERR.INVALID_DATA
-
-        return ERR.OK
-
-
-    def is_valid_batchfile(self)->ERR:
-        return self.has_valid_frame()
-
-
-    def has_valid_frame(self):
         # Filetype.
         if not self.subReader:
             return ERR.UNKNOWN_FILETYPE
 
         # Data in general.
         if self.data is None or not len(self.data):
+            return ERR.INVALID_DATA
+
+        # Check file information.
+        if not self.timeInfo or self.timeInfo == self.TIME_NOT_SET:
+            return ERR.INVALID_FILEINFORMATION
+
+        if not all((isinstance(d, (float, int)) for d in self.data[0, :])):
             return ERR.INVALID_DATA
 
         return ERR.OK
@@ -186,16 +168,11 @@ class FileReader(FileFramework):
 
 
     def read_file(self, **kwargs)->ERR:
-        if not self.subReader:
+        try:
+            fileinformation = self.subReader.readout_file(self.filename)
+        except (AttributeError, pd.errors.ParserError):
             return
-        kwargs["filename"] = self.filename
 
-
-        with open(self.filename, 'r', newline='') as openFile:
-            # Set up the reader (even if the file is something else than csv,
-            # because we use another dialect then).
-            fReader = csv.reader(openFile, dialect=self.subReader.dialect)
-            fileinformation = self.subReader.readout_file(fReader, **kwargs)
-            self.timeInfo = fileinformation["timeInfo"]
-            self.data = fileinformation["data"]
-            self.parameter = fileinformation.get("parameter", {})
+        self.timeInfo = fileinformation["timeInfo"]
+        self.data = fileinformation["data"]
+        self.parameter = fileinformation.get("parameter", {})

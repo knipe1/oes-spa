@@ -39,17 +39,17 @@ class SpkReader(BaseReader):
         self.yColumn = self.DATA_STRUCTURE["SPK_DATA_COLUMN"]
 
 
-    def readout_file(self, fReader, **kwargs)->dict:
-        filename = kwargs["filename"]
+    def readout_file(self, filename:str)->dict:
+
+        timeInfo = pd.read_csv(filename, dialect=self.dialect, nrows=1, header=None).loc[0,0]
+        timeInfo = self.get_time_info(timeInfo)
 
         dfFile = pd.read_csv(filename,
-                             header = None,
-                             usecols = [self.xColumn, self.yColumn],
-                             skiprows = 3,
-                             dialect = self.dialect,
-                             skip_blank_lines = True)
-
-        timeInfo = self.get_time_info(next(fReader)[0])
+                              header = None,
+                              usecols = [self.xColumn, self.yColumn],
+                              skiprows = 3,
+                              dialect = self.dialect,
+                              skip_blank_lines = True)
         self.data = dfFile.to_numpy()
 
         information = self.join_information(timeInfo, self.data)

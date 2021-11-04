@@ -33,9 +33,10 @@ def main():
     initialSpkLoad = False
     initialAscLoad = False
     initialSifLoad = False
-    tryDifferentFiles = False
+    initialCsvLoad = False
+    tryDifferentFiles = True
     exportSpectra = False
-    showBatch = True
+    showBatch = False
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
@@ -59,13 +60,15 @@ def main():
     # automatic open and close routine
     if initialSpkLoad:
         window.apply_file("./sample files/Asterix1059 1468.Spk")
-        # window.apply_file('./sample files/SIF/asterix1183-h2plasma433nm-bor-sif.asc')
     if initialAscLoad:
-        # window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
+        window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
     if initialSifLoad:
-        # window.apply_file('./1988_433nm.sif')
+        window.apply_file('./1988_433nm.sif')
         window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+    if initialCsvLoad:
+        window.apply_file('./sample files/Asterix1059 1_raw.csv')
+        window.apply_file('./sample files/Asterix1059 1_processed.csv')
 
 
     if tryDifferentFiles:

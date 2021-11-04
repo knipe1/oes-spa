@@ -333,11 +333,7 @@ class BatchAnalysis(QDialog):
 
 
     def set_setting(self, setting:BasicSetting)->None:
-        validFittings =  []
-        for fit in setting.checkedFittings:
-            if fit.is_valid():
-                validFittings.append(fit)
-        setting.checkedFittings = validFittings
+        setting.checkedFittings = [fitting for fitting in setting.checkedFittings if fitting.is_valid()]
         self.setting = setting
 
 

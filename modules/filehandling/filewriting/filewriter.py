@@ -60,7 +60,8 @@ class FileWriter(FileFramework):
 
     def write_information(self, fWriter:csv.writer, information:dict)->None:
         for key, value in information.items():
-            fWriter.writerow(key + ": " + value)
+            fWriter.writerow([key, value])
+            # fWriter.writerow(key + ": " + value)
 
 
     def write_column_titles(self, fWriter:csv.writer, titles:list)->None:

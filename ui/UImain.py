@@ -215,6 +215,7 @@ class UIMain(Ui_main, QObject):
         for fit in CHECKED_FITTINGS:
             try:
                 ckdIdx = allTexts.index(fit)
+                # TODO: Refactor with constant
                 self.clistFitting.item(ckdIdx).setCheckState(2)
             except ValueError:
                 self._logger.info("Checked fitting not found.")
@@ -361,6 +362,7 @@ class UIMain(Ui_main, QObject):
         # Check out the default directory for fittings.
         for _, _, f in os.walk(self.FITTING["DIR"]):
             for file in f:
+                # TODO: Refactor!
                 # Get the fitting files matching the pattern.
                 if file.rfind(self.FITTING["FILE_PATTERN"]) > -1:
                     # loading the parameter and set up the dict using the

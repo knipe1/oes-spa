@@ -47,55 +47,6 @@ class BaseReader(FileFramework):
         self.data = []
 
 
-    def add_xy_to_data(self, xy):
-        self.data.append(xy)
-
-    def readout_file(self, fReader, **kwargs)->dict:
-
-        marker = self.MARKER["HEADER"]
-
-        parameter = {}
-
-        for line in fReader:
-            markerElement, xDataElement, yDataElement = self.get_information(line)
-
-            if self.is_data(xDataElement, yDataElement):
-                self.add_xy_to_data((xDataElement, yDataElement))
-            elif self.contain_marker(marker, markerElement):
-                timeInfo = self.get_time_info(markerElement)
-            else:
-                self.handle_additional_information(markerElement=markerElement, line=line, parameter=parameter, **kwargs)
-
-        try:
-            information = self.join_information(timeInfo, self.data, parameter)
-        except UnboundLocalError:
-            information = self.join_information(None, None)
-
-        return information
-
-
-    def handle_additional_information(self, **kwargs)->None:
-        # No additional information by default. Child classes can introduce specific methods.
-        return
-
-
-    def get_information(self, line)->(str, str, str):
-        try:
-            markerElement = line[0]
-        except IndexError:
-            # Skip blank lines
-            markerElement = None
-
-        try:
-            xDataElement = line[self.xColumn]
-            yDataElement = line[self.yColumn]
-        except IndexError:
-            xDataElement = None
-            yDataElement = None
-
-        return markerElement, xDataElement, yDataElement
-
-
     def join_information(self, timeInfo:str, data:list, parameter:dict=None)->dict:
 
         if data is not None:
@@ -112,7 +63,7 @@ class BaseReader(FileFramework):
     def list_to_2column_array(self, xyData:list)->np.ndarray:
         xyData = np.array(xyData)
         try:
-            # = xyData.iloc[:, 0] for pandas.DataFrame
+            # Note for x-data: float for pixels, time otherwise
             xData = uni.convert_to_float_or_time(xyData[:, 0])
             yData = uni.convert_to_float_or_time(xyData[:, 1])
             xyData = np.array((xData, yData)).transpose()

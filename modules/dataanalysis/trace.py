@@ -66,20 +66,8 @@ class Trace(Spectrum):
     ## Calculation
 
     def calculate_time_differences(self, timestamps:tuple)->np.ndarray:
-        # diffTimes = [self.get_timediff_H(timestamp) for timestamp in timestamps]
         diffTimes = self.get_timediff_H(timestamps)
         return np.array(diffTimes)
-
-
-    # def get_timediff_H(self, timestamp:datetime)->None:
-    #     try:
-    #         refTime = self.referenceTime
-    #     except AttributeError:
-    #         refTime = timestamp
-    #         self.referenceTime = refTime
-
-    #     diffTime = uni.convert_to_hours(timestamp - refTime)
-    #     return diffTime
 
 
     def get_timediff_H(self, timestamps:datetime)->None:
