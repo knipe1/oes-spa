@@ -30,11 +30,11 @@ def main():
 
     # DIA.dialog_importBatchfile()
 
-    initialSpkLoad = False
-    initialAscLoad = False
+    initialSpkLoad = True
+    initialAscLoad = True
     initialSifLoad = False
     initialCsvLoad = False
-    tryDifferentFiles = True
+    tryDifferentFiles = False
     exportSpectra = False
     showBatch = False
     selectBatchfile = False

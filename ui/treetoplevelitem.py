@@ -26,6 +26,7 @@ class TreeTopLevelItem(TreeWidgetItem):
         self.filename = filename
         self.setText(MultiBatchColumns.COL_FILENAME.value, uni.reduce_path(filename))
 
+        # TODO: handle FileNotFoundError
         file = BaReader(filename)
         self.peakNames = file.data.keys()
 

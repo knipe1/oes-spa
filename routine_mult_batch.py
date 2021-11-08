@@ -20,7 +20,7 @@ import modules.universal as uni
 
 def main():
     """Main program """
-    filename = "./_batch.ba"
+    # filename = "./_batch.ba"
 
 
     # Create an application in which the GUI can be displayed.
@@ -33,11 +33,11 @@ def main():
 
     # routine
 
-    try:
-        box.batchFile = filename
-        box._window.btnAddBatchfile.click()
-    except Exception:
-        pass
+    # try:
+    #     box.batchFile = filename
+    #     box._window.btnAddBatchfile.click()
+    # except Exception:
+    #     pass
 
 
     # box.plot_trace_from_batchfile(box._window.batchlist.get_settings())
