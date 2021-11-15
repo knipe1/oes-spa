@@ -23,6 +23,7 @@ from c_enum.suffices import SUFFICES as SUFF
 # constants
 EXPORT_TIMESTAMP = '%d.%m.%Y %H:%M:%S'
 EXPORT_SUFFIX = SUFF.CSV
+HTML_LINEBREAK = "<br>"
 
 #%% Suffix
 
@@ -167,11 +168,8 @@ def mark_bold_red(label:str)->str:
 
 
 def add_html_linebreaks(*lines)->str:
-    HTMLlinebreak = "<br>"
-    return  HTMLlinebreak.join(lines)
+    return  HTML_LINEBREAK.join(lines)
 
 
-def remove_None_from_iterable(iterable):
-    while None in iterable:
-        iterable.remove(None)
-    return iterable
+def remove_None_from_iterable(*iterable):
+    return tuple((e for e in iterable if e is not None))

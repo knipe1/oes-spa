@@ -263,7 +263,6 @@ class UIMain(Ui_main, QObject):
         else:
             info = None
 
-        # calibrationLabel = self.DEF_LBL_CALIBRATION + info
         self.rcbCalibration.setText(self.DEF_LBL_CALIBRATION, info)
 
 

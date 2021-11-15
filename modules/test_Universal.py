@@ -89,18 +89,11 @@ class TestConvertToTime(unittest.TestCase):
         self.assertTrue(all((isinstance(t, datetime) for t in converted)))
 
 
-    def test_performance(self):
-        import timeit
-        NO = 1_000
-        listStrings = list(self.stringArray)
-        print(timeit.timeit(f"uni.convert_to_time({listStrings})", setup="import modules.universal as uni", number=NO))
-        print(timeit.timeit(f"uni.new_convert_to_time({listStrings})", setup="import modules.universal as uni", number=NO))
-
-        listDatetime = list(self.datetimeArray.copy())
-        print(timeit.timeit(f"uni.convert_to_time({listDatetime})", setup="import modules.universal as uni; import datetime;", number=NO))
-        print(timeit.timeit(f"uni.new_convert_to_time({listDatetime})", setup="import modules.universal as uni; import datetime;", number=NO))
-
-
+    def test_remove_None_from_iterable(self):
+        t = (1, 2, "A", "B", None, [34, None])
+        l = list(t)
+        for iterable in (t, l):
+            self.assertFalse(None in uni.remove_None_from_iterable(iterable))
 
 
 
