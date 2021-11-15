@@ -93,7 +93,7 @@ class TestConvertToTime(unittest.TestCase):
         t = (1, 2, "A", "B", None, [34, None])
         l = list(t)
         for iterable in (t, l):
-            self.assertFalse(None in uni.remove_None_from_iterable(iterable))
+            self.assertFalse(None in uni.remove_None_from_iterable(*iterable))
 
 
 
