@@ -19,6 +19,8 @@ from .filewriter import FileWriter
 
 # constants
 
+BATCH_MARKER = "Filename"
+
 
 class BatchWriter(FileWriter):
     """
@@ -62,7 +64,7 @@ class BatchWriter(FileWriter):
             with open(self.filename, 'r', newline='') as f:
                 fReader = csv.reader(f, dialect=self.dialect)
                 for line in fReader:
-                    if self.MARKER["BATCH"] in line:
+                    if BATCH_MARKER in line:
                         break
                 else:
                     return False

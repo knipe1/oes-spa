@@ -19,22 +19,10 @@ from c_enum.data_column import DATA_COLUMN
 
 class SpkReader(BaseReader):
 
-    ### Properties
-
-    ### __Methods__
-
-    def __init__(self):
-        # Init baseclass providing defaults and config.
-        super().__init__()
-        self.__post_init__()
-
-    def __post_init__(self):
-        self.dialect = self.spectralDialect
-
 
     ### Methods
 
-    def set_columns(self):
+    def _set_columns(self):
         self.xColumn = DATA_COLUMN.PIXEL_COLUMN.value
         self.yColumn = DATA_COLUMN.SPK_DATA_COLUMN.value
 

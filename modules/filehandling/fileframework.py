@@ -7,36 +7,14 @@ Module for general purposes regarding read and write operations.
 """
 
 # standard libs
-import csv
 import logging
-from collections import namedtuple
 from datetime import datetime
-
-# local modules/libs
-
-
-# dialects
-Dialect =  namedtuple("Dialect", ["name", "delimiter", "quoting"])
-
-DIALECT_SPECTRAL = Dialect("spectral", delimiter="\t", quoting=csv.QUOTE_MINIMAL)
-DIALECT_CSV = Dialect("csv", delimiter=",", quoting=csv.QUOTE_MINIMAL)
-
-DIALECTS = [DIALECT_SPECTRAL,
-            DIALECT_CSV,]
-
-for dia in DIALECTS:
-    csv.register_dialect(dia.name, quoting = dia.quoting, delimiter = dia.delimiter)
 
 
 class FileFramework:
 
     # constants
     TIME_NOT_SET = "Not set!"
-
-    MARKER  = {
-        "BATCH": "Filename",
-        "HEADER": "Date",
-    }
 
     # Properties
 
@@ -45,10 +23,9 @@ class FileFramework:
         return self._timestamp
 
     @timeInfo.setter
-    def timeInfo(self, timestamp:datetime):
-        if not timestamp:
-            timestamp = self.TIME_NOT_SET
-        self._timestamp = timestamp
+    def timeInfo(self, timestamp:datetime)->None:
+        """Sets the timeinfo or the default value."""
+        self._timestamp = timestamp or self.TIME_NOT_SET
 
 
     @property
@@ -76,15 +53,3 @@ class FileFramework:
 
     def __repr__(self)->str:
         return self.__class__.__name__
-
-
-    ## properties
-
-    @property
-    def spectralDialect(self):
-        return DIALECT_SPECTRAL.name
-
-
-    @property
-    def csvDialect(self):
-        return DIALECT_CSV.name

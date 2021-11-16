@@ -30,7 +30,7 @@ HEADER_Y_DATA = "Intensity"
 class AscReader(BaseReader):
 
 
-    def set_columns(self):
+    def _set_columns(self):
         self.xColumn = DATA_COLUMN.PIXEL_COLUMN.value
         self.yColumn = DATA_COLUMN.ASC_DATA_COLUMN.value
 

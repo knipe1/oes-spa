@@ -18,6 +18,7 @@ from .basereader import BaseReader
 
 # Enums
 from c_enum.data_column import DATA_COLUMN
+from c_enum.dialect import DIALECT_CSV
 
 # constants
 HEADER_X_DATA = "X"
@@ -33,14 +34,15 @@ class CsvReader(BaseReader):
         super().__init__()
         self.__post_init__()
 
+
     def __post_init__(self):
-        self.dialect = self.csvDialect
+        self.dialect = DIALECT_CSV.name
 
 
     ### Methods
 
 
-    def set_columns(self):
+    def _set_columns(self):
         self.xColumn = DATA_COLUMN.PIXEL_COLUMN.value
         self.yColumn = DATA_COLUMN.CSV_DATA_COLUMN.value
 

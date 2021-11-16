@@ -18,7 +18,7 @@ from ..fileframework import FileFramework
 import modules.universal as uni
 
 # Enums
-from c_enum.data_column import DATA_COLUMN
+from c_enum.dialect import DIALECT_SPECTRAL
 
 class BaseReader(FileFramework):
 
@@ -31,15 +31,12 @@ class BaseReader(FileFramework):
     ### methods
 
     def set_defaults(self):
-        # dialect
-        self.dialect = self.spectralDialect
-        self.set_columns()
-        # subKwargs
-        self.subKwargs = {}
+        self.dialect = DIALECT_SPECTRAL.name
+        self._set_columns()
         self.data = []
 
 
-    def set_columns(self):
+    def _set_columns(self):
         self.xColumn = None
         self.yColumn = None
 
