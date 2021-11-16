@@ -17,7 +17,7 @@ class Dialect:
     delimiter: str
     quoting: int
 
-    def __post_init(self):
+    def __post_init__(self):
         csv.register_dialect(self.name, quoting = self.quoting, delimiter = self.delimiter)
 
 
