@@ -76,7 +76,7 @@ class MultiBatchForm(QWidget):
 
 
     def __post_init__(self):
-
+        # Canvas
         self._traceSpectrum = Multibatch_Canvas(self._window.mplBatch)
         # signals
         self.batchfileChanged.connect(self._window.set_batchfilename)
@@ -95,10 +95,9 @@ class MultiBatchForm(QWidget):
 
     def append_batchfile(self):
         self._logger.info(f"Append Batchfile: {self.batchFile}")
-        if not self.batchFile in self._window.get_batch_filenames():
+        if self.batchFile and self.batchFile not in self._window.get_batch_filenames():
             self.batchfileAdded.emit(self.batchFile)
         self.analysisAdded.emit(self.batchFile)
-
 
 
     def plot_trace_from_batchfile(self, settings:MultiBatchSetting)->None:

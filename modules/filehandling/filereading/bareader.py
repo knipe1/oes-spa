@@ -23,7 +23,7 @@ from exception.InvalidBatchFileError import InvalidBatchFileError
 
 DROP_NAN_COLUMNS = (
     CHC.BASELINE.value,
-    CHC.CHARACTERISTIC_VALUE.value,
+    # CHC.CHARACTERISTIC_VALUE.value,
     CHC.FILENAME.value,
     # CHC.FITTING_FILE.value, # cf. backwards compatibility
     CHC.HEADER_INFO.value,

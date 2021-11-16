@@ -124,7 +124,7 @@ class SpectrumHandler(QDialog):
         self._logger = logging.getLogger(self.__class__.__name__)
 
         if not file.is_valid_spectrum():
-            raise InvalidSpectrumError("File contain no valid spectrum.")
+            raise InvalidSpectrumError("File contains no valid spectrum.")
 
         if useFileWavelength:
             try:

@@ -299,31 +299,34 @@ class BatchAnalysis(QDialog):
 
     def import_batchfile(self, takeCurrentBatchfile:bool=False)->None:
         # Select the file from which the data shall be imported.
-        filename = self._determine_batchfile(takeCurrentBatchfile)
-        if not filename:
-            return
-
-        # Define the specific value which shall be plotted.
-        characteristic = self._window.traceSelection
+        filename = self._determine_batchfilename(takeCurrentBatchfile)
         try:
             batch = BaReader(filename=filename)
         except (FileNotFoundError, InvalidBatchFileError):
+            self._logger.info(f"Could not read batchfile: {filename}")
             return
 
-        # TODO: See #98
+        characteristic = self._window.traceSelection
+        self._format_batchdata(batch, characteristic)
+        self._plot_data(batch.data, characteristic)
+
+
+    def _format_batchdata(self, batch:BaReader, characteristic:str)->None:
         self._traceSpectrum.reset_time()
         for peak in batch.data.keys():
             timestamps, values = batch.get_data(peak, characteristic)
             diffTimes = self._traceSpectrum.calculate_time_differences(timestamps)
-            traceData = np.array((diffTimes, values)).transpose()
+            traceData = np.stack((diffTimes, values), axis=1)
             batch.data[peak] = traceData
 
-        # Plot the trace.
-        self._traceSpectrum.set_custom_yLabel(characteristic)
-        self._traceSpectrum.set_data(batch.data)
+
+    def _plot_data(self, data:dict, label:str)->None:
+        self._traceSpectrum.set_custom_yLabel(label)
+        self._traceSpectrum.set_data(data)
 
 
-    def _determine_batchfile(self, takeCurrentBatchfile:bool)->str:
+
+    def _determine_batchfilename(self, takeCurrentBatchfile:bool)->str:
         """Takes either the current batchfile or opens a dialog to select one."""
         if takeCurrentBatchfile:
             filename = self.batchFile

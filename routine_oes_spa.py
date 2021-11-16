@@ -30,14 +30,14 @@ def main():
 
     # DIA.dialog_importBatchfile()
 
-    initialSpkLoad = True
-    initialAscLoad = True
-    initialSifLoad = True
-    initialCsvLoad = True
+    initialSpkLoad = False
+    initialAscLoad = False
+    initialSifLoad = False
+    initialCsvLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
-    selectBatchfile = False
+    showBatch = True
+    selectBatchfile = True
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
@@ -53,7 +53,7 @@ def main():
 
 
     if test_calibration:
-        window.window.wavelength = "388.8"
+        window.window.wavelength = "433.8"
         window.window.rcbCalibration.setChecked(True)
 
 

@@ -16,6 +16,7 @@ class LineEditOffset(QLineEdit):
         super().__init__(*args, **kwargs)
         # self.setInputMask("0000.0000")
         self.setText("0.0")
-        self.setAlignment(Qt.AlignmentFlag.AlignRight)
-        # self.setMaximumWidth(80)
+        # Works both for version: '5.9.2'
+        self.setAlignment(Qt.AlignRight)
+        # self.setAlignment(Qt.AlignFlag.AlignRight)
         self.textChanged.connect(parent.itemSelectionChanged)

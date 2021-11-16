@@ -37,6 +37,8 @@ class UIMultiBatch(Ui_Form, QObject):
 
     @pyqtSlot(str)
     def add_analysis(self, batchfile:str):
+        if not batchfile:
+            return
         idxItem = self.get_batch_filenames().index(batchfile)
         item = self.batchlist.topLevelItem(idxItem)
         item.addChild()
