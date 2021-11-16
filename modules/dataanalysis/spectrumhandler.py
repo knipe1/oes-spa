@@ -381,7 +381,7 @@ class SpectrumHandler(QDialog):
 
         # Center of the xData. Used for shifting the data.
         rawXData = self.rawXData
-        center = get_center(rawXData)
+        center = uni.get_center(rawXData)
 
         centralWavelength = self.basicSetting.wavelength
         dispersion = self.basicSetting.dispersion
@@ -430,12 +430,6 @@ class SpectrumHandler(QDialog):
             processedYdata = shiftedYdata
 
         return processedYdata, baseline[::invert], avgbase
-
-
-def get_center(data:np.ndarray)->float:
-    centerIdx = np.ceil(len(data) / 2 - 1)  # offset of python lists.
-    center = data[int(centerIdx)]
-    return center
 
 
 def set_type_to_reference(intAreas:dict)->dict:

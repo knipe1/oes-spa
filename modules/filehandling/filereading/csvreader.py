@@ -8,6 +8,8 @@ Created on Fri Sep  4 12:11:22 2020
 
 # standard libs
 import pandas as pd
+import numpy as np
+import datetime as dt
 
 # third-party libs
 
@@ -15,6 +17,7 @@ import pandas as pd
 from .basereader import BaseReader
 
 # Enums
+from c_enum.data_column import DATA_COLUMN
 
 # constants
 HEADER_X_DATA = "X"
@@ -31,36 +34,49 @@ class CsvReader(BaseReader):
         self.__post_init__()
 
     def __post_init__(self):
-        self.set_csv_defaults()
+        self.dialect = self.csvDialect
 
 
     ### Methods
 
-    def set_csv_defaults(self):
-        self.dialect = self.csvDialect
-        self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
-        self.yColumn = self.DATA_STRUCTURE["CSV_DATA_COLUMN"]
+
+    def set_columns(self):
+        self.xColumn = DATA_COLUMN.PIXEL_COLUMN.value
+        self.yColumn = DATA_COLUMN.CSV_DATA_COLUMN.value
 
 
-    def readout_file(self, filename:str):
+    def readout_file(self, filename:str)->(str, np.ndarray, dict):
 
-        dfFile = pd.read_csv(filename,
-                            names = (HEADER_X_DATA, HEADER_Y_DATA),
-                            usecols = [self.xColumn, self.yColumn],
-                            dialect = self.dialect,
-                            skip_blank_lines = True,
-                            )
+        dfFile = pd.read_csv(
+            filename,
+            names = (HEADER_X_DATA, HEADER_Y_DATA),
+            usecols = [self.xColumn, self.yColumn],
+            dialect = self.dialect,
+            skip_blank_lines = True,
+        )
 
-        # starts with a number
-        isnumericIndex = dfFile.iloc[:, 0].str.contains("(^[0-9])")
+        numericIndex = self.get_numerical_index(dfFile)
 
-        data = dfFile[isnumericIndex]
-        self.data = data.to_numpy(dtype=float)
+        self.data = self._get_data(dfFile, numericIndex)
+        parameter, timeInfo = self._get_parameter_and_time(dfFile, numericIndex)
 
-        rawParameter = dfFile[~isnumericIndex].to_numpy()
+        return self.join_information(timeInfo, self.data, parameter)
+
+
+
+    def _get_data(self, df:pd.DataFrame, index:pd.Series)->np.ndarray:
+        return df[index].to_numpy(dtype=float)
+
+
+    def _get_parameter_and_time(self, df:pd.DataFrame, index:pd.Series)->(dict, dt.datetime):
+        rawParameter = df[~index].to_numpy()
+        # Skip the first element (see. time), as well as the last (unused header information).
         parameter = {key:value for key, value in rawParameter[1:-1]}
+        time = self.get_time_info(rawParameter[0, 0])
+        return parameter, time
 
-        timeInfo = self.get_time_info(rawParameter[0, 0])
 
-        information = self.join_information(timeInfo, self.data, parameter)
-        return information
+    @staticmethod
+    def get_numerical_index(df:pd.DataFrame)->pd.Series:
+        """Gets all the indeces with a numerical index."""
+        return df.iloc[:, 0].str.contains("(^[0-9])")

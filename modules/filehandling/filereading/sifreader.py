@@ -30,47 +30,55 @@ CALIBRATION_FACTORS = "Calibration_data"
 
 class SifReader(BaseReader):
 
-    ### Properties
-
-
-    ### __Methods__
-
-
     ### Methods
 
-    def readout_file(self, filename)->dict:
-        """Parameter 'fReader' only required to have the same signature across reader."""
-        file = sif_reader.np_open(filename)
-        yData, parameter = file[0], file[1]
+    def readout_file(self, filename:str)->dict:
+        intensities, parameter = sif_reader.np_open(filename)
 
-        # Data handling.
-        yData = yData.flatten()
-        xData = np.arange(1, yData.size+1)
-        factors = parameter[CALIBRATION_FACTORS]
-        xData = self.self_calibration(xData, factors)
+        wavelength, intensities = self._format_and_calibrate(intensities, parameter)
+        timeInfo = self._format_time(parameter)
+        # Add the central wavelength as parameter.
+        parameter[ASC.WL.value] = self._central_wavelength(wavelength)
 
-        # Parameter handling.
+        return self.join_information(timeInfo, np.array([wavelength, intensities]).T, parameter)
+
+
+    def _format_time(self, parameter:dict)->str:
+        """Formats the time in-place in parameter and also returns it."""
         timeInfo_ms = parameter[NAME_TIME]
         timeInfo = datetime.fromtimestamp(timeInfo_ms)
         parameter[NAME_TIME] = uni.timestamp_to_string(timeInfo)
-        # parameter[ASC.WL.value] = np.round(SH.get_center(xData), 3)
+        return timeInfo
 
-        parameter[ASC.WL.value] = np.round(get_center(xData), 3)
 
-        information = self.join_information(timeInfo, np.array([xData, yData]).T, parameter)
-        return information
+    def _format_and_calibrate(self, intensities:np.ndarray, parameter:dict):
+        """Formats the intensities and calibrate the wavelenght by specified parameter."""
+        intensities = self._format_intensities(intensities)
+        wavelength = self._calibrate(intensities, parameter)
+        return wavelength, intensities
+
+
+    def _format_intensities(self, intensities:np.ndarray)->np.ndarray:
+        return intensities.flatten()
+
+
+    def _calibrate(self, intensities:np.ndarray, parameter:dict):
+        pixel = np.arange(1, intensities.size + 1)
+        factors = parameter[CALIBRATION_FACTORS]
+        return self._sif_calibration(pixel, factors)
 
 
     @staticmethod
-    def self_calibration(rawData:np.ndarray, factors:list)->np.ndarray:
-        data = (factors[0]
-                + rawData * factors[1]
-                + np.power(rawData, 2) * factors[2]
-                + np.power(rawData, 3) * factors[3])
+    def _central_wavelength(wavelength:np.ndarray)->float:
+        return np.round(uni.get_center(wavelength), 3)
+
+
+    @staticmethod
+    def _sif_calibration(pixel:np.ndarray, factors:list)->np.ndarray:
+        data = (
+            factors[0]
+            + pixel * factors[1]
+            + np.power(pixel, 2) * factors[2]
+            + np.power(pixel, 3) * factors[3]
+        )
         return data
-
-
-def get_center(data:np.ndarray)->float:
-    centerIdx = np.ceil(len(data) / 2 - 1)  # offset of python lists.
-    center = data[int(centerIdx)]
-    return center

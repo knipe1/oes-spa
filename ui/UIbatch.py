@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
 from .ui_batch_dialog import Ui_batch
+from modules.multibatchform import MultiBatchForm
 from .matplotlibwidget import MatplotlibWidget
 
 
@@ -73,12 +74,7 @@ class UIBatch(Ui_batch, QObject):
     def __init__(self, parent):
         super().__init__()
         self.setupUi(parent)
-
-        from modules.multibatchform import MultiBatchForm
-        widget = MultiBatchForm(self.tab_multi_batch)
-        # MultiBatchForm(self.frame)
-        # widget.setupUi()
-        # self.tabs.addTab(widget.widget, "Test")
+        MultiBatchForm(self.tab_multi_batch)
 
 
     def get_update_plots(self)->bool:

@@ -156,10 +156,17 @@ def convert_to_time(data:np.ndarray)->np.ndarray:
 def data_are_pixel(data:np.ndarray)->bool:
     """Checks whether the dataset is comprised of pixels."""
     try:
-        arePixel = (data[1]-data[0] == 1)
+        arePixel = (data[1] - data[0] == 1)
     except IndexError:
         arePixel = False
     return arePixel
+
+
+def get_center(data:np.ndarray)->float:
+    """Gets the center data point."""
+    centerIdx = np.ceil(len(data) / 2 - 1)  # offset of python lists.
+    center = data[int(centerIdx)]
+    return center
 
 
 def mark_bold_red(label:str)->str:

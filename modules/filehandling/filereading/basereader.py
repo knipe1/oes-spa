@@ -18,15 +18,9 @@ from ..fileframework import FileFramework
 import modules.universal as uni
 
 # Enums
+from c_enum.data_column import DATA_COLUMN
 
 class BaseReader(FileFramework):
-
-    DATA_STRUCTURE = {
-        "PIXEL_COLUMN": 0,
-        "ASC_DATA_COLUMN": 1,
-        "CSV_DATA_COLUMN": 1,
-        "SPK_DATA_COLUMN": 3,
-    }
 
     ### __Methods__
 
@@ -39,12 +33,15 @@ class BaseReader(FileFramework):
     def set_defaults(self):
         # dialect
         self.dialect = self.spectralDialect
-        # Column indeces
-        self.xColumn = None
-        self.yColumn = None
+        self.set_columns()
         # subKwargs
         self.subKwargs = {}
         self.data = []
+
+
+    def set_columns(self):
+        self.xColumn = None
+        self.yColumn = None
 
 
     def join_information(self, timeInfo:str, data:list, parameter:dict=None)->dict:
@@ -84,27 +81,3 @@ class BaseReader(FileFramework):
             return None
 
         return timestamp
-
-
-    def is_data(self, *elements:str)->bool:
-        try:
-            for element in elements:
-                float(element)
-        except (ValueError, TypeError):
-            return False
-        return True
-
-
-    def contain_marker(self, marker:str, element:str):
-        try:
-            return (marker in element)
-        except TypeError:
-            return False
-
-
-def select_xyData(data:list, line:list, xColumn:int, yColumn:int)->tuple:
-    try:
-        xyData = (line[xColumn], line[yColumn])
-        data.append(xyData)
-    except IndexError:
-        pass

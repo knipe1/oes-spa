@@ -7,6 +7,8 @@ Created on Fri Sep  4 10:29:05 2020
 """
 
 # standard libs
+import pandas as pd
+import numpy as np
 from datetime import datetime
 
 # third-party libs
@@ -16,7 +18,7 @@ from .basereader import BaseReader
 import modules.universal as uni
 
 # Enums
-import pandas as pd
+from c_enum.data_column import DATA_COLUMN
 
 # constants
 DATETIME_MARKER = "Date and Time"
@@ -24,38 +26,25 @@ ASC_TIMESTAMP = '%a %b %d %H:%M:%S.%f %Y'
 HEADER_X_DATA = "Pixel"
 HEADER_Y_DATA = "Intensity"
 
+
 class AscReader(BaseReader):
 
-    ### Properties
+
+    def set_columns(self):
+        self.xColumn = DATA_COLUMN.PIXEL_COLUMN.value
+        self.yColumn = DATA_COLUMN.ASC_DATA_COLUMN.value
 
 
-    ### __Methods__
+    def readout_file(self, filename:str)->dict:
 
-    def __init__(self):
-        # Init baseclass providing defaults and config.
-        super().__init__()
-        self.__post_init__()
-
-    def __post_init__(self):
-        self.set_asc_defaults()
-
-
-    ### Methods
-
-    def set_asc_defaults(self)->None:
-        self.xColumn = self.DATA_STRUCTURE["PIXEL_COLUMN"]
-        self.yColumn = self.DATA_STRUCTURE["ASC_DATA_COLUMN"]
-
-
-    def readout_file(self, filename:str):
-
-        dfFile = pd.read_csv(filename,
-                            names = (HEADER_X_DATA, HEADER_Y_DATA),
-                            header = None,
-                            usecols = [self.xColumn, self.yColumn],
-                            dialect = self.dialect,
-                            skip_blank_lines = True,
-                            )
+        dfFile = pd.read_csv(
+            filename,
+            names = (HEADER_X_DATA, HEADER_Y_DATA),
+            header = None,
+            usecols = [self.xColumn, self.yColumn],
+            dialect = self.dialect,
+            skip_blank_lines = True,
+        )
 
         self.data = self.data_from_DataFrame(dfFile)
         parameter = self.parameter_from_DataFrame(dfFile)
@@ -65,11 +54,11 @@ class AscReader(BaseReader):
         return information
 
 
-    def data_from_DataFrame(self, df:pd.DataFrame):
+    def data_from_DataFrame(self, df:pd.DataFrame)->np.ndarray:
         return df[df[HEADER_Y_DATA].notna()].to_numpy(dtype=float)
 
 
-    def parameter_from_DataFrame(self, df:pd.DataFrame):
+    def parameter_from_DataFrame(self, df:pd.DataFrame)->dict:
         rawParameter = df[df[HEADER_Y_DATA].isna()].to_numpy().T[0]
         parameter = {descriptor:value for descriptor, value in map(asc_separate_parameter, rawParameter)}
         return parameter

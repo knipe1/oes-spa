@@ -13,14 +13,13 @@ import pandas as pd
 # third-party libs
 
 # local modules/libs
-# BaseReader: base class.
-from .basereader import BaseReader
 
 # enums (alphabetical order)
 from c_enum.characteristic import CHARACTERISTIC as CHC
 
 # exceptions
 from exception.InvalidBatchFileError import InvalidBatchFileError
+
 
 DROP_NAN_COLUMNS = (
     CHC.BASELINE.value,
@@ -46,12 +45,12 @@ class BaReader():
 
     ### Methods
 
-    def read_batch(self, filename:str, characteristic:str=None)->dict:
+    def read_batch(self, filename:str, characteristic:str=None)->None:
         df = self._read_file(filename)
-        self.data = self._disjoin_by_peakname(df)
+        self.data = self._data_by_peakname(df)
 
 
-    def get_data(self, peak:str, characteristic:str):
+    def get_data(self, peak:str, characteristic:str)->(pd.Series, pd.Series):
         raw_time = self.data[peak][CHC.HEADER_INFO.value]
         data = self.data[peak][characteristic]
 
@@ -77,7 +76,7 @@ class BaReader():
         return df
 
 
-    def _disjoin_by_peakname(self, df:pd.DataFrame)->dict:
+    def _data_by_peakname(self, df:pd.DataFrame)->dict:
         data = {}
         peakNames = self._get_peak_names(df)
         for peak in peakNames:
