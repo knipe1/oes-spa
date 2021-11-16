@@ -74,6 +74,12 @@ class UIBatch(Ui_batch, QObject):
         super().__init__()
         self.setupUi(parent)
 
+        from modules.multibatchform import MultiBatchForm
+        widget = MultiBatchForm(self.tab_multi_batch)
+        # MultiBatchForm(self.frame)
+        # widget.setupUi()
+        # self.tabs.addTab(widget.widget, "Test")
+
 
     def get_update_plots(self)->bool:
         return self.radSpectra.isChecked()

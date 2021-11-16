@@ -10,6 +10,9 @@ Created on Mon Oct 25 12:08:27 2021
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QHeaderView
 from PyQt5.QtCore import pyqtSignal
 
+# constants
+WIDTH_LAST_COLUMN = 80
+
 
 class TreeWidget(QTreeWidget):
 
@@ -19,8 +22,14 @@ class TreeWidget(QTreeWidget):
         super().__init__(*args, **kwargs)
         self.itemSelectionChanged.connect(self.get_settings)
         header = self.header()
-        header.setSectionResizeMode(QHeaderView.ResizeToContents)
-        # header.setStretchLastSection(False)
+        header.setSectionResizeMode(QHeaderView.Stretch)
+
+
+    def format_layout(self):
+        last_column = self.columnCount() - 1
+        self.setColumnWidth(last_column, WIDTH_LAST_COLUMN)
+        self.header().setSectionResizeMode(last_column, QHeaderView.Fixed)
+        self.setColumnWidth(last_column, WIDTH_LAST_COLUMN)
 
 
     def prependTopLevelItem(self, item:QTreeWidgetItem):

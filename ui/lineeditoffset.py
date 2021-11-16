@@ -17,5 +17,5 @@ class LineEditOffset(QLineEdit):
         # self.setInputMask("0000.0000")
         self.setText("0.0")
         self.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.setMaximumWidth(80)
+        # self.setMaximumWidth(80)
         self.textChanged.connect(parent.itemSelectionChanged)

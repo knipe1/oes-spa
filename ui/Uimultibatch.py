@@ -49,6 +49,7 @@ class UIMultiBatch(Ui_Form, QObject):
     def __init__(self, parent):
         super().__init__()
         self.setupUi(parent)
+        self.batchlist.format_layout()
 
 
     def get_batch_filenames(self):
