@@ -89,10 +89,16 @@ class Trace(Spectrum):
             pass
 
 
+    def trace_is_plotted(self)->None:
+        return hasattr(self, "referenceTime")
+
+
 
     ## Recording
 
     def plot_referencetime_of_spectrum(self, filename:str, timestamp:datetime)->None:
+        if not self.trace_is_plotted():
+            return
         try:
             # Handle incomplete/incorrect spectra.
             relativeTime = self.get_timediff_H(timestamp)
