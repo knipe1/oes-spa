@@ -31,10 +31,10 @@ class YamlLoader():
                 config = yaml.load(ymlFile, Loader=yaml.FullLoader)
             return config
         except yaml.parser.ParserError:
-            print("Could not open configuration. Invalid formatted!")
+            print(f"Could not open configuration. Invalid formatted! Path is: {self._path}")
             return {}
         except FileNotFoundError:
-            print("File not found!")
+            print("File not found! Path is: {self._path}")
             return {}
 
 

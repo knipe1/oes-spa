@@ -75,10 +75,10 @@ class Trace(Spectrum):
             refTime = self.referenceTime
         except AttributeError:
             refTime = timestamps[0]
-            # refTime = timestamps[0].to_pydatetime()
         finally:
             self.referenceTime = refTime
 
+        timestamps = np.asarray(timestamps, dtype='datetime64[s]')
         diffTime = uni.convert_to_hours(timestamps - refTime)
         return diffTime
 

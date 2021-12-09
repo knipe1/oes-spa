@@ -56,12 +56,8 @@ class BaReader():
         data = self.data[peak][characteristic]
 
         time = raw_time.reset_index(drop=True)
-        # time = time.to_numpy(dtype='datetime64[s]')
-        time = np.asarray([t.to_pydatetime() for t in time])
+        time = time.to_numpy(dtype='datetime64[s]')
         return time.copy(), data.copy()
-
-        diffTime = time - time.iloc[0]
-        return diffTime.copy(), data.copy()
 
 
     def _read_file(self, filename:str)->pd.DataFrame:
