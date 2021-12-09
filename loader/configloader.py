@@ -79,6 +79,16 @@ class ConfigLoader(YamlLoader, metaclass=Singleton):
 
 
     @property
+    def calibration(self)->bool:
+        # Providing a default value for backwards compatibility.
+        return self.SETTINGS.get("CALIBRATION", True)
+
+    @calibration.setter
+    def calibration(self, cal:bool):
+        self.config["SETTINGS"]["CALIBRATION"] = cal
+
+
+    @property
     def PRESELECT_FITTING(self):
         return self.FITTING["PRESELECT_FITTING"]
 

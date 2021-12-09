@@ -110,13 +110,11 @@ class UIMain(Ui_main, QObject):
     @property
     def wavelength(self)->float:
         """Get the converted wavelength or None."""
-        wavelength = None
         try:
             wavelength = self.tinCentralWavelength.text()
-            wavelength = float(wavelength)
+            return float(wavelength)
         except ValueError:
             self._logger.error("Could not get valid value for wavelength!")
-        return wavelength
 
     @wavelength.setter
     def wavelength(self, wl:(float, str))->None:
@@ -127,18 +125,31 @@ class UIMain(Ui_main, QObject):
     @property
     def dispersion(self)->float:
         """Get the converted dispersion or None."""
-        dispersion = None
         try:
             dispersion = self.tinDispersion.text()
-            dispersion = float(dispersion)
+            return float(dispersion)
         except ValueError:
             self._logger.error("Could not get valid value for dispersion!")
-        return dispersion
 
     @dispersion.setter
     def dispersion(self, value:(float, str))->None:
         """Sets the given wavelenght dispersion to the ui-element."""
         self.tinDispersion.setText(str(value))
+
+
+    @property
+    def calibration(self)->bool:
+        """Get the converted calibration or None."""
+        try:
+            calibration = self.rcbCalibration.isChecked()
+            return bool(calibration)
+        except ValueError:
+            self._logger.error("Could not get valid value for calibration!")
+
+    @calibration.setter
+    def calibration(self, value:(bool, str))->None:
+        """Sets the given wavelenght calibration to the ui-element."""
+        self.rcbCalibration.setChecked(bool(value))
 
 
     @property
@@ -200,6 +211,7 @@ class UIMain(Ui_main, QObject):
     def _load_settings_from_config(self)->None:
         self.wavelength = self.config.wavelength
         self.dispersion = self.config.dispersion
+        self.calibration = self.config.calibration
 
 
     def _load_fitting_selection_from_config(self)->None:
@@ -449,12 +461,10 @@ class UIMain(Ui_main, QObject):
 
 
     def _save_wavelength_and_dispersion(self)->None:
-        wl = self.wavelength
-        dp = self.dispersion
-
         self.config = ConfigLoader()
-        self.config.wavelength = wl
-        self.config.dispersion = dp
+        self.config.wavelength = self.wavelength
+        self.config.dispersion = self.dispersion
+        self.config.calibration = self.calibration
         self.config.save_config()
 
 
