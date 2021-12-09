@@ -22,7 +22,10 @@ from c_enum.data_column import DATA_COLUMN
 
 # constants
 DATETIME_MARKER = "Date and Time"
-ASC_TIMESTAMP = '%a %b %d %H:%M:%S.%f %Y'
+ASC_TIMESTAMPS = (
+    '%a %b %d %H:%M:%S.%f %Y',
+    '%a %b %d %H:%M:%S %Y',
+)
 HEADER_X_DATA = "Pixel"
 HEADER_Y_DATA = "Intensity"
 
@@ -66,11 +69,12 @@ class AscReader(BaseReader):
 
     def get_time_info(self, parameter:str)->datetime:
         element = parameter[DATETIME_MARKER]
-        try:
-            timestamp = uni.timestamp_from_string(element, ASC_TIMESTAMP)
-        except ValueError:
-            return None
-        return timestamp
+        for timeformat in ASC_TIMESTAMPS:
+            try:
+                return uni.timestamp_from_string(element, timeformat)
+            except ValueError:
+                continue
+        return None
 
 
 ### module-level functions
