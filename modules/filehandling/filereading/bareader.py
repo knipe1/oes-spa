@@ -9,6 +9,7 @@ Created on Wed Nov  4 22:06:55 2020
 
 # standard libs
 import pandas as pd
+import numpy as np
 
 # third-party libs
 
@@ -55,6 +56,9 @@ class BaReader():
         data = self.data[peak][characteristic]
 
         time = raw_time.reset_index(drop=True)
+        # time = time.to_numpy(dtype='datetime64[s]')
+        time = np.asarray([t.to_pydatetime() for t in time])
+        return time.copy(), data.copy()
 
         diffTime = time - time.iloc[0]
         return diffTime.copy(), data.copy()
@@ -72,7 +76,7 @@ class BaReader():
         except KeyError:
             raise InvalidBatchFileError from KeyError
 
-        df[CHC.HEADER_INFO.value] = pd.to_datetime(df[CHC.HEADER_INFO.value])
+        df[CHC.HEADER_INFO.value] = pd.to_datetime(df[CHC.HEADER_INFO.value], dayfirst=True)
         return df
 
 

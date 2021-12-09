@@ -110,7 +110,7 @@ class MultiBatchForm(QWidget):
 
             for s in settings:
                 timestamps, values = batch.get_data(s.peakname, s.characteristic)
-                timeaxis = uni.convert_to_hours(timestamps) + s.xoffset
+                timeaxis = uni.convert_to_hours(timestamps - timestamps[0]) + s.xoffset
                 values += s.yoffset
                 traceData = np.array((timeaxis, values))
                 label = self._setting_to_label(s)

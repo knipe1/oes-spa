@@ -131,7 +131,10 @@ def timedelta_to_hours(timedifference:timedelta)->float:
 
 def convert_to_hours(timedifferences:timedelta)->float:
     """Converts the timedelta into hours."""
-    hours = np.fromiter(map(timedelta_to_hours, timedifferences), dtype=float)
+    try:
+        hours = np.fromiter(map(timedelta_to_hours, timedifferences), dtype=float)
+    except TypeError:
+        hours = timedelta_to_hours(timedifferences)
     return hours
 
 

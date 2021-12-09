@@ -36,7 +36,7 @@ def main():
     initialCsvLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
+    showBatch = True
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
@@ -108,8 +108,8 @@ def main():
 
     if selectBatchfile:
         # Set the Filename
-        test = THR.Thread(target=emu.select_directory)
-        test.start()
+        # test = THR.Thread(target=emu.select_directory)
+        # test.start()
         enter = THR.Thread(target=emu.key_alt_s)
         enter.start()
         # # in case of file already exists
