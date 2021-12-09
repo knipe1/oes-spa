@@ -11,6 +11,7 @@ import os
 import numpy as np
 from enum import Enum
 from datetime import datetime, timedelta
+from collections import Iterable
 
 # third-party libs
 from PyQt5.QtCore import QFileInfo, QUrl, QDir
@@ -131,14 +132,10 @@ def timedelta_to_hours(timedifference:timedelta)->float:
 
 def convert_to_hours(timedifferences:timedelta)->float:
     """Converts the timedelta into hours."""
-    try:
-        if any(isinstance(t, np.timedelta64) for t in timedifferences):
-            timedifferences = (t.item() for t in timedifferences)
-        hours = np.fromiter(map(timedelta_to_hours, timedifferences), dtype=float)
-    except (TypeError, IndexError):
-        # if it is only a single value.
-        hours = timedelta_to_hours(timedifferences)
-    return hours
+    if not isinstance(timedifferences, Iterable):
+        timedifferences = (timedifferences, )
+    timedifferences = (t.item() for t in timedifferences)
+    return np.fromiter(map(timedelta_to_hours, timedifferences), dtype=float)
 
 
 #%% Miscellaneous
