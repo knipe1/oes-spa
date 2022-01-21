@@ -300,6 +300,8 @@ class BatchAnalysis(QDialog):
     def import_batchfile(self, takeCurrentBatchfile:bool=False)->None:
         # Select the file from which the data shall be imported.
         filename = self._determine_batchfilename(takeCurrentBatchfile)
+        if not filename:
+            return
         try:
             batch = BaReader(filename=filename)
         except (FileNotFoundError, InvalidBatchFileError):

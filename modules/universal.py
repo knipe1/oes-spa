@@ -130,7 +130,7 @@ def timedelta_to_hours(timedifference:timedelta)->float:
     return hours
 
 
-def convert_to_hours(timedifferences:timedelta)->float:
+def convert_to_hours(timedifferences:np.timedelta64)->float:
     """Converts the timedelta into hours."""
     if not isinstance(timedifferences, Iterable):
         timedifferences = (timedifferences, )
