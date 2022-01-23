@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""OES-Spectra-Analysis
+"""
+This module is the starting point in running the application from a script.
 
-Single and batch analysis of OES spectra
+It can be tested, whether several different kinds of files can be loaded. And if some error messages appear in case of faulty files.
+
+Moreover, one can display the batch analysis immediately to save time.
+The emulator module is utilized to emulate keyboard actions.
 """
 
 
