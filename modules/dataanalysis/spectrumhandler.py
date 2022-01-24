@@ -173,7 +173,13 @@ class SpectrumHandler(QDialog):
     def fit_data(self, fitting:Fitting)->ERR:
         # Find Peak and obtain height, area, and position
         self.fitting = fitting
-        self._fitting_file = fitting.filename
+
+        # In case no fitting is selected, the spectrum cannot be displayed.
+        try:
+            self._fitting_file = fitting.filename
+        except AttributeError:
+            return ERR.OK
+
         if fitting is None or fitting.peak is None:
             return ERR.OK
 
