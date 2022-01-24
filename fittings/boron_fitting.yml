@@ -1,13 +1,14 @@
 NAME: "Boron Peak Fitting"
+CALIBRATION: "H_gamma-calibration1.dat"
 PEAKS:
-    name: "BH Peak"
+    name: "BH1 Peak"
     centralWavelength: 433.16
     shiftDown: .1
-    shiftUp:  .15
-    normalizationFactor: 14000
+    shiftUp:  .2
+    normalizationFactor: 1.3
     normalizationOffset: 0
     reference:
-        centralWavelength: 434.05
+        centralWavelength: 434.02
         shiftDown: .05
         shiftUp:  .05
         minimumHeight: 0.1

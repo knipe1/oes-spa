@@ -14,7 +14,7 @@ import unittest
 # third-party libs
 
 # local modules/libs
-from modules.dataanalysis.Fitting import Fitting
+from modules.dataanalysis.fitting import Fitting
 
 # Enums
 

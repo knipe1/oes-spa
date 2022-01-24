@@ -18,7 +18,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 # local modules/libs
-from modules.AnalysisWindow import AnalysisWindow
+from modules.analysiswindow import AnalysisWindow
 
 
 class TestUIBatch(unittest.TestCase):

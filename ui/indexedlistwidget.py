@@ -13,8 +13,8 @@ Created on Fri Feb  5 12:17:47 2021
 from PyQt5.QtWidgets import QListWidget
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
-import modules.Universal as uni
+from loader.configloader import ConfigLoader
+import modules.universal as uni
 
 
 BATCH = ConfigLoader().BATCH

@@ -24,20 +24,21 @@ Created on Tue Feb 18 10:10:29 2020
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
-from c_enum.SUFFICES import SUFFICES as SUFF
+from loader.configloader import ConfigLoader
+from c_enum.suffices import SUFFICES as SUFF
 
 # constants
-IMPORT_FILTER = ["Data sets (*.spk *.csv *.asc)",
-               "SpexHex File (*.spk)",
-               "Exported Raw spectrum (*.csv)",
-               "Full information spectrum (*.asc)",
-               ]
+IMPORT_FILTER = [
+    "Data sets (*.spk *.csv *.asc *.sif)",
+    "SpexHex File (*.spk)",
+    "Exported Raw spectrum (*.csv)",
+    "Full information spectrum (*.asc)",
+    "Andor Data Files (*.sif)",
+]
 BATCH_FILTER = ["Batch files (*.ba)",]
 
 # Load the configuration.
-config = ConfigLoader()
-BATCH = config.BATCH
+BATCH = ConfigLoader().BATCH
 
 # Message box
 ## critical
@@ -52,9 +53,9 @@ def critical_invalidSpectrum(parent:QWidget=None)->None:
         Used to determine the location the dialog is placed on the screen.
 
     """
-    title = "Error: Could not load spectrum.";
-    text = "File contains no valid spectrum!";
-    QMessageBox.critical(parent, title, text);
+    title = "Error: Could not load spectrum."
+    text = "File contains no valid spectrum!"
+    QMessageBox.critical(parent, title, text)
 
 
 def critical_unknownSuffix(suffices:list=None, parent:QWidget=None)->None:
@@ -200,11 +201,12 @@ def dialog_batchfile(parent:QWidget=None)->str:
     """
     caption = "Set the filename of the batchfile:";
     filefilter = filefilter_from_list(BATCH_FILTER)
-    defaultFilename = BATCH["DEF_FILENAME"];
+    defaultFilename = BATCH["DEF_FILENAME"]
 
+    selection = QFileDialog().directory().filePath(defaultFilename)
     filename, _ = QFileDialog.getSaveFileName(parent=parent, caption=caption,
-                                              directory=defaultFilename, filter=filefilter);
-    return filename;
+                                              directory=selection, filter=filefilter)
+    return filename
 
 
 def dialog_importBatchfile(parent:QWidget=None)->None:
@@ -219,7 +221,7 @@ def dialog_importBatchfile(parent:QWidget=None)->None:
     caption = "Open batchfile"
     filefilter = filefilter_from_list(BATCH_FILTER)
 
-    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption, filter=filefilter,)
+    filename, _ = QFileDialog.getOpenFileName(parent=parent, caption=caption, filter=filefilter, )
     return filename
 
 
@@ -252,8 +254,8 @@ def filefilter_from_list(filterlist:list)->str:
 
 
 def suffices_to_string(suffices:list)->str:
-    strSuffices = ["." + suffix for suffix in suffices];
-    strSuffices = ", ".join(strSuffices);
+    strSuffices = ["." + suffix for suffix in suffices]
+    strSuffices = ", ".join(strSuffices)
     return strSuffices
 
 

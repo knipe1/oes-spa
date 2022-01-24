@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Toolbar
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
+from loader.configloader import ConfigLoader
 
 PLOT = ConfigLoader().PLOT
 
@@ -67,6 +67,9 @@ class MatplotlibWidget(QWidget):
         """Draw the plot immediately."""
         if self.axes.get_legend_handles_labels()[0]:
             self.axes.legend()
+
+        self.axes.relim(visible_only=True)
+        self.axes.autoscale(axis="y")
 
         if not zoomOn is None:
             self.center_plot(zoomOn)

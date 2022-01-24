@@ -15,7 +15,7 @@ import emulator as emu
 import threading as THR
 
 # local modules/libs
-from loader.ConfigLoader import ConfigLoader
+from loader.configloader import ConfigLoader
 # HINT: import module here
 
 # Enums

@@ -44,6 +44,7 @@ class CheckableListWidget(QListWidget):
                 items.append(self.item(index))
         return items
 
+
     def currentText(self)->str:
         try:
             text = self.selectedItems()[0].text()
@@ -53,7 +54,5 @@ class CheckableListWidget(QListWidget):
 
 
     def allTexts(self)->list:
-        texts = []
-        for i in range(self.count()):
-            texts.append(self.item(i).text())
+        texts = [self.item(i).text() for i in range(self.count())]
         return texts

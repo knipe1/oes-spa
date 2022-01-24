@@ -1,0 +1,35 @@
+BATCH:
+  DEF_FILENAME: _batch
+  INDEX_FORMAT: 4d
+  SEPARATOR: ':'
+FITTING:
+  CHECKED_FITTINGS:
+  - Example Fitting
+  DIR: ./fittings/
+  FILE_PATTERN: fitting.yml
+  PRESELECT_FITTING: Example Fitting
+GENERAL:
+  LOG_FILE: ./debug.log
+PLOT:
+  BASELINE_COLOR: b
+  BASELINE_LABEL: Baseline
+  BATCH_DATA_COLOR: k
+  BATCH_DATA_LABEL: Characteristic
+  BATCH_X_LABEL: Time / h
+  BATCH_Y_LABEL: Characteristic / a.u.
+  DATA_COLOR: r
+  DEF_AXIS_COLOR: '0.2'
+  DEF_LINEWIDTH: 0.8
+  INT_PEAK_COLOR: g
+  INT_REF_COLOR: b
+  PROCESSED_DATA_LABEL: Processed Spectrum
+  PROCESSED_X_LABEL: Wavelength / nm
+  PROCESSED_Y_LABEL: Intensity / a.u.
+  RAW_DATA_LABEL: Raw Spectrum
+  RAW_X_LABEL: Pixel
+  RAW_Y_LABEL: Intensity / a.u.
+  REFERENCE_COLOR: b
+  REFERENCE_LINESTYLE: --
+SETTINGS:
+  DISPERSION: 0.0063011
+  WL: 388.0

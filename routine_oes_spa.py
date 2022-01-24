@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""OES-Spectra-Analysis
+"""
+This module is the starting point in running the application from a script.
 
-Single and batch analysis of OES spectra
+It can be tested, whether several different kinds of files can be loaded. And if some error messages appear in case of faulty files.
+
+Moreover, one can display the batch analysis immediately to save time.
+The emulator module is utilized to emulate keyboard actions.
 """
 
 # standard libs
 import sys
-import LoggerConfig
-try:
-    import sif_reader
-    da = sif_reader.np_open('./sample files/SIF/H2Plasma_433nm_Bor.sif')
-except (FileNotFoundError, ModuleNotFoundError):
-    pass
 
 # third-party libs
-import emulator as emu
-import threading as THR
 from PyQt5.QtWidgets import QApplication
+import threading as THR
+import emulator as emu
+import dialog_messages as DIA
+
 
 # local modules/libs
-from modules.AnalysisWindow import AnalysisWindow
+import loggerconfig
+from modules.analysiswindow import AnalysisWindow
 
 
 
@@ -29,28 +30,33 @@ def main():
     # True
     # False
 
-    initialSpkLoad = True
+    # DIA.dialog_importBatchfile()
+
+    initialSpkLoad = False
     initialAscLoad = False
+    initialSifLoad = False
+    initialCsvLoad = False
     tryDifferentFiles = False
     exportSpectra = False
-    showBatch = False
+    showBatch = True
     selectBatchfile = False
     selectBatchSpectra = False
     hideBatch = False
     activateWD = False
 
-    test_calibration = True
+    test_calibration = False
     noFiles = 50
 
 
     # Setup GUI
     app = QApplication(sys.argv)
-    LoggerConfig.set_up()
+    loggerconfig.set_up()
     window = AnalysisWindow()
 
 
     if test_calibration:
-        window.window.wavelength = "388.8"
+        window.window.wavelength = "433.8"
+        window.window.rcbCalibration.setChecked(True)
 
 
     # automatic open and close routine
@@ -58,7 +64,14 @@ def main():
         window.apply_file("./sample files/Obel276/Obelix276 1 .Spk")
         window.apply_file("./sample files/Asterix1059 1468.Spk")
     if initialAscLoad:
+        window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe
         window.apply_file("./sample files/BH-Peak-Analysis_433nm.asc")
+    if initialSifLoad:
+        window.apply_file('./1988_433nm.sif')
+        window.apply_file('./sample files/SIF/H2Plasma_433nm_Bor.sif')
+    if initialCsvLoad:
+        window.apply_file('./sample files/Asterix1059 1_raw.csv')
+        window.apply_file('./sample files/Asterix1059 1_processed.csv')
 
 
     if tryDifferentFiles:
@@ -98,8 +111,8 @@ def main():
 
     if selectBatchfile:
         # Set the Filename
-        test = THR.Thread(target=emu.select_directory)
-        test.start()
+        # test = THR.Thread(target=emu.select_directory)
+        # test.start()
         enter = THR.Thread(target=emu.key_alt_s)
         enter.start()
         # # in case of file already exists
@@ -108,7 +121,7 @@ def main():
         window.batch._window.btnSetFilename.click()
 
     if selectBatchSpectra:
-        window.window.wavelength = "433.1"
+        # window.window.wavelength = "433.1"
         selection = THR.Thread(target=emu.key_select_file, args=[noFiles])
         selection.start()
         window.batch._browse_spectra()

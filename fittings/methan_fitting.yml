@@ -1,13 +1,9 @@
 NAME: "Methan Peak Fitting"
+CALIBRATION: "CH-Peaks2.dat"
 PEAKS:
-    name: "CN Peak"
-    centralWavelength: 388.3
-    shiftDown: .4
-    shiftUp:  .2
-    normalizationFactor: 12.5
-    normalizationOffset: 1
-    reference:
-        centralWavelength: 388.86
-        shiftDown: .3
-        shiftUp:  .3
-        minimumHeight: 0.01
+    name: "CH Peak"
+    centralWavelength: 388.9
+    shiftDown: .06
+    shiftUp:  .25
+    normalizationFactor: 1
+    normalizationOffset: 0

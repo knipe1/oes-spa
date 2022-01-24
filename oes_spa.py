@@ -10,20 +10,20 @@ it can also analyze multiple files within a 'batch analysis'.
 __author__ = "Peter Knittel, Hauke Wernecke"
 __copyright__ = "Copyright 2019"
 __license__ = ""
-__version__ = "a1"
+__version__ = "1.0"
 __maintainer__ = "Peter Knittel/ Hauke Wernecke"
 __email__ = "peter.knittel@iaf.fraunhhofer.de"
-__status__ = "alpha"
+__status__ = "beta"
 
 # standard libs
 import sys
-import LoggerConfig
+import loggerconfig
 
 # third-party libs
 from PyQt5.QtWidgets import QApplication
 
 # local modules/libs
-from modules.AnalysisWindow import AnalysisWindow
+from modules.analysiswindow import AnalysisWindow
 
 
 def main():
@@ -32,10 +32,9 @@ def main():
     # Setup GUI
     # sys.argv is a list containing the arguments given in the command line
     app = QApplication(sys.argv)
-    LoggerConfig.set_up()
-    window = AnalysisWindow()
+    loggerconfig.set_up()
+    AnalysisWindow()
 
+    # Execute the app as system application. If executed, close the application accordingly.
     sys.exit(app.exec_())
-
-# Run as main if executed and not included
 main()

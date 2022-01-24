@@ -10,7 +10,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>923</width>
+    <width>1200</width>
     <height>1000</height>
    </rect>
   </property>
@@ -68,7 +68,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>250</width>
           <height>0</height>
          </size>
         </property>
@@ -94,8 +94,8 @@
          </item>
          <item>
           <widget class="QLineEdit" name="tinCentralWavelength">
-           <property name="text">
-            <string>433</string>
+           <property name="inputMask">
+            <string>000.0000</string>
            </property>
           </widget>
          </item>
@@ -110,7 +110,21 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="tinDispersion"/>
+          <widget class="QLineEdit" name="tinDispersion">
+           <property name="inputMask">
+            <string>0.00000000</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbInvertSpectrum">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Invert Spectrum</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="lblFitting">
@@ -163,14 +177,14 @@
             <string>Normalize data</string>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cbCalibration">
+          <widget class="RichCheckbox" name="rcbCalibration">
            <property name="text">
-            <string>Enable Calibration</string>
+            <string>Calibration</string>
            </property>
           </widget>
          </item>
@@ -187,7 +201,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>250</width>
           <height>0</height>
          </size>
         </property>
@@ -276,7 +290,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>250</width>
           <height>0</height>
          </size>
         </property>
@@ -756,14 +770,14 @@ wavelength!</string>
          <item>
           <widget class="QListWidget" name="listInformation">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="maximumSize">
             <size>
-             <width>183</width>
+             <width>1000</width>
              <height>1000</height>
             </size>
            </property>
@@ -775,7 +789,7 @@ wavelength!</string>
      </layout>
     </item>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="layoutFile">
       <item>
        <widget class="QLabel" name="lblFilename">
         <property name="sizePolicy">
@@ -864,7 +878,7 @@ wavelength!</string>
       <property name="title">
        <string>Raw Spectrum</string>
       </property>
-      <layout class="QHBoxLayout" name="horLayoutRaw">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -925,7 +939,7 @@ wavelength!</string>
       <property name="title">
        <string>Processed Spectrum</string>
       </property>
-      <layout class="QHBoxLayout" name="horLayoutProcessed">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -973,13 +987,13 @@ wavelength!</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>923</width>
+     <width>1200</width>
      <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;File</string>
+     <string>&amp;Spectrum</string>
     </property>
     <widget class="QMenu" name="menuSave">
      <property name="enabled">
@@ -997,14 +1011,13 @@ wavelength!</string>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>&amp;Tools</string>
+     <string>&amp;Analysis</string>
     </property>
     <addaction name="actOpenBatch"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actOpen">
    <property name="text">
     <string>&amp;Open</string>
@@ -1036,12 +1049,17 @@ wavelength!</string>
   <customwidget>
    <class>MatplotlibWidget</class>
    <extends>QWidget</extends>
-   <header>ui.matplotlibwidget</header>
+   <header location="global">ui.matplotlibwidget</header>
   </customwidget>
   <customwidget>
    <class>CheckableListWidget</class>
    <extends>QListWidget</extends>
    <header location="global">ui.checkablelistwidget</header>
+  </customwidget>
+  <customwidget>
+   <class>RichCheckbox</class>
+   <extends>QCheckBox</extends>
+   <header location="global">ui.richcheckbox</header>
   </customwidget>
  </customwidgets>
  <tabstops>
