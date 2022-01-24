@@ -98,6 +98,7 @@ class UIMain(Ui_main, QObject):
 
     @pyqtSlot(bool)
     def show_diff_wavelength(self, show:bool)->None:
+        """Show or hide the note whether there is a wavelength difference or not."""
         uiElement = self.lblDiffWavelength
         if show:
             uiElement.show()
@@ -112,12 +113,10 @@ class UIMain(Ui_main, QObject):
         """Get the converted wavelength or None."""
         try:
             wavelength = self.tinCentralWavelength.text()
-            wavelength = wavelength.replace(",", ".") # Format if one enters a comma
-            wavelength = float(wavelength)
+            return float(wavelength)
         except:
             self.logger.error("Could not get valid value for wavelength!")
-            wavelength = 0.0
-        return wavelength
+        return None
 
     @wavelength.setter
     def wavelength(self, wl:(float, str))->None:
@@ -162,9 +161,10 @@ class UIMain(Ui_main, QObject):
 
     @fittings.setter
     def fittings(self, fits:dict):
-        """fittings setter
+        """
+        Add the fittings to the list.
 
-        Updating the ui
+        Updates the ui
         """
         self._fittings = fits
         self.clistFitting.addItems(fits.values())
@@ -218,22 +218,32 @@ class UIMain(Ui_main, QObject):
 
 
     def _load_fitting_selection_from_config(self)->None:
+        """Loads the selected and checked fittings from the config."""
         allTexts  = self.clistFitting.allTexts()
-        PRESELECT_FITTING = self.config.PRESELECT_FITTING
+        self._load_selected_fittings(entries=allTexts)
+        self._load_checked_fittings(entries=allTexts)
+
+
+
+    def _load_selected_fittings(self, entries:list)->None:
+        """Loads the fittings from the config."""
         try:
-            preIdx = allTexts.index(PRESELECT_FITTING)
+            preIdx = entries.index(self.config.PRESELECT_FITTING)
             self.clistFitting.setCurrentRow(preIdx)
         except ValueError:
             self._logger.info("No preselected Fitting found.")
 
-        CHECKED_FITTINGS = self.config.CHECKED_FITTINGS
-        for fit in CHECKED_FITTINGS:
+
+    def _load_checked_fittings(self, entries:list)->None:
+        """Load the checked fittings from the config."""
+        for fit in self.config.CHECKED_FITTINGS:
             try:
-                ckdIdx = allTexts.index(fit)
-                # TODO: Refactor with constant
+                ckdIdx = entries.index(fit)
+                # Check the correponding checkbox.
                 self.clistFitting.item(ckdIdx).setCheckState(2)
             except ValueError:
                 self._logger.info("Checked fitting not found.")
+
 
 
     def get_results(self):
