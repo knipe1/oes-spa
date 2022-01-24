@@ -12,6 +12,7 @@ from PyQt5.Qt import Qt
 
 
 class LineEditOffset(QLineEdit):
+    """Extends the lineedit by formatting."""
     def __init__(self, parent, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.setInputMask("0000.0000")

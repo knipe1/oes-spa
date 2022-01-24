@@ -21,6 +21,7 @@ from c_enum.multi_batch_setting import MultiBatchColumns, MultiBatchSetting
 
 
 class TreeChildItem(TreeWidgetItem):
+    """Set explicity as childitem with data from the fitting."""
 
     def init_widgets(self, peakNames:list):
         parentWidget = self.treeWidget()

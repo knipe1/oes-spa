@@ -15,6 +15,7 @@ WIDTH_LAST_COLUMN = 80
 
 
 class TreeWidget(QTreeWidget):
+    """Handling of items in the treewidget."""
 
     treeSettingsChanged = pyqtSignal(dict)
 

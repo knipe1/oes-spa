@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QPushButton
 
 
 class DeleteButton(QPushButton):
+    """Custom delete-button."""
 
     def __init__(self, slot=None, text:str="Delete"):
         super().__init__(text=text)

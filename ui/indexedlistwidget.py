@@ -21,6 +21,7 @@ BATCH = ConfigLoader().BATCH
 
 
 class IndexedListWidget(QListWidget):
+    """Indexes the elements in the list. A normal listwidget otherwise."""
 
     def setItems(self, labels:list)->None:
         """Resets the items and sets the labels as new list."""

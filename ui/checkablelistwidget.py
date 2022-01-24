@@ -17,6 +17,7 @@ from dependencies.natsort.natsort import natsorted
 # local modules/libs
 
 class CheckableListWidget(QListWidget):
+    """Adds the option to check and uncheck items in the listwidget."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

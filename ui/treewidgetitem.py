@@ -20,6 +20,7 @@ from ui.deletebutton import DeleteButton
 
 
 class TreeWidgetItem(QTreeWidgetItem):
+    """Extens the funcionality by a delete-button."""
 
     def init_widgets(self, parent):
         self.add_delete_as_widget(parent)

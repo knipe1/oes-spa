@@ -11,7 +11,6 @@ import functools as fct
 
 # third-party libs
 from PyQt5.QtCore import QObject, Slot
-from PyQt5.QtWidgets import QAbstractItemView
 
 # local modules/libs
 from .ui_batch_dialog import Ui_batch

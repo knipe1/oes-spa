@@ -44,6 +44,9 @@ from c_types.basicsetting import BasicSetting
 from c_enum.characteristic import CHARACTERISTIC as CHC
 
 
+CALIBRATION_ERROR = "Calibration Error"
+
+
 class UIMain(Ui_main, QObject):
     """
     Provides an interface for the UI of the main window.
@@ -246,16 +249,36 @@ class UIMain(Ui_main, QObject):
 
 
 
-    def get_results(self):
-        results = {CHC.PEAK_HEIGHT.value: self.toutPeakHeight.text(),
-                   CHC.PEAK_AREA.value: self.toutPeakArea.text(),
-                   CHC.BASELINE.value: self.toutBaseline.text(),
-                   self.lblCharacteristicValue.text(): self.toutCharacteristicValue.text(),
-                   }
-        return results
+    def get_results(self)->dict:
+        """Retrive the Height, area, baseline and characteristic value as dict."""
+        return {
+            CHC.PEAK_HEIGHT.value: self.toutPeakHeight.text(),
+            CHC.PEAK_AREA.value: self.toutPeakArea.text(),
+            CHC.BASELINE.value: self.toutBaseline.text(),
+            self.lblCharacteristicValue.text(): self.toutCharacteristicValue.text(),
+        }
 
 
-    def set_results(self, spectrumHandler:SpectrumHandler):
+    def set_results(self, spectrumHandler:SpectrumHandler)->None:
+        self._set_result_values(spectrumHandler)
+        self._set_peak_name(spectrumHandler)
+        self._set_calibration_shift(spectrumHandler)
+
+
+    def _set_result_values(self, spectrumHandler:SpectrumHandler)->None:
+        cwlInfo = self._get_peak_information(spectrumHandler)
+
+        self.toutPeakHeight.setText(format_result(spectrumHandler.results[CHC.PEAK_HEIGHT]) + cwlInfo)
+        self.toutPeakArea.setText(format_result(spectrumHandler.results[CHC.PEAK_AREA]))
+        self.toutBaseline.setText(format_result(spectrumHandler.results[CHC.BASELINE]))
+        self.toutCharacteristicValue.setText(format_result(spectrumHandler.results[CHC.CHARACTERISTIC_VALUE]))
+
+
+    def _get_peak_information(self, spectrumHandler:SpectrumHandler)->str:
+        """
+        Gets the peak position if fitted. 0.0 otherwise.
+        Returns the formatted value.
+        """
         if spectrumHandler.peakPosition:
             cwl = spectrumHandler.peakPosition
         else:
@@ -263,15 +286,11 @@ class UIMain(Ui_main, QObject):
                 cwl = spectrumHandler.fitting.peak.centralWavelength
             except AttributeError:
                 cwl = 0.0
-        cwlInfo = f" (@{format_result(cwl)})"
+        return f" (@{format_result(cwl)})"
 
-        self.toutPeakHeight.setText(
-            format_result(spectrumHandler.results[CHC.PEAK_HEIGHT]) + cwlInfo)
-        self.toutPeakArea.setText(format_result(spectrumHandler.results[CHC.PEAK_AREA]))
-        self.toutBaseline.setText(format_result(spectrumHandler.results[CHC.BASELINE]))
-        self.toutCharacteristicValue.setText(
-            format_result(spectrumHandler.results[CHC.CHARACTERISTIC_VALUE]))
 
+    def _set_peak_name(self, spectrumHandler:SpectrumHandler)->None:
+        """Sets the peak name if fitted. Default otherwise."""
         try:
             peakName = spectrumHandler.fitting.peak.name + ":"
         except AttributeError:
@@ -279,20 +298,18 @@ class UIMain(Ui_main, QObject):
         self.lblCharacteristicValue.setText(peakName)
 
 
+    def _set_calibration_shift(self, spectrumHandler:SpectrumHandler)->None:
+        """Sets the shift or an error message."""
         shift = spectrumHandler.results[CHC.CALIBRATION_SHIFT]
         if self.rcbCalibration.isChecked():
             if shift is None:
-                info = uni.mark_bold_red("Calibration Error")
+                info = uni.mark_bold_red(CALIBRATION_ERROR)
             else:
                 info = format_shift(shift)
         else:
             info = None
 
         self.rcbCalibration.setText(self.DEF_LBL_CALIBRATION, info)
-
-
-
-
 
 
     # Connect methods: Provides at least one event (signal) to connect to a
@@ -370,11 +387,9 @@ class UIMain(Ui_main, QObject):
         """
         Retrieve all fitting files of the directory of fittings.
 
-        Requirements: Path and pattern of fitting files provided by the config
-            file.
+        Requirements: Path and pattern of fitting files provided by the config file.
             UI element to display the fitting names.
-            Interface to connect the event to a load currently selected
-            fitting method/function.
+            Interface to connect the event to a load currently selected fitting method/function.
 
         Returns
         -------
@@ -432,6 +447,7 @@ class UIMain(Ui_main, QObject):
 
 
     def get_basic_setting(self)->BasicSetting:
+        """Gets the current options of the setting and setup a new BasicSetting."""
         selectedFitting = self._load_fitting(self.clistFitting.currentText(), showError=True)
         checkedFittings = self.clistFitting.checkedItems()
         checkedFittings = [self._load_fitting(t.text()) for t in checkedFittings]

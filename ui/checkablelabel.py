@@ -12,6 +12,7 @@ from PyQt5.QtCore import pyqtSignal
 
 
 class CheckableLabel(QLabel):
+    """Emits a mousePress event. May be used to connect it to an button, but with custom label."""
     clicked=pyqtSignal()
 
     def mousePressEvent(self, ev):

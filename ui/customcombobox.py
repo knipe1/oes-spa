@@ -4,6 +4,11 @@
 Created on Mon Nov  1 10:58:46 2021
 
 @author: hauke
+
+
+Comboboxes with options declared at instanciation.
+
+Usage: See derived classes CharacteristicComboBox and PeakComboBox.
 """
 
 # standard libs

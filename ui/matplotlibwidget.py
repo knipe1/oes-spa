@@ -27,6 +27,9 @@ if PLOT:
 
 
 class MplCanvas(Canvas):
+    """A matplotlib canvas to plot the data.
+    Can be loaded in qt-designer."""
+
     def __init__(self, dpi=100)->None:
         # Init a figure before init super, because figure is a arg of super.
         self.figure = mpl.Figure(dpi=dpi)

@@ -21,6 +21,9 @@ from ui.treechilditem import TreeChildItem
 from c_enum.multi_batch_setting import MultiBatchColumns
 
 class TreeTopLevelItem(TreeWidgetItem):
+    """Set this item explicit as toplevel item with data corresponding to the batch-file."""
+
+
     def __init__(self, filename:str):
         super().__init__()
         self.filename = filename
