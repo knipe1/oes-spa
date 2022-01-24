@@ -56,13 +56,15 @@ class FileWriter(FileFramework):
 
     def write_header(self, fWriter:csv.writer, timestamp:datetime)->None:
         strTimestamp = uni.timestamp_to_string(timestamp)
-        header =  self.MARKER["HEADER"] + " " + strTimestamp
+        header =  HEADER_MARKER + " " + strTimestamp
         fWriter.writerow([header])
+
 
 
     def write_information(self, fWriter:csv.writer, information:dict)->None:
         for key, value in information.items():
-            fWriter.writerow([key + ": " + value])
+            fWriter.writerow([key, value])
+
 
 
     def write_column_titles(self, fWriter:csv.writer, titles:list)->None:
