@@ -257,7 +257,6 @@ class BatchAnalysis(QDialog):
     ### Methods/Analysis
 
     def analyze_single_file(self, filename:str)->None:
-
         thread = Appender()
         thread.fileValidated.connect(self.add_file)
         # thread.importBatchTriggered.connect(self.update_batch)

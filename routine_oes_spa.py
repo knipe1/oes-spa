@@ -9,8 +9,6 @@ Moreover, one can display the batch analysis immediately to save time.
 The emulator module is utilized to emulate keyboard actions.
 """
 
-
-
 # standard libs
 import sys
 
@@ -63,6 +61,7 @@ def main():
 
     # automatic open and close routine
     if initialSpkLoad:
+        window.apply_file("./sample files/Obel276/Obelix276 1 .Spk")
         window.apply_file("./sample files/Asterix1059 1468.Spk")
     if initialAscLoad:
         window.apply_file("./sample files/acq_3832_388nm.asc") # Inverted spectrum probe

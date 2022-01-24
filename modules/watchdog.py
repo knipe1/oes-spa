@@ -22,7 +22,6 @@ class Watchdog(QObject):
     ## Signals
     dog_alive = pyqtSignal(bool)
 
-
     ## Slots
     @pyqtSlot(str)
     def set_directory(self, directory:str)->None:
@@ -74,6 +73,7 @@ class Watchdog(QObject):
     def reset_observer(self)->None:
         self.observer = Observer()
         self.observer.daemon = True
+
 
 
     def is_alive(self)->bool:

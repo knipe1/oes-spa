@@ -1,0 +1,28 @@
+# Example/Muster
+# Name of the Fitting: Displayed in the menu
+# IMPORTANT: The filename of the fitting has to end with '_fitting.yml', which is defined in the config.yml-file.
+NAME: "Example Fitting"
+CALIBRATION: "CH-Peaks2.dat"
+# 1-n Peaks:
+PEAKS:
+    # name indicates the naming of the peak. Might be useful in extracting information.
+    name: "Example Peak"
+    # central wavelength of the peak
+    centralWavelength: 389.8
+    # limits of integration for that peak
+    shiftDown: .1
+    shiftUp:  .2
+    # normalizationFactor may be used to fit a specific concentration
+    # to the value of 1 (characteristic Value)
+    normalizationFactor: 100
+    # normalizationOffset can compensate for background comtamination
+    normalizationOffset: 1
+    normalizationFactorSquared: 2.
+    reference:
+        # central wavelength of the reference peak
+        centralWavelength: 388.8
+        # limits of integration for that reference peak
+        shiftDown: .2
+        shiftUp:  .2
+        # Minimum to use the peak.
+        minimumHeight: 0.00002

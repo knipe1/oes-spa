@@ -56,7 +56,7 @@ class ConfigLoader(YamlLoader, metaclass=Singleton):
         return self.GENERAL.get("LOG_FILE")
 
     @logFile.setter
-    def logFile(self, logfile):
+    def logFile(self, logfile:str):
         self.config["GENERAL"]["LOG_FILE"] = logfile
 
 

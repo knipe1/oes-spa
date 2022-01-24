@@ -3,6 +3,8 @@ __pycache__
 sample files/trash
 modules/__pycache__
 ui/__pycache__
+sample\ files
+fittings
 *.ba
 *.png
 *raw.csv

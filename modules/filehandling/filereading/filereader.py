@@ -96,6 +96,9 @@ class FileReader(FileFramework):
         super().__init__(filename)
         self.set_defaults()
         self.subReader = self.determine_subReader()
+        if self.subReader is None:
+            self.logger.info("No valid file: {self.filename}")
+            return
 
         # self._logger.info("Read file: %s", self.filename)
         self.__post_init__(**kwargs)

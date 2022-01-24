@@ -1,5 +1,0 @@
-t = 2.08 / 12.04.19 16:46
-Belichtungszeit konstant auf 15sec, um Bor Peak im Nachhinein vergleichen zu können
-
-t = 2.14 / 16:49
-Bel zeit wieder auf Autoskalierung, da Baseline benutzt werden kann

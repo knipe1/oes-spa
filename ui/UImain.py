@@ -112,9 +112,12 @@ class UIMain(Ui_main, QObject):
         """Get the converted wavelength or None."""
         try:
             wavelength = self.tinCentralWavelength.text()
-            return float(wavelength)
-        except ValueError:
-            self._logger.error("Could not get valid value for wavelength!")
+            wavelength = wavelength.replace(",", ".") # Format if one enters a comma
+            wavelength = float(wavelength)
+        except:
+            self.logger.error("Could not get valid value for wavelength!")
+            wavelength = 0.0
+        return wavelength
 
     @wavelength.setter
     def wavelength(self, wl:(float, str))->None:
